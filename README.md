@@ -13,6 +13,6 @@ Features
     Designed for manual driven warehouses
     Barcode/RFID identification, mobile terminals for paperless processes
     Modular/ SOA architecture
-    Supported technologies: JEE6, JBoss/Wildfly, Netbeans RCP, iReport, SOAP
-    Supports Wildfly 8 and Java 1.8 now!
+    Supported technologies: JEE7, JBoss/Wildfly, Netbeans RCP, iReport, SOAP
+    Supports Wildfly 16 and Java 11
 
