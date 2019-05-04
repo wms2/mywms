@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>project-ear</artifactId>
+	<packaging>ear</packaging>
+
+	<parent>
+		<groupId>de.wms2.mywms</groupId>
+		<artifactId>mywms</artifactId>
+		<version>2-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>mywms.as-ejb</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>mywms.as-ejb</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>wms2-ejb</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>los-ejb</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>los.mobile-ejb</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>project-ejb</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>project-persistence</artifactId>
+            <version>${project.version}</version>
+			<type>ejb</type>
+        </dependency>
+
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
+            <artifactId>los.mobile-web</artifactId>
+            <version>${project.version}</version>
+			<type>war</type>
+        </dependency>
+
+		<!-- apache -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${version.apache.commons-lang}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>${version.apache.commons-collections}</version>
+			<type>jar</type>
+		</dependency>
+
+		<!-- jasper -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>${version.jasperreports}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.barbecue</groupId>
+			<artifactId>barbecue</artifactId>
+			<version>1.5-beta1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jdt.core.compiler</groupId>
+			<artifactId>ecj</artifactId>
+			<version>4.6.1</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
+    </dependencies>
+
+	<build>
+		<finalName>mywms</finalName>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ear-plugin</artifactId>
+				<version>${version.maven-ear-plugin}</version>
+				<configuration>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+					<modules>
+						<webModule>
+							<groupId>de.wms2.mywms</groupId>
+							<artifactId>los.mobile-web</artifactId>
+							<contextRoot>los-mobile</contextRoot>
+						</webModule>
+					</modules>
+					<outputFileNameMapping>@{artifactId}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

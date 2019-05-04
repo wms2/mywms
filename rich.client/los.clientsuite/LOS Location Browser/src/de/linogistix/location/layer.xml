@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+    <!-- Define location actions -->
+    <folder name="Actions">
+        <folder name="BOBrowser">
+            <folder name="Racks">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-location-dialog-BORackLocationOrderAction.instance"/>
+                </folder>
+            </folder>
+            <folder name="LOSUnitLoads">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
+                    <!--
+                    Please import this in your project module.
+                    The problem is, that it cannot be hidden in inventory browser. This is using it's own overwriting action
+                    <file name="de-linogistix-location-bobrowser-action-BOUnitLoadNirwanaAction.instance"/>
+                    -->
+                </folder>
+            </folder>
+            <folder name="StorageLocations">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
+                </folder>
+                <folder name="MasterActions">
+                    <file name="de-linogistix-location-bobrowser-action-BOStorageLocationReleaseAction.instance"/>
+                </folder>
+            </folder>
+            <folder name="RackLocations">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+    <!-- Configuration of generic LOS Entity Browser -->
+    <folder name="BOBrowser">
+        <folder name="MasterData">
+            <!-- Localizing key : BOBrowser/MasterData -->
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.location.res.Bundle"/>
+            <attr name="position" intvalue="200"/>
+            
+            <folder name="Location">
+                <!-- Localizing key : BOBrowser/MasterData/Location -->
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.location.res.Bundle"/>
+                <attr name="position" intvalue="100"/>
+                
+                <file name="de-linogistix-location-bobrowser-bo-BOZone.instance">
+                    <attr name="position" intvalue="110"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOLOSLocationCluster.instance">
+                    <attr name="position" intvalue="120"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOArea.instance">
+                    <attr name="position" intvalue="130"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOLOSWorkingArea.instance">
+                    <attr name="position" intvalue="140"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOLOSWorkingAreaPosition.instance">
+                    <attr name="position" intvalue="145"/>
+                </file>
+
+                <file name="de-linogistix-location-bobrowser-bo-BOUnitLoadType.instance">
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOLOSStorageLocationType.instance">
+                    <attr name="position" intvalue="210"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOLOSTypeCapacityConstraint.instance">
+                    <attr name="position" intvalue="220"/>
+                </file>
+
+                <file name="de-linogistix-location-bobrowser-bo-BORack.instance">
+                    <attr name="position" intvalue="310"/>
+                </file>
+                <file name="de-linogistix-location-bobrowser-bo-BOStorageLocation.instance">
+                    <attr name="position" intvalue="350"/>
+                </file>
+
+                <file name="de-linogistix-location-bobrowser-bo-BOLOSFixedAssignment.instance">
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+            
+        </folder>
+
+        <folder name="InventoryData">
+            <!-- Localizing key : BOBrowser/InventoryData -->
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.location.res.Bundle"/>
+            <attr name="position" intvalue="300"/>
+            
+            <file name="de-linogistix-location-bobrowser-bo-BOLOSUnitLoad.instance">
+                <attr name="position" intvalue="400"/>
+            </file>
+            
+        </folder>
+        
+        <folder name="TransactionData">
+            <!-- Localizing key : BOBrowser/TransactionData -->
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.location.res.Bundle"/>
+            <attr name="position" intvalue="500"/>
+            
+            <file name="de-linogistix-location-bobrowser-bo-BOLOSUnitLoadRecord.instance">
+                <attr name="position" intvalue="1000"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

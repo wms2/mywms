@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.wms2.mywms</groupId>
+	<artifactId>mywms</artifactId>
+	<version>2-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<organization>
+		<name>${project.groupId}</name>
+	</organization>
+
+	<modules>
+		<module>mywms.as-ejb</module>
+		<module>los-ejb</module>
+		<module>los.ws-ejb</module>
+		<module>los.mobile-ejb</module>
+		<module>los.mobile-web</module>
+		<module>wms2-ejb</module>
+		<module>project-ejb</module>
+		<module>project-persistence</module>
+		<module>project-ear</module>
+	</modules>
+
+	<properties>
+        <pom.version>2-SNAPSHOT</pom.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.maven-compiler-plugin>3.8.0</version.maven-compiler-plugin>
+		<version.maven-jar-plugin>3.1.1</version.maven-jar-plugin>
+		<version.maven-surefire-plugin>2.22.1</version.maven-surefire-plugin>
+		<version.maven-javadoc-plugin>3.1.0</version.maven-javadoc-plugin>
+		<version.maven-ear-plugin>3.0.1</version.maven-ear-plugin>
+        
+		<version.jasperreports>6.8.0</version.jasperreports>
+        <version.jboss-ejb3-ext-api>2.2.0.Final</version.jboss-ejb3-ext-api>
+        <version.org.jboss.ws>1.1.2.Final</version.org.jboss.ws>
+
+        <timestamp>${maven.build.timestamp}</timestamp>
+
+		<version.apache.poi>4.0.0</version.apache.poi>
+		<version.apache.commons-lang>3.8.1</version.apache.commons-lang>
+		<version.apache.commons-collections>4.2</version.apache.commons-collections>
+		<version.pdfbox>2.0.11</version.pdfbox>
+	</properties>
+
+	<dependencies>
+		<!-- apache -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${version.apache.commons-lang}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Java EE 7 -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+        <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+
+	</dependencies>
+
+</project>

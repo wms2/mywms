@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.linogistix.inventory
+OpenIDE-Module-Layer: de/linogistix/inventory/layer.xml
+OpenIDE-Module-Localizing-Bundle: de/linogistix/inventory/res/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3
+

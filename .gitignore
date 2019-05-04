@@ -1,0 +1,16 @@
+/dev/**/.project
+/dev/**/.settings/
+/dev/**/.classpath
+/dev/**/target/
+/eclipse
+/netbeans
+/rich.client/**/build/
+/rich.client/**/nbproject/private/
+/rich.client/**/dist/
+/rich.client/los.clientsuite/LOS Common EJB-Library/release/modules/ext/los-ejb.jar
+/rich.client/los.clientsuite/myWMS EJB-Library/release/modules/ext/mywms.as-ejb.jar
+/rich.client/los.clientsuite/nbplatform/
+/rich.client/los.reference/Project EJB-Library/release/modules/ext/project-ejb.jar
+/tmp/
+/todo.txt
+/workspace/

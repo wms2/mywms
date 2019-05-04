@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="http://schema.linogistix.com/bobeandescriptor" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import schemaLocation="l8x-bobeandescriptor.xsd"/>
+
+  <xs:element name="boBeanNodeDescriptor" type="boBeanNodeDescriptor"/>
+
+
+  <xs:element name="propertyDescriptorElement" type="propertyDescriptorElement"/>
+
+
+  <xs:element name="propertyGroupElement" type="propertyGroupElement"/>
+
+</xs:schema>
+

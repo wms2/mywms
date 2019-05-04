@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="boBeanNodeDescriptor" final="extension restriction">
+    <xs:sequence>
+      <xs:element name="descriptions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="propertyDescriptorElement"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="forClass" type="xs:string" minOccurs="0"/>
+      <xs:element name="groups" type="propertyGroupElement" nillable="true" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="propertyDescriptorElement" final="extension restriction">
+    <xs:sequence>
+      <xs:element name="group" type="propertyGroupElement" minOccurs="0"/>
+      <xs:element name="hidden" type="xs:boolean"/>
+      <xs:element name="inlineObject" type="xs:boolean"/>
+      <xs:element name="position" type="xs:int"/>
+      <xs:element name="typeHint" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="propertyGroupElement" final="extension restriction">
+    <xs:sequence>
+      <xs:element name="groupPosition" type="xs:int"/>
+      <xs:element name="hidden" type="xs:boolean"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="descriptionTree"/>
+
+  <xs:complexType name="descriptorBinder" final="extension restriction"/>
+</xs:schema>
+

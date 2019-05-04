@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:boBeanNodeDescriptor xmlns:ns2="http://schema.linogistix.com/bobeandescriptor">
+    <descriptions>
+        
+        <entry>
+            <key>name</key>
+            <value>
+                <group>
+                    <name>file</name>
+                </group>
+                <hidden>false</hidden>
+                <position>1</position>
+            </value>
+        </entry>
+        
+        <entry>
+            <key>type</key>
+            <value>
+                <group>
+                    <name>file</name>
+                </group>
+                <hidden>false</hidden>
+                <position>2</position>
+            </value>
+        </entry>
+        
+        <entry>
+            <key>size</key>
+            <value>
+                <group>
+                    <name>file</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
+        
+        <entry>
+            <key>document</key>
+            <value>
+                <group>
+                    <name>file</name>
+                </group>
+                <hidden>true</hidden>
+                <position>1</position>
+            </value>
+        </entry>
+        
+    </descriptions>
+    <groups>
+        <groupPosition>10</groupPosition>
+        <hidden>false</hidden>
+        <name>main</name>
+    </groups>
+    <groups>
+        <groupPosition>11</groupPosition>
+        <hidden>false</hidden>
+        <name>file</name>
+    </groups>
+    
+</ns2:boBeanNodeDescriptor>

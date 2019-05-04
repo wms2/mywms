@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.linogistix.location
+OpenIDE-Module-Layer: de/linogistix/location/layer.xml
+OpenIDE-Module-Localizing-Bundle: de/linogistix/location/res/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3
+

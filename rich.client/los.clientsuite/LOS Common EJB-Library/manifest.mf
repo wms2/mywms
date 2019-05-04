@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.linogistix.los.common.ejb
+OpenIDE-Module-Localizing-Bundle: de/linogistix/los/common/ejb/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

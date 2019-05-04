@@ -1,0 +1,104 @@
+/*
+  Copyright (c) 2006 - 2010 LinogistiX GmbH
+
+  www.linogistix.com
+  
+  Project: myWMS-LOS
+*/
+
+body{
+	background-color: #C0C0C0;
+}    
+
+.verticalscroll {
+    position: absolute;
+    height:100%; width:100%; 
+    overflow-y:auto;
+    overflow-x:hidden;    
+    background-color: #cccccc;
+}
+
+.form {
+	font-family:Arial,Helvetica,sans-serif; 
+	background-color: #C0C0C0;
+	margin-left:0px;
+	margin-top:0px;
+	margin-bottom:0px;
+	border: none;
+}
+
+
+.pagetitle	{color:#f8b300; font-weight:bold; font-size:large; background-color:#707070; padding-right:20px;}
+.label		{color:#000000; font-weight:normal; width:100%;}
+.labelBold	{color:#000000; font-weight:bold;}
+.labelRight	{color:#000000; font-weight:normal; text-align:right;}
+.labelBlue	{color:#008000; font-weight:normal;}
+.labelBoldBlue {color:#008000; font-weight: bold;}
+.param		{color:#404040; font-weight:normal;}
+.value		{color:#000000; font-weight:bold;}
+.link		{color:#0000FF; font-weight:normal;}
+.logo		{position:absolute; top:4px; right:4px;}
+.info		{color:#404040; font-weight:normal;}
+.infoBold	{color:#404040; font-weight:bold;}
+.infoSmall	{color:#705204; font-weight:normal; font-size:small;}
+
+
+.space {
+    padding-left:5px;
+    background-color: #C0C0C0;
+    padding-right:18px;
+}
+
+.divall {
+    background-color: #C0C0C0;
+}
+
+.buttonbar{
+	background-color:#C0C0C0;
+	padding-left:5px; padding-top:10px;
+	margin-bottom:0px; margin-top:0px
+}
+
+.info{
+  background-color: #C0C0C0
+}
+
+.error{
+  color: red;
+  background-color: #C0C0C0;
+  margin-left:0px;
+  margin-top:0px;
+  margin-bottom:0px;
+  border: none;  
+}
+
+.input{
+  background-color: #ffffff;
+  width:100%;
+}
+
+.table {
+    table-layout:fixed;
+    border-collapse:collapse;
+    border:0px;
+    width:100%;
+}
+
+
+.commandButton		{background-color: #f8b300; padding-top:10px; padding-bottom:10px; width:96px;}
+.lowCommandButton	{background-color: #f8b300; padding-top:10px; padding-bottom:10px; width:96px; height:20px;}
+.navigateButton  	{background-color: #f8b300; padding-top:10px; padding-bottom:10px; width:48px;}
+.commandButton2		{background-color: #f8b300; padding-top:5px; padding-bottom:5px; width:96px;}
+
+
+
+
+/*---- Paragraphs ---- */
+p{background-color: #C0C0C0}
+p.pageheader{background-color: #707070;padding-left:5px;padding-bottom:0px;padding-top:0px;margin-bottom:0px;margin-top:0px}
+p.buttonbar{background-color: #CCCCCC;padding-bottom:0px;padding-top:10px;margin-bottom:0px;margin-top:0px}
+p.info{background-color: #ccff99;padding-left:4px;margin-bottom:5px;margin-top:5px}
+
+
+
+

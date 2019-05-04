@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+     <!-- Add Excel export action as toolbar icon -->
+    <folder name="Toolbars">
+        <folder name="ExportToolBar">
+            <file name="de-linogistix-reports-action-BOExportExcelAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/System/de-linogistix-reports-action-BOExportExcelAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    
+    
+</filesystem>

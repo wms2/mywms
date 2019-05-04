@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+    <!-- Add Excel export action -->
+    <folder name="Actions">
+        <folder name="System">
+            <file name="de-linogistix-reports-action-BOExportExcelAction.instance"/>
+            <file name="de-linogistix-reports-action-BOExportCsvAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="ExportToolBar">
+            <file name="de-linogistix-reports-action-BOExportExcelAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/System/de-linogistix-reports-action-BOExportExcelAction.instance"/>
+            </file>
+            <file name="de-linogistix-reports-action-BOExportCsvAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/System/de-linogistix-reports-action-BOExportCsvAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

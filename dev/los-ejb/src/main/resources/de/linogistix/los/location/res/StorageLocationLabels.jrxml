@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="StorageLocationLabels" columnCount="2" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="281" columnSpacing="5" leftMargin="14" rightMargin="14" topMargin="61" bottomMargin="61" uuid="ad3a6c80-a69a-4f2a-89d4-3fedf2601677">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="offset" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="120" splitType="Stretch">
+			<image scaleImage="Clip" hAlign="Center" vAlign="Middle" isUsingCache="true" onErrorType="Blank">
+				<reportElement uuid="030af780-5f1a-4317-b142-0adf4c359c11" x="0" y="8" width="48" height="64">
+					<printWhenExpression><![CDATA[(new Boolean($F{offset} != null))]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[((((Integer)$F{offset}).intValue()< 0) ? (de.linogistix.los.location.report.StorageLocationLabelReportBean.getDownArrow()) : null)]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement uuid="0ca13ce8-86b7-4ccc-b87b-d85c6b15ddf9" positionType="Float" x="59" y="72" width="217" height="43"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="36"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement uuid="0de2f3d8-8a04-4f05-9448-64a975e07d6e" x="59" y="8" width="200" height="64"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="false" checksumRequired="false" barHeight="100">
+					<jr:codeExpression><![CDATA[$F{name}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

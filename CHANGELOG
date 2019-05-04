@@ -1,0 +1,43 @@
+CHANGELOG
+
+This file is to comment the changes to the myWMS application.
+For prior changes have a look to the the documentation of the concerned releases.
+
+
+
+
+Release 2.0.0
+
+Based on myWMS-LOS 1.12.0
+
+Technical changes
+-------------------------------------------------------------------------------
+- The build system is switched from ant to maven
+- Support for Java 11
+- Support for Wildfly 16
+- Added new module registration and setup functionality
+
+
+Removed
+-------------------------------------------------------------------------------
+- Plugin management for rich client application
+- Clearing- and Log-items
+- Deprecated Methods and Classes
+- Unreferenced files
+- BasicFacade
+- mywms.as cactus
+- LOSServiceProperty (Replaced by LOSSystemProperty)
+- Separate database project (Replaced by hibernate automatic ddl update)
+
+
+Program changes to be done to convert your existing mywms application to the new environment
+-------------------------------------------------------------------------------
+- Due to the changed build system, the project structure and build artifacts have changed. 
+    You will have to adjust the referenced jars or artifacts of your derivative application to the new structure.
+- Import statements
+    Some classes have been moved to new packages.
+    It will be necessary to reorganize the imports to access the new classes.
+- Removed items
+    If your derivative application uses some of the removed items, you will have to copy them from the old sources into your application.
+
+

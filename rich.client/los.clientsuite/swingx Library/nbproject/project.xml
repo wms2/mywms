@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>org.jdesktop.swingx</code-name-base>
+            <suite-component/>
+            <module-dependencies/>
+            <public-packages>
+                <package>org.jdesktop.swingx</package>
+                <package>org.jdesktop.swingx.action</package>
+                <package>org.jdesktop.swingx.auth</package>
+                <package>org.jdesktop.swingx.autocomplete</package>
+                <package>org.jdesktop.swingx.border</package>
+                <package>org.jdesktop.swingx.calendar</package>
+                <package>org.jdesktop.swingx.decorator</package>
+                <package>org.jdesktop.swingx.event</package>
+                <package>org.jdesktop.swingx.icon</package>
+                <package>org.jdesktop.swingx.plaf</package>
+                <package>org.jdesktop.swingx.plaf.aqua</package>
+                <package>org.jdesktop.swingx.plaf.basic</package>
+                <package>org.jdesktop.swingx.plaf.metal</package>
+                <package>org.jdesktop.swingx.plaf.misc</package>
+                <package>org.jdesktop.swingx.plaf.motif</package>
+                <package>org.jdesktop.swingx.plaf.windows</package>
+                <package>org.jdesktop.swingx.table</package>
+                <package>org.jdesktop.swingx.tips</package>
+                <package>org.jdesktop.swingx.treetable</package>
+                <package>org.jdesktop.swingx.util</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/swingx-0.8.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/swingx-0.8.0.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>

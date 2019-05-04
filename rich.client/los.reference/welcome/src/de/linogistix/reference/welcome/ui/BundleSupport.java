@@ -1,0 +1,92 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ */
+
+package de.linogistix.reference.welcome.ui;
+
+import java.text.MessageFormat;
+import org.openide.util.NbBundle;
+
+/**
+ * Bundle support functionality for the myWMS welcome start page, based on the 
+ * Netbeans welcome start page.
+ */
+public class BundleSupport {
+
+    public static final String BUNDLE_NAME = "de.linogistix.reference.welcome.Bundle"; 
+
+    private static final String LABEL_PREFIX = "LBL_"; 
+    private static final String TEXT_PREFIX = "TXT_"; 
+    private static final String URL_PREFIX = "URL_"; 
+    private static final String CATEGORY_PREFIX = "CATEGORY_"; 
+    private static final String TEMPLATE_PREFIX = "TEMPLATE_";  
+    private static final String MNM_PREFIX = "MNM_"; 
+    
+    public static String getLabel(String bundleKey) {
+        return NbBundle.getBundle(BUNDLE_NAME).getString(LABEL_PREFIX + bundleKey);
+    }
+    
+    public static String getText(String bundleKey) {
+        return NbBundle.getBundle(BUNDLE_NAME).getString(TEXT_PREFIX + bundleKey);
+    }
+    
+    public static String getURL(String bundleKey) {
+        return NbBundle.getBundle(BUNDLE_NAME).getString(URL_PREFIX + bundleKey);
+    }
+    
+    public static char getMnemonic(String bundleKey) {
+        return NbBundle.getBundle(BUNDLE_NAME).getString(MNM_PREFIX + bundleKey).charAt(0);
+    }
+    
+    public static String getSampleCategory(String bundleKey) {
+        return NbBundle.getBundle(BUNDLE_NAME).getString(CATEGORY_PREFIX + bundleKey);
+    }
+
+    public static String getSampleTemplate(String bundleKey) {
+        return NbBundle.getBundle(BUNDLE_NAME).getString(TEMPLATE_PREFIX + bundleKey);
+    }
+    
+    public static String getMessage( String key, Object param ) {
+        return MessageFormat.format( NbBundle.getBundle(BUNDLE_NAME).getString(key), param );
+    }
+}

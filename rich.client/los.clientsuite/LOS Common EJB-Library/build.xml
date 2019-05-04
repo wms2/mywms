@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="de.linogistix.los.common.ejb" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project de.linogistix.los.common.ejb.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+     <!-- Erweitert Netbeans common-init. Aktualisiert das zu Grunde liegende linogistix.los-ejb.jar -->
+    <target name="common-init" depends="harness.common-init, sync.los-ejb">
+        
+    </target>
+    
+<!-- Sorgt dafür das die hier erstellten jars auch anderen Suiten zur Verfügung stehen-->
+    <target name="sync.los-ejb">
+        
+        <echo message="Copy los-ejb.client.jar to release/modules/ext"/>
+        <copy todir="release/modules/ext">
+            <fileset dir="../../../dev/los-ejb/target">
+                <include name="los-ejb.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+</project>

@@ -1,0 +1,1700 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:f="http://xmlns.jcp.org/jsf/core" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+	http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd" version="2.2"> 
+        
+    <application>
+        <message-bundle>de.linogistix.mobile.res.Bundle</message-bundle>
+        
+        <locale-config>
+        	<supported-locale>en</supported-locale>
+        	<supported-locale>de</supported-locale>
+        	<supported-locale>fr</supported-locale>
+    	</locale-config>
+    </application>
+    
+   	<managed-bean>
+		<managed-bean-name>PickingBean</managed-bean-name>
+		<managed-bean-class>de.linogistix.mobile.processes.picking.PickingMobileBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>ReplenishBean</managed-bean-name>
+		<managed-bean-class>de.linogistix.mobile.processes.replenish.ReplenishMobileBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	
+<!--     <managed-bean>
+        <managed-bean-name>NotifyDescriptorBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.common.gui.bean.NotifyDescriptorBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean> -->
+    
+    <managed-bean>
+        <managed-bean-name>de_linogistix_mobile_common_gui_bean_NotifyDescriptorExtBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.common.gui.bean.NotifyDescriptorExtBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    
+	<managed-bean>
+        <managed-bean-name>de_linogistix_mobile_processes_storage_StorageBackingBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.storage.StorageBackingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>de_linogistix_mobile_processes_storage_scan_stockunit_gui_bean_CenterBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.storage.scan_stockunit.gui.bean.CenterBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>de_linogistix_mobile_processes_storage_scan_stockunit_gui_bean_TableBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.storage.scan_stockunit.gui.bean.TableBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>de_linogistix_mobile_processes_storage_scan_unitload_gui_bean_CenterBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.storage.scan_unitload.gui.bean.CenterBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>de_linogistix_mobile_processes_storage_scan_destination_gui_bean_CenterBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.storage.scan_destination.gui.bean.CenterBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>MenuBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.controller.MenuBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>de_linogistix_mobile_processes_login_gui_bean_CenterBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.login.gui.bean.CenterBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+        
+    <managed-bean>
+        <managed-bean-name>ShippingBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.shipping.ShippingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>Constants</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.common.object.Constants</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>GoodsReceiptBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.goodsreceipt.GoodsReceiptBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>StockTakingBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.processes.stocktaking.StockTakingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+      <managed-bean-name>InfoBean</managed-bean-name>
+      <managed-bean-class>de.linogistix.mobile.processes.info.InfoBean</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+      <managed-bean-name>GRDirectBean</managed-bean-name>
+      <managed-bean-class>de.linogistix.mobile.processes.gr_direct.GRDirectBean</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    
+<!--############################# Rich Faces Demo ###############################################################-->
+<!--       <managed-bean>
+        <managed-bean-name>DemoBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.test.rich.DemoBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+          <property-name>text</property-name>
+          <value/>
+        </managed-property>
+      </managed-bean> -->
+     
+<!--       <managed-bean>
+        <managed-bean-name>SimpleTreeBean</managed-bean-name>
+        <managed-bean-class>de.linogistix.mobile.test.rich.SimpleTreeBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+      </managed-bean> -->
+      
+
+<!--###########################################################################################################-->
+       
+    
+    <navigation-rule>
+        <from-view-id>/pages/common/gui/component/NotifyDescriptorPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>storage_scanStockunit_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_stockunit/gui/component/CenterPanel.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+         <navigation-case>
+            <from-outcome>storage_scanUnitLoad_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_unitload/gui/component/CenterPanel.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>storage_scanDestination_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_destination/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>        
+        <navigation-case>
+            <from-outcome>SCAN_LOCATION_ERROR</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/login/gui/component/CenterPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/storage/scan_stockunit/gui/component/CenterPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>storage_scanDestination_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_destination/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>        
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>                
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/storage/scan_unitload/gui/component/CenterPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>storage_scanDestination_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_destination/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>        
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>                
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/storage/scan_destination/gui/component/CenterPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>                
+        <navigation-case>
+            <from-outcome>storage_scanDestination_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_destination/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>        
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>                
+        <navigation-case>
+            <from-outcome>storage_scanUnitLoad_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_unitload/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>                
+    </navigation-rule>
+    
+	
+	<!--   SHIPPING -->	
+	
+	<navigation-rule>
+		<from-view-id>/pages/processes/shipping/SelectOrder.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>SHIPPING_BACK_TO_MENU</from-outcome>
+			<to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+		</navigation-case>                
+		<navigation-case>
+			<from-outcome>SHIPPING_SCAN_UNITLOAD</from-outcome>
+			<to-view-id>/pages/processes/shipping/ScanUnitLoad.jsp</to-view-id>
+		</navigation-case>                
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/pages/processes/shipping/ScanUnitLoad.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>SHIPPING_SHOW_INFO</from-outcome>
+			<to-view-id>/pages/processes/shipping/ShowInfo.jsp</to-view-id>
+		</navigation-case>                
+		<navigation-case>
+			<from-outcome>SHIPPING_SHOW_SUMMARY</from-outcome>
+			<to-view-id>/pages/processes/shipping/ShowSummary.jsp</to-view-id>
+		</navigation-case>                
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/pages/processes/shipping/ShowInfo.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>SHIPPING_SCAN_UNITLOAD</from-outcome>
+			<to-view-id>/pages/processes/shipping/ScanUnitLoad.jsp</to-view-id>
+		</navigation-case>                
+		<navigation-case>
+			<from-outcome>SHIPPING_SELECT_ORDER</from-outcome>
+			<to-view-id>/pages/processes/shipping/SelectOrder.jsp</to-view-id>
+		</navigation-case>                
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/pages/processes/shipping/ShowSummary.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>SHIPPING_SELECT_ORDER</from-outcome>
+			<to-view-id>/pages/processes/shipping/SelectOrder.jsp</to-view-id>
+		</navigation-case>                
+	</navigation-rule>
+	
+	
+	
+	
+    
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/controller/MainMenu.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>storage_scanStockunit_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_stockunit/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>storage_scanUnitLoad_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/storage/scan_unitload/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>      
+        
+        <navigation-case>
+            <from-outcome>GOODS_RECEIPT</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseGoodsReceipt.jsp</to-view-id>
+        </navigation-case>   
+         
+        <navigation-case>
+            <from-outcome>MAIN_MENU_2</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu2.jsp</to-view-id>
+        </navigation-case>                       
+        
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>        
+        <navigation-case>
+            <from-outcome>Logout</from-outcome>
+            <to-view-id>/pages/processes/login/logout_redirect.jsp</to-view-id>
+        </navigation-case>        
+
+		<navigation-case>
+			<from-outcome>shipping_chooseOrder_CenterPanel</from-outcome>
+			<to-view-id>/pages/processes/shipping/SelectOrder.jsp</to-view-id>
+		</navigation-case> 
+		<navigation-case>
+			<from-outcome>SHIPPING_SELECT_ORDER</from-outcome>
+			<to-view-id>/pages/processes/shipping/SelectOrder.jsp</to-view-id>
+		</navigation-case> 
+        
+        <navigation-case>
+            <from-outcome>SCAN_LOCATION</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case>               
+        <navigation-case>
+            <from-outcome>STOCKTAKING_ENTER_CLIENT</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/EnterClient.jsp</to-view-id>
+        </navigation-case>               
+        
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>        
+             
+        <navigation-case>
+          <from-outcome>INFO_ENTER_CODE</from-outcome>
+          <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+        </navigation-case>        
+
+        <navigation-case>
+        	<from-outcome>PICK_START</from-outcome>
+        	<to-view-id>/pages/processes/picking/StartPicking.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+          <from-outcome>REPLENISH_START_REQUEST</from-outcome>
+          <to-view-id>/pages/processes/replenish/StartRequest.jsp</to-view-id>
+        </navigation-case> 
+        <navigation-case>
+          <from-outcome>REPLENISH_START_PROCESS</from-outcome>
+          <to-view-id>/pages/processes/replenish/StartProcess.jsp</to-view-id>
+        </navigation-case> 
+        <navigation-case>
+          <from-outcome>REPLENISH_MENU</from-outcome>
+          <to-view-id>/pages/processes/replenish/ReplenishMenu.jsp</to-view-id>
+        </navigation-case> 
+
+    </navigation-rule>
+    
+    <!-- Goods receipt process -->
+       
+    <navigation-rule>
+        <from-view-id>/pages/processes/goodsreceipt/ChooseGoodsReceipt.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>BACK_TO_MENU</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>CHOOSE_ADVICE</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseAdvice.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/goodsreceipt/ChooseAdvice.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>PROCESS_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ProcessUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>CONFIRM_NEW_LOT</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ConfirmNewLot.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>BACK_TO_MENU</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>GOODS_RECEIPT</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseGoodsReceipt.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/goodsreceipt/ConfirmNewLot.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>PROCESS_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ProcessUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>CHOOSE_ADVICE</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseAdvice.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/goodsreceipt/ProcessUnitLoad.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>SINGLE_STOCK</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ProcessStock.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>GOODSRECEIPT_SUMMARY</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/GoodsReceiptSummary.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>BACK_TO_MENU</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>GOODS_RECEIPT</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseGoodsReceipt.jsp</to-view-id>
+        </navigation-case>
+
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/goodsreceipt/GoodsReceiptSummary.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>PROCESS_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ProcessUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>CHOOSE_ADVICE</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseAdvice.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>BACK_TO_MENU</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>GOODS_RECEIPT</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ChooseGoodsReceipt.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/goodsreceipt/ProcessStock.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>PROCESS_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ProcessUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>SINGLE_STOCK</from-outcome>
+            <to-view-id>/pages/processes/goodsreceipt/ProcessStock.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+       
+    <!-- Stock taking process -->
+       
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/EnterClient.jsp</from-view-id>
+
+        <navigation-case>
+            <from-outcome>SCAN_LOCATION</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>BACK_TO_MENU</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</from-view-id>
+        
+        
+        <navigation-case>
+            <from-outcome>CONFIRM_LOCATION_EMPTY</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ConfirmLocationEmpty.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>SCAN_LOCATION</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>STOCKTAKING_ENTER_CLIENT</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/EnterClient.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>BACK_TO_MENU</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>
+         
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/ConfirmLocationEmpty.jsp</from-view-id>
+       
+       	<navigation-case>
+            <from-outcome>SCAN_LOCATION</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case> 
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</from-view-id>
+    
+    	<navigation-case>
+            <from-outcome>CONFIRM_UNEXPECTED_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ConfirmUnexpectedUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_LOCATION</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>CONFIRM_UNITLOADS_MISSING</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ConfirmUnitLoadMissing.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>NEW_ITEMDATA</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewItemData.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/ConfirmUnitLoadMissing.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>SCAN_LOCATION</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanStorageLocation.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/ConfirmUnexpectedUnitLoad.jsp</from-view-id>
+    
+    	<navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>NEW_ITEMDATA</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewItemData.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>NEW_ULTYPE</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewUnitloadType.jsp</to-view-id>
+        </navigation-case>
+        
+
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/CountStock.jsp</from-view-id>
+    
+    	<navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>CONFIRM_STOCKS_MISSING</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ConfirmStockMissing.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>NEW_ITEMDATA</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewItemData.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/ConfirmStockMissing.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case>
+        
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/NewItemData.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>NEW_LOT</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewLot.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>NEW_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewSerial.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/NewLot.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>NEW_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewSerial.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/NewSerial.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>COUNT_STOCKS</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/CountStock.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/stocktaking/NewUnitloadType.jsp</from-view-id>
+        
+        <navigation-case>
+            <from-outcome>NEW_ITEMDATA</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewItemData.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>NEW_ULTYPE</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/NewUnitloadType.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>SCAN_UNITLOAD</from-outcome>
+            <to-view-id>/pages/processes/stocktaking/ScanUnitLoad.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/shipping/goodsout/gui/component/CenterPanel.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>NotifyDescriptorExtPanel</from-outcome>
+            <to-view-id>/pages/common/gui/component/NotifyDescriptorExtPanel.jsp</to-view-id>
+        </navigation-case>                
+        <navigation-case>
+            <from-outcome>controller_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+        </navigation-case>                
+        <navigation-case>
+            <from-outcome>shipping_goodsout_CenterPanel</from-outcome>
+            <to-view-id>/pages/processes/shipping/goodsout/gui/component/CenterPanel.jsp</to-view-id>
+        </navigation-case>                        
+    </navigation-rule>
+    
+    <!-- Info -->
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/EnterCode.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_BACK_TO_MENU</from-outcome>
+        <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+      </navigation-case>
+      
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SELECT_TYPE</from-outcome>
+        <to-view-id>/pages/processes/info/SelectType.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD_STOCK</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_LOCATION</from-outcome>
+        <to-view-id>/pages/processes/info/ShowLocation.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemData.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/SelectType.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_BACK_TO_MENU</from-outcome>
+        <to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+      </navigation-case>
+      
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD_STOCK</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_LOCATION</from-outcome>
+        <to-view-id>/pages/processes/info/ShowLocation.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemData.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowLocation.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD_STOCK</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemData.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowUnitLoad.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_LOCATION</from-outcome>
+        <to-view-id>/pages/processes/info/ShowLocation.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ORDER</from-outcome>
+        <to-view-id>/pages/processes/info/ShowOrder.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_LOCATION</from-outcome>
+        <to-view-id>/pages/processes/info/ShowLocation.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ORDER</from-outcome>
+        <to-view-id>/pages/processes/info/ShowOrder.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemData.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowItemData.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_LOCATION</from-outcome>
+        <to-view-id>/pages/processes/info/ShowLocation.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD_STOCK</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA_DESCR</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemDataDescr.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowStockUnit.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_LOCATION</from-outcome>
+        <to-view-id>/pages/processes/info/ShowLocation.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD_STOCK</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemData.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ORDER</from-outcome>
+        <to-view-id>/pages/processes/info/ShowOrder.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowItemDataDescr.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ITEMDATA</from-outcome>
+        <to-view-id>/pages/processes/info/ShowItemData.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    
+    <navigation-rule>
+      <from-view-id>/pages/processes/info/ShowOrder.jsp</from-view-id>
+      
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoad.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_UNITLOAD_STOCK</from-outcome>
+        <to-view-id>/pages/processes/info/ShowUnitLoadStock.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_STOCKUNIT</from-outcome>
+        <to-view-id>/pages/processes/info/ShowStockUnit.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_ENTER_CODE</from-outcome>
+        <to-view-id>/pages/processes/info/EnterCode.jsp</to-view-id>
+      </navigation-case>
+      <navigation-case>
+        <from-outcome>INFO_SHOW_ORDER</from-outcome>
+        <to-view-id>/pages/processes/info/ShowOrder.jsp</to-view-id>
+      </navigation-case>
+      
+    </navigation-rule>
+    
+
+	<!--  Goods Receipt with direct storage -->
+    <navigation-rule>
+        <from-view-id>/pages/processes/controller/MainMenu.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</from-view-id>
+                        
+		<navigation-case>
+			<from-outcome>GRD_BACK_TO_MENU</from-outcome>
+			<to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+		</navigation-case>
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/ChoosePos.jsp</from-view-id>
+                        
+		<navigation-case>
+			<from-outcome>GRD_BACK_TO_MENU</from-outcome>
+			<to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+		</navigation-case>
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterMat.jsp</from-view-id>
+                        
+		<navigation-case>
+			<from-outcome>GRD_BACK_TO_MENU</from-outcome>
+			<to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id>
+		</navigation-case>
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterUlType.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_UL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetUl.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_UL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetUl.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterAmount.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CONFIRM_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ConfirmAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/ConfirmAmount.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterLot.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOTDATE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLotDate.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+    
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterLotDate.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_SERIAL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterSerial.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_AMOUNT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterAmount.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_UL</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetUl.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/processes/gr_direct/EnterTargetUl.jsp</from-view-id>
+                        
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_TYPE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlType.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_UL_NO</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterUlNo.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_TARGET_LOC</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterTargetLoc.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_POS</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChoosePos.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_ENTER_MAT</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterMat.jsp</to-view-id>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>GRD_CHOOSE_GR</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/ChooseOrder.jsp</to-view-id>
+        </navigation-case>   
+    </navigation-rule>
+
+
+
+
+
+    <!-- *********************************************************************
+    	PICKING START
+    ********************************************************************** -->
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickFromFunction.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_COMPLETED</from-outcome><to-view-id>/pages/processes/picking/PickToCompleted.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/OrderDone.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_INFO</from-outcome><to-view-id>/pages/processes/picking/OrderInfo.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SUMMARY</from-outcome><to-view-id>/pages/processes/picking/OrderSummary.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/OrderSelect.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_INFO</from-outcome><to-view-id>/pages/processes/picking/OrderInfo.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SUMMARY</from-outcome><to-view-id>/pages/processes/picking/OrderSummary.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/picking/PickFunction.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_MISSING</from-outcome><to-view-id>/pages/processes/picking/PickMissing.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_COMPLETED</from-outcome><to-view-id>/pages/processes/picking/PickToCompleted.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickDone.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_PRINT</from-outcome><to-view-id>/pages/processes/picking/PickToPrint.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_LABEL_POSTPICK</from-outcome><to-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickToTarget.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickSerial.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_EMPTY</from-outcome><to-view-id>/pages/processes/picking/PickEmpty.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickToPrint.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_LABEL_POSTPICK</from-outcome><to-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_PRINT</from-outcome><to-view-id>/pages/processes/picking/PickToPrint.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickToTarget.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_LABEL_POSTPICK</from-outcome><to-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_PRINT</from-outcome><to-view-id>/pages/processes/picking/PickToPrint.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickToTarget.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickToTarget.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_LABEL_POSTPICK</from-outcome><to-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_PRINT</from-outcome><to-view-id>/pages/processes/picking/PickToPrint.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickToTarget.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/StartPicking.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_INFO</from-outcome><to-view-id>/pages/processes/picking/OrderInfo.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SUMMARY</from-outcome><to-view-id>/pages/processes/picking/OrderSummary.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickFrom.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_PICKFROM_FUNCTION</from-outcome><to-view-id>/pages/processes/picking/PickFromFunction.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickEmpty.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_REMAINING</from-outcome><to-view-id>/pages/processes/picking/PickRemaining.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/Pick.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_FUNCTION</from-outcome><to-view-id>/pages/processes/picking/PickFunction.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_EMPTY</from-outcome><to-view-id>/pages/processes/picking/PickEmpty.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_REMAINING</from-outcome><to-view-id>/pages/processes/picking/PickRemaining.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_MISSING</from-outcome><to-view-id>/pages/processes/picking/PickMissing.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickRemaining.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_EMPTY</from-outcome><to-view-id>/pages/processes/picking/PickEmpty.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_MISSING</from-outcome><to-view-id>/pages/processes/picking/PickMissing.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickMissing.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_EMPTY</from-outcome><to-view-id>/pages/processes/picking/PickEmpty.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_REMAINING</from-outcome><to-view-id>/pages/processes/picking/PickRemaining.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/OrderInfo.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickToCompleted.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_PRINT</from-outcome><to-view-id>/pages/processes/picking/PickToPrint.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_LABEL_POSTPICK</from-outcome><to-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickToTarget.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/picking/OrderSummary.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_ORDER_DONE</from-outcome><to-view-id>/pages/processes/picking/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/picking/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_MENU</from-outcome><to-view-id>/pages/processes/controller/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_LABEL_POSTPICK</from-outcome><to-view-id>/pages/processes/picking/PickToLabelPostpick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_PRINT</from-outcome><to-view-id>/pages/processes/picking/PickToPrint.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKTO_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickToTarget.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+
+    <!-- *********************************************************************
+    	PICKING END
+    ********************************************************************** -->
+    
+    
+    
+    
+    
+    
+    <!-- *********************************************************************
+    	REPLENISH BEGIN
+    ********************************************************************** -->
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/ReplenishMenu.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_START_PROCESS</from-outcome><to-view-id>/pages/processes/replenish/StartProcess.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_START_REQUEST</from-outcome><to-view-id>/pages/processes/replenish/StartRequest.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/SourceLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/replenish/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MAIN_MENU</from-outcome><to-view-id>/pages/processes/controller/process/MainMenu.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/StartRequest.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MAIN_MENU</from-outcome><to-view-id>/pages/processes/controller/process/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MENU</from-outcome><to-view-id>/pages/processes/replenish/ReplenishMenu.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/StartProcess.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/SourceLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/replenish/OrderSelect.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MAIN_MENU</from-outcome><to-view-id>/pages/processes/controller/process/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MENU</from-outcome><to-view-id>/pages/processes/replenish/ReplenishMenu.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+
+
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/OrderSelect.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/SourceLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MAIN_MENU</from-outcome><to-view-id>/pages/processes/controller/process/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MENU</from-outcome><to-view-id>/pages/processes/replenish/ReplenishMenu.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/SourceLocation.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_CONFIRM</from-outcome><to-view-id>/pages/processes/replenish/SourceConfirm.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_START_PROCESS</from-outcome><to-view-id>/pages/processes/replenish/StartProcess.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/replenish/OrderSelect.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/SourceConfirm.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_DESTINATION_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/DestinationLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_AMOUNT</from-outcome><to-view-id>/pages/processes/replenish/SourceAmount.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/SourceAmount.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_DESTINATION_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/DestinationLocation.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/DestinationLocation.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_DESTINATION_CONFIRM</from-outcome><to-view-id>/pages/processes/replenish/DestinationConfirm.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_CANCEL</from-outcome><to-view-id>/pages/processes/replenish/OrderCanceled.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/DestinationConfirm.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_ORDER_DONE</from-outcome><to-view-id>/pages/processes/replenish/OrderDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_CANCEL</from-outcome><to-view-id>/pages/processes/replenish/OrderCanceled.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/OrderDone.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/SourceLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/replenish/OrderSelect.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/OrderCanceled.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/SourceLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_ORDER_SELECT</from-outcome><to-view-id>/pages/processes/replenish/OrderSelect.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	
+
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/RequestLocation.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_MAIN_MENU</from-outcome><to-view-id>/pages/processes/controller/process/MainMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_MENU</from-outcome><to-view-id>/pages/processes/replenish/ReplenishMenu.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_INFO</from-outcome><to-view-id>/pages/processes/replenish/RequestInfo.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_AMOUNT</from-outcome><to-view-id>/pages/processes/replenish/RequestAmount.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/RequestAmount.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_REQ_INFO</from-outcome><to-view-id>/pages/processes/replenish/RequestInfo.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+	<from-view-id>/pages/processes/replenish/RequestInfo.jsp</from-view-id>
+		<navigation-case><from-outcome>REPLENISH_REQ_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/RequestLocation.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>REPLENISH_SOURCE_LOCATION</from-outcome><to-view-id>/pages/processes/replenish/SourceLocation.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	
+
+
+
+    <!-- *********************************************************************
+    	REPLENISH END
+    ********************************************************************** -->
+
+
+    
+    <validator>
+        <validator-id>astrologer.EmailValidator</validator-id>
+        <validator-class>de.linogistix.mobile.processes.customComponent.validationTest.EmailValidator</validator-class>
+    </validator>
+    
+    <component>
+        <component-type>ticker</component-type>
+        <component-class>de.linogistix.mobile.processes.customComponent.ticker.UITicker</component-class>
+    </component>
+    
+   
+    
+    <lifecycle>
+        <phase-listener>de.linogistix.mobile.common.listener.SessionPhaseListener</phase-listener>
+    </lifecycle>
+
+</faces-config>

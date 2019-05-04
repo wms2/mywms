@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE project>
+<jboss-web>
+<!--   <security-domain flushOnSessionInvalidation="true">los-login</security-domain> -->
+  <security-domain>los-login</security-domain>
+  <context-root>/los-mobile</context-root>
+</jboss-web>

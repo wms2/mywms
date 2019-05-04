@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+    
+    <!-- Do not change, the basic service beans of myWMS framework rely on 
+	       a persistence-unit called myWMS -->
+    <persistence-unit name="myWMS">
+        
+        <!-- Edit the jndi name of the data source, you configured on your server.
+		  	   Please read the README.txt in mywms.as project to learn how to configure
+		  	   a database on JBoss -->
+        <jta-data-source>java:/losDS</jta-data-source>
+         
+        <class>org.mywms.model.Area</class>
+        <class>org.mywms.model.BasicClientAssignedEntity</class>
+        <class>org.mywms.model.BasicEntity</class>
+        <class>org.mywms.model.Client</class>
+        
+        <class>org.mywms.model.Document</class>
+        <class>org.mywms.model.ItemData</class>
+        <class>org.mywms.model.ItemDataNumber</class>
+        <class>org.mywms.model.ItemUnit</class>
+        <class>org.mywms.model.Lot</class>
+        <class>org.mywms.model.PluginConfiguration</class>  
+        <class>org.mywms.model.Request</class>  
+        <class>org.mywms.model.Role</class>  
+        <class>org.mywms.model.StockUnit</class>  
+        <class>org.mywms.model.UnitLoad</class>
+        <class>org.mywms.model.UnitLoadType</class>
+        <class>org.mywms.model.User</class>
+        <class>org.mywms.model.Zone</class>
+        
+        <class>de.linogistix.los.inventory.model.LOSAdvice</class>
+        <class>de.linogistix.los.inventory.model.LOSGoodsOutRequest</class>
+        <class>de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition</class>
+        <class>de.linogistix.los.inventory.model.LOSGoodsReceipt</class>
+        <class>de.linogistix.los.inventory.model.LOSGoodsReceiptPosition</class>
+        <class>de.linogistix.los.inventory.model.LOSStockUnitRecord</class>
+        <class>de.linogistix.los.inventory.model.LOSStorageRequest</class>
+        <class>de.linogistix.los.inventory.model.LOSUnitLoadAdvice</class>
+        <class>de.linogistix.los.inventory.model.LOSUnitLoadAdvicePosition</class>
+        <class>de.linogistix.los.inventory.model.LOSBom</class>
+        <class>de.linogistix.los.inventory.model.OrderReceipt</class>
+        <class>de.linogistix.los.inventory.model.OrderReceiptPosition</class>
+        <class>de.linogistix.los.inventory.pick.model.PickReceipt</class>
+        <class>de.linogistix.los.inventory.pick.model.PickReceiptPosition</class>
+        <class>de.linogistix.los.inventory.model.StockUnitLabel</class>
+
+        <class>de.linogistix.los.inventory.model.LOSCustomerOrder</class>
+        <class>de.linogistix.los.inventory.model.LOSCustomerOrderPosition</class>
+        <class>de.linogistix.los.inventory.model.LOSStorageStrategy</class>
+        <class>de.linogistix.los.inventory.model.LOSOrderStrategy</class>
+        <class>de.linogistix.los.inventory.model.LOSPickingOrder</class>
+        <class>de.linogistix.los.inventory.model.LOSPickingPosition</class>
+        <class>de.linogistix.los.inventory.model.LOSPickingUnitLoad</class>
+		<class>de.linogistix.los.inventory.model.LOSReplenishOrder</class>
+		
+        <class>de.linogistix.los.stocktaking.model.LOSStockTaking</class>
+        <class>de.linogistix.los.stocktaking.model.LOSStocktakingRecord</class>
+        <class>de.linogistix.los.stocktaking.model.LOSStocktakingOrder</class>
+        
+        <class>de.linogistix.los.location.model.LOSArea</class>
+        <class>de.linogistix.los.location.model.LOSFixedLocationAssignment</class>
+        <class>de.linogistix.los.location.model.LOSRack</class>
+        <class>de.linogistix.los.location.model.LOSStorageLocation</class>
+        <class>de.linogistix.los.location.model.LOSStorageLocationType</class>
+        <class>de.linogistix.los.location.model.LOSTypeCapacityConstraint</class>
+        <class>de.linogistix.los.location.model.LOSUnitLoad</class>
+        <class>de.linogistix.los.location.model.LOSWorkingArea</class>
+        <class>de.linogistix.los.location.model.LOSWorkingAreaPosition</class>
+        
+        <class>de.linogistix.los.location.model.LOSUnitLoadRecord</class>
+        <class>de.linogistix.los.location.model.StorageLocationLabel</class>
+        <class>de.linogistix.los.location.model.LOSLocationCluster</class>
+        <class>de.linogistix.los.model.LOSSequenceNumber</class>
+        <class>de.linogistix.los.model.LOSServiceProperty</class>
+        <class>de.linogistix.los.model.LOSSystemProperty</class>
+        <class>de.linogistix.los.model.LOSJasperReport</class>
+        
+        <properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+			
+			<!--  
+			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.id.new_generator_mappings" value="true" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+			-->  
+        </properties>
+        
+    </persistence-unit>
+    
+</persistence>

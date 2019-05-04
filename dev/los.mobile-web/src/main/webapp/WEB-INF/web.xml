@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	id="WebApp_ID"
+	version="3.1">
+    <display-name>LOS</display-name>
+<!--     <context-param>
+        <param-name>org.richfaces.SKIN</param-name>
+        <param-value>blueSky</param-value>
+    </context-param>
+    <filter>
+        <display-name>RichFaces Filter</display-name>
+        <filter-name>richfaces</filter-name>
+        <filter-class>org.ajax4jsf.Filter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>richfaces</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping> -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>default.html</welcome-file>
+        <welcome-file>default.htm</welcome-file>
+        <welcome-file>default.jsp</welcome-file>
+    </welcome-file-list>
+    <session-config>
+        <session-timeout>120</session-timeout>
+    </session-config>
+    <error-page>
+        <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+        <location>/faces/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>408</error-code>
+        <location>/faces/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>400</error-code>
+        <location>/faces/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/faces/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/faces/error.jsp</location>
+    </error-page>
+
+  
+  <!-- for safety reason perhaps never called
+    <error-page>
+        <error-code>401</error-code>
+        <location>/faces/sessiontimeout.jsp</location>
+    </error-page> -->
+
+  <!-- for safety reason perhaps never called
+    <error-page>
+        <error-code>403</error-code>
+        <location>/faces/sessiontimeout.jsp</location>
+    </error-page> -->
+    
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+    <context-param> 
+        <!-- Important to set on client id to make sure it work correct after session invalidate -->
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <!-- <param-value>client</param-value> -->
+          <param-value>server</param-value>
+         
+    </context-param>
+    <security-constraint>
+        <display-name>Identification Security Constraint</display-name>
+        <web-resource-collection>
+            <web-resource-name>Protected Area</web-resource-name>
+            <!--            <url-pattern>/faces/*</url-pattern> -->
+            <!--            <url-pattern>/faces/pages/usermanagement/*</url-pattern>             -->
+            <url-pattern>/faces/pages/*</url-pattern>
+            <http-method>DELETE</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>Admin</role-name>
+            <role-name>Client's Admin</role-name>
+            <role-name>Inventory</role-name>
+            <role-name>Operator</role-name>
+            <role-name>Foreman</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <form-login-config>
+            <form-login-page>
+                /faces/login.jsp
+            </form-login-page>
+            <form-error-page>
+                /faces/login.jsp?errors=true
+            </form-error-page>
+            <!--
+            <internal-forward>/faces/pages/processes/controller/gui/component/CenterPanel.jsp</internal-forward>
+            <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+            <location>/faces/sessiontimeout.jsp</location>            -->
+        </form-login-config>
+    </login-config>
+
+    <security-role>
+        <role-name>Admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>Client's Admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>Inventory</role-name>
+    </security-role>
+        <security-role>
+        <role-name>Operator</role-name>
+    </security-role>
+ 
+    <filter>
+        <filter-name>sessionExpiredFilter</filter-name>
+        <filter-class>de.linogistix.mobile.common.filter.SessionExpiredFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sessionExpiredFilter</filter-name>
+        
+<!--        <url-pattern>/*</url-pattern> -->
+        <url-pattern>/faces/login_redirect.jsp</url-pattern> 
+<!--        <url-pattern>/j_security_check</url-pattern> -->
+    </filter-mapping>
+</web-app>

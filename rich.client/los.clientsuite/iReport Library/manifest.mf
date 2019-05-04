@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.linogistix.ireport
+OpenIDE-Module-Localizing-Bundle: de/linogistix/ireport/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

@@ -1,0 +1,236 @@
+<definitions name='QueryInventoryBeanService' targetNamespace='http://ws.inventory.los.linogistix.de/' xmlns='http://schemas.xmlsoap.org/wsdl/' xmlns:ns1='http://com.linogistix/inventory' xmlns:soap='http://schemas.xmlsoap.org/wsdl/soap/' xmlns:tns='http://ws.inventory.los.linogistix.de/' xmlns:xsd='http://www.w3.org/2001/XMLSchema'>
+ <types>
+  <xs:schema targetNamespace='http://com.linogistix/inventory' version='1.0' xmlns:tns='http://com.linogistix/inventory' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+   <xs:complexType name='InventoryTO'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='articleRef' type='xs:string'/>
+     <xs:element minOccurs='0' name='clientRef' type='xs:string'/>
+     <xs:element minOccurs='0' name='lotRef' type='xs:string'/>
+     <xs:element minOccurs='0' name='reserved' type='xs:decimal'/>
+
+     <xs:element minOccurs='0' name='available' type='xs:decimal'/>
+     <xs:element minOccurs='0' name='locked' type='xs:decimal'/>
+     <xs:element minOccurs='0' name='advised' type='xs:decimal'/>
+     <xs:element minOccurs='0' name='inStock' type='xs:decimal'/>
+     <xs:element name='scale' type='xs:int'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType final='#all' name='InventoryTOArray'>
+    <xs:sequence>
+
+     <xs:element maxOccurs='unbounded' minOccurs='0' name='item' nillable='true' type='tns:InventoryTO'/>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:schema>
+  <xs:schema targetNamespace='http://ws.inventory.los.linogistix.de/' version='1.0' xmlns:tns='http://ws.inventory.los.linogistix.de/' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+   <xs:element name='InventoryException' type='tns:InventoryException'/>
+   <xs:complexType name='InventoryException'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='bundleName' type='xs:string'/>
+
+     <xs:element minOccurs='0' name='bundleResolver' type='xs:string'/>
+     <xs:element minOccurs='0' name='inventoryExceptionKey' type='tns:inventoryExceptionKey'/>
+     <xs:element minOccurs='0' name='key' type='xs:string'/>
+     <xs:element minOccurs='0' name='message' type='xs:string'/>
+     <xs:element maxOccurs='unbounded' minOccurs='0' name='parameters' type='xs:anyType'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:simpleType name='inventoryExceptionKey'>
+    <xs:restriction base='xs:string'>
+
+     <xs:enumeration value='NOT_A_GOODSIN_LOCATION'/>
+     <xs:enumeration value='NO_SUCH_CLIENT'/>
+     <xs:enumeration value='NO_SUCH_ITEMDATA'/>
+     <xs:enumeration value='NO_SUCH_LOT'/>
+     <xs:enumeration value='ORDER_CREATION_KEY'/>
+     <xs:enumeration value='ORDER_NOT_FINIHED'/>
+     <xs:enumeration value='CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED'/>
+     <xs:enumeration value='CREATE_ORDERREQUEST_FAILED'/>
+     <xs:enumeration value='CREATE_ORDERREQUEST_FAILED_WRONG_CLIENT'/>
+
+     <xs:enumeration value='CREATE_GOODSRECEIPT'/>
+     <xs:enumeration value='CREATE_AVIS_FAILED'/>
+     <xs:enumeration value='NO_STOCKUNIT'/>
+     <xs:enumeration value='LOT_ISLOCKED'/>
+     <xs:enumeration value='LOT_NAME_NULL'/>
+     <xs:enumeration value='NO_LOT_WITH_NAME'/>
+     <xs:enumeration value='UNSUFFICIENT_AMOUNT'/>
+     <xs:enumeration value='ITEMDATA_ISLOCKED'/>
+     <xs:enumeration value='NO_SUITABLE_LOT'/>
+
+     <xs:enumeration value='NOT_ACCEPTED'/>
+     <xs:enumeration value='ITEMDATA_LOT_MISMATCH'/>
+     <xs:enumeration value='ITEMDATA_EXISTS'/>
+     <xs:enumeration value='ITEMDATA_NOT_ON_UNITLOAD'/>
+     <xs:enumeration value='ITEMDATA_NOT_FOUND'/>
+     <xs:enumeration value='LOT_MISMATCH'/>
+     <xs:enumeration value='POSITION_ALREADY_ASSIGNED_ADVICE'/>
+     <xs:enumeration value='POSITION_NO_ADVICE'/>
+     <xs:enumeration value='CLIENT_NULL'/>
+
+     <xs:enumeration value='ARTICLE_NULL'/>
+     <xs:enumeration value='CREATE_UNITLOAD'/>
+     <xs:enumeration value='LABEL_NOT_PRINTED'/>
+     <xs:enumeration value='NO_STOCKUNIT_ON_FIXED_ASSIGNED_LOC'/>
+     <xs:enumeration value='NO_SUITABLE_LOCATION'/>
+     <xs:enumeration value='STORAGE_WRONG_LOCATION_BUT_ALLOWED'/>
+     <xs:enumeration value='STORAGE_WRONG_LOCATION_NOT_ALLOWED'/>
+     <xs:enumeration value='STORAGE_FAILED'/>
+     <xs:enumeration value='STOCKUNIT_TRANSFER_FAILED'/>
+
+     <xs:enumeration value='STOCKUNIT_TRANSFER_NOT_ALLOWED'/>
+     <xs:enumeration value='STOCKUNIT_HAS_RESERVATION'/>
+     <xs:enumeration value='STOCKUNIT_IS_LOCKED'/>
+     <xs:enumeration value='STOCKUNIT_CONSTRAINT_VIOLATED'/>
+     <xs:enumeration value='STORAGE_ADD_TO_EXISTING'/>
+     <xs:enumeration value='CANNOT_BE_DELETED'/>
+     <xs:enumeration value='STORAGE_NO_DESTINATION_FOUND'/>
+     <xs:enumeration value='PICKREQUEST_CREATION'/>
+     <xs:enumeration value='PICKREQUEST_NOT_FINISHED'/>
+
+     <xs:enumeration value='PICKREQUEST_CONSTRAINT_VIOLATED'/>
+     <xs:enumeration value='PICK_UNEXPECTED_NULL'/>
+     <xs:enumeration value='PICK_WRONG_SOURCE'/>
+     <xs:enumeration value='PICK_WRONG_AMOUNT'/>
+     <xs:enumeration value='PICKED_TOO_MANY'/>
+     <xs:enumeration value='UNIT_LOAD_CONSTRAINT_VIOLATED'/>
+     <xs:enumeration value='STORAGELOCATION_CONSTRAINT_VIOLATED'/>
+     <xs:enumeration value='CREATE_STOCKUNIT_ONSTOCK'/>
+     <xs:enumeration value='NO_SUCH_UNITLOAD'/>
+
+     <xs:enumeration value='PICK_POSITION_CONTRAINT_VIOLATED'/>
+     <xs:enumeration value='NO_EXTINGUISHORDER_WITH_NUMBER'/>
+     <xs:enumeration value='NOT_A_FIXED_ASSIGNED_LOCATION'/>
+     <xs:enumeration value='ORDER_CONSTRAINT_VIOLATED'/>
+     <xs:enumeration value='REPLENISH_ALREADY_COMES'/>
+     <xs:enumeration value='ORDER_CANNOT_BE_STARTED'/>
+     <xs:enumeration value='ORDER_ALREADY_STARTED'/>
+     <xs:enumeration value='NO_SUCH_STORAGELOCATION'/>
+     <xs:enumeration value='STOCKUNIT_NO_LOT'/>
+
+     <xs:enumeration value='PICKREQUEST_ALREDAY_FINISHED'/>
+     <xs:enumeration value='NO_PICKREQUEST'/>
+     <xs:enumeration value='MUST_SCAN_STOCKUNIT'/>
+     <xs:enumeration value='CANNOT_RESERVE_MORE_THAN_AVAILABLE'/>
+     <xs:enumeration value='INVENTORY_CREATE_STOCKUNIT_ON_TOP'/>
+     <xs:enumeration value='UNIT_LOAD_EXISTS'/>
+     <xs:enumeration value='DESTINATION_UNITLOAD_LOCKED'/>
+     <xs:enumeration value='AMOUNT_MUST_BE_GREATER_THAN_ZERO'/>
+     <xs:enumeration value='ERROR_GETTING_DEFAULT_UNITLOADTYPE'/>
+
+     <xs:enumeration value='LOT_ALREADY_EXIST'/>
+     <xs:enumeration value='LOT_MANDATORY'/>
+     <xs:enumeration value='ADVICE_MANDATORY'/>
+     <xs:enumeration value='NO_SUCH_ORDERPOSITION'/>
+     <xs:enumeration value='ARGUMENT_NULL'/>
+     <xs:enumeration value='LOT_NOT_UNIQUE'/>
+     <xs:enumeration value='UNSUFFICIENT_RESERVED_AMOUNT'/>
+     <xs:enumeration value='AMBIGUOUS_SCAN'/>
+     <xs:enumeration value='CLIENT_MISMATCH'/>
+
+     <xs:enumeration value='CONSTRAINT_VIOLATION'/>
+     <xs:enumeration value='NO_INVENTORY_FOR_LOT'/>
+     <xs:enumeration value='ERROR_CONCURRENT_ACCESS'/>
+     <xs:enumeration value='ERROR_NOTIFIEDAMOUNT_NEGATIVE'/>
+    </xs:restriction>
+   </xs:simpleType>
+  </xs:schema>
+ </types>
+ <message name='InventoryException'>
+
+  <part element='tns:InventoryException' name='InventoryException'></part>
+ </message>
+ <message name='QueryInventory_getInventoryByArticleResponse'>
+  <part name='return' type='ns1:InventoryTOArray'></part>
+ </message>
+ <message name='QueryInventory_getInventoryList'>
+  <part name='clientRef' type='xsd:string'></part>
+  <part name='consolidateLot' type='xsd:boolean'></part>
+ </message>
+
+ <message name='QueryInventory_getInventoryByLot'>
+  <part name='clientRef' type='xsd:string'></part>
+  <part name='articleRef' type='xsd:string'></part>
+  <part name='lotRef' type='xsd:string'></part>
+ </message>
+ <message name='QueryInventory_getInventoryByArticle'>
+  <part name='clientRef' type='xsd:string'></part>
+  <part name='articleRef' type='xsd:string'></part>
+  <part name='consolidateLot' type='xsd:boolean'></part>
+
+ </message>
+ <message name='QueryInventory_getInventoryByLotResponse'>
+  <part name='return' type='ns1:InventoryTO'></part>
+ </message>
+ <message name='QueryInventory_getInventoryListResponse'>
+  <part name='return' type='ns1:InventoryTOArray'></part>
+ </message>
+ <portType name='QueryInventory'>
+  <operation name='getInventoryByArticle' parameterOrder='clientRef articleRef consolidateLot'>
+
+   <input message='tns:QueryInventory_getInventoryByArticle'></input>
+   <output message='tns:QueryInventory_getInventoryByArticleResponse'></output>
+   <fault message='tns:InventoryException' name='InventoryException'></fault>
+  </operation>
+  <operation name='getInventoryByLot' parameterOrder='clientRef articleRef lotRef'>
+   <input message='tns:QueryInventory_getInventoryByLot'></input>
+   <output message='tns:QueryInventory_getInventoryByLotResponse'></output>
+   <fault message='tns:InventoryException' name='InventoryException'></fault>
+  </operation>
+
+  <operation name='getInventoryList' parameterOrder='clientRef consolidateLot'>
+   <input message='tns:QueryInventory_getInventoryList'></input>
+   <output message='tns:QueryInventory_getInventoryListResponse'></output>
+   <fault message='tns:InventoryException' name='InventoryException'></fault>
+  </operation>
+ </portType>
+ <binding name='QueryInventoryBinding' type='tns:QueryInventory'>
+  <soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
+  <operation name='getInventoryByArticle'>
+
+   <soap:operation soapAction=''/>
+   <input>
+    <soap:body namespace='http://ws.inventory.los.linogistix.de/' use='literal'/>
+   </input>
+   <output>
+    <soap:body namespace='http://ws.inventory.los.linogistix.de/' use='literal'/>
+   </output>
+   <fault name='InventoryException'>
+    <soap:fault name='InventoryException' use='literal'/>
+
+   </fault>
+  </operation>
+  <operation name='getInventoryByLot'>
+   <soap:operation soapAction=''/>
+   <input>
+    <soap:body namespace='http://ws.inventory.los.linogistix.de/' use='literal'/>
+   </input>
+   <output>
+    <soap:body namespace='http://ws.inventory.los.linogistix.de/' use='literal'/>
+
+   </output>
+   <fault name='InventoryException'>
+    <soap:fault name='InventoryException' use='literal'/>
+   </fault>
+  </operation>
+  <operation name='getInventoryList'>
+   <soap:operation soapAction=''/>
+   <input>
+    <soap:body namespace='http://ws.inventory.los.linogistix.de/' use='literal'/>
+
+   </input>
+   <output>
+    <soap:body namespace='http://ws.inventory.los.linogistix.de/' use='literal'/>
+   </output>
+   <fault name='InventoryException'>
+    <soap:fault name='InventoryException' use='literal'/>
+   </fault>
+  </operation>
+ </binding>
+
+ <service name='QueryInventoryBeanService'>
+  <port binding='tns:QueryInventoryBinding' name='QueryInventoryBeanPort'>
+   <soap:address location='http://localhost:18080/webservice/QueryInventoryBean'/>
+  </port>
+ </service>
+</definitions>

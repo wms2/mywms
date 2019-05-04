@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="System">
+            <file name="de-linogistix-losdataimporter-storagelocation-ImportLocationAction.instance"/>
+            <file name="de-linogistix-losdataimporter-itemdata-ImportItemDataAction.instance"/>
+        </folder>
+    </folder>
+     <folder name="Menu">
+                  
+         <folder name = "LOSFile">
+            <folder name="Import">
+                <attr name="position" intvalue="390"/>
+                <file name="de-linogistix-losdataimporter-storagelocation-ImportItemDataAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/System/de-linogistix-losdataimporter-itemdata-ImportItemDataAction.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="de-linogistix-losdataimporter-storagelocation-ImportLocationAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/System/de-linogistix-losdataimporter-storagelocation-ImportLocationAction.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+            </folder>
+            
+            <file name="Sep-399[javax-swing-JSeparator].instance">
+                <attr name="position" intvalue="399"/>
+            </file>
+            
+        </folder>
+    </folder>
+    
+</filesystem>

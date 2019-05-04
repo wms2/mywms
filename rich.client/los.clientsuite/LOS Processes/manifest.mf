@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: de.linogistix.wmsprocesses
+OpenIDE-Module-Layer: de/linogistix/wmsprocesses/layer.xml
+OpenIDE-Module-Localizing-Bundle: de/linogistix/wmsprocesses/res/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3
+

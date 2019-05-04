@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>         
+       
+    <!-- XML Workspace Layout part --> 
+    <folder name="Windows2">
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="Welcome.wstcref" url="Welcome.wstcref"/>
+            </folder>
+        </folder>
+        <folder name="Components">
+            <file name="Welcome.settings" url="Welcome.settings"/>
+        </folder>
+    </folder>
+ 
+    <folder name="WelcomePage">        
+    </folder>
+
+    <folder name="OptionsExport">
+        <folder name="General">
+            <file name="Welcome">
+                <attr name="include" stringvalue="config/Preferences/de/linogistix/reference/welcome[.]properties"/>
+                <attr name="exclude" stringvalue="config/Preferences/de/linogistix/reference/welcome[.]properties!feedback.*"/>
+                <attr name="displayName" bundlevalue="de.linogistix.reference.welcome.Bundle#Welcome.Options.Export.displayName"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:boBeanNodeDescriptor xmlns:ns2="http://schema.linogistix.com/bobeandescriptor">
+    <descriptions>
+<entry>
+            <key>client</key>
+            <value>
+                <group>
+                <name>basic</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+<entry>	  
+   </descriptions>
+    <forClass>org.mywms.model.BasicClientAssignedEntity</forClass>
+    <groups>
+        <groupPosition>1</groupPosition>
+        <hidden>false</hidden>
+        <name>basic</name>
+    </groups>
+</ns2:boBeanNodeDescriptor>

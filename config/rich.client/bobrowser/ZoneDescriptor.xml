@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:boBeanNodeDescriptor xmlns:ns2="http://schema.linogistix.com/bobeandescriptor">
+    <descriptions>
+        <entry>
+            <key>name</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>2</position>
+            </value>
+        </entry>
+
+		<entry>
+			<key>lock</key>
+			<value>
+				<group>
+					<name>lock</name>
+				</group>
+				<hidden>true</hidden>
+				<position>1</position>
+			</value>
+		</entry>
+
+    </descriptions>
+    
+    <forClass>org.mywms.model.BasicEntity</forClass>
+	<groups>
+		<groupPosition>2</groupPosition>
+		<hidden>true</hidden>
+		<name>lock</name>
+	</groups>
+    <groups>
+        <groupPosition>10</groupPosition>
+        <hidden>false</hidden>
+        <name>main</name>
+    </groups>
+
+</ns2:boBeanNodeDescriptor>

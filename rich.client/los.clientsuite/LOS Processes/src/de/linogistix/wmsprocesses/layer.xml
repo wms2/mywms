@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+    <!-- Define location actions -->
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="de-linogistix-wmsprocesses-processes-create_avis-CreateAvisAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-processes-goodsreceipt-GoodsReceiptAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-stockunittransfer-StockUnitTransferAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-changeamount-StockUnitChangeAmountAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-unitloadtransfer-UnitLoadTransferAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-carriertransfer-CarrierTransferAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-processes-treat_order-TreatOrderAction.instance"/>
+            <file name="de-linogistix-wmsprocesses-processes-order-OrderAction.instance"/>
+        </folder>
+
+        <folder name="BOBrowser">
+            <folder name="StockUnits">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-wmsprocesses-stockunittransfer-BOStockUnitTransferAction.instance"/>
+                    <file name="de-linogistix-wmsprocesses-changeamount-BOStockUnitChangeAmountAction.instance"/>
+                </folder>
+            </folder>
+            <folder name="LOSUnitLoads">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-wmsprocesses-unitloadtransfer-BOUnitLoadTransferAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="Menu">
+        <folder name="LOSWindow">
+            <file name="CreateAvisAction.shadow">
+                <attr name="position" intvalue="100"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-processes-create_avis-CreateAvisAction.instance"/>
+            </file>
+            <file name="GoodsReceiptAction.shadow">
+                <attr name="position" intvalue="200"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-processes-goodsreceipt-GoodsReceiptAction.instance"/>
+            </file>
+            <file name="Sep-299[javax-swing-JSeparator].instance">
+                <attr name="position" intvalue="299"/>
+            </file>
+            <file name="OrderAction.shadow">
+                <attr name="position" intvalue="300"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-processes-order-OrderAction.instance"/>
+            </file>
+            <file name="TreatOrderAction.shadow">
+                <attr name="position" intvalue="400"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-processes-treat_order-TreatOrderAction.instance"/>
+            </file>
+            <file name="Sep-499[javax-swing-JSeparator].instance">
+                <attr name="position" intvalue="499"/>
+            </file>
+        </folder>
+        <folder name="LOSActions">
+            <file name="UnitLoadTransferAction.shadow">
+                <attr name="position" intvalue="100"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-unitloadtransfer-UnitLoadTransferAction.instance"/>
+            </file>
+            <file name="StockUnitTransferAction.shadow">
+                <attr name="position" intvalue="200"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-stockunittransfer-StockUnitTransferAction.instance"/>
+            </file>
+            <file name="CarrierTransferAction.shadow">
+                <attr name="position" intvalue="210"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-carriertransfer-CarrierTransferAction.instance"/>
+            </file>
+             <file name="Sep-299[javax-swing-JSeparator].instance">
+                <attr name="position" intvalue="299"/>
+            </file>
+            <file name="StockUnitChangeAmountAction.shadow">
+                <attr name="position" intvalue="410"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-wmsprocesses-changeamount-StockUnitChangeAmountAction.instance"/>
+            </file>
+        </folder>
+<!--
+        <folder name = "LOSHelp">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.wmsprocesses.res.Bundle"/>
+            <folder name = "WMSProcesses">
+             </folder>
+        </folder>
+-->
+    </folder>
+    
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="wmsprocesses-helpset.xml" url="wmsprocesses-helpset.xml">
+                <attr name="position" intvalue="3000"/>
+            </file>
+        </folder>
+    </folder>
+
+
+</filesystem>

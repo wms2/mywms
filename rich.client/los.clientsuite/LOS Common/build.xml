@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="de.linogistix.common" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project de.linogistix.common.</description>
+    <import file="nbproject/build-impl.xml"/> 
+    <!-- Sorgt dafür das die hier erstellten jars auch anderen Suiten zur Verfügung stehen-->
+    <target name="update.platform">
+        <echo message="Updating platform ..."/>
+        <copy todir="../nbplatform/linogistix_clientsuite/linogistix_clientsuite/modules/">
+            <fileset dir="../build/cluster/modules/">
+                <exclude name="javax-jaxb.jar"/>
+                <exclude name="org-jboss.jar"/>
+                <exclude name="org-mywms.jar"/>            
+                <filename name="**/*.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="jar-prep" depends="init,-pre-jar">
+        <mkdir dir="${cluster}/${module.jar.dir}"/>
+        <tstamp>
+            <format property="buildnumber" pattern="yyMMdd" timezone="UTC"/>
+        </tstamp>
+    </target>
+
+    <target name="-pre-jar">
+
+        <mkdir dir="${build.classes.dir}/de/linogistix/common/res/descriptor"/>
+        <copy overwrite="true" failonerror="true" todir="${build.classes.dir}/de/linogistix/common/res/descriptor">
+            <fileset dir="./../../../config/rich.client/bobrowser">
+                <include name="**.*"/>
+            </fileset>
+        </copy>
+
+    </target>
+    
+<!-- Überschreibt die methode netbeans in common.xml-->    
+    <target name="netbeans" depends="projectized-common.netbeans,update.platform"/>
+
+</project>
+

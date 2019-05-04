@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="linogistix.clientsuite" basedir=".">
+<description>Builds the module suite linogistix.clientsuite.</description>
+<import file="nbproject/build-impl.xml"/>
+
+<target name="build-zip" depends="suite.build-zip, create-nbplatform">
+    
+    <!-- Add configuration folder /Setting and /bobrowser to .zip -->
+
+    <mkdir dir="dist/TMP/${app.name}/${app.name}/config/Settings" />
+    <copy overwrite="true" todir="dist/TMP/${app.name}/${app.name}/config">
+            <fileset dir="./../../config/rich.client">
+                    <include name="**/*/**.*" />
+            </fileset>
+    </copy>
+    <copy overwrite="true" todir="dist/TMP/${app.name}/${app.name}/config/Settings">
+            <fileset dir="./../../config">
+                    <include name="*.properties" />
+            </fileset>
+    </copy>
+        
+    
+    <jar jarfile="dist/${app.name}.zip" update="true" duplicate="add">
+        <fileset dir="dist/TMP">
+            <include name="**/*/**.*" />
+        </fileset>
+    </jar>
+    
+    <delete includeemptydirs="true" failonerror="false">
+        <fileset dir="dist/TMP" />
+    </delete>
+    
+</target>
+
+<target name="create-nbplatform">
+    <mkdir dir="${dist.nbplatform}"/>
+    <unzip src="dist/${app.name}.zip" dest="${dist.nbplatform}"/>
+</target>
+
+<target name="config-default">
+    
+    <mkdir dir="build/testuserdir/config/Settings"/>
+    <copy overwrite="true" failonerror="true" todir="build/testuserdir/config">
+        <fileset dir="./../../config/rich.client">
+            <include name="**/*/**.*"/>
+        </fileset>
+    </copy>
+    <copy overwrite="true" failonerror="true" todir="build/testuserdir/config/Settings">
+        <fileset dir="./../../config">
+            <include name="*.properties"/>
+        </fileset>
+    </copy>
+    
+</target>
+
+<target name="los.client.copy">
+    <copy todir="nbplatform/linogistix_clientsuite/linogistix_clientsuite/modules/">
+        <fileset dir="build/cluster/modules/">
+            <exclude name="javax-jaxb.jar"/>
+            <exclude name="org-jboss.jar"/>
+            <exclude name="org-mywms.jar"/>            
+            <filename name="**/*.jar"/>
+        </fileset>
+    </copy>
+</target>
+
+<!--Überschreibt das build in der suite.xml-->
+<target name="build" depends="suite.build,los.client.copy, config-default"/>
+</project>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="de-linogistix-reference-about-AboutBoxAction.instance"/>
+            <file name="de-linogistix-reference-action-CreateBasicTopologyAction.instance"/>
+            <file name="de-linogistix-reference-action-CreateDemoTopologyAction.instance"/>
+        </folder>
+    </folder>
+    
+    
+        <!-- Define common menus -->
+    <folder name="Menu">
+        
+                <!--
+        <folder name="LOSTools">
+            <folder name="DemoTopology">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.reference.res.Bundle"/>
+                <attr name="position" intvalue="490"/>
+                <file name="CreateBasicTopologyAction.shadow">
+                    <attr name="position" intvalue="300"/>
+                    <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-reference-action-CreateBasicTopologyAction.instance"/>
+                </file>
+                <file name="CreateDemoTopologyAction.shadow">
+                    <attr name="position" intvalue="300"/>
+                    <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-reference-action-CreateDemoTopologyAction.instance"/>
+                </file>
+            </folder>
+            
+             <file name="Sep-499[javax-swing-JSeparator].instance">
+                <attr name="position" intvalue="499"/>
+            </file>
+        </folder>
+                -->
+
+        <!-- Help menu -->
+        <folder name="LOSHelp">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.common.res.Bundle"/>
+            <attr name="position" intvalue="500"/>
+            <file name="AboutBoxAction.shadow">
+                <attr name="position" intvalue="500"/>
+                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-reference-about-AboutBoxAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

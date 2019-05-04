@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="de.linogistix.reference" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project de.linogistix.reference.</description>
+    <import file="nbproject/build-impl.xml"/>
+	
+	
+	<target name="jar-prep" depends="init,-pre-jar">
+		<mkdir dir="${cluster}/${module.jar.dir}"/>
+		<tstamp>
+			<format property="buildnumber" pattern="yyMMdd" timezone="UTC"/>
+		</tstamp>
+	</target>
+	
+	<target name="-pre-jar">
+		<echo message="Update Version..."/>
+		<tstamp/>
+		<propertyfile
+                     file="${build.classes.dir}/de/linogistix/reference/about/Bundle.properties" 
+                     comment="Updated by build script">
+                    <entry key="build.date" value="${DSTAMP} " />
+                    <entry key="build.time" value="${TSTAMP} " />
+		</propertyfile>
+	</target>
+	
+	<target name="netbeans" depends="projectized-common.netbeans"/>
+	
+</project>
