@@ -12,13 +12,12 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.mywms.model.ItemData;
-
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class LOSFixedLocationAssignmentCompBean implements
@@ -30,7 +29,7 @@ public class LOSFixedLocationAssignmentCompBean implements
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
 	
-	public void createFixedLocationAssignment(LOSStorageLocation sl, ItemData item) 
+	public void createFixedLocationAssignment(StorageLocation sl, ItemData item) 
 					throws LOSLocationException 
 	{
 		LOSFixedLocationAssignment fla = flaService.getByLocation(sl); 

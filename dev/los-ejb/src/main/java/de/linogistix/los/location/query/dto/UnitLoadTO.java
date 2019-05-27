@@ -7,10 +7,10 @@
  */
 package de.linogistix.los.location.query.dto;
 
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.UnitLoad;
 
-public class UnitLoadTO extends BODTO<LOSUnitLoad> {
+public class UnitLoadTO extends BODTO<UnitLoad> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -21,7 +21,7 @@ public class UnitLoadTO extends BODTO<LOSUnitLoad> {
 	private boolean carrier;
 	private String typeName;
 	
-	public UnitLoadTO(LOSUnitLoad ul){
+	public UnitLoadTO(UnitLoad ul){
 		this(ul.getId(), ul.getVersion(), ul.getLabelId(), ul.getClient().getNumber(), ul.getLock(), ul.getStorageLocation().getName(), ul.isCarrier(), ul.getType().getName());
 	}
 

@@ -22,8 +22,8 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoadPackageType;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadPackageType;
 
 /**
  * @author krane
@@ -38,7 +38,7 @@ public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<LOSPickingUn
 	@EJB
 	private LOSCustomerOrderService customerOrderService;
 	
-	public LOSPickingUnitLoad create(LOSPickingOrder pickingOrder, LOSUnitLoad unitLoad, int index) throws FacadeException {
+	public LOSPickingUnitLoad create(LOSPickingOrder pickingOrder, UnitLoad unitLoad, int index) throws FacadeException {
 		
 		LOSPickingUnitLoad pickingUnitLoad = entityGenerator.generateEntity(LOSPickingUnitLoad.class);
 
@@ -48,7 +48,7 @@ public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<LOSPickingUn
 		pickingUnitLoad.setUnitLoad(unitLoad);
 		
 		// 02.06.17 krane. No limitation of material on the unitLoad
-		unitLoad.setPackageType(LOSUnitLoadPackageType.MIXED_CONSOLIDATE);
+		unitLoad.setPackageType(UnitLoadPackageType.MIXED_CONSOLIDATE);
 		
 		manager.persist(pickingUnitLoad);
 		
@@ -66,7 +66,7 @@ public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<LOSPickingUn
 		return null;
 	}
 	
-	public LOSPickingUnitLoad getByUnitLoad(LOSUnitLoad unitLoad) {
+	public LOSPickingUnitLoad getByUnitLoad(UnitLoad unitLoad) {
 		Query query = manager.createNamedQuery("LOSPickingUnitLoad.queryByUnitLoad");
 		query.setParameter("unitLoad", unitLoad);
 		

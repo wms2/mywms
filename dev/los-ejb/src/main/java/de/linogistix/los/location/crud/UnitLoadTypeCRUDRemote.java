@@ -12,10 +12,9 @@
 package de.linogistix.los.location.crud;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 import javax.ejb.Remote;
-
-import org.mywms.model.UnitLoadType;
 
 /**
  * CRUD operations for User entities

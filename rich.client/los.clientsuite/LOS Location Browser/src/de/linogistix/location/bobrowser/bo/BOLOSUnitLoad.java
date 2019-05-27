@@ -27,8 +27,8 @@ import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.entityservice.BusinessObjectLock;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.linogistix.los.location.crud.LOSUnitLoadCRUDRemote;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,9 +87,9 @@ public class BOLOSUnitLoad extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSUnitLoad o;
+        UnitLoad o;
 
-        o = new LOSUnitLoad();
+        o = new UnitLoad();
         o.setLabelId("Template");
         return o;
 

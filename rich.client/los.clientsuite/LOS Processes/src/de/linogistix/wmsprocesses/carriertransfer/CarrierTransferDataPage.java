@@ -8,8 +8,8 @@
 package de.linogistix.wmsprocesses.carriertransfer;
 
 import de.linogistix.los.query.BODTO;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.event.ChangeListener;
@@ -44,7 +44,7 @@ final public class CarrierTransferDataPage implements WizardDescriptor.Validatin
                     BODTO to = getPanelUI().getUnitLoadAutoFilteringComboBox().getSelectedItem();
                     if (to != null) {
                         wizard.setSource(to);
-                        LOSUnitLoad ul = (LOSUnitLoad)getPanelUI().getUnitLoadAutoFilteringComboBox().getSelectedAsEntity();
+                        UnitLoad ul = (UnitLoad)getPanelUI().getUnitLoadAutoFilteringComboBox().getSelectedAsEntity();
                         if( ul != null ) {
                             getPanelUI().setSourceInfoText(ul.getStorageLocation().getName());
                         }
@@ -65,7 +65,7 @@ final public class CarrierTransferDataPage implements WizardDescriptor.Validatin
                     BODTO to = getPanelUI().getDestinationAutofilteringComboBox().getSelectedItem();
                     if (to != null) {
                         wizard.setDestination(to);
-                        LOSUnitLoad ul = (LOSUnitLoad)getPanelUI().getDestinationAutofilteringComboBox().getSelectedAsEntity();
+                        UnitLoad ul = (UnitLoad)getPanelUI().getDestinationAutofilteringComboBox().getSelectedAsEntity();
                         if( ul != null ) {
                             getPanelUI().setDestinationInfoText(ul.getStorageLocation().getName());
                         }
@@ -183,8 +183,8 @@ final public class CarrierTransferDataPage implements WizardDescriptor.Validatin
     }
 
     public void validate() throws WizardValidationException {
-        BODTO<LOSUnitLoad> source =  this.wizard.getSource();
-        BODTO<LOSUnitLoad> destination =  this.wizard.getDestination();
+        BODTO<UnitLoad> source =  this.wizard.getSource();
+        BODTO<UnitLoad> destination =  this.wizard.getDestination();
 
         if (source == null) {
             throw new WizardValidationException(getPanelUI(), "no unit load set",

@@ -16,7 +16,6 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.location.facade.ManageLocationFacade;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -30,6 +29,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
+import de.wms2.mywms.location.StorageLocation;
 
 public final class BOStorageLocationReleaseAction extends NodeAction {
 
@@ -78,7 +78,7 @@ public final class BOStorageLocationReleaseAction extends NodeAction {
                 return;
             }
 
-            List<BODTO<LOSStorageLocation>> l = new ArrayList();
+            List<BODTO<StorageLocation>> l = new ArrayList();
             for (Node n : activatedNodes) {
                 l = new ArrayList();
                 if (n == null) {

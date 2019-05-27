@@ -7,7 +7,7 @@
  */
 package de.linogistix.los.inventory.model;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 public enum OrderType {
 	

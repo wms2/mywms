@@ -27,7 +27,7 @@ import javax.persistence.TemporalType;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * Der LOSGoodsReceipt protokolliert die Anlieferung von Waren durch einen Spediteur.
@@ -42,118 +42,45 @@ public class LOSGoodsReceipt extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
 	
-	private String goodsReceiptNumber;
-	
-	private User operator;
-	
-	private String licencePlate;
-	
-	private String driverName;
-	
-	private String forwarder;
-	
-	private String deliveryNoteNumber;
-	
-	private Date receiptDate;
-	
-	private List<LOSGoodsReceiptPosition> positionList = new ArrayList<LOSGoodsReceiptPosition>();
-
-	private List<LOSAdvice> assignedAdvices = new ArrayList<LOSAdvice>();
-	
-    private LOSStorageLocation goodsInLocation;
-    
-    private LOSGoodsReceiptState receiptState = LOSGoodsReceiptState.RAW;
-    
-    private String referenceNo;
-    
 	/**
 	 * A unique identifier for a receipt.
 	 * This cannot be changed
-	 * @return
 	 */
 	@Column(name="gr_number", unique=true, nullable=false, updatable=false)
-	public String getGoodsReceiptNumber() {
-		return goodsReceiptNumber;
-	}
-
-	public void setGoodsReceiptNumber(String goodsReceiptNumber) {
-		this.goodsReceiptNumber = goodsReceiptNumber;
-	}
-
+	private String goodsReceiptNumber;
+	
 	/**
 	 * Der Lagermitarbeiter der die Anlieferung angenommen hat.
-	 * @return
 	 */
 	@ManyToOne(optional=true)
-	public User getOperator() {
-		return operator;
-	}
-
-	public void setOperator(User user) {
-		this.operator = user;
-	}
-
+	private User operator;
+	
 	/**
 	 * Das KFZ-Kennzeichen des LKWs.
-	 * @return
 	 */
-	public String getLicencePlate() {
-		return licencePlate;
-	}
-
-	public void setLicencePlate(String licencePlate) {
-		this.licencePlate = licencePlate;
-	}
-
+	private String licencePlate;
+	
 	/**
 	 * Der Name des Fahrers.
-	 * @return
 	 */
-	public String getDriverName() {
-		return driverName;
-	}
-
-	public void setDriverName(String driverName) {
-		this.driverName = driverName;
-	}
-
+	private String driverName;
+	
 	/** 
 	 * Name der Spedition.
-	 * @return
 	 */
-	public String getForwarder() {
-		return forwarder;
-	}
-
-	public void setForwarder(String forwarder) {
-		this.forwarder = forwarder;
-	}
-
+	private String forwarder;
+	
 	/**
 	 * Nummer des Lieferscheins den die Spedition mitschickt.
-	 * @return
 	 */
 	@Column(name="delnote")
-	public String getDeliveryNoteNumber() {
-		return deliveryNoteNumber;
-	}
-
-	public void setDeliveryNoteNumber(String deliveryNoteNumber) {
-		this.deliveryNoteNumber = deliveryNoteNumber;
-	}
-
+	private String deliveryNoteNumber;
+	
 	/**
 	 * Datum des Wareneingangs
-	 * @return
 	 */
 	@Temporal(TemporalType.DATE)
-	public Date getReceiptDate() {
-		return receiptDate;
-	}
-
-	public void setReceiptDate(Date receiptDate) {
-		this.receiptDate = receiptDate;
-	}
+	private Date receiptDate;
 	
 	/**
 	 * Auf einem LKW k�nnen Waren angeliefert werden, 
@@ -164,6 +91,112 @@ public class LOSGoodsReceipt extends BasicClientAssignedEntity {
 	 */
 	@OneToMany(mappedBy="goodsReceipt")
 	@OrderBy("positionNumber ASC")
+	private List<LOSGoodsReceiptPosition> positionList = new ArrayList<LOSGoodsReceiptPosition>();
+
+	/**
+	 * Assigned {@link LOSAdvice}s can later be used in the reception process 
+	 * @param assignedAdvices the assignedAdvices to set
+	 */
+	@ManyToMany
+	@OrderBy("id ASC")
+	private List<LOSAdvice> assignedAdvices = new ArrayList<LOSAdvice>();
+	
+    @ManyToOne(optional=true, fetch=FetchType.LAZY)
+    private StorageLocation goodsInLocation;
+    
+    @Enumerated(EnumType.STRING)
+    private LOSGoodsReceiptState receiptState = LOSGoodsReceiptState.RAW;
+    
+	/**
+	 * A number to store external references
+	 */
+    private String referenceNo;
+    
+	/**
+	 * 
+	 * @param adv
+	 * @throws IllegalArgumentException if adv has assigned a {@link LOSGoodsReceiptPosition} of this {@link LOSGoodsReceipt}
+	 */
+	public void removeAssignedAdvices(LOSAdvice adv) throws IllegalArgumentException {
+		if (getAssignedAdvices().contains(adv)) {
+			for (LOSGoodsReceiptPosition p : getPositionList()) {
+				if (adv.getGrPositionList().contains(p)) {
+					throw new IllegalArgumentException();
+				}
+			}
+			getAssignedAdvices().remove(adv);
+
+		}
+	}
+
+    @Override
+    public String toUniqueString() {
+        return goodsReceiptNumber;
+    }
+
+	public void addAssignedAdvices(LOSAdvice adv) {
+		if (!getAssignedAdvices().contains(adv)) {
+			getAssignedAdvices().add(adv);
+		}
+
+	}
+
+	public String getGoodsReceiptNumber() {
+		return goodsReceiptNumber;
+	}
+
+	public void setGoodsReceiptNumber(String goodsReceiptNumber) {
+		this.goodsReceiptNumber = goodsReceiptNumber;
+	}
+
+	public User getOperator() {
+		return operator;
+	}
+
+	public void setOperator(User user) {
+		this.operator = user;
+	}
+
+	public String getLicencePlate() {
+		return licencePlate;
+	}
+
+	public void setLicencePlate(String licencePlate) {
+		this.licencePlate = licencePlate;
+	}
+
+	public String getDriverName() {
+		return driverName;
+	}
+
+	public void setDriverName(String driverName) {
+		this.driverName = driverName;
+	}
+
+	public String getForwarder() {
+		return forwarder;
+	}
+
+	public void setForwarder(String forwarder) {
+		this.forwarder = forwarder;
+	}
+
+	public String getDeliveryNoteNumber() {
+		return deliveryNoteNumber;
+	}
+
+	public void setDeliveryNoteNumber(String deliveryNoteNumber) {
+		this.deliveryNoteNumber = deliveryNoteNumber;
+	}
+
+	public Date getReceiptDate() {
+		return receiptDate;
+	}
+
+	public void setReceiptDate(Date receiptDate) {
+		this.receiptDate = receiptDate;
+	}
+	
 	public List<LOSGoodsReceiptPosition> getPositionList() {
 		return positionList;
 	}
@@ -172,21 +205,15 @@ public class LOSGoodsReceipt extends BasicClientAssignedEntity {
 		this.positionList = positionList;
 	}
 
-    @ManyToOne(optional=true, fetch=FetchType.LAZY)
-    public LOSStorageLocation getGoodsInLocation() {
+    public StorageLocation getGoodsInLocation() {
         return goodsInLocation;
     }
 
-    public void setGoodsInLocation(LOSStorageLocation goodsInLocation) {
+    public void setGoodsInLocation(StorageLocation goodsInLocation) {
         this.goodsInLocation = goodsInLocation;
     }
 
-    @Override
-    public String toUniqueString() {
-        return goodsReceiptNumber;
-    }
 
-    @Enumerated(EnumType.STRING)
     public LOSGoodsReceiptState getReceiptState() {
         return receiptState;
     }
@@ -195,55 +222,20 @@ public class LOSGoodsReceipt extends BasicClientAssignedEntity {
         this.receiptState = receiptState;
     }
 
-	/**
-	 * Assigned {@link LOSAdvice}s can later be used in the reception process 
-	 * @param assignedAdvices the assignedAdvices to set
-	 */
 	public void setAssignedAdvices(List<LOSAdvice> assignedAdvices) {
 		this.assignedAdvices = assignedAdvices;
 	}
 
-	/**
-	 * @return the assignedAdvices
-	 */
-	@ManyToMany
-	@OrderBy("id ASC")
 	public List<LOSAdvice> getAssignedAdvices() {
 		return assignedAdvices;
 	}
 
-	public void addAssignedAdvices(LOSAdvice adv) {
-		if (!getAssignedAdvices().contains(adv)){
-			getAssignedAdvices().add(adv);
-		}
-		
-	}
-	
-	/**
-	 * 
-	 * @param adv
-	 * @throws IllegalArgumentException if adv has assigned a {@link LOSGoodsReceiptPosition} of this {@link LOSGoodsReceipt}
-	 */
-	public void removeAssignedAdvices(LOSAdvice adv) throws IllegalArgumentException{	
-		if (getAssignedAdvices().contains(adv)){
-			for (LOSGoodsReceiptPosition p : getPositionList()){
-				if (adv.getGrPositionList().contains(p)){
-					throw new IllegalArgumentException();
-				}
-			}
-			getAssignedAdvices().remove(adv);
-		
-		}
-	}
+
 
 	public boolean containsAssignedAdvices(LOSAdvice adv) {
 		return getAssignedAdvices().contains(adv);
 	}
 
-	/**
-	 * A number to store external references
-	 * @return
-	 */
 	public String getReferenceNo() {
 		return referenceNo;
 	}

@@ -14,8 +14,8 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  *
@@ -23,7 +23,7 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
  */
 @Remote
 public interface LOSUnitLoadQueryRemote 
-        extends BusinessObjectQueryRemote<LOSUnitLoad>
+        extends BusinessObjectQueryRemote<UnitLoad>
 { 
   
 }

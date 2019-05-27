@@ -23,17 +23,11 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoad;
 
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.query.dto.StockUnitTO;
 import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
@@ -44,6 +38,11 @@ import de.linogistix.los.query.TemplateQueryFilter;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * 
@@ -74,7 +73,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 		sbCount.append(StockUnit.class.getName()+" su  ");
 		sbCount.append(" LEFT OUTER JOIN su.lot AS l ");
 		sbCount.append(" JOIN su.unitLoad ul ");
-//		sbCount.append(LOSUnitLoad.class.getSimpleName()+" ul ");
 		sbCount.append("WHERE su.unitLoad = ul ");
 		
 		StringBuffer sbQuery = new StringBuffer(" SELECT NEW ");
@@ -98,7 +96,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 		sbQuery.append(StockUnit.class.getSimpleName()+" su ");
 		sbQuery.append(" LEFT OUTER JOIN su.lot AS l ");
 		sbQuery.append(" JOIN su.unitLoad ul ");
-//		sbQuery.append(LOSUnitLoad.class.getSimpleName()+" ul ");
 		sbQuery.append("WHERE su.unitLoad = ul ");
 		
 		if(!getCallersUser().getClient().isSystemClient()){
@@ -296,14 +293,14 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 	@Override
 	@SuppressWarnings("unchecked")
 	public LOSResultList<StockUnitTO> queryByStorageLocation(
-			BODTO<LOSStorageLocation> sl,
+			BODTO<StorageLocation> sl,
 			QueryDetail detail) throws BusinessObjectQueryException{
 		try{
 			if (sl == null){
 				throw new NullPointerException("StorageLocation must not be null");
 			}
 			
-			LOSStorageLocation storloc = manager.find(LOSStorageLocation.class, sl.getId());
+			StorageLocation storloc = manager.find(StorageLocation.class, sl.getId());
 			
 			List<StockUnitTO> ret = new ArrayList<StockUnitTO>();
 			StringBuffer sb ;
@@ -493,7 +490,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			BODTO<Client> client, 
 			BODTO<Lot> lot,
 			BODTO<ItemData> itemData,
-			BODTO<LOSStorageLocation> storageLocation,
+			BODTO<StorageLocation> storageLocation,
 			QueryDetail detail) throws BusinessObjectNotFoundException, BusinessObjectQueryException{
 		return queryByParameter(client, lot, itemData, storageLocation, detail);
 		
@@ -517,7 +514,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			BODTO<Client> client, 
 			BODTO<Lot> lot,
 			BODTO<ItemData> itemData,
-			BODTO<LOSStorageLocation> storageLocation,
+			BODTO<StorageLocation> storageLocation,
 			QueryDetail detail) throws BusinessObjectQueryException{
 		try{
 			

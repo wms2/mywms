@@ -14,7 +14,7 @@ import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.model.LOSStorageLocationType;
+import de.wms2.mywms.location.LocationType;
 
 /**
  *
@@ -22,14 +22,14 @@ import de.linogistix.los.location.model.LOSStorageLocationType;
  */
 @Stateless
 public class LOSStorageLocationTypeCRUDBean 
-        extends BusinessObjectCRUDBean<LOSStorageLocationType>
+        extends BusinessObjectCRUDBean<LocationType>
         implements LOSStorageLocationTypeCRUDRemote 
 {
     @EJB
     LOSStorageLocationTypeService typeService;
 
     @Override
-    protected BasicService<LOSStorageLocationType> getBasicService() {
+    protected BasicService<LocationType> getBasicService() {
         return typeService;
     }
  

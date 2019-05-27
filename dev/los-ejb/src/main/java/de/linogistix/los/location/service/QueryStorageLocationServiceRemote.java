@@ -12,13 +12,13 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 @Remote
 public interface QueryStorageLocationServiceRemote {
 
 	/**
-	 * Search for an {@link LOSStorageLocation} with specified name.
+	 * Search for an {@link StorageLocation} with specified name.
 	 * For security reasons this will only be allowed for callers who <br> 
 	 * - belong to the same client as the location is assigned to or <br>
 	 * - belong to the system client.
@@ -27,21 +27,21 @@ public interface QueryStorageLocationServiceRemote {
 	 * @return matching location or NULL if there is none.
 	 * @throws UnAuthorizedException
 	 */
-	public LOSStorageLocation getByName(String name) throws UnAuthorizedException;
+	public StorageLocation getByName(String name) throws UnAuthorizedException;
 	
 	/**
-	 * Search for {@link LOSStorageLocation}s that are assigned to the specified area.
+	 * Search for {@link StorageLocation}s that are assigned to the specified area.
 	 * For security reasons result will be limited according to the callers client <br> 
 	 * - callers who belong to the system client will get all locations for the specified area type<br>
 	 * - callers of a certain client will get only those locations that are also assigned to that client.
 	 * 
 	 * 
 	 * @param areaType
-	 * @return list of {@link LOSStorageLocation}s or sub classes
+	 * @return list of {@link StorageLocation}s or sub classes
 	 */
-	public List<LOSStorageLocation> getListForGoodsIn();
-	public List<LOSStorageLocation> getListForGoodsOut();	
-	public List<LOSStorageLocation> getListForStorage();
+	public List<StorageLocation> getListForGoodsIn();
+	public List<StorageLocation> getListForGoodsOut();
+	public List<StorageLocation> getListForStorage();
 
 	
 }

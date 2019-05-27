@@ -20,14 +20,10 @@ import javax.faces.model.SelectItem;
 import org.apache.log4j.Logger;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.service.QueryItemDataServiceRemote;
 import de.linogistix.los.inventory.service.QueryStockServiceRemote;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryStorageLocationServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.los.query.ClientQueryRemote;
@@ -38,11 +34,15 @@ import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
 import de.linogistix.los.stocktaking.facade.LOSStocktakingFacade;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 public class StockTakingBean extends BasicDialogBean {
 	private static final Logger log = Logger.getLogger(StockTakingBean.class);
 
-	protected LOSStorageLocation stockTakingLocation;
+	protected StorageLocation stockTakingLocation;
 	
 	protected String stockTakingLocationName;
 	
@@ -50,9 +50,9 @@ public class StockTakingBean extends BasicDialogBean {
 	
 	protected String unitLoadLabel;
 	
-	protected LOSUnitLoad unitLoadToCount;
+	protected UnitLoad unitLoadToCount;
 	
-	protected List<LOSUnitLoad> expectedUnitLoadList;
+	protected List<UnitLoad> expectedUnitLoadList;
 	
 	protected HashSet<String> countedUnitLoadList;
 	
@@ -309,7 +309,7 @@ public class StockTakingBean extends BasicDialogBean {
 		
 		try{
 			
-			for(LOSUnitLoad ul:expectedUnitLoadList){
+			for(UnitLoad ul:expectedUnitLoadList){
 				stFacade.processUnitloadMissing(ul);
 			}
 		
@@ -380,7 +380,7 @@ public class StockTakingBean extends BasicDialogBean {
 				expectedStock = expectedStockList.get(0);
 				currentStock = expectedStock.getId().toString();
 				currentItem = expectedStock.getItemData().getNumber();
-				currentUnit = expectedStock.getItemUnit().getUnitName();
+				currentUnit = expectedStock.getItemUnit().getName();
 				currentLot = expectedStock.getLot() == null ? "" : expectedStock.getLot().getName();
 				currentSerial = expectedStock.getSerialNumber() == null ? "" : expectedStock.getSerialNumber();
 				
@@ -453,7 +453,7 @@ public class StockTakingBean extends BasicDialogBean {
 		String methodName = "cancelCounting ";
 		log.info(methodName+"Start cancel stocktaking of location <" + stockTakingLocationName + ">");
 		
-		LOSStorageLocation loc = getStorageLocation();
+		StorageLocation loc = getStorageLocation();
 		if( loc == null ) {
 			// no location currently started
 			JSFHelper.getInstance().message(resolve("MsgNoCurrentOrder"));
@@ -535,7 +535,7 @@ public class StockTakingBean extends BasicDialogBean {
 					expectedStock = expectedStockList.get(0);
 					currentStock = expectedStock.getId().toString();
 					currentItem = expectedStock.getItemData().getNumber();
-					currentUnit = expectedStock.getItemUnit().getUnitName();
+					currentUnit = expectedStock.getItemUnit().getName();
 					currentLot = expectedStock.getLot() == null ? "" : expectedStock.getLot().getName();
 					currentSerial = expectedStock.getSerialNumber() == null ? "" : expectedStock.getSerialNumber();
 				}
@@ -699,7 +699,7 @@ public class StockTakingBean extends BasicDialogBean {
 		StringBuffer sb = new StringBuffer();
 		
 		int i = 0;
-		for(LOSUnitLoad ul:expectedUnitLoadList){
+		for(UnitLoad ul:expectedUnitLoadList){
 			if( i++ > 0 ) {
 				sb.append(", ");
 			}
@@ -830,10 +830,10 @@ public class StockTakingBean extends BasicDialogBean {
 	}
 	
 	//---------------------------------------------------------------------
-	protected LOSStorageLocation getStorageLocation(){
+	protected StorageLocation getStorageLocation(){
 		
 		try {
-			LOSStorageLocation sl = queryLocationService.getByName(stockTakingLocationName);
+			StorageLocation sl = queryLocationService.getByName(stockTakingLocationName);
 
 			return sl;
 			
@@ -901,7 +901,7 @@ public class StockTakingBean extends BasicDialogBean {
 			return StockTakingNavigation.NEW_ITEMDATA.name();
 		}
 		
-		currentUnit = itemData.getHandlingUnit().getUnitName();
+		currentUnit = itemData.getItemUnit().getName();
 
 		if( itemData.isLotMandatory() ) { 
 			return StockTakingNavigation.NEW_LOT.name();

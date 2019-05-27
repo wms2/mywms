@@ -7,10 +7,9 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
-
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  * @author krane

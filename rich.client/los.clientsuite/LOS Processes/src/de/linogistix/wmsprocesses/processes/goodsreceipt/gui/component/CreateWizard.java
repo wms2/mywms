@@ -14,9 +14,9 @@ import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.MessageFormat;
@@ -52,7 +52,7 @@ public class CreateWizard extends WizardDescriptor implements ActionListener, Ch
     
     String info;
     
-    BODTO<LOSStorageLocation> gate;
+    BODTO<StorageLocation> gate;
     
     Date date = new Date();
     

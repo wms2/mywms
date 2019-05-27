@@ -30,13 +30,11 @@ import org.mywms.globals.DocumentTypes;
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.model.StorageLocationLabel;
 import de.linogistix.los.location.res.BundleResolver;
-import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -79,7 +77,7 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
             b.append(")");
 
             b.append(" FROM ");
-            b.append(LOSStorageLocation.class.getName());
+            b.append(StorageLocation.class.getName());
             b.append(" sl ");
             
             Query q = manager.createQuery(new String(b));
@@ -101,13 +99,11 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
         }
     }
     
-    public StorageLocationLabel generateRackLabels(List<BODTO<LOSRack>> list) throws LOSLocationException, BusinessObjectQueryException, ReportException {
+    public StorageLocationLabel generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException {
         List<StorageLocationLabelTO> labels = new ArrayList<StorageLocationLabelTO>();
-        for (BODTO<LOSRack> dto : list){
-           LOSRack rack = manager.find(LOSRack.class, dto.getId());
-           Integer i = rack.getLabelOffset();
-           for (LOSStorageLocation loc : locationService.getListByRack(rack) ){
-            StorageLocationLabelTO to = new StorageLocationLabelTO(loc.getName(), i);
+        for (String rack : list){
+           for (StorageLocation loc : locationService.getListByRack(rack) ){
+            StorageLocationLabelTO to = new StorageLocationLabelTO(loc.getName(), 0);
             labels.add(to);
            }
         }

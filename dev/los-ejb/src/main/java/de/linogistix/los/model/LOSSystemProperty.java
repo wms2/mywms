@@ -31,19 +31,21 @@ public class LOSSystemProperty extends BasicClientAssignedEntity {
 	
 	public final static String WORKSTATION_DEFAULT = "DEFAULT";
 
+	@Column(name="syskey", nullable=false)
 	private String key;
 	
+	@Column(name="sysvalue")
 	private String value;
 
 	private String description;
 	
+	@Column(nullable=false)
 	private String workstation = WORKSTATION_DEFAULT;
 	
 	private String groupName;
 	
 	private boolean hidden = false;
 	
-	@Column(name="syskey", nullable=false)
 	public String getKey() {
 		return key;
 	}
@@ -52,7 +54,6 @@ public class LOSSystemProperty extends BasicClientAssignedEntity {
 		this.key = key;
 	}
 
-	@Column(name="sysvalue")
 	public String getValue() {
 		return value;
 	}
@@ -67,7 +68,6 @@ public class LOSSystemProperty extends BasicClientAssignedEntity {
 		this.description = description;
 	}
 
-	@Column(nullable=false)
 	public String getWorkstation() {
 		return workstation;
 	}

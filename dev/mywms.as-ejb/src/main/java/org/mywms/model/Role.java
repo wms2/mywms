@@ -34,7 +34,10 @@ public class Role
 {
     private static final long serialVersionUID = 1L;
 
+    @Column(nullable = false, unique = true)
     private String name = null;
+
+    @Column(nullable = false)
     private String description = "";
 
     /**
@@ -42,7 +45,6 @@ public class Role
      * 
      * @return Returns the name.
      */
-    @Column(nullable = false, unique = true)
     public String getName() {
         return this.name;
     }
@@ -57,7 +59,6 @@ public class Role
     /**
      * @return Returns the description.
      */
-    @Column(nullable = false)
     public String getDescription() {
         return this.description;
     }

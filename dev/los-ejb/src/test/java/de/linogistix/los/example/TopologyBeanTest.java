@@ -11,30 +11,27 @@ import java.io.IOException;
 
 import org.mywms.ejb.BeanLocator;
 import org.mywms.model.Client;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.crud.ClientCRUDRemote;
 import de.linogistix.los.location.crud.LOSAreaCRUDRemote;
-import de.linogistix.los.location.crud.LOSRackCRUDRemote;
 import de.linogistix.los.location.crud.LOSStorageLocationCRUDRemote;
 import de.linogistix.los.location.crud.LOSStorageLocationTypeCRUDRemote;
 import de.linogistix.los.location.crud.LOSTypeCapacityConstraintCRUDRemote;
 import de.linogistix.los.location.crud.UnitLoadCRUDRemote;
 import de.linogistix.los.location.crud.UnitLoadTypeCRUDRemote;
-import de.linogistix.los.location.model.LOSArea;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationTypeQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
-import de.linogistix.los.location.query.RackQueryRemote;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import junit.framework.TestCase;
 
 /**
@@ -53,7 +50,6 @@ public class TopologyBeanTest extends TestCase {
     private static LOSStorageLocationTypeCRUDRemote slTypeCrud;
     private static LOSTypeCapacityConstraintCRUDRemote capacityCrud;
     private static LOSAreaCRUDRemote areaCrud;
-    private static LOSRackCRUDRemote rackCrud;
     private static ClientQueryRemote clQuery;
     private static LOSStorageLocationQueryRemote slQuery;
     private static UnitLoadQueryRemote ulQuery;
@@ -62,7 +58,6 @@ public class TopologyBeanTest extends TestCase {
     private static LOSStorageLocationTypeQueryRemote slTypeQuery;
     private static LOSTypeCapacityConstraintQueryRemote capacityQuery;
     private static LOSAreaQueryRemote areaQuery;
-    private static RackQueryRemote rackQuery;
     
     
     protected static LocationTestTopologyRemote topology;
@@ -94,7 +89,6 @@ public class TopologyBeanTest extends TestCase {
         slTypeCrud = getBeanLocator().getStateless(LOSStorageLocationTypeCRUDRemote.class);
         capacityCrud = getBeanLocator().getStateless(LOSTypeCapacityConstraintCRUDRemote.class);
         areaCrud = getBeanLocator().getStateless(LOSAreaCRUDRemote.class);
-        rackCrud = getBeanLocator().getStateless(LOSRackCRUDRemote.class);
 
         clQuery = getBeanLocator().getStateless(ClientQueryRemote.class);
         slQuery = getBeanLocator().getStateless(LOSStorageLocationQueryRemote.class);
@@ -104,7 +98,6 @@ public class TopologyBeanTest extends TestCase {
         slTypeQuery = getBeanLocator().getStateless(LOSStorageLocationTypeQueryRemote.class);
         capacityQuery = getBeanLocator().getStateless(LOSTypeCapacityConstraintQueryRemote.class);
         areaQuery = getBeanLocator().getStateless(LOSAreaQueryRemote.class);
-        rackQuery = getBeanLocator().getStateless(RackQueryRemote.class);
     }
 
     @Override
@@ -146,10 +139,6 @@ public class TopologyBeanTest extends TestCase {
 //        return slQuery.queryByIdentity(LocationTestTopologyBean.SL_WE_NAME);
 //    }
 
-     public static LOSRack getTEST_RACK_1() throws BusinessObjectNotFoundException {
-        return rackQuery.queryByIdentity(LocationTestTopologyBean.TEST_RACK_1_NAME);
-    }
-
      public static UnitLoadType getPALETTE() throws BusinessObjectNotFoundException {
         return typeQuery.queryByIdentity(LocationTestTopologyBean.PALETTE_NAME);
     }
@@ -158,31 +147,31 @@ public class TopologyBeanTest extends TestCase {
         return typeQuery.getPickLocationUnitLoadType();
     }
 
-     public static LOSTypeCapacityConstraint getVIELE_PALETTEN() throws BusinessObjectNotFoundException {
+     public static TypeCapacityConstraint getVIELE_PALETTEN() throws BusinessObjectNotFoundException {
         return capacityQuery.queryByIdentity(LocationTestTopologyBean.VIELE_PALETTEN_NAME);
     }
 
-     public static LOSTypeCapacityConstraint getKOMM_FACH_DUMMY_LHM_CONSTR() throws BusinessObjectNotFoundException {
+     public static TypeCapacityConstraint getKOMM_FACH_DUMMY_LHM_CONSTR() throws BusinessObjectNotFoundException {
         return capacityQuery.queryByIdentity(LocationTestTopologyBean.KOMM_FACH_DUMMY_LHM_CONSTR_NAME);
     }
 
-     public static LOSArea getSTORE_AREA() throws BusinessObjectNotFoundException {
+     public static Area getSTORE_AREA() throws BusinessObjectNotFoundException {
         return areaQuery.queryByIdentity(LocationTestTopologyBean.STORE_AREA_NAME);
     }
 
-     public static LOSArea getKOMM_AREA() throws BusinessObjectNotFoundException {
+     public static Area getKOMM_AREA() throws BusinessObjectNotFoundException {
          return areaQuery.queryByIdentity(LocationTestTopologyBean.KOMM_AREA_NAME);
     }
 
-     public static LOSArea getWE_BEREICH() throws BusinessObjectNotFoundException {
+     public static Area getWE_BEREICH() throws BusinessObjectNotFoundException {
          return areaQuery.queryByIdentity(LocationTestTopologyBean.WE_BEREICH_NAME);
     }
 
-     public static LOSArea getWA_BEREICH() throws BusinessObjectNotFoundException {
+     public static Area getWA_BEREICH() throws BusinessObjectNotFoundException {
          return areaQuery.queryByIdentity(LocationTestTopologyBean.WA_BEREICH_NAME);
     }
 
-     public static LOSStorageLocationType getKOMMISIONIER_FACH() throws BusinessObjectNotFoundException {
+     public static LocationType getKOMMISIONIER_FACH() throws BusinessObjectNotFoundException {
          return slTypeQuery.queryByIdentity(LocationTestTopologyBean.KOMMPLATZ_TYP_NAME);
     }
 
@@ -216,10 +205,6 @@ public class TopologyBeanTest extends TestCase {
         return areaCrud;
     }
 
-     public static LOSRackCRUDRemote getRackService() {
-        return rackCrud;
-    }
-
      public static ClientQueryRemote getClQuery() {
         return clQuery;
     }
@@ -246,9 +231,5 @@ public class TopologyBeanTest extends TestCase {
 
      public static LOSAreaQueryRemote getAreaQuery() {
         return areaQuery;
-    }
-
-     public static RackQueryRemote getRackQuery() {
-        return rackQuery;
     }
 }

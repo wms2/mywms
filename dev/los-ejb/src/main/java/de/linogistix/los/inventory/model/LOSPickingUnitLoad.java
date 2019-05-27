@@ -18,8 +18,8 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  *
@@ -36,15 +36,18 @@ import de.linogistix.los.model.State;
 public class LOSPickingUnitLoad extends BasicClientAssignedEntity{
 	private static final long serialVersionUID = 1L;
   
+	@ManyToOne(optional = false)
 	private LOSPickingOrder pickingOrder;
 	private String customerOrderNumber;
 
-	private LOSUnitLoad unitLoad;
+	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	private UnitLoad unitLoad;
+	@Column(nullable = false)
 	private int positionIndex;
+	@Column(nullable = false)
 	private int state = State.RAW;
 
 
-	@ManyToOne(optional = false)
 	public LOSPickingOrder getPickingOrder() {
 		return pickingOrder;
 	}
@@ -52,15 +55,13 @@ public class LOSPickingUnitLoad extends BasicClientAssignedEntity{
 		this.pickingOrder = pickingOrder;
 	}
 	
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	public LOSUnitLoad getUnitLoad() {
+	public UnitLoad getUnitLoad() {
 		return unitLoad;
 	}
-	public void setUnitLoad(LOSUnitLoad unitLoad) {
+	public void setUnitLoad(UnitLoad unitLoad) {
 		this.unitLoad = unitLoad;
 	}
 	
-	@Column(nullable = false)
 	public int getPositionIndex() {
 		return positionIndex;
 	}
@@ -68,7 +69,6 @@ public class LOSPickingUnitLoad extends BasicClientAssignedEntity{
 		this.positionIndex = positionIndex;
 	}
 	
-	@Column(nullable = false)
 	public int getState() {
 		return state;
 	}

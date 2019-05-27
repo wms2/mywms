@@ -58,6 +58,8 @@ public class BOQueryByTemplateNode extends BOEditNode {
             return null;
         } else if (p.getName().equals("class")) {
             return null;
+        } else if (p.getReadMethod() == null){
+            return null;
         } else if (p.getReadMethod().getAnnotation(Transient.class) != null){
             return null;
         } 

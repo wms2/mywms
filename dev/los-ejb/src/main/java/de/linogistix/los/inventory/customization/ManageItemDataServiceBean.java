@@ -14,15 +14,15 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemUnit;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.StockUnitService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.exception.InventoryTransactionException;
 import de.linogistix.los.inventory.exception.StockExistException;
+import de.linogistix.los.inventory.service.ItemDataService;
+import de.linogistix.los.inventory.service.StockUnitService;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
 
 public class ManageItemDataServiceBean implements ManageItemDataService {
 
@@ -85,7 +85,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 		item.setClient(cl);
 		item.setNumber(number);
 		item.setName(name);
-		item.setHandlingUnit(hu);
+		item.setItemUnit(hu);
 		
 		manager.persist(item);
 		
@@ -104,7 +104,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 			throw new StockExistException();
 		}
 		
-		item.setHandlingUnit(newValue);
+		item.setItemUnit(newValue);
 		
 		return manager.merge(item);
 	}

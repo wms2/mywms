@@ -18,8 +18,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.customization.ManageOrderService;
@@ -31,9 +29,12 @@ import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.AreaUsages;
 
 /**
  * @author krane
@@ -190,7 +191,7 @@ public class LOSPickingPosGeneratorBean implements LOSPickingPosGenerator {
 	}
 	
 	public LOSPickingPosition generatePick( BigDecimal amount, StockUnit pickFromStock, LOSOrderStrategy strat, LOSCustomerOrderPosition customerOrderPos ) throws FacadeException {
-		LOSUnitLoad pickFromUnitLoad = (LOSUnitLoad) pickFromStock.getUnitLoad();
+		UnitLoad pickFromUnitLoad = pickFromStock.getUnitLoad();
 		
 		LOSPickingPosition pick = entityGenerator.generateEntity(LOSPickingPosition.class);
 
@@ -223,7 +224,7 @@ public class LOSPickingPosGeneratorBean implements LOSPickingPosGenerator {
 		if( amount.compareTo(pickFromStock.getAmount())!=0 ) {
 			return false;
 		}
-		LOSUnitLoad unitLoad = (LOSUnitLoad)pickFromStock.getUnitLoad();
+		UnitLoad unitLoad = pickFromStock.getUnitLoad();
 		if( unitLoad.isOpened() ) {
 			return false;
 		}
@@ -233,7 +234,7 @@ public class LOSPickingPosGeneratorBean implements LOSPickingPosGenerator {
 			return false;
 		}
 
-		if( unitLoad.getStorageLocation().getArea() != null && !unitLoad.getStorageLocation().getArea().isUseForStorage() ) {
+		if( unitLoad.getStorageLocation().getArea() != null && !unitLoad.getStorageLocation().getArea().isUseFor(AreaUsages.STORAGE) ) {
 			return false;
 		}
 		

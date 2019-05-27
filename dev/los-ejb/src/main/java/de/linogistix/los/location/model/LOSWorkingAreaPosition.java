@@ -14,7 +14,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicEntity;
 
-import de.linogistix.los.location.model.LOSLocationCluster;
+import de.wms2.mywms.location.LocationCluster;
 
 /**
  * @author krane
@@ -30,11 +30,12 @@ public class LOSWorkingAreaPosition extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
 
+	@ManyToOne(optional=false)
 	private LOSWorkingArea workingArea;
-	private LOSLocationCluster cluster;
-	
 
 	@ManyToOne(optional=false)
+	private LocationCluster cluster;
+
 	public LOSWorkingArea getWorkingArea() {
 		return workingArea;
 	}
@@ -42,11 +43,10 @@ public class LOSWorkingAreaPosition extends BasicEntity {
 		this.workingArea = workingArea;
 	}
 	
-	@ManyToOne(optional=false)
-	public LOSLocationCluster getCluster() {
+	public LocationCluster getCluster() {
 		return cluster;
 	}
-	public void setCluster(LOSLocationCluster cluster) {
+	public void setCluster(LocationCluster cluster) {
 		this.cluster = cluster;
 	}
 	

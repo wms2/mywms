@@ -37,20 +37,29 @@ public class OrderReceipt extends Document{
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable=false, updatable=false)
 	private String orderNumber;
 	
 	private String orderReference;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable=false)
 	private OrderType orderType;
 	
 	private String destination; 
 	
+	@Column(nullable=false, updatable=false, name="user_")
 	private String user;
 	
+	@Temporal(TemporalType.DATE)
+	@Column(nullable=false)
 	private Date date;
 	
+	@Enumerated(EnumType.STRING)
 	private LOSOrderRequestState state;
 
+	@OneToMany(mappedBy="receipt")
+	@OrderBy("pos")
 	private List<OrderReceiptPosition> positions;
 	
 	
@@ -64,7 +73,6 @@ public class OrderReceipt extends Document{
 		this.orderNumber = orderNumber;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getOrderNumber() {
 		return orderNumber;
 	}
@@ -73,8 +81,6 @@ public class OrderReceipt extends Document{
 		this.date = date;
 	}
 
-	@Temporal(TemporalType.DATE)
-	@Column(nullable=false)
 	public Date getDate() {
 		return date;
 	}
@@ -83,7 +89,6 @@ public class OrderReceipt extends Document{
 		this.state = state;
 	}
 
-	@Enumerated(EnumType.STRING)
 	public LOSOrderRequestState getState() {
 		return state;
 	}
@@ -92,14 +97,10 @@ public class OrderReceipt extends Document{
 		this.positions = positions;
 	}
 
-	@OneToMany(mappedBy="receipt")
-	@OrderBy("pos")
 	public List<OrderReceiptPosition> getPositions() {
 		return positions;
 	}
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable=false)
 	public OrderType getOrderType() {
 		return orderType;
 	}
@@ -108,7 +109,6 @@ public class OrderReceipt extends Document{
 		this.orderType = orderType;
 	}
 
-	@Column(nullable=false, updatable=false, name="user_")
 	public String getUser() {
 		return user;
 	}

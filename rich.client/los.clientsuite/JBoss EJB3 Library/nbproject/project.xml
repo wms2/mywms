@@ -31,6 +31,8 @@
                 <package>io.netty.channel.embedded</package>
                 <package>io.netty.channel.epoll</package>
                 <package>io.netty.channel.group</package>
+                <package>io.netty.channel.internal</package>
+                <package>io.netty.channel.kqueue</package>
                 <package>io.netty.channel.local</package>
                 <package>io.netty.channel.nio</package>
                 <package>io.netty.channel.oio</package>
@@ -84,11 +86,11 @@
                 <package>io.netty.handler.logging</package>
                 <package>io.netty.handler.proxy</package>
                 <package>io.netty.handler.ssl</package>
+                <package>io.netty.handler.ssl.ocsp</package>
                 <package>io.netty.handler.ssl.util</package>
                 <package>io.netty.handler.stream</package>
                 <package>io.netty.handler.timeout</package>
                 <package>io.netty.handler.traffic</package>
-                <package>io.netty.internal.tcnative</package>
                 <package>io.netty.resolver</package>
                 <package>io.netty.resolver.dns</package>
                 <package>io.netty.util</package>
@@ -135,6 +137,7 @@
                 <package>io.undertow.server.protocol.framed</package>
                 <package>io.undertow.server.protocol.http</package>
                 <package>io.undertow.server.protocol.http2</package>
+                <package>io.undertow.server.protocol.proxy</package>
                 <package>io.undertow.server.session</package>
                 <package>io.undertow.util</package>
                 <package>io.undertow.websockets</package>
@@ -165,7 +168,42 @@
                 <package>javax.resource.spi.security</package>
                 <package>javax.resource.spi.work</package>
                 <package>javax.transaction</package>
-                <package>javax.transaction.xa</package>
+                <package>net.bytebuddy</package>
+                <package>net.bytebuddy.agent.builder</package>
+                <package>net.bytebuddy.asm</package>
+                <package>net.bytebuddy.build</package>
+                <package>net.bytebuddy.description</package>
+                <package>net.bytebuddy.description.annotation</package>
+                <package>net.bytebuddy.description.enumeration</package>
+                <package>net.bytebuddy.description.field</package>
+                <package>net.bytebuddy.description.method</package>
+                <package>net.bytebuddy.description.modifier</package>
+                <package>net.bytebuddy.description.type</package>
+                <package>net.bytebuddy.dynamic</package>
+                <package>net.bytebuddy.dynamic.loading</package>
+                <package>net.bytebuddy.dynamic.scaffold</package>
+                <package>net.bytebuddy.dynamic.scaffold.inline</package>
+                <package>net.bytebuddy.dynamic.scaffold.subclass</package>
+                <package>net.bytebuddy.implementation</package>
+                <package>net.bytebuddy.implementation.attribute</package>
+                <package>net.bytebuddy.implementation.auxiliary</package>
+                <package>net.bytebuddy.implementation.bind</package>
+                <package>net.bytebuddy.implementation.bind.annotation</package>
+                <package>net.bytebuddy.implementation.bytecode</package>
+                <package>net.bytebuddy.implementation.bytecode.assign</package>
+                <package>net.bytebuddy.implementation.bytecode.assign.primitive</package>
+                <package>net.bytebuddy.implementation.bytecode.assign.reference</package>
+                <package>net.bytebuddy.implementation.bytecode.collection</package>
+                <package>net.bytebuddy.implementation.bytecode.constant</package>
+                <package>net.bytebuddy.implementation.bytecode.member</package>
+                <package>net.bytebuddy.jar.asm</package>
+                <package>net.bytebuddy.jar.asm.commons</package>
+                <package>net.bytebuddy.jar.asm.signature</package>
+                <package>net.bytebuddy.matcher</package>
+                <package>net.bytebuddy.pool</package>
+                <package>net.bytebuddy.utility</package>
+                <package>net.bytebuddy.utility.privilege</package>
+                <package>net.bytebuddy.utility.visitor</package>
                 <package>org.apache.activemq.artemis</package>
                 <package>org.apache.activemq.artemis.api.config</package>
                 <package>org.apache.activemq.artemis.api.core</package>
@@ -182,6 +220,7 @@
                 <package>org.apache.activemq.artemis.core.exception</package>
                 <package>org.apache.activemq.artemis.core.message</package>
                 <package>org.apache.activemq.artemis.core.message.impl</package>
+                <package>org.apache.activemq.artemis.core.persistence</package>
                 <package>org.apache.activemq.artemis.core.protocol</package>
                 <package>org.apache.activemq.artemis.core.protocol.core</package>
                 <package>org.apache.activemq.artemis.core.protocol.core.impl</package>
@@ -201,7 +240,6 @@
                 <package>org.apache.activemq.artemis.core.version</package>
                 <package>org.apache.activemq.artemis.core.version.impl</package>
                 <package>org.apache.activemq.artemis.jms.client</package>
-                <package>org.apache.activemq.artemis.jms.referenceable</package>
                 <package>org.apache.activemq.artemis.jndi</package>
                 <package>org.apache.activemq.artemis.logs</package>
                 <package>org.apache.activemq.artemis.reader</package>
@@ -215,6 +253,10 @@
                 <package>org.apache.activemq.artemis.uri.schema.connector</package>
                 <package>org.apache.activemq.artemis.uri.schema.serverLocator</package>
                 <package>org.apache.activemq.artemis.utils</package>
+                <package>org.apache.activemq.artemis.utils.actors</package>
+                <package>org.apache.activemq.artemis.utils.collections</package>
+                <package>org.apache.activemq.artemis.utils.critical</package>
+                <package>org.apache.activemq.artemis.utils.runnables</package>
                 <package>org.apache.activemq.artemis.utils.uri</package>
                 <package>org.apache.commons.beanutils</package>
                 <package>org.apache.commons.beanutils.converters</package>
@@ -520,6 +562,7 @@
                 <package>org.jboss.ejb.server</package>
                 <package>org.jboss.logging</package>
                 <package>org.jboss.marshalling</package>
+                <package>org.jboss.marshalling._private</package>
                 <package>org.jboss.marshalling.cloner</package>
                 <package>org.jboss.marshalling.reflect</package>
                 <package>org.jboss.marshalling.river</package>
@@ -546,7 +589,6 @@
                 <package>org.jgroups.blocks.cs</package>
                 <package>org.jgroups.blocks.executor</package>
                 <package>org.jgroups.blocks.locking</package>
-                <package>org.jgroups.blocks.mux</package>
                 <package>org.jgroups.client</package>
                 <package>org.jgroups.conf</package>
                 <package>org.jgroups.demos</package>
@@ -557,6 +599,7 @@
                 <package>org.jgroups.logging</package>
                 <package>org.jgroups.nio</package>
                 <package>org.jgroups.protocols</package>
+                <package>org.jgroups.protocols.dns</package>
                 <package>org.jgroups.protocols.pbcast</package>
                 <package>org.jgroups.protocols.relay</package>
                 <package>org.jgroups.protocols.relay.config</package>
@@ -577,10 +620,13 @@
                 <package>org.wildfly.common</package>
                 <package>org.wildfly.common._private</package>
                 <package>org.wildfly.common.annotation</package>
+                <package>org.wildfly.common.bytes</package>
+                <package>org.wildfly.common.codec</package>
                 <package>org.wildfly.common.context</package>
                 <package>org.wildfly.common.cpu</package>
                 <package>org.wildfly.common.expression</package>
                 <package>org.wildfly.common.function</package>
+                <package>org.wildfly.common.iteration</package>
                 <package>org.wildfly.common.math</package>
                 <package>org.wildfly.common.net</package>
                 <package>org.wildfly.common.os</package>
@@ -603,10 +649,13 @@
                 <package>org.wildfly.security</package>
                 <package>org.wildfly.security._private</package>
                 <package>org.wildfly.security.asn1</package>
+                <package>org.wildfly.security.asn1.util</package>
                 <package>org.wildfly.security.audit</package>
                 <package>org.wildfly.security.auth</package>
                 <package>org.wildfly.security.auth.callback</package>
                 <package>org.wildfly.security.auth.client</package>
+                <package>org.wildfly.security.auth.jaspi</package>
+                <package>org.wildfly.security.auth.jaspi.impl</package>
                 <package>org.wildfly.security.auth.permission</package>
                 <package>org.wildfly.security.auth.principal</package>
                 <package>org.wildfly.security.auth.realm</package>
@@ -637,6 +686,7 @@
                 <package>org.wildfly.security.manager._private</package>
                 <package>org.wildfly.security.manager.action</package>
                 <package>org.wildfly.security.mechanism</package>
+                <package>org.wildfly.security.mechanism._private</package>
                 <package>org.wildfly.security.mechanism.digest</package>
                 <package>org.wildfly.security.mechanism.oauth2</package>
                 <package>org.wildfly.security.mechanism.scram</package>
@@ -662,10 +712,14 @@
                 <package>org.wildfly.security.sasl.scram</package>
                 <package>org.wildfly.security.sasl.util</package>
                 <package>org.wildfly.security.ssl</package>
+                <package>org.wildfly.security.ssl._private</package>
                 <package>org.wildfly.security.util</package>
                 <package>org.wildfly.security.util._private</package>
                 <package>org.wildfly.security.x500</package>
                 <package>org.wildfly.security.x500.cert</package>
+                <package>org.wildfly.security.x500.cert.acme</package>
+                <package>org.wildfly.security.x500.cert.util</package>
+                <package>org.wildfly.security.x500.util</package>
                 <package>org.wildfly.transaction</package>
                 <package>org.wildfly.transaction.client</package>
                 <package>org.wildfly.transaction.client._private</package>
@@ -695,6 +749,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/javax.persistence-api-2.2.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/javax.persistence-api-2.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/byte-buddy-1.9.5.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/byte-buddy-1.9.5.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

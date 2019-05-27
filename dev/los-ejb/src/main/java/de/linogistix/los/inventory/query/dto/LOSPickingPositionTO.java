@@ -9,10 +9,9 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 
-import org.mywms.model.ItemData;
-
 import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane

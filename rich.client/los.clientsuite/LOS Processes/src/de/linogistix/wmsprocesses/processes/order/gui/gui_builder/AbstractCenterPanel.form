@@ -240,6 +240,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace min="10" pref="10" max="10" attributes="0"/>
                       <Component id="commentLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                       <Component id="commentScrollPane" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>

@@ -21,24 +21,23 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoad;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * 
@@ -78,7 +77,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 			InventoryException, FacadeException {
 
 		Client c;
-		LOSStorageLocation sl;
+		StorageLocation sl;
 		
 		Lot lot;
 		StockUnit su;
@@ -97,7 +96,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 				log
 						.warn("NOT FOUND. Going to CREATE StorageLocation "
 								+ slName);
-				LOSStorageLocationType type = typeService.getDefaultStorageLocationType();
+				LocationType type = typeService.getDefaultStorageLocationType();
 				sl = slService.createStorageLocation(c, slName, type);
 			}
 
@@ -119,9 +118,9 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 						slName);
 			}
 						
-			su = invComp.createStock(c, lot, idat, amount, (LOSUnitLoad) ul, activityCode, serialNumber);
+			su = invComp.createStock(c, lot, idat, amount, ul, activityCode, serialNumber);
 						
-			invComp.consolidate((LOSUnitLoad) su.getUnitLoad(), activityCode);
+			invComp.consolidate( su.getUnitLoad(), activityCode);
 			
 			return su;
 			
@@ -159,15 +158,15 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 
 
 
-	public void deleteStockUnitsFromStorageLocation(LOSStorageLocation sl, String activityCode)
+	public void deleteStockUnitsFromStorageLocation(StorageLocation sl, String activityCode)
 			throws FacadeException {
 		
 		List<Long> sus = new ArrayList<Long>();
 		List<Long> uls = new ArrayList<Long>();
 		
-		sl = manager.find(LOSStorageLocation.class, sl.getId());
+		sl = manager.find(StorageLocation.class, sl.getId());
 		
-		for (LOSUnitLoad ul : (List<LOSUnitLoad>)sl.getUnitLoads()){
+		for (UnitLoad ul : sl.getUnitLoads()){
 			for (StockUnit su : ul.getStockUnitList()){
 				sus.add(su.getId());
 //				su = manager.find(StockUnit.class, su.getId());

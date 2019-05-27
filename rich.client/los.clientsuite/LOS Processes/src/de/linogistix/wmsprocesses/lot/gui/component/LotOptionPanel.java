@@ -11,11 +11,11 @@ import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.linogistix.wmsprocesses.lot.gui.gui_builder.AbstractLotOptionPanel;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.util.NbBundle;
 
 /**
@@ -110,7 +110,7 @@ public class LotOptionPanel extends AbstractLotOptionPanel implements ActionList
             }
             BODTO<Client> clientTO = lotComboModel.getClientTO();
             BODTO<ItemData> itemTO = lotComboModel.getItemDataTO();
-            
+
             getLotComboBox().clear();
             
             lotComboModel.setClientTO(clientTO);

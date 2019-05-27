@@ -13,12 +13,11 @@ import java.util.List;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -40,7 +39,7 @@ public interface LOSReplenishGenerator {
 	 * @param requestedLocation If not null, the replenish will go to this location
 	 * @param requestedRack If not null, the replenish will go to this rack
 	 */
-	public void generateRequest( ItemData itemData, Lot lot, BigDecimal requestedAmount, LOSStorageLocation requestedLocation, LOSRack requestedRack );
+	public void generateRequest( ItemData itemData, Lot lot, BigDecimal requestedAmount, StorageLocation requestedLocation, String requestedRack );
 	
 	/**
 	 * Generates and calculates a replenish order. If no stock is found it will return a null value.
@@ -53,7 +52,7 @@ public interface LOSReplenishGenerator {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public LOSReplenishOrder calculateOrder( ItemData itemData, Lot lot, BigDecimal requestedAmount, LOSStorageLocation destinationLocation, LOSRack destinationRack ) throws FacadeException;
+	public LOSReplenishOrder calculateOrder( ItemData itemData, Lot lot, BigDecimal requestedAmount, StorageLocation destinationLocation, String destinationRack ) throws FacadeException;
 
 	/**
 	 * All fixed locations are checked and refilled

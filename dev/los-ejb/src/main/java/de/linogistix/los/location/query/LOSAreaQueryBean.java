@@ -10,8 +10,8 @@
  */
 package de.linogistix.los.location.query;
 
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.query.BusinessObjectQueryBean;
+import de.wms2.mywms.location.Area;
 
 import javax.ejb.Stateless;
 
@@ -22,7 +22,7 @@ import javax.ejb.Stateless;
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Stateless
-public class LOSAreaQueryBean extends BusinessObjectQueryBean<LOSArea> implements LOSAreaQueryRemote {
+public class LOSAreaQueryBean extends BusinessObjectQueryBean<Area> implements LOSAreaQueryRemote {
 
     public String getUniqueNameProp() {
         return "name";

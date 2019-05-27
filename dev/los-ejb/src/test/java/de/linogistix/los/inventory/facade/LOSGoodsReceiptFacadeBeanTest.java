@@ -16,9 +16,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.example.InventoryTestTopologyRemote;
 import de.linogistix.los.example.LocationTestTopologyRemote;
@@ -31,7 +28,6 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.inventory.service.StockUnitLockState;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.query.BODTO;
@@ -39,6 +35,10 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.report.ReportException;
 import de.linogistix.los.report.ReportExceptionKey;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * 
@@ -54,7 +54,7 @@ public class LOSGoodsReceiptFacadeBeanTest extends TestCase {
 	public LOSGoodsReceipt GR;
 
 	BODTO<Client> cdto;
-	BODTO<LOSStorageLocation> goodsInLocation;
+	BODTO<StorageLocation> goodsInLocation;
 
 	public LOSGoodsReceiptFacadeBeanTest(String testName) {
 		super(testName);
@@ -135,10 +135,10 @@ public class LOSGoodsReceiptFacadeBeanTest extends TestCase {
 					.getStateless(LOSAdviceQueryRemote.class);
 
 			Client c = TopologyBeanTest.getTESTCLIENT();
-			LOSStorageLocation sl = slQuery.queryByIdentity(c, LocationTestTopologyRemote.SL_WE_TESTCLIENT_NAME).get(0);
+			StorageLocation sl = slQuery.queryByIdentity(c, LocationTestTopologyRemote.SL_WE_TESTCLIENT_NAME).get(0);
 
 			cdto = new BODTO<Client>(c.getId(), c.getVersion(), c.getNumber());
-			goodsInLocation = new BODTO<LOSStorageLocation>(sl.getId(), sl
+			goodsInLocation = new BODTO<StorageLocation>(sl.getId(), sl
 					.getVersion(), sl.getName());
 
 			String licencePlate = "";
@@ -259,10 +259,10 @@ public class LOSGoodsReceiptFacadeBeanTest extends TestCase {
 					.getStateless(LOSAdviceQueryRemote.class);
 
 			Client c = TopologyBeanTest.getTESTMANDANT();
-			LOSStorageLocation sl = slQuery.queryByIdentity(c, LocationTestTopologyRemote.SL_WE_TESTMANDANT_NAME).get(0);
+			StorageLocation sl = slQuery.queryByIdentity(c, LocationTestTopologyRemote.SL_WE_TESTMANDANT_NAME).get(0);
 
 			cdto = new BODTO<Client>(c.getId(), c.getVersion(), c.getNumber());
-			goodsInLocation = new BODTO<LOSStorageLocation>(sl.getId(), sl
+			goodsInLocation = new BODTO<StorageLocation>(sl.getId(), sl
 					.getVersion(), sl.getName());
 
 			String licencePlate = "";

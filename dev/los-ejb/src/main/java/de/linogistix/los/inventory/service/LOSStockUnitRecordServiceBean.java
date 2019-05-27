@@ -15,15 +15,15 @@ import javax.ejb.Stateless;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.StockUnit;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSStockUnitRecord;
 import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 @Stateless
 public class LOSStockUnitRecordServiceBean 
@@ -46,11 +46,11 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setFromStockUnitIdentity(from.toUniqueString());
 		rec.setFromUnitLoad(from.getUnitLoad().getLabelId());
-		rec.setFromStorageLocation(((LOSUnitLoad)from.getUnitLoad()).getStorageLocation().getName());
+		rec.setFromStorageLocation(from.getUnitLoad().getStorageLocation().getName());
 		
 		rec.setToStockUnitIdentity(to.toUniqueString());
 		rec.setToUnitLoad(to.getUnitLoad().getLabelId());
-		rec.setToStorageLocation(((LOSUnitLoad)to.getUnitLoad()).getStorageLocation().getName());
+		rec.setToStorageLocation(to.getUnitLoad().getStorageLocation().getName());
 		
 		rec.setItemData(from.getItemData().getNumber());
 		rec.setScale(from.getItemData().getScale());
@@ -61,7 +61,7 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setSerialNumber(from.getSerialNumber());
 		
-		rec.setUnitLoadType( ((LOSUnitLoad)from.getUnitLoad()).getType().getName() );
+		rec.setUnitLoadType( from.getUnitLoad().getUnitLoadType().getName() );
 		
 		manager.persist(rec);
 //		manager.flush();
@@ -86,11 +86,11 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setFromStockUnitIdentity(to.toUniqueString());
 		rec.setFromUnitLoad(to.getUnitLoad().getLabelId());
-		rec.setFromStorageLocation(((LOSUnitLoad)to.getUnitLoad()).getStorageLocation().getName());
+		rec.setFromStorageLocation(to.getUnitLoad().getStorageLocation().getName());
 
 		rec.setToStockUnitIdentity(to.toUniqueString());
 		rec.setToUnitLoad(to.getUnitLoad().getLabelId());
-		rec.setToStorageLocation(((LOSUnitLoad)to.getUnitLoad()).getStorageLocation().getName());
+		rec.setToStorageLocation(to.getUnitLoad().getStorageLocation().getName());
 		
 		rec.setItemData(to.getItemData().getNumber());
 		rec.setScale(to.getItemData().getScale());
@@ -101,7 +101,7 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setSerialNumber(to.getSerialNumber());
 		
-		rec.setUnitLoadType( ((LOSUnitLoad)to.getUnitLoad()).getType().getName() );
+		rec.setUnitLoadType( to.getUnitLoad().getType().getName() );
 
 		manager.persist(rec);
 //		manager.flush();
@@ -121,11 +121,11 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setFromStockUnitIdentity(to.toUniqueString());
 		rec.setFromUnitLoad(to.getUnitLoad().getLabelId());
-		rec.setFromStorageLocation(((LOSUnitLoad)to.getUnitLoad()).getStorageLocation().getName());
+		rec.setFromStorageLocation(to.getUnitLoad().getStorageLocation().getName());
 
 		rec.setToStockUnitIdentity(to.toUniqueString());
 		rec.setToUnitLoad(to.getUnitLoad().getLabelId());
-		rec.setToStorageLocation(((LOSUnitLoad)to.getUnitLoad()).getStorageLocation().getName());
+		rec.setToStorageLocation(to.getUnitLoad().getStorageLocation().getName());
 		
 		rec.setItemData(to.getItemData().getNumber());
 		rec.setScale(to.getItemData().getScale());
@@ -136,7 +136,7 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setSerialNumber(to.getSerialNumber());
 		
-		rec.setUnitLoadType( ((LOSUnitLoad)to.getUnitLoad()).getType().getName() );
+		rec.setUnitLoadType( to.getUnitLoad().getType().getName() );
 
 		manager.persist(rec);
 //		manager.flush();
@@ -158,11 +158,11 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setFromStockUnitIdentity(su.toUniqueString());
 		rec.setFromUnitLoad(su.getUnitLoad().getLabelId());
-		rec.setFromStorageLocation(((LOSUnitLoad)su.getUnitLoad()).getStorageLocation().getName());
+		rec.setFromStorageLocation(su.getUnitLoad().getStorageLocation().getName());
 		
 		rec.setToStockUnitIdentity(su.toUniqueString());
 		rec.setToUnitLoad(su.getUnitLoad().toUniqueString());
-		rec.setToStorageLocation(((LOSUnitLoad)su.getUnitLoad()).getStorageLocation().getName());
+		rec.setToStorageLocation(su.getUnitLoad().getStorageLocation().getName());
 		
 		rec.setItemData(su.getItemData().getNumber());
 		rec.setScale(su.getItemData().getScale());
@@ -173,7 +173,7 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setSerialNumber(su.getSerialNumber());
 		
-		rec.setUnitLoadType( ((LOSUnitLoad)su.getUnitLoad()).getType().getName() );
+		rec.setUnitLoadType( su.getUnitLoad().getType().getName() );
 
 		manager.persist(rec);
 //		manager.flush();
@@ -203,11 +203,11 @@ public class LOSStockUnitRecordServiceBean
 		
 	}
 
-	public LOSStockUnitRecord recordTransfer(StockUnit su, LOSUnitLoad old, LOSUnitLoad dest, String activityCode) {
+	public LOSStockUnitRecord recordTransfer(StockUnit su, UnitLoad old, UnitLoad dest, String activityCode) {
 		return recordTransfer(su, old, dest, activityCode, null, null);
 	}
 	
-	public LOSStockUnitRecord recordTransfer(StockUnit su, LOSUnitLoad old, LOSUnitLoad dest, String activityCode, String comment, String operator) {
+	public LOSStockUnitRecord recordTransfer(StockUnit su, UnitLoad old, UnitLoad dest, String activityCode, String comment, String operator) {
 		if( BigDecimal.ZERO.compareTo(su.getAmount()) == 0 ) {
 			log.debug("Do not record zero amount transfer");
 			return null;
@@ -235,7 +235,7 @@ public class LOSStockUnitRecordServiceBean
 		
 		rec.setSerialNumber(su.getSerialNumber());
 		
-		rec.setUnitLoadType( ((LOSUnitLoad)su.getUnitLoad()).getType().getName() );
+		rec.setUnitLoadType( su.getUnitLoad().getType().getName() );
 
 		manager.persist(rec);
 //		manager.flush();
@@ -244,7 +244,7 @@ public class LOSStockUnitRecordServiceBean
 		
 	}
 	
-	public LOSStockUnitRecord recordCounting(StockUnit su, LOSUnitLoad ul, LOSStorageLocation loc, String activityCode, String comment, String operator) {
+	public LOSStockUnitRecord recordCounting(StockUnit su, UnitLoad ul, StorageLocation loc, String activityCode, String comment, String operator) {
 		LOSStockUnitRecord rec = entityGenerator.generateEntity(LOSStockUnitRecord.class);
 		
 		rec.setClient(su != null ? su.getClient() : ul != null ? ul.getClient() : loc != null ? loc.getClient() : null);
@@ -260,17 +260,17 @@ public class LOSStockUnitRecordServiceBean
 		if( su != null ) {
 			rec.setFromStockUnitIdentity(su.toUniqueString());
 			rec.setFromUnitLoad(su.getUnitLoad().getLabelId());
-			rec.setFromStorageLocation(((LOSUnitLoad)su.getUnitLoad()).getStorageLocation().getName());
+			rec.setFromStorageLocation(su.getUnitLoad().getStorageLocation().getName());
 			rec.setToStockUnitIdentity(su.toUniqueString());
 			rec.setToUnitLoad(su.getUnitLoad().getLabelId());
-			rec.setToStorageLocation(((LOSUnitLoad)su.getUnitLoad()).getStorageLocation().getName());
+			rec.setToStorageLocation(su.getUnitLoad().getStorageLocation().getName());
 			rec.setAmountStock( su.getAmount() );
 			
 			rec.setItemData(su.getItemData().getNumber());
 			rec.setScale(su.getItemData().getScale());
 			if (su.getLot() != null) rec.setLot(su.getLot().getName());
 			rec.setSerialNumber(su.getSerialNumber());
-			rec.setUnitLoadType( ((LOSUnitLoad)su.getUnitLoad()).getType().getName() );
+			rec.setUnitLoadType( su.getUnitLoad().getType().getName() );
 		}
 		if( ul != null ) {
 			rec.setFromUnitLoad(ul.toUniqueString());

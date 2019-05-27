@@ -17,12 +17,12 @@ import javax.ejb.Stateless;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.mywms.model.StockUnit;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.UserService;
 
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
+import de.wms2.mywms.inventory.StockUnit;
 
 @Stateless
 public class LOSGoodsReceiptPositionServiceBean

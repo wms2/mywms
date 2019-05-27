@@ -13,8 +13,6 @@ import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.stocktaking.facade.LOSStocktakingFacade;
 import de.linogistix.stocktaking.res.StocktakingBundleResolver;
 import java.util.logging.Logger;

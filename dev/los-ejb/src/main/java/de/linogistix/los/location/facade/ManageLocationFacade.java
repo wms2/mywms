@@ -15,11 +15,11 @@ import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.linogistix.los.location.query.dto.LOSRackTO;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  * Operations for managing locations and unit loads.
@@ -31,7 +31,7 @@ import de.linogistix.los.query.BODTO;
 public interface ManageLocationFacade {
 	
 	/**
-	 * Transferres {@link LOSUnitLoad} ul to destination {@link LOSStorageLocation}
+	 * Transferres {@link UnitLoad} ul to destination {@link StorageLocation}
 	 *  
 	 * @param dest the destination location
 	 * @param ul the unit load to transfer
@@ -40,17 +40,17 @@ public interface ManageLocationFacade {
 	 * @param info TODO
 	 * @throws LOSLocationException
 	 */
-	void transferUnitLoad(BODTO<LOSStorageLocation> dest, BODTO<LOSUnitLoad> ul, int index, boolean ignoreSlLock, String info) 
+	void transferUnitLoad(BODTO<StorageLocation> dest, BODTO<UnitLoad> ul, int index, boolean ignoreSlLock, String info) 
 		throws FacadeException; 
 	
-	public void transferToCarrier(BODTO<LOSUnitLoad> source, BODTO<LOSUnitLoad> destination, String info) throws FacadeException;
+	public void transferToCarrier(BODTO<UnitLoad> source, BODTO<UnitLoad> destination, String info) throws FacadeException;
 
 	/**
-	 * Checks whether a transfer of {@link LOSUnitLoad} to the given {@link LOSStorageLocation} will be successful.
+	 * Checks whether a transfer of {@link UnitLoad} to the given {@link StorageLocation} will be successful.
      * 
-     * @return the current {@link LOSTypeCapacityConstraint} of this {@link LOSStorageLocation} 
+     * @return the current {@link TypeCapacityConstraint} of this {@link StorageLocation} 
 	 */
-	LOSTypeCapacityConstraint checkUnitLoadSuitable(BODTO<LOSStorageLocation> dest, BODTO<LOSUnitLoad> ul, boolean ignoreLock) throws FacadeException;
+	TypeCapacityConstraint checkUnitLoadSuitable(BODTO<StorageLocation> dest, BODTO<UnitLoad> ul, boolean ignoreLock) throws FacadeException;
 	
 	/**
 	 * Relases any reservation on the given LOSStorageLocation.
@@ -58,7 +58,7 @@ public interface ManageLocationFacade {
 	 * @param locations
 	 * @throws LOSLocationException
 	 */
-	void releaseReservations(List<BODTO<LOSStorageLocation>> locations) throws FacadeException;
+	void releaseReservations(List<BODTO<StorageLocation>> locations) throws FacadeException;
 	
 	/**
 	 * Removes unit load with given label id. Removing means the unit load is
@@ -76,7 +76,7 @@ public interface ManageLocationFacade {
 	 * {@link BusinessObjectLockState#GOING_TO_DELETE}.
 	 *  
 	 */
-	void sendUnitLoadToNirwana(List<BODTO<LOSUnitLoad>> list) throws FacadeException;
+	void sendUnitLoadToNirwana(List<BODTO<UnitLoad>> list) throws FacadeException;
 
 	/**
 	 * Set the order index of the locations
@@ -86,7 +86,7 @@ public interface ManageLocationFacade {
 	 * @return The last used index
 	 * @throws FacadeException
 	 */
-	int setLocationOrderIndex(BODTO<LOSRack> rackTo, int startValue, int diffValue) throws FacadeException;
+	int setLocationOrderIndex(String rackTo, int startValue, int diffValue) throws FacadeException;
 
-
+	LOSRackTO readRackInfo(String rack);
 }

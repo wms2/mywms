@@ -16,8 +16,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.common.exception.OutOfRangeException;
 import de.linogistix.los.customization.EntityGenerator;
@@ -27,6 +25,8 @@ import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvicePosition;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdviceState;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 public class ManageUnitLoadAdviceServiceBean implements ManageUnitLoadAdviceService 
 {

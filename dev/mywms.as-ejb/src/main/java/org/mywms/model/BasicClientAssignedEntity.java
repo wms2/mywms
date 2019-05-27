@@ -10,13 +10,13 @@ public abstract class BasicClientAssignedEntity
 
     private static final long serialVersionUID = 1L;
 
+    @ManyToOne(optional = false)
     private Client client = null;
 
     /**
      * @see #setClient(Client)
      * @return Returns the client.
      */
-    @ManyToOne(optional = false)
     public Client getClient() {
         return this.client;
     }

@@ -21,12 +21,17 @@ public class LOSUnitLoadRecord extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable=false, updatable=false)
 	private String label;
 	
+	@Column(nullable=false, updatable=false)
 	private String fromLocation;
 	
+	@Column(nullable=false, updatable=false)
 	private String toLocation;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable=false, updatable=false)
 	private LOSUnitLoadRecordType recordType;
 	
 	private String operator;
@@ -35,7 +40,6 @@ public class LOSUnitLoadRecord extends BasicClientAssignedEntity {
 
 	private String unitLoadType;
 	
-	@Column(nullable=false, updatable=false)
 	public String getLabel() {
 		return label;
 	}
@@ -44,7 +48,6 @@ public class LOSUnitLoadRecord extends BasicClientAssignedEntity {
 		this.label = label;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getFromLocation() {
 		return fromLocation;
 	}
@@ -53,7 +56,6 @@ public class LOSUnitLoadRecord extends BasicClientAssignedEntity {
 		this.fromLocation = fromLocation;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getToLocation() {
 		return toLocation;
 	}
@@ -62,8 +64,6 @@ public class LOSUnitLoadRecord extends BasicClientAssignedEntity {
 		this.toLocation = toLocation;
 	}
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable=false, updatable=false)
 	public LOSUnitLoadRecordType getRecordType() {
 		return recordType;
 	}

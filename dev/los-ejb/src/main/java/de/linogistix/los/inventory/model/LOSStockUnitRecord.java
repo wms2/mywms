@@ -27,34 +27,47 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
 	
+	@Column(updatable=false)
 	private String toStockUnitIdentity;
 	
+	@Column(updatable=false)
 	private String toUnitLoad;
 	
+	@Column(nullable=false, updatable=false)
 	private String toStorageLocation;
 	
+	@Column(updatable=false)
 	private String fromStockUnitIdentity;
 	
+	@Column(updatable=false)
 	private String fromUnitLoad;
 	
+	@Column(nullable=false, updatable=false)
 	private String fromStorageLocation;
 	
+	@Column(nullable=false, updatable=false)
 	private String activityCode;
 	
+	@Column(nullable=false, updatable=false)
 	private String operator;
 	
+	@Enumerated(EnumType.STRING)
 	private LOSStockUnitRecordType type;
 	
+	@Column(updatable=false)
 	private String itemData;
 	
 	private int scale;
 	
+	@Column(updatable=false)
 	private String lot;
     
 	/**Amount that has been transferred */ 
+	@Column(updatable=false, precision=17, scale=4)
 	private BigDecimal amount;
 	
 	/**The amount of the stock unit after the post*/
+	@Column(updatable=false, precision=17, scale=4)
 	private BigDecimal amountStock;
 	
 	private String serialNumber;
@@ -65,7 +78,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		
 	}
 	
-	@Column(updatable=false)
 	public String getToStockUnitIdentity() {
 		return toStockUnitIdentity;
 	}
@@ -74,7 +86,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.toStockUnitIdentity = toStockUnitIdentity;
 	}
 
-	@Column(updatable=false)
 	public String getFromStockUnitIdentity() {
 		return fromStockUnitIdentity;
 	}
@@ -83,7 +94,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.fromStockUnitIdentity = fromStockUnitIdentiy;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getActivityCode() {
 		return activityCode;
 	}
@@ -92,7 +102,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.activityCode = activityCode;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getOperator() {
 		return operator;
 	}
@@ -101,7 +110,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.operator = operator;
 	}
 
-	@Enumerated(EnumType.STRING)
 	public LOSStockUnitRecordType getType() {
 		return type;
 	}
@@ -110,7 +118,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.type = type;
 	}
 
-	@Column(updatable=false)
 	public String getItemData() {
 		return itemData;
 	}
@@ -119,7 +126,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	@Column(updatable=false)
 	public String getLot() {
 		return lot;
 	}
@@ -128,7 +134,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.lot = lot;
 	}
 
-	@Column(updatable=false, precision=17, scale=4)
 	public BigDecimal getAmount() {
 		return amount;
 	}
@@ -137,7 +142,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.amount = amount;
 	}
 
-	@Column(updatable=false, precision=17, scale=4)
 	public BigDecimal getAmountStock() {
 		return amountStock;
 	}
@@ -146,7 +150,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.amountStock = amountStock;
 	}
 
-	@Column(updatable=false)
 	public String getToUnitLoad() {
 		return toUnitLoad;
 	}
@@ -155,7 +158,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.toUnitLoad = toUnitLoad;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getToStorageLocation() {
 		return toStorageLocation;
 	}
@@ -164,7 +166,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.toStorageLocation = toStorageLocation;
 	}
 
-	@Column(updatable=false)
 	public String getFromUnitLoad() {
 		return fromUnitLoad;
 	}
@@ -173,7 +174,6 @@ public class LOSStockUnitRecord extends BasicClientAssignedEntity {
 		this.fromUnitLoad = fromUnitLoad;
 	}
 
-	@Column(nullable=false, updatable=false)
 	public String getFromStorageLocation() {
 		return fromStorageLocation;
 	}

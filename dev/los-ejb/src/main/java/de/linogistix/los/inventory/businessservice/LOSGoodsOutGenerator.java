@@ -18,8 +18,8 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * Generation of shipping orders
@@ -31,10 +31,10 @@ public interface LOSGoodsOutGenerator {
 
 	public LOSGoodsOutRequest createOrder( LOSCustomerOrder customerOrder ) throws FacadeException;
 	
-	public LOSGoodsOutRequest createOrder( Client client, LOSStorageLocation outLocation, String shipmentNumber, Date shippingDate, String courier, String additionalInfo) throws FacadeException;
+	public LOSGoodsOutRequest createOrder( Client client, StorageLocation outLocation, String shipmentNumber, Date shippingDate, String courier, String additionalInfo) throws FacadeException;
 
-	public LOSGoodsOutRequestPosition addPosition(LOSGoodsOutRequest out, LOSUnitLoad unitLoad) throws FacadeException;
+	public LOSGoodsOutRequestPosition addPosition(LOSGoodsOutRequest out, UnitLoad unitLoad) throws FacadeException;
 
-	public void removePosition(LOSGoodsOutRequest out, LOSUnitLoad unitLoad) throws InventoryException;
+	public void removePosition(LOSGoodsOutRequest out, UnitLoad unitLoad) throws InventoryException;
 
 }

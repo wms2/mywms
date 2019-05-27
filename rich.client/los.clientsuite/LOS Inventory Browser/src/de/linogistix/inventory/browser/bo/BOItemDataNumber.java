@@ -17,9 +17,9 @@ import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.crud.ItemDataNumberCRUDRemote;
 import de.linogistix.los.inventory.query.ItemDataNumberQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.product.ItemDataNumber;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.ItemDataNumber;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.util.Lookup;
@@ -70,7 +70,7 @@ public class BOItemDataNumber extends BO {
 
   
   protected BasicEntity initEntityTemplate() {
-    ItemDataNumber o;
+      ItemDataNumber o;
 
     o = new ItemDataNumber();
     o.setNumber("Template");

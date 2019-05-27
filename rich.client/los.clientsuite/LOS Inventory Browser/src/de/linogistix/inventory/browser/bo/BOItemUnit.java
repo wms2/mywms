@@ -18,9 +18,9 @@ import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.ItemUnitCRUDRemote;
 import de.linogistix.los.inventory.query.ItemUnitQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.product.ItemUnit;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.ItemUnit;
 import org.openide.util.Lookup;
 
 
@@ -64,7 +64,7 @@ public class BOItemUnit extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    ItemUnit o;
+      ItemUnit o;
     
     o = new ItemUnit();
     o.setUnitName("Template");

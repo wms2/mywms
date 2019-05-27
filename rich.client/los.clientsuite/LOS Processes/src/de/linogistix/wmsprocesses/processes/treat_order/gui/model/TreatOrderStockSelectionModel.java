@@ -16,20 +16,20 @@ import de.linogistix.los.inventory.facade.LOSCompatibilityFacade;
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.wmsprocesses.processes.treat_order.TreatOrderStockUnitBO;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.control.TreatOrderDialogController;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.control.TreatOrderStockQueryProvider;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.openide.util.Lookup;
 
 /**
@@ -42,7 +42,7 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
     
     private BODTO<Lot> lotTO;
     
-    private BODTO<LOSStorageLocation> locationTO;
+    private BODTO<StorageLocation> locationTO;
     
     private TreatOrderStockQueryProvider stockQueryProvider;
     
@@ -149,11 +149,11 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
         stockQueryProvider.clear();
     }
     
-    public BODTO<LOSStorageLocation> getLocationTO() {
+    public BODTO<StorageLocation> getLocationTO() {
         return locationTO;
     }
 
-    public void setLocationTO(BODTO<LOSStorageLocation> locationTO) {
+    public void setLocationTO(BODTO<StorageLocation> locationTO) {
         this.locationTO = locationTO;
     }
 
@@ -183,7 +183,7 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
         return stockQueryProvider.getLotCombo();
     }
     
-    public BOAutoFilteringComboBox<LOSStorageLocation> getStorageLocationCombo(){
+    public BOAutoFilteringComboBox<StorageLocation> getStorageLocationCombo(){
         return stockQueryProvider.getStorageLocationCombo();
     }
 }

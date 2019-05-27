@@ -10,11 +10,7 @@ package de.linogistix.los.inventory.facade;
 import java.math.BigDecimal;
 import java.util.GregorianCalendar;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.example.CommonTestTopologyRemote;
 import de.linogistix.los.example.InventoryTestTopologyRemote;
@@ -22,11 +18,14 @@ import de.linogistix.los.inventory.example.TopologyBeanTest;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.product.ItemData;
+import junit.framework.TestCase;
 
 /**
  *
@@ -160,10 +159,10 @@ public class ManageInventoryFacadeBeanTest extends TestCase {
 				 "TransferFromMe");
 
 		BODTO< StockUnit> su ;
-		BODTO<LOSUnitLoad> ul;
+		BODTO<UnitLoad> ul;
 		
 		ul = ulQuery.autoCompletion("TransferFromMe").get(0);
-		LOSUnitLoad unitLoad = ulQuery.queryById(ul.getId());
+		UnitLoad unitLoad = ulQuery.queryById(ul.getId());
 		StockUnit stockUnit = unitLoad.getStockUnitList().get(0);
 		su = new BODTO<StockUnit>(stockUnit.getId(), stockUnit.getVersion(), stockUnit.getId());
 		bean.transferStockUnit(su, ul, true, true, "X");

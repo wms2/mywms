@@ -13,9 +13,10 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
 import org.mywms.service.BasicService;
+
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  * @author krane

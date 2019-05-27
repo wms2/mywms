@@ -22,14 +22,8 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.LotService;
-import org.mywms.service.StockUnitService;
 import org.mywms.service.UserService;
 
 import de.linogistix.los.common.exception.LOSExceptionRB;
@@ -53,17 +47,23 @@ import de.linogistix.los.inventory.service.LOSGoodsReceiptPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsReceiptService;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.inventory.service.LotLockState;
+import de.linogistix.los.inventory.service.LotService;
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
@@ -115,10 +115,10 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 	// --------------------------------------------------------------------------------------------
 
-	public List<LOSStorageLocation> getGoodsReceiptLocations()
+	public List<StorageLocation> getGoodsReceiptLocations()
 			throws LOSLocationException {
 
-		List<LOSStorageLocation> slList;
+		List<StorageLocation> slList;
 		slList = slService.getListForGoodsIn();
 
 		if (slList.size() == 0) {
@@ -222,7 +222,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	
 	// --------------------------------------------------------------------------------------------
 	public StockUnit receiveStock(LOSGoodsReceiptPosition grPosition,
-			Lot batch, ItemData item, BigDecimal amount, LOSUnitLoad unitLoad, String serialNumber)
+			Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String serialNumber)
 			throws FacadeException {
 		StockUnit su;
 
@@ -506,7 +506,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 			}
 		}
 
-		LOSUnitLoad ul = null;
+		UnitLoad ul = null;
 		
 		if (su != null) {
 			itemData = su.getItemData();
@@ -518,7 +518,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 			}
 		}
 		if (su != null) {
-			ul = (LOSUnitLoad)su.getUnitLoad();
+			ul = su.getUnitLoad();
 			
 			pos.setStockUnit(null);
 			//dgrys portierung wildfly 8.2
@@ -537,7 +537,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 				logger.debug("EntityNotFound UnitLoad Label=" + pos.getUnitLoad());
 			}
 		}
-		LOSUnitLoad ulNirwana = ulService.getNirwana();
+		UnitLoad ulNirwana = ulService.getNirwana();
 		if( ul != null && ul.equals(ulNirwana) ) {
 			// The nirwana unit load is written to the position, when the stock is moved to another unit load
 			logger.info("The UnitLoad is NIRWANA. So Stock has changed!. Abort");
@@ -618,10 +618,10 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 		}
 	}
 
-	public LOSUnitLoad getOrCreateUnitLoad(Client c, LOSStorageLocation sl,
+	public UnitLoad getOrCreateUnitLoad(Client c, StorageLocation sl,
 			UnitLoadType type, String ref) throws FacadeException {
 
-		LOSUnitLoad ul;
+		UnitLoad ul;
 		Client cl;
 		if (c != null) {
 			// do not read twice
@@ -644,7 +644,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 		if (ref != null && ref.length() != 0) {
 			try {
-				ul = (LOSUnitLoad) ulService.getByLabelId(cl, ref);
+				ul = ulService.getByLabelId(cl, ref);
 				if( !sl.equals(ul.getStorageLocation()) ) {
 					logger.warn("UnitLoad not on location. label="+ul.getLabelId()+", location="+ul.getStorageLocation().getName()+", check location="+sl.getName());
 					throw new LOSLocationException(

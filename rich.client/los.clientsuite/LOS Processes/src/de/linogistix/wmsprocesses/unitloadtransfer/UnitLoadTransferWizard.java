@@ -11,10 +11,10 @@
 package de.linogistix.wmsprocesses.unitloadtransfer;
 
 import de.linogistix.common.res.CommonBundleResolver;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.MessageFormat;
@@ -39,9 +39,9 @@ public class UnitLoadTransferWizard extends WizardDescriptor implements ActionLi
 
     private static final Logger log = Logger.getLogger(UnitLoadTransferWizard.class.getName());
     
-    private BODTO<LOSUnitLoad> unitLoadTO;
+    private BODTO<UnitLoad> unitLoadTO;
     
-    private BODTO<LOSStorageLocation> storageLocationTO;
+    private BODTO<StorageLocation> storageLocationTO;
 
     private String hint;
 
@@ -105,19 +105,19 @@ public class UnitLoadTransferWizard extends WizardDescriptor implements ActionLi
         //
     }
 
-    public BODTO<LOSUnitLoad> getUnitLoadTO() {
+    public BODTO<UnitLoad> getUnitLoadTO() {
         return unitLoadTO;
     }
 
-    public void setUnitLoadTO(BODTO<LOSUnitLoad> unitLoadTO) {
+    public void setUnitLoadTO(BODTO<UnitLoad> unitLoadTO) {
         this.unitLoadTO = unitLoadTO;
     }
 
-    public BODTO<LOSStorageLocation> getStorageLocationTO() {
+    public BODTO<StorageLocation> getStorageLocationTO() {
         return storageLocationTO;
     }
 
-    public void setStorageLocationTO(BODTO<LOSStorageLocation> storageLocationTO) {
+    public void setStorageLocationTO(BODTO<StorageLocation> storageLocationTO) {
         this.storageLocationTO = storageLocationTO;
     }
 

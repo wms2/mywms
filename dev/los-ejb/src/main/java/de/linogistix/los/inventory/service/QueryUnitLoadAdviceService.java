@@ -13,13 +13,13 @@ import org.mywms.service.BasicService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 @Local
 public interface QueryUnitLoadAdviceService extends	BasicService<LOSUnitLoadAdvice> {
 
 	/**
-	 * Search for a {@link LOSUnitLoadAdvice} that announces a {@link LOSUnitLoad} with specified label.
+	 * Search for a {@link LOSUnitLoadAdvice} that announces a {@link UnitLoad} with specified label.
 	 * For security reasons this will only be allowed for callers who <br> 
 	 * - belong to the same client as the {@link LOSUnitLoadAdvice} is assigned to or <br>
 	 * - belong to the system client.

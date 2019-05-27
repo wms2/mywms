@@ -25,10 +25,13 @@ public class Client
 {
     private static final long serialVersionUID = 1L;
 
+    @Column(nullable = false, unique = true)
     private String name = null;
 
+    @Column(nullable = false, unique = true, name="cl_nr")
     private String number = null;
     
+    @Column(name="cl_code")
     private String code = "";
 
     private String email = "";
@@ -59,7 +62,6 @@ public class Client
     /**
      * @return Returns the name.
      */
-    @Column(nullable = false, unique = true)
     public String getName() {
         return this.name;
     }
@@ -74,7 +76,6 @@ public class Client
     /**
      * @return Returns the number.
      */
-    @Column(nullable = false, unique = true, name="cl_nr")
     public String getNumber() {
         return this.number;
     }
@@ -86,8 +87,6 @@ public class Client
         this.number = number;
     }
 
-//    @Column(unique = true, name="cl_code")
-    @Column(name="cl_code")
     public String getCode() {
 		return code;
 	}
@@ -102,7 +101,6 @@ public class Client
      * 
      * @return Returns the email.
      */
-//    @Column(nullable = false)
     public String getEmail() {
         return this.email;
     }

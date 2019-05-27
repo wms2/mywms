@@ -8,8 +8,8 @@
 package de.linogistix.wmsprocesses.processes.treat_order.gui.model;
 
 import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 import java.io.Serializable;
 
 /**
@@ -22,7 +22,7 @@ public class TreatOrderPickRequestTO extends BODTO<LOSPickingOrder>
 {
     public String pickRequestNumber;
     
-    public BODTO<LOSStorageLocation> targetPlace;
+    public BODTO<StorageLocation> targetPlace;
 
     public TreatOrderPickRequestTO(Long id, int version, String name) {
         super(id, version, name);

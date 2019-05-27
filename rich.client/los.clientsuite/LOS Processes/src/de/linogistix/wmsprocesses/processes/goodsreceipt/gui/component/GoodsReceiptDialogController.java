@@ -20,8 +20,6 @@ import java.beans.PropertyChangeListener;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 /**
  *

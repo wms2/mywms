@@ -12,7 +12,8 @@ import java.math.BigDecimal;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
+
+import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * User exits of stock processing.

@@ -12,13 +12,13 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.StockUnit;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.inventory.model.LOSStockUnitRecord;
 import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * 
@@ -95,7 +95,7 @@ public interface LOSStockUnitRecordService extends BasicService<LOSStockUnitReco
 	 * @param dest to this destination
 	 * @param activityCode
 	 */
-	public LOSStockUnitRecord recordTransfer(StockUnit su, LOSUnitLoad old, LOSUnitLoad dest, String activityCode);
+	public LOSStockUnitRecord recordTransfer(StockUnit su, UnitLoad old, UnitLoad dest, String activityCode);
 	
 	/**
 	 * The StockUnit has been transferred from one UnitLoad to another
@@ -106,7 +106,7 @@ public interface LOSStockUnitRecordService extends BasicService<LOSStockUnitReco
 	 * @param activityCode
 	 * @param comment
 	 */
-	public LOSStockUnitRecord recordTransfer(StockUnit su, LOSUnitLoad old, LOSUnitLoad dest, String activityCode, String comment, String operator);
+	public LOSStockUnitRecord recordTransfer(StockUnit su, UnitLoad old, UnitLoad dest, String activityCode, String comment, String operator);
 	
 	/**
 	 * Something has been counted.
@@ -119,7 +119,7 @@ public interface LOSStockUnitRecordService extends BasicService<LOSStockUnitReco
 	 * @param comment
 	 * @return
 	 */
-	public LOSStockUnitRecord recordCounting(StockUnit su, LOSUnitLoad ul, LOSStorageLocation loc, String activityCode, String comment, String operator);
+	public LOSStockUnitRecord recordCounting(StockUnit su, UnitLoad ul, StorageLocation loc, String activityCode, String comment, String operator);
 	
 	
 	/**

@@ -24,15 +24,9 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.model.User;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.StockUnitService;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.LOSExceptionRB;
@@ -48,17 +42,16 @@ import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSLocationCluster;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.model.LOSWorkingArea;
 import de.linogistix.los.location.model.LOSWorkingAreaPosition;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
@@ -67,6 +60,13 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.mobileserver.processes.controller.ManageMobile;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.LocationCluster;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  * @author krane
@@ -213,13 +213,13 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			pickingUnitLoad = pickingUnitLoadService.getByLabel(pickTo.label);
 			
 			if( pickingUnitLoad == null ) {
-				LOSUnitLoad unitLoad = null;
+				UnitLoad unitLoad = null;
 				try {
 					unitLoad = ulService.getByLabelId(null, pickTo.label);
 				} catch (EntityNotFoundException e) {
 					UnitLoadType type = ultService.getDefaultUnitLoadType();
 					Client client = contextService.getCallersClient();
-					LOSStorageLocation storageLocation = locService.getCurrentUsersLocation();
+					StorageLocation storageLocation = locService.getCurrentUsersLocation();
 					
 					unitLoad = ulService.createLOSUnitLoad(client, pickTo.label, type, storageLocation);
 				}
@@ -241,7 +241,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			return;
 		}
 		
-		LOSStorageLocation targetLoc = null;
+		StorageLocation targetLoc = null;
 		if( targetLocName == null ) {
 			locService.getClearing();
 		}
@@ -263,7 +263,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 		for( int i = 0; i < 1000; i++ ) {
 			String label = sequenceService.generateUnitLoadLabelId(null, null);
-			LOSUnitLoad ul = null;
+			UnitLoad ul = null;
 			try {
 				ul = ulService.getByLabelId(null, label);
 			} catch (EntityNotFoundException e) {
@@ -287,7 +287,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			return;
 		}
 		
-		LOSUnitLoad unitLoadNew = null;
+		UnitLoad unitLoadNew = null;
 
 		try {
 			unitLoadNew = ulService.getByLabelId(null, labelNew);
@@ -302,7 +302,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			return;
 		}
 		
-		LOSUnitLoad unitLoad = null;
+		UnitLoad unitLoad = null;
 		try {
 			unitLoad = ulService.getByLabelId(null, labelOld);
 		} catch (EntityNotFoundException e) {
@@ -318,7 +318,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public PickingMobileUnitLoad createUnitLoad( String label, long pickingOrderId, int index ) throws FacadeException {
 		String logStr = "createUnitLoad ";
-		LOSUnitLoad unitLoad = null;
+		UnitLoad unitLoad = null;
 		try {
 			unitLoad = ulService.getByLabelId(null, label);
 		} catch (EntityNotFoundException e) {}
@@ -329,7 +329,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			
 		UnitLoadType type = ultService.getDefaultUnitLoadType();
 		Client client = contextService.getCallersClient();
-		LOSStorageLocation storageLocation = locService.getCurrentUsersLocation();
+		StorageLocation storageLocation = locService.getCurrentUsersLocation();
 
 		LOSPickingOrder pickingOrder = null;
 		try {
@@ -351,7 +351,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		
 		LOSPickingUnitLoad pickingUnitLoad = null;
-		LOSUnitLoad unitLoad = null;
+		UnitLoad unitLoad = null;
 		pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.info(logStr+"Picking unit load not found. Try LOSUnitLoad. label="+label);
@@ -433,9 +433,9 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		if( workingAreaId != null ) {
 			sb.append(", ");
 			sb.append(StockUnit.class.getSimpleName()+" su, ");
-			sb.append(LOSUnitLoad.class.getSimpleName()+" ul, ");
-			sb.append(LOSStorageLocation.class.getSimpleName()+" loc, ");
-			sb.append(LOSLocationCluster.class.getSimpleName()+" cluster, ");
+			sb.append(UnitLoad.class.getSimpleName()+" ul, ");
+			sb.append(StorageLocation.class.getSimpleName()+" loc, ");
+			sb.append(LocationCluster.class.getSimpleName()+" cluster, ");
 			sb.append(LOSWorkingAreaPosition.class.getSimpleName()+" workingAreaPos ");
 		}
 		sb.append("  WHERE pp.pickingOrder = po and pp.pickingType in (:typeList)");
@@ -599,7 +599,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			boolean isFixedLocation = false;
 			StockUnit su = pick.getPickFromStockUnit();
 			if( su != null ) {
-				LOSUnitLoad ul = (LOSUnitLoad)su.getUnitLoad();
+				UnitLoad ul = su.getUnitLoad();
 				isFixedLocation = fixService.existsByLocation( ul.getStorageLocation() );
 			}
 			PickingMobilePos pickMobile = new PickingMobilePos();
@@ -653,7 +653,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		String logStr = "changePickFromStockUnit ";
 		Client client = clientService.getByNumber(to.clientNumber);
 		
-		LOSUnitLoad unitLoadNew = null; 
+		UnitLoad unitLoadNew = null; 
 		try {
 			unitLoadNew = ulService.getByLabelId(client, label);
 		} catch (EntityNotFoundException e) {}
@@ -667,7 +667,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			log.info(logStr+"The current picking position cannot be read");
 			throw new LOSExceptionRB("CannotReadCurrentPick", this.getClass());
 		}
-		LOSUnitLoad unitLoadOrg = (LOSUnitLoad)pick.getPickFromStockUnit().getUnitLoad();
+		UnitLoad unitLoadOrg = pick.getPickFromStockUnit().getUnitLoad();
 
 		if( !unitLoadNew.getStorageLocation().equals(unitLoadOrg.getStorageLocation()) ) {
 			log.info(logStr+"The unit load is located on a different location. label="+label);
@@ -707,7 +707,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public void printLabel( String label, String printer ) throws FacadeException {
 		String logStr = "printLabel ";
-		LOSUnitLoad unitLoad = null; 
+		UnitLoad unitLoad = null; 
 		try {
 			unitLoad = ulService.getByLabelId(null, label);
 		} catch (EntityNotFoundException e) {}
@@ -750,7 +750,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
     
 	public void checkLocationScan( String name ) throws FacadeException {
 		String logStr = "checkLocationScan ";
-		LOSStorageLocation loc = locService.getByName(name);
+		StorageLocation loc = locService.getByName(name);
 		if( loc.getId() < 1 ) {
 			log.info(logStr+"Invalid location. id="+loc.getId());
 			throw new LOSExceptionRB("LocationInvalid", this.getClass());

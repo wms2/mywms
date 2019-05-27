@@ -15,10 +15,6 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryTransferException;
@@ -28,8 +24,12 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface LOSGoodsReceiptComponent {
@@ -63,7 +63,7 @@ public interface LOSGoodsReceiptComponent {
 	 * 
 	 * @return a list of all goods receipt locations.
 	 */
-	public List<LOSStorageLocation> getGoodsReceiptLocations() throws LOSLocationException;
+	public List<StorageLocation> getGoodsReceiptLocations() throws LOSLocationException;
 	
 	/**
 	 * Retrieve {@link LOSGoodsReceipt} by its number.
@@ -133,7 +133,7 @@ public interface LOSGoodsReceiptComponent {
 			  Lot batch,
 			  ItemData item,
 			  BigDecimal amount,
-			  LOSUnitLoad unitLoad, String serialNumber)
+			  UnitLoad unitLoad, String serialNumber)
 		throws FacadeException;
     /**
      * Assigns a LOSAdvice to this LOSGoodsReceiptPosition. This is done during 
@@ -175,8 +175,8 @@ public interface LOSGoodsReceiptComponent {
      * @return 
      * @throws LOSLocationException
      */
-    public LOSUnitLoad getOrCreateUnitLoad(Client c,
-            LOSStorageLocation sl, UnitLoadType type, String ref) throws FacadeException;
+    public UnitLoad getOrCreateUnitLoad(Client c,
+            StorageLocation sl, UnitLoadType type, String ref) throws FacadeException;
     
     /**
      * Finishes GoodsReceipt. After a call to this method the reference to {@link StockUnit}

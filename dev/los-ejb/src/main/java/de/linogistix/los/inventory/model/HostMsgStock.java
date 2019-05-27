@@ -2,11 +2,10 @@ package de.linogistix.los.inventory.model;
 
 import java.math.BigDecimal;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-
 import de.linogistix.los.model.HostMsg;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.product.ItemData;
 
 public class HostMsgStock extends HostMsg{
 

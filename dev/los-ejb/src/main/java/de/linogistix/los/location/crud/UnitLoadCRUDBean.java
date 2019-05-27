@@ -12,13 +12,13 @@
 package de.linogistix.los.location.crud;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
+import de.linogistix.los.location.service.UnitLoadService;
+import de.wms2.mywms.inventory.UnitLoad;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.mywms.model.UnitLoad;
 import org.mywms.service.BasicService;
-import org.mywms.service.UnitLoadService;
 
 
 /**

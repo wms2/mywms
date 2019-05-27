@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 @Remote
 public interface InventoryProcessFacade {

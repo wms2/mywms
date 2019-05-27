@@ -12,12 +12,12 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.mywms.model.ItemData;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class LOSFixedLocationAssignmentServiceBean 
@@ -35,7 +35,7 @@ public class LOSFixedLocationAssignmentServiceBean
 		return fixService.getByItemData(item);
 	}
 
-	public LOSFixedLocationAssignment getByLocation(LOSStorageLocation sl) {
+	public LOSFixedLocationAssignment getByLocation(StorageLocation sl) {
 		return fixService.getByLocation(sl);
 	}
 }

@@ -18,9 +18,6 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
-import org.mywms.service.StockUnitService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.customization.ManageStorageService;
@@ -28,8 +25,8 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
@@ -37,15 +34,19 @@ import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoadPackageType;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
  * 
@@ -85,10 +86,10 @@ public class StorageBusinessBean implements StorageBusiness {
 	@EJB
 	private LocationFinder locationFinder;
 	
-	public LOSStorageRequest getOrCreateStorageRequest(Client c, LOSUnitLoad ul) throws FacadeException {
+	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul) throws FacadeException {
 		return getOrCreateStorageRequest(c, ul, false, null, null);
 	}
-	public LOSStorageRequest getOrCreateStorageRequest(Client c, LOSUnitLoad ul, boolean startProcessing) throws FacadeException {
+	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul, boolean startProcessing) throws FacadeException {
 		return getOrCreateStorageRequest(c, ul, startProcessing, null, null);
 	}
 	/**
@@ -104,7 +105,7 @@ public class StorageBusinessBean implements StorageBusiness {
 	 * @throws org.mywms.service.EntityNotFoundException
 	 */
 	@SuppressWarnings("unchecked")
-	public LOSStorageRequest getOrCreateStorageRequest(Client c, LOSUnitLoad ul, boolean startProcessing, LOSStorageLocation location, LOSStorageStrategy strategy)
+	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul, boolean startProcessing, StorageLocation location, StorageStrategy strategy)
 			throws FacadeException {
 		LOSStorageRequest ret;
 
@@ -170,20 +171,20 @@ public class StorageBusinessBean implements StorageBusiness {
 
 
 	public void finishStorageRequest(LOSStorageRequest req,
-			LOSStorageLocation sl, boolean force) throws FacadeException,
+			StorageLocation sl, boolean force) throws FacadeException,
 			LOSLocationException {
 		// transfer UnitLoad
-		LOSUnitLoad ul;
-		LOSStorageLocation assigned;
+		UnitLoad ul;
+		StorageLocation assigned;
 		boolean partialProcessed = false;
 		
-		ul = manager.find(LOSUnitLoad.class, req.getUnitLoad().getId());
-		sl = manager.find(LOSStorageLocation.class, sl.getId());
+		ul = manager.find(UnitLoad.class, req.getUnitLoad().getId());
+		sl = manager.find(StorageLocation.class, sl.getId());
 		req = manager.find(LOSStorageRequest.class, req.getId());
 		
 		LOSStorageRequestState stateOld = req.getRequestState();
 		
-		assigned = manager.find(LOSStorageLocation.class, req.getDestination().getId());
+		assigned = manager.find(StorageLocation.class, req.getDestination().getId());
 		if (!(sl.equals(assigned))) {
 			try {
 				locationReserver.checkAllocateLocation(sl, req.getUnitLoad(), force);
@@ -217,8 +218,8 @@ public class StorageBusinessBean implements StorageBusiness {
 						sl.getName());
 			}
 
-			LOSArea area = sl.getArea();
-			if( area != null && area.isUseForTransfer() ) {
+			Area area = sl.getArea();
+			if( area != null && area.isUseFor(AreaUsages.TRANSFER) ) {
 				// Do not finish the storage order on a transfer location
 				req.setRequestState(LOSStorageRequestState.PROCESSING);
 				partialProcessed = true;
@@ -245,7 +246,7 @@ public class StorageBusinessBean implements StorageBusiness {
 
 	}
 
-	private void transferUnitLoad(LOSStorageRequest req, LOSUnitLoad unitload, LOSStorageLocation targetLocation ) throws FacadeException {
+	private void transferUnitLoad(LOSStorageRequest req, UnitLoad unitload, StorageLocation targetLocation ) throws FacadeException {
 		
 		LOSFixedLocationAssignment fix = fixService.getByLocation(targetLocation);
 		String operator = contextService.getCallerUserName();
@@ -259,8 +260,8 @@ public class StorageBusinessBean implements StorageBusiness {
 			
 			if (targetLocation.getUnitLoads() != null && targetLocation.getUnitLoads().size() > 0) {
 				// There is already a unit load on the destination. => Add stock
-				LOSUnitLoad targetUl = null;
-				for( LOSUnitLoad ul : targetLocation.getUnitLoads() ) {
+				UnitLoad targetUl = null;
+				for( UnitLoad ul : targetLocation.getUnitLoads() ) {
 					if( ul.getLabelId().equals(targetLocation.getName() ) ) {
 						targetUl = ul;
 						break;
@@ -288,11 +289,11 @@ public class StorageBusinessBean implements StorageBusiness {
 	
 	
 	public void finishStorageRequest(LOSStorageRequest req,
-			LOSUnitLoad destination) throws FacadeException {
+			UnitLoad destination) throws FacadeException {
 		
 		// zuschuetten
-		LOSUnitLoad from = manager.find(LOSUnitLoad.class, req.getUnitLoad().getId());
-		destination = manager.find(LOSUnitLoad.class, destination.getId()); 
+		UnitLoad from = manager.find(UnitLoad.class, req.getUnitLoad().getId());
+		destination = manager.find(UnitLoad.class, destination.getId()); 
 		req = manager.find(LOSStorageRequest.class, req.getId());
 		
 		LOSStorageRequestState stateOld = req.getRequestState();
@@ -303,7 +304,7 @@ public class StorageBusinessBean implements StorageBusiness {
 		// TODO make choosable from gui
 		switch(destination.getPackageType()){
 		case OF_SAME_LOT: 
-			destination.setPackageType(LOSUnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
+			destination.setPackageType(UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
 			manager.flush();
 			break;
 		case OF_SAME_LOT_CONSOLIDATE:
@@ -315,12 +316,12 @@ public class StorageBusinessBean implements StorageBusiness {
 		
 		inventoryComponent.transferStock(from, destination,  req.getNumber(), false);
 		
-		LOSStorageLocation orig = manager.find(LOSStorageLocation.class, req.getDestination().getId());
+		StorageLocation orig = manager.find(StorageLocation.class, req.getDestination().getId());
 		locationReserver.deallocateLocation(orig, from);
 		
 		// if UnitLoad empty, send to nirwana
 		if (req.getUnitLoad().getStockUnitList().isEmpty()) {
-			LOSUnitLoad u = manager.find(LOSUnitLoad.class, req.getUnitLoad().getId());
+			UnitLoad u = manager.find(UnitLoad.class, req.getUnitLoad().getId());
 			String operator = contextService.getCallerUserName();
 			storageLocService.sendToNirwana(operator, u);
 		}
@@ -334,7 +335,7 @@ public class StorageBusinessBean implements StorageBusiness {
 	// ------------------------------------------------------------------------
 
 
-	public Client determineClient(LOSUnitLoad ul) {
+	public Client determineClient(UnitLoad ul) {
 		Client systemCl;
 
 		systemCl = clQuery.getSystemClient();

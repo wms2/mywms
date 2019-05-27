@@ -24,20 +24,23 @@ import javax.persistence.Version;
 public class LOSSequenceNumber implements Serializable {
     private static final long serialVersionUID = 1L;
     
+    @Id
     private String className;
+
+    @Column(nullable=false)
     private long sequenceNumber;
+
+    @Version
     private int version;
     
     public void setClassName(String className) {
         this.className = className;
     }
 
-    @Id
     public String getClassName() {
         return className;
     }
 
-    @Column(nullable=false)
     public long getSequenceNumber() {
         return sequenceNumber;
     }
@@ -46,7 +49,6 @@ public class LOSSequenceNumber implements Serializable {
 	this.sequenceNumber = sequenceNumber;
     }
 
-    @Version
     public int getVersion() {
     	return version;
     }

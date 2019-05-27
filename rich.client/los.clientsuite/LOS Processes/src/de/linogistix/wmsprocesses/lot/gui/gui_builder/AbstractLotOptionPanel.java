@@ -10,8 +10,8 @@ package de.linogistix.wmsprocesses.lot.gui.gui_builder;
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSTextField;
+import de.wms2.mywms.inventory.Lot;
 import javax.swing.JCheckBox;
-import org.mywms.model.Lot;
 import org.openide.util.NbBundle;
 
 /**

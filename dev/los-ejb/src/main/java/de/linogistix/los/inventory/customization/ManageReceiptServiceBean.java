@@ -13,8 +13,6 @@ import javax.ejb.EJB;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.common.businessservice.HostMsgService;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -23,6 +21,8 @@ import de.linogistix.los.inventory.model.HostMsgGR;
 import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.product.ItemData;
 
 public class ManageReceiptServiceBean implements ManageReceiptService {
 

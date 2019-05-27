@@ -12,11 +12,11 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 
-import org.mywms.model.UnitLoad;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
+import de.wms2.mywms.inventory.UnitLoad;
 
 
 @Stateless

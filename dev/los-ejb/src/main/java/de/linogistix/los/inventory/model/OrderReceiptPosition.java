@@ -29,10 +29,13 @@ public class OrderReceiptPosition extends BasicClientAssignedEntity {
 	
 	private String lotRef;
 	
+	@Column(precision=17, scale=4)
 	private BigDecimal amountordered;
 	
+	@Column(precision=17, scale=4)
 	private BigDecimal amount;
 	
+	@ManyToOne
 	private OrderReceipt receipt;
 
 	private int pos;
@@ -69,7 +72,6 @@ public class OrderReceiptPosition extends BasicClientAssignedEntity {
 		this.amountordered = amountordered;
 	}
 
-	@Column(precision=17, scale=4)
 	public BigDecimal getAmountordered() {
 		return amountordered;
 	}
@@ -78,7 +80,6 @@ public class OrderReceiptPosition extends BasicClientAssignedEntity {
 		this.amount = amount;
 	}
 
-	@Column(precision=17, scale=4)
 	public BigDecimal getAmount() {
 		try {
 			return amount.setScale(articleScale);
@@ -92,7 +93,6 @@ public class OrderReceiptPosition extends BasicClientAssignedEntity {
 		this.receipt = receipt;
 	}
 
-	@ManyToOne
 	public OrderReceipt getReceipt() {
 		return receipt;
 	}

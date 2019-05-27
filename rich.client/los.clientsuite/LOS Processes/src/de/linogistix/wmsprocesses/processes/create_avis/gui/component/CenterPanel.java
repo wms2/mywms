@@ -19,6 +19,8 @@ import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -27,8 +29,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -99,7 +99,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
                 if(selItemData != null){
 //                    getAmountTextField().setEnabled(true);
-                    getAmountTextField().setUnitName(selItemData.getHandlingUnit().getUnitName());
+                    getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
                     getAmountTextField().setScale(selItemData.getScale());
                 }
                 else {
@@ -121,7 +121,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
                 if(selItemData != null){
 //                    getAmountTextField().setEnabled(true);
-                    getAmountTextField().setUnitName(selItemData.getHandlingUnit().getUnitName());
+                    getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
                     getAmountTextField().setScale(selItemData.getScale());
                 }
                 else {

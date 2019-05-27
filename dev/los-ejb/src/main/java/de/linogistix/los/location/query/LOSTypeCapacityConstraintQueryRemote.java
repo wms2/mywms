@@ -12,8 +12,8 @@
 package de.linogistix.los.location.query;
 
 
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 import javax.ejb.Remote;
 
@@ -22,6 +22,6 @@ import javax.ejb.Remote;
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Remote
-public interface LOSTypeCapacityConstraintQueryRemote extends BusinessObjectQueryRemote<LOSTypeCapacityConstraint>{ 
+public interface LOSTypeCapacityConstraintQueryRemote extends BusinessObjectQueryRemote<TypeCapacityConstraint>{ 
   
 }

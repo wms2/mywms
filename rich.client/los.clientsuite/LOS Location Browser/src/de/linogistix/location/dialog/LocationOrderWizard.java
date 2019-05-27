@@ -10,7 +10,6 @@ package de.linogistix.location.dialog;
 import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.location.res.LocationBundleResolver;
 import de.linogistix.los.query.BODTO;
-import de.linogistix.los.location.model.LOSRack;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,13 +30,13 @@ public class LocationOrderWizard extends WizardDescriptor implements ChangeListe
 
     public int valueStart = 0;
     public int valueDiff = 1;
-    public BODTO<LOSRack> rack = null;
+    public String rack = null;
     
     /**
      * Creates a new instance of OrderByWizard
      */
     @SuppressWarnings("unchecked")
-    public LocationOrderWizard(BODTO<LOSRack> rack) throws InstantiationException {
+    public LocationOrderWizard(String rack) throws InstantiationException {
         super(createPanels());
 
         putProperty("WizardPanel_autoWizardStyle", Boolean.TRUE);

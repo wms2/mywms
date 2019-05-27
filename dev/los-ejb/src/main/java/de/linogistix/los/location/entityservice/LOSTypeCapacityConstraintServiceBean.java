@@ -11,7 +11,7 @@ import javax.ejb.Stateless;
 
 import org.mywms.service.BasicServiceBean;
 
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  *
@@ -19,7 +19,7 @@ import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
  */
 @Stateless
 public class LOSTypeCapacityConstraintServiceBean 
-        extends BasicServiceBean<LOSTypeCapacityConstraint>
+        extends BasicServiceBean<TypeCapacityConstraint>
         implements LOSTypeCapacityConstraintService{
     
    

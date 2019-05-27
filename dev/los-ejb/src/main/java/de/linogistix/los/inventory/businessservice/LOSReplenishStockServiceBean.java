@@ -21,17 +21,18 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.StockUnitService;
 
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -52,7 +53,7 @@ public class LOSReplenishStockServiceBean implements LOSReplenishStockService {
 
 
 
-	public StockUnit findReplenishStock( ItemData itemData, Lot lot, BigDecimal amount, Collection<LOSStorageLocation> vetoLocations ) throws FacadeException {
+	public StockUnit findReplenishStock( ItemData itemData, Lot lot, BigDecimal amount, Collection<StorageLocation> vetoLocations ) throws FacadeException {
 		String logStr ="findReplenishStock ";
 
 		List<ReplenishStockUnitTO> stockList = null;
@@ -115,14 +116,14 @@ public class LOSReplenishStockServiceBean implements LOSReplenishStockService {
 		sb.append("loc.id, loc.name");
 		sb.append(") FROM ");			
 		sb.append(StockUnit.class.getSimpleName()+" su, ");
-		sb.append(LOSUnitLoad.class.getSimpleName()+" ul, ");
-		sb.append(LOSStorageLocation.class.getSimpleName()+" loc, ");
-		sb.append(LOSArea.class.getSimpleName()+" area ");
+		sb.append(UnitLoad.class.getSimpleName()+" ul, ");
+		sb.append(StorageLocation.class.getSimpleName()+" loc, ");
+		sb.append(Area.class.getSimpleName()+" area ");
 		sb.append("WHERE ul = su.unitLoad AND loc = ul.storageLocation AND area = loc.area ");
 		sb.append(" AND ul.lock=0 AND loc.lock in (0,:lockStorage) and area.lock=0 ");
 		sb.append(" AND su.lock=0 ");
 		sb.append(" AND su.amount > 0 ");
-		sb.append(" AND area.useForReplenish=true ");
+		sb.append(" AND area.usages like '%"+AreaUsages.REPLENISH+"%' ");
 		sb.append(" AND su.reservedAmount=0 ");
 		sb.append(" AND su.itemData =:item ");
 		sb.append(" AND not exists( select 1 from "+LOSFixedLocationAssignment.class.getSimpleName()+" fix ");

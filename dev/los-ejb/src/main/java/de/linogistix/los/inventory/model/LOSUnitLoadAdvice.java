@@ -21,7 +21,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.UnitLoadType;
+
+import de.wms2.mywms.inventory.UnitLoadType;
 
 @Entity
 @Table(name="los_uladvice")
@@ -29,27 +30,36 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(unique=true, nullable=false)
 	private String number;
 	
 	private String externalNumber;
 	
+	@ManyToOne(optional=true)
 	private LOSAdvice relatedAdvice;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable=false)
 	private LOSAdviceType adviceType;
 	
+	@Column(unique=true, nullable=false)
 	private String labelId;
 	
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	private UnitLoadType unitLoadType;
 	
 	private String reasonForReturn;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable=false)
 	private LOSUnitLoadAdviceState adviceState;
 	
 	private String switchStateInfo;
 	
+	@OneToMany(mappedBy="unitLoadAdvice")
+	@OrderBy("positionNumber")
 	private List<LOSUnitLoadAdvicePosition> positionList = new ArrayList<LOSUnitLoadAdvicePosition>();
 
-	@Column(unique=true, nullable=false)
 	public String getNumber() {
 		return number;
 	}
@@ -66,7 +76,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 		this.externalNumber = externalAdviceNumber;
 	}
 
-	@ManyToOne(optional=true)
 	public LOSAdvice getRelatedAdvice() {
 		return relatedAdvice;
 	}
@@ -75,8 +84,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 		this.relatedAdvice = relatedAdvice;
 	}
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable=false)
 	public LOSAdviceType getAdviceType() {
 		return adviceType;
 	}
@@ -85,7 +92,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 		this.adviceType = adviceType;
 	}
 
-	@Column(unique=true, nullable=false)
 	public String getLabelId() {
 		return labelId;
 	}
@@ -94,7 +100,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 		this.labelId = labelId;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public UnitLoadType getUnitLoadType() {
 		return unitLoadType;
 	}
@@ -111,8 +116,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 		this.reasonForReturn = reasonForReturn;
 	}
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable=false)
 	public LOSUnitLoadAdviceState getAdviceState() {
 		return adviceState;
 	}
@@ -129,8 +132,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 		this.switchStateInfo = switchStateInfo;
 	}
 
-	@OneToMany(mappedBy="unitLoadAdvice")
-	@OrderBy("positionNumber")
 	public List<LOSUnitLoadAdvicePosition> getPositionList() {
 		return positionList;
 	}

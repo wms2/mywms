@@ -12,7 +12,7 @@ import javax.ejb.Local;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.pick.model.PickReceipt;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  * @author krane
@@ -30,7 +30,7 @@ public interface LOSUnitLoadReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public PickReceipt generateUnitLoadReport(LOSUnitLoad unitLoad) throws FacadeException;
+	public PickReceipt generateUnitLoadReport(UnitLoad unitLoad) throws FacadeException;
 	
 	/**
 	 * Persist an order receipt.

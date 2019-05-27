@@ -8,10 +8,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.mywms.model.ItemData;
-
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class QueryFixedAssignmentServiceBean implements QueryFixedAssignmentService, QueryFixedAssignmentServiceRemote {
@@ -19,7 +18,7 @@ public class QueryFixedAssignmentServiceBean implements QueryFixedAssignmentServ
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 
-	public LOSFixedLocationAssignment getByLocation(LOSStorageLocation sl) {
+	public LOSFixedLocationAssignment getByLocation(StorageLocation sl) {
 		Query query = manager.createNamedQuery("LOSFixedLocationAssignment.queryByLocation");
 		query.setParameter("location", sl);
 		query.setMaxResults(1);
@@ -44,7 +43,7 @@ public class QueryFixedAssignmentServiceBean implements QueryFixedAssignmentServ
         return true;
 	}
 
-	public boolean existsByLocation(LOSStorageLocation location) {
+	public boolean existsByLocation(StorageLocation location) {
 		Query query = manager.createNamedQuery("LOSFixedLocationAssignment.existsByLocation");
 		query.setParameter("location", location);
         query.setMaxResults(1);

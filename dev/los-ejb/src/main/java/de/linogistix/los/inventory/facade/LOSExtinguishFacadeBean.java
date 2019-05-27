@@ -20,12 +20,9 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
-import de.linogistix.los.common.exception.LOSExceptionRB;
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.businessservice.LOSPickingOrderGenerator;
@@ -42,9 +39,11 @@ import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -149,12 +148,12 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 
 	public void generateOrder( Client client, List<StockUnit> stockList ) throws FacadeException {
 		String logStr = "generateOrder ";
-		LOSStorageLocation nirwana = locationService.getNirwana();
+		StorageLocation nirwana = locationService.getNirwana();
 		List<LOSPickingPosition> pickList = new ArrayList<LOSPickingPosition>();
 		LOSOrderStrategy strat = strategyService.getExtinguish(client);
 		
 		for( StockUnit stock : stockList ) {
-			LOSUnitLoad ul = (LOSUnitLoad) stock.getUnitLoad();
+			UnitLoad ul = stock.getUnitLoad();
 			if( ul.getStorageLocation().equals(nirwana) ){
 				continue;
 			}
@@ -226,11 +225,11 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	@SuppressWarnings("unchecked")
 	public List<StockUnit> getListByLot(Lot lot, boolean checkAvailable) {
 		
-		LOSStorageLocation nirwana = locationService.getNirwana();
+		StorageLocation nirwana = locationService.getNirwana();
 
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT su FROM " + StockUnit.class.getSimpleName()+ " su, ");
-        qstr.append(LOSUnitLoad.class.getSimpleName()+ " ul ");
+        qstr.append(UnitLoad.class.getSimpleName()+ " ul ");
 		qstr.append("WHERE su.unitLoad = ul AND su.lot = :lot ");
     	qstr.append(" AND su.lock != "+StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());;
     	qstr.append(" AND su.lock != "+BusinessObjectLockState.GOING_TO_DELETE.getLock());;

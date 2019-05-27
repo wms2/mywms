@@ -24,8 +24,9 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
+
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 @Entity
 @Table(name = "los_avisreq")
@@ -33,33 +34,43 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 	
 	private static final long serialVersionUID = 1L;
 
+	@Column(unique=true, nullable=false)
 	private String adviceNumber;
 	
+	@Column(name="externalNo")
 	private String externalAdviceNumber;
 	
 	private String externalId;
 	
+	@ManyToOne(optional=false)
 	private ItemData itemData;
 	
+	@ManyToOne(optional=true)
 	private Lot lot;
 	
+	@Temporal(TemporalType.DATE)
 	private Date expectedDelivery;
 	
 	private boolean expireBatch;
 
+	@Column(precision=17, scale=4)
 	private BigDecimal receiptAmount = new BigDecimal(0);
 	
+    @Column(precision=17, scale=4)
     private BigDecimal notifiedAmount = new BigDecimal(0);
         
+    @OneToMany(mappedBy="relatedAdvice")
     private List<LOSGoodsReceiptPosition> grPositionList = new ArrayList<LOSGoodsReceiptPosition>();
     
+    @Enumerated(EnumType.STRING)
     private LOSAdviceState adviceState = LOSAdviceState.RAW;
 	
+	@Temporal(TemporalType.TIMESTAMP)
     private Date processDate;
     
+	@Temporal(TemporalType.TIMESTAMP)
     private Date finishDate;
     
-	@Column(unique=true, nullable=false)
 	public String getAdviceNumber() {
 		return adviceNumber;
 	}
@@ -68,7 +79,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 		this.adviceNumber = requestId;
 	}
 
-	@Column(name="externalNo")
 	public String getExternalAdviceNumber() {
 		return externalAdviceNumber;
 	}
@@ -77,7 +87,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 		this.externalAdviceNumber = externalAdviceNumber;
 	}
 
-	@ManyToOne(optional=false)
 	public ItemData getItemData() {
 		return itemData;
 	}
@@ -87,7 +96,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 	}
 
 	/** The already arrived (Goods receipt) amount of goods*/
-	@Column(precision=17, scale=4)
 	public BigDecimal getReceiptAmount() {
 		if (itemData != null){
 			try{
@@ -104,7 +112,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
         this.receiptAmount = amount;
 	}
 
-	@ManyToOne(optional=true)
 	public Lot getLot() {
 		return lot;
 	}
@@ -113,7 +120,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 		this.lot = batch;
 	}
 
-	@Temporal(TemporalType.DATE)
 	public Date getExpectedDelivery() {
 		return expectedDelivery;
 	}
@@ -142,7 +148,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
      * 
      * @return
      */
-    @OneToMany(mappedBy="relatedAdvice")
     public List<LOSGoodsReceiptPosition> getGrPositionList() {
         return grPositionList;
     }
@@ -166,7 +171,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
     
 
     /** The amount that has been adviced */
-    @Column(precision=17, scale=4)
     public BigDecimal getNotifiedAmount() {
 		if (itemData != null){
 			try{
@@ -182,7 +186,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
         this.notifiedAmount = notifiedAmount;
     }
 
-    @Enumerated(EnumType.STRING)
     public LOSAdviceState getAdviceState() {
         return adviceState;
     }
@@ -243,7 +246,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 		this.externalId = externalId;
 	}
 
-	@Temporal(TemporalType.TIMESTAMP)
 	public Date getProcessDate() {
 		return processDate;
 	}
@@ -252,7 +254,6 @@ public class LOSAdvice extends BasicClientAssignedEntity {
 		this.processDate = processDate;
 	}
 
-	@Temporal(TemporalType.TIMESTAMP)
 	public Date getFinishDate() {
 		return finishDate;
 	}

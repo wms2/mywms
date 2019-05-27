@@ -15,10 +15,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.mywms.model.UnitLoadType;
-
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
 public class QueryTypeCapacityConstraintServiceBean 
@@ -32,13 +31,13 @@ public class QueryTypeCapacityConstraintServiceBean
 	 * (non-Javadoc)
 	 * @see de.linogistix.los.location.service.QueryTypeCapacityConstraintService#getByTypes(de.linogistix.los.location.model.LOSStorageLocationType, org.mywms.model.UnitLoadType)
 	 */
-	public LOSTypeCapacityConstraint getByTypes(LOSStorageLocationType slType, UnitLoadType ulType) {
+	public TypeCapacityConstraint getByTypes(LocationType slType, UnitLoadType ulType) {
 		Query query = manager.createNamedQuery("LOSTypeCapacityConstraint.queryBySLTypeAndULType");
 		query = query.setParameter("SLType", slType);
 		query = query.setParameter("ULType", ulType);
 
 		try{
-			return (LOSTypeCapacityConstraint) query.getSingleResult();
+			return (TypeCapacityConstraint) query.getSingleResult();
 			
 		}catch(NoResultException nre){
 			return null;
@@ -50,11 +49,11 @@ public class QueryTypeCapacityConstraintServiceBean
 	 * @see de.linogistix.los.location.service.QueryTypeCapacityConstraintService#getListByLocationType(de.linogistix.los.location.model.LOSStorageLocationType)
 	 */
 	@SuppressWarnings("unchecked")
-	public List<LOSTypeCapacityConstraint> getListByLocationType(LOSStorageLocationType slType) {
+	public List<TypeCapacityConstraint> getListByLocationType(LocationType slType) {
 		
 		StringBuffer sb = new StringBuffer("SELECT tcc FROM ");
-		sb.append(LOSTypeCapacityConstraint.class.getSimpleName()+" tcc ");
-		sb.append("WHERE tcc.storageLocationType=:slt");
+		sb.append(TypeCapacityConstraint.class.getSimpleName()+" tcc ");
+		sb.append("WHERE tcc.locationType=:slt");
 		
 		Query query = manager.createQuery(sb.toString());
 		

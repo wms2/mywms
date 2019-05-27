@@ -12,13 +12,13 @@ import de.linogistix.common.gui.component.controls.LOSTextField;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardSUPanelUI;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
-import org.mywms.model.ItemData;
 import org.openide.util.NbBundle;
 
 /**
@@ -267,7 +267,7 @@ public class PositionWizardSUPanelUI extends AbstractPositionWizardSUPanelUI
             itemDataNameLabel.setText(item.getName());
 
             getAmountTextField().setScale(item.getScale());
-            getAmountTextField().setUnitName(item.getHandlingUnit().getUnitName());
+            getAmountTextField().setUnitName(item.getItemUnit().getUnitName());
         }
 
         if (wm.amount != null) {

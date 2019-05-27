@@ -18,8 +18,6 @@ import javax.ejb.Stateless;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.mywms.model.User;
 
 import de.linogistix.los.inventory.customization.ManageOrderService;
@@ -38,11 +36,13 @@ import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * 
@@ -497,10 +497,10 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			if( ulList != null && ulList.size()>0 ) {
 				log.debug(logStr+"Cleanup unit loads on users location. userName="+user.getName());
 				String userName = pickingOrder.getOperator() == null ? null : pickingOrder.getOperator().getName();
-				LOSStorageLocation usersLocation = locationService.getCurrentUsersLocation();
+				StorageLocation usersLocation = locationService.getCurrentUsersLocation();
 				for( LOSPickingUnitLoad unitLoad : ulList ) {
 					if( unitLoad.getUnitLoad().getStorageLocation().equals(usersLocation) ) {
-						LOSStorageLocation clearing = locationService.getClearing();
+						StorageLocation clearing = locationService.getClearing();
 						storage.transferUnitLoad(userName, clearing, unitLoad.getUnitLoad(), -1, true, "", "");
 					}
 				}
@@ -630,8 +630,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		else {
 			
-			LOSUnitLoad pickFromUnitLoad = (LOSUnitLoad) pickFromStock.getUnitLoad();
-			LOSStorageLocation pickFromLocation = pickFromUnitLoad.getStorageLocation();
+			UnitLoad pickFromUnitLoad = pickFromStock.getUnitLoad();
+			StorageLocation pickFromLocation = pickFromUnitLoad.getStorageLocation();
 			
 			if( BigDecimal.ZERO.compareTo(amountRemain) > 0 ) {
 				amountRemain = BigDecimal.ZERO;
@@ -945,8 +945,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			throw new InventoryException(InventoryExceptionKey.MISSING_PARAMETER, "pickFromStockOld");
 		}
 
-		LOSUnitLoad pickFromUnitLoadOld = (LOSUnitLoad)pick.getPickFromStockUnit().getUnitLoad();
-		LOSUnitLoad pickFromUnitLoadNew = (LOSUnitLoad)pickFromStockNew.getUnitLoad();
+		UnitLoad pickFromUnitLoadOld = pick.getPickFromStockUnit().getUnitLoad();
+		UnitLoad pickFromUnitLoadNew = pickFromStockNew.getUnitLoad();
 		
 		BigDecimal amountPick = pick.getAmount();
 		BigDecimal amountStockNew = pickFromStockNew.getAmount();
@@ -1024,9 +1024,9 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	}
 
 	
-	public LOSPickingUnitLoad confirmPickingUnitLoad( LOSPickingUnitLoad pickingUnitLoad, LOSStorageLocation destination, int state ) throws FacadeException {
+	public LOSPickingUnitLoad confirmPickingUnitLoad( LOSPickingUnitLoad pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException {
 		
-		LOSUnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
+		UnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
 		if( ! unitLoad.getStorageLocation().equals(destination) ) {
 			// Transfer posting only necessary if location is changed
 			storage.transferUnitLoad(contextService.getCallerUserName(), destination, pickingUnitLoad.getUnitLoad(), 0, true, null, null);
@@ -1130,7 +1130,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		invComponent.changeReservedAmount(stock, amountReservedNew, null);
 	}
 	
-	private StockUnit moveStock(StockUnit pickFromStock, BigDecimal amountPicked, LOSUnitLoad pickToUnitLoad, String activityCode) throws FacadeException {
+	private StockUnit moveStock(StockUnit pickFromStock, BigDecimal amountPicked, UnitLoad pickToUnitLoad, String activityCode) throws FacadeException {
 		// Do not create new stocks in complete unit load operations
 		boolean completeOperation = false;
 		StockUnit pickToStock = pickFromStock;
@@ -1147,7 +1147,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	}
 
 	private void changeAmount( StockUnit stock, BigDecimal amount, String activityCode ) throws FacadeException {
-		LOSUnitLoad unitLoad = (LOSUnitLoad)stock.getUnitLoad();
+		UnitLoad unitLoad = stock.getUnitLoad();
 		invComponent.changeAmount(stock, amount, true, activityCode, null, contextService.getCallerUserName(), true);
 		if( BigDecimal.ZERO.equals(amount) ) {
 			invComponent.sendStockUnitsToNirwana(stock, activityCode);

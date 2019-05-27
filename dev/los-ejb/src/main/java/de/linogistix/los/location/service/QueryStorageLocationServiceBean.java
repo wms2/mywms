@@ -20,10 +20,11 @@ import org.mywms.model.Client;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
-import de.linogistix.los.location.model.LOSArea;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.StorageLocation;
 
 @Stateless
 public class QueryStorageLocationServiceBean 
@@ -40,15 +41,16 @@ public class QueryStorageLocationServiceBean
 	private EntityManager manager;
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSStorageLocation> getListForGoodsIn() {
+	public List<StorageLocation> getListForGoodsIn() {
 		
 		Client callersClient = ctxService.getCallersClient();
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT sl FROM "
-                	+ LOSStorageLocation.class.getSimpleName()+ " sl "
-                    + ", " + LOSArea.class.getSimpleName() + " a "
-                	+ "WHERE a.useForGoodsIn=true AND sl.area.id = a.id ");
+                	+ StorageLocation.class.getSimpleName()+ " sl "
+                    + ", " + Area.class.getSimpleName() + " a "
+                	+ "WHERE sl.area.id = a.id "
+                    + " and a.usages like '%" + AreaUsages.GOODS_IN + "%'");
 		
         if (!callersClient.isSystemClient()) {
             qstr.append("AND sl.client = :cl ");
@@ -61,18 +63,19 @@ public class QueryStorageLocationServiceBean
         	query.setParameter("cl", callersClient);
         }
 
-        return (List<LOSStorageLocation>) query.getResultList();
+        return (List<StorageLocation>) query.getResultList();
 	}
 	@SuppressWarnings("unchecked")
-	public List<LOSStorageLocation> getListForGoodsOut() {
+	public List<StorageLocation> getListForGoodsOut() {
 		
 		Client callersClient = ctxService.getCallersClient();
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT sl FROM "
-                	+ LOSStorageLocation.class.getSimpleName()+ " sl "
-                    + ", " + LOSArea.class.getSimpleName() + " a "
-                	+ "WHERE a.useForGoodsOut=true AND sl.area.id = a.id ");
+                	+ StorageLocation.class.getSimpleName()+ " sl "
+                    + ", " + Area.class.getSimpleName() + " a "
+                	+ "WHERE sl.area.id = a.id "
+                    + " and a.usages like '%" + AreaUsages.GOODS_OUT + "%'");
 		
         if (!callersClient.isSystemClient()) {
             qstr.append("AND sl.client = :cl ");
@@ -85,18 +88,18 @@ public class QueryStorageLocationServiceBean
         	query.setParameter("cl", callersClient);
         }
 
-        return (List<LOSStorageLocation>) query.getResultList();
+        return (List<StorageLocation>) query.getResultList();
 	}
 	@SuppressWarnings("unchecked")
-	public List<LOSStorageLocation> getListForStorage() {
+	public List<StorageLocation> getListForStorage() {
 		
 		Client callersClient = ctxService.getCallersClient();
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT sl FROM "
-                	+ LOSStorageLocation.class.getSimpleName()+ " sl "
-                    + ", " + LOSArea.class.getSimpleName() + " a "
-                	+ "WHERE a.useForStorage=true AND sl.area.id = a.id ");
+                	+ StorageLocation.class.getSimpleName()+ " sl "
+                    + ", " + Area.class.getSimpleName() + " a "
+                    + "WHERE a.useages like '%" + AreaUsages.STORAGE + "%' AND sl.area.id = a.id ");
 		
         if (!callersClient.isSystemClient()) {
             qstr.append("AND sl.client = :cl ");
@@ -109,14 +112,14 @@ public class QueryStorageLocationServiceBean
         	query.setParameter("cl", callersClient);
         }
 
-        return (List<LOSStorageLocation>) query.getResultList();
+        return (List<StorageLocation>) query.getResultList();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see de.linogistix.los.location.service.QueryStorageLocationService#getByName(java.lang.String)
 	 */
-	public LOSStorageLocation getByName(String name) throws UnAuthorizedException {
+	public StorageLocation getByName(String name) throws UnAuthorizedException {
 		
 		if( StringTools.isEmpty(ctxService.getCallerUserName()) ){
     		throw new UnAuthorizedException();
@@ -125,11 +128,11 @@ public class QueryStorageLocationServiceBean
 
 		try {
 			Query query = manager.createQuery("SELECT o FROM "
-					+ LOSStorageLocation.class.getSimpleName() + " o "
+					+ StorageLocation.class.getSimpleName() + " o "
 					+ "WHERE o.name=:na");
 			query.setParameter("na", name);
 
-			LOSStorageLocation sl = (LOSStorageLocation) query.getSingleResult();
+			StorageLocation sl = (StorageLocation) query.getSingleResult();
 			
 			if(!ctxService.getCallersClient().equals(queryClientService.getSystemClient())
 	        	&& !ctxService.getCallersClient().equals(sl.getClient()))
@@ -144,11 +147,11 @@ public class QueryStorageLocationServiceBean
 		
 		try {
 			Query query = manager.createQuery("SELECT o FROM "
-					+ LOSStorageLocation.class.getSimpleName() + " o "
+					+ StorageLocation.class.getSimpleName() + " o "
 					+ "WHERE o.scanCode=:na");
 			query.setParameter("na", name);
 
-			LOSStorageLocation sl = (LOSStorageLocation) query.getSingleResult();
+			StorageLocation sl = (StorageLocation) query.getSingleResult();
 			
 			if(!ctxService.getCallersClient().equals(queryClientService.getSystemClient())
 	        	&& !ctxService.getCallersClient().equals(sl.getClient()))

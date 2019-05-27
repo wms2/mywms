@@ -15,8 +15,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
+
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 @Entity
 @Table(name="los_uladvicepos")
@@ -24,17 +25,21 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	@ManyToOne(optional=false)
 	private LOSUnitLoadAdvice unitLoadAdvice;
 	
+	@Column(nullable=false)
 	private String positionNumber;
 	
+	@ManyToOne(optional=true)
 	private Lot lot;
 	
+	@ManyToOne(optional=false)
 	private ItemData itemData;
 	
+	@Column(nullable=false, precision=17, scale=4)
 	private BigDecimal notifiedAmount;
 
-	@ManyToOne(optional=false)
 	public LOSUnitLoadAdvice getUnitLoadAdvice() {
 		return unitLoadAdvice;
 	}
@@ -43,7 +48,6 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 		this.unitLoadAdvice = unitLoadAdvice;
 	}
 
-	@Column(nullable=false)
 	public String getPositionNumber() {
 		return positionNumber;
 	}
@@ -52,7 +56,6 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 		this.positionNumber = positionNumber;
 	}
 
-	@ManyToOne(optional=true)
 	public Lot getLot() {
 		return lot;
 	}
@@ -61,7 +64,6 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 		this.lot = lot;
 	}
 
-	@ManyToOne(optional=false)
 	public ItemData getItemData() {
 		return itemData;
 	}
@@ -70,7 +72,6 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	@Column(nullable=false, precision=17, scale=4)
 	public BigDecimal getNotifiedAmount() {
 		return notifiedAmount;
 	}

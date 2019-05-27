@@ -11,6 +11,8 @@ import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.gui.component.other.LiveHelp;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
@@ -20,8 +22,6 @@ import java.util.Vector;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.util.NbBundle;
 
 /**

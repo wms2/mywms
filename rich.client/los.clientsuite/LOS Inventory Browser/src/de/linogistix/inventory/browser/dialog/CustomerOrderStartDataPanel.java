@@ -9,7 +9,7 @@ package de.linogistix.inventory.browser.dialog;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.inventory.res.InventoryBundleResolver;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 import org.mywms.model.User;
 import org.openide.util.NbBundle;
 
@@ -38,7 +38,7 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
 
 
 
-        fDestination.setBoClass(LOSStorageLocation.class);
+        fDestination.setBoClass(StorageLocation.class);
         fDestination.initAutofiltering();
         fDestination.setEditorLabelTitle( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelDestination") );
         if( !destinationDiff ) {

@@ -13,10 +13,10 @@ import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.stocktaking.facade.LOSStocktakingFacade;
 import de.linogistix.stocktaking.res.StocktakingBundleResolver;
+import de.wms2.mywms.location.StorageLocation;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
@@ -79,7 +79,7 @@ public final class StocktakingLocationAction extends NodeAction {
             if( ((BOMasterNode)n).getEntity().getId() < 10 ) {
                 return false;
             }
-            LOSStorageLocation location;
+            StorageLocation location;
             try {
                 location = locationQuery.queryById(((BOMasterNode)n).getEntity().getId());
             } catch (Exception e) {
@@ -119,7 +119,7 @@ public final class StocktakingLocationAction extends NodeAction {
                 }
                 J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
                 LOSStocktakingFacade m = loc.getStateless(LOSStocktakingFacade.class);
-                m.generateOrders(true,null,null,null,null,((BOMasterNode)n).getEntity().getId(),null,null,null,null,true,true);
+                m.generateOrders(true,null,null,null,((BOMasterNode)n).getEntity().getId(),null,null,null,null,true,true);
             }
         } catch (FacadeException ex) {
             ExceptionAnnotator.annotate(ex);

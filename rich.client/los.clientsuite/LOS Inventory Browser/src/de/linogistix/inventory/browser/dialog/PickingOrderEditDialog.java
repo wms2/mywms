@@ -13,9 +13,9 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSPickingFacade;
 import de.linogistix.los.inventory.query.dto.LOSPickingOrderTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -88,7 +88,7 @@ public class PickingOrderEditDialog extends javax.swing.JDialog {
                 fDestination.setEnabled(cbDestination.isSelected());
             }
         });
-        fDestination.setBoClass(LOSStorageLocation.class);
+        fDestination.setBoClass(StorageLocation.class);
         fDestination.initAutofiltering();
         fDestination.setEditorLabelTitle( NbBundle.getMessage(InventoryBundleResolver.class,"PickingOrderEditDialog.labelDestination") );
         if( !destinationDiff ) {

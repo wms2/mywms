@@ -15,10 +15,6 @@ import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoad;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryTransferException;
@@ -28,11 +24,14 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.inventory.model.StockUnitLabel;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * facade for processing goods receipt (incoming goods).
@@ -95,16 +94,16 @@ public interface LOSGoodsReceiptFacade {
      * @return An existing or newly created unit load.
      * @throws LOSLocationException
      */
-    public BODTO<LOSUnitLoad> getOrCreateUnitLoad(BODTO<Client> c,
-            BODTO<LOSStorageLocation> sl, BODTO<UnitLoadType> type, String ref) throws FacadeException;
+    public BODTO<UnitLoad> getOrCreateUnitLoad(BODTO<Client> c,
+            BODTO<StorageLocation> sl, BODTO<UnitLoadType> type, String ref) throws FacadeException;
 
     /**
-     * Returns default {@link UnitLoadType} associated with the given {@link LOSStorageLocation}.
+     * Returns default {@link UnitLoadType} associated with the given {@link StorageLocation}.
      * 
      * @param sl the storage location where the process is done
      * @return
      */
-    public BODTO<UnitLoadType> getUnitLoadType(BODTO<LOSStorageLocation> sl);
+    public BODTO<UnitLoadType> getUnitLoadType(BODTO<StorageLocation> sl);
         
     /**
      * Get all locations for goods receipt. If there are none yet created, 
@@ -112,7 +111,7 @@ public interface LOSGoodsReceiptFacade {
      * 
      * @return a list of all goods receipt locations.
      */
-    public List<BODTO<LOSStorageLocation>> getGoodsReceiptLocations() throws LOSLocationException;
+    public List<BODTO<StorageLocation>> getGoodsReceiptLocations() throws LOSLocationException;
 
     /**
      * REturns/Reload Entity data from database
@@ -142,7 +141,7 @@ public interface LOSGoodsReceiptFacade {
             String forwarder,
             String deliveryNoteNumber,
             Date receiptDate,
-            BODTO<LOSStorageLocation> goodsInLocation,
+            BODTO<StorageLocation> goodsInLocation,
             String additionalInfo);
 
     /**

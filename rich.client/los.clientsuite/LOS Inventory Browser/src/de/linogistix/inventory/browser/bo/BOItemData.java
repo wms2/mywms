@@ -23,12 +23,13 @@ import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.query.ItemUnitQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
 import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemUnit;
+
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.util.Lookup;
@@ -98,13 +99,13 @@ public class BOItemData extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    ItemData o;
+      ItemData o;
 
     o = new ItemData();
     o.setName("Template");
     o.setNumber("Template");
     o.setSerialNoRecordType(SerialNoRecordType.NO_RECORD);
-    o.setHandlingUnit(itemUnit);
+    o.setItemUnit(itemUnit);
 
     LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
     o.setClient( login.getUsersClient() );

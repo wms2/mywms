@@ -51,6 +51,16 @@
                 <position>5</position>
             </value>
         </entry>
+        <entry>
+            <key>defaultStorageStrategy</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>6</position>
+            </value>
+        </entry>
 		<entry>
 			<key>tradeGroup</key>
 			<value>
@@ -58,7 +68,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>6</position>
+				<position>7</position>
 			</value>
 		</entry>
 		<entry>
@@ -68,7 +78,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>7</position>
+				<position>8</position>
 				<typeHint>org.mywms.model.ItemDataNumber</typeHint>
 			</value>
 		</entry>
@@ -124,7 +134,7 @@
             </value>
         </entry>
         <entry>
-   		    <key>residualTermOfUsageGI</key>
+   		    <key>shelflife</key>
             <value>
                 <group>
                     <name>controlproperties</name>
@@ -206,6 +216,16 @@
 			</value>
 		</entry>
 
+		<entry>
+			<key>residualTermOfUsageGI</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>true</hidden>
+				<position>100</position>
+			</value>
+		</entry>
     
     </descriptions>
     

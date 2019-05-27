@@ -16,7 +16,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
@@ -26,11 +25,12 @@ import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.model.LOSUnitLoadRecord;
 import de.linogistix.los.location.model.LOSUnitLoadRecordType;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 
 @Stateless
@@ -58,27 +58,19 @@ public class LOSStorageBean implements LOSStorage {
 
 	
 	
-	/**
-	 * -------------------------------------------------------------------------------------------
-	 * @see de.linogistix.los.location.businessservice.LOSStorage#transferUnitLoad(java.lang.String, de.linogistix.los.location.model.LOSStorageLocation, de.linogistix.los.location.model.LOSUnitLoad)
-	 */
-	public void transferUnitLoad(String userName, LOSStorageLocation dest, LOSUnitLoad ul) 
+	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad ul) 
 		throws FacadeException 
 	{
 		transferUnitLoad(userName, dest, ul, -1, false, true, "", "");
 	}
 
 
-	/**
-	 * -------------------------------------------------------------------------------------------
-	 * @see de.linogistix.los.location.businessservice.LOSStorage#transferUnitLoad(java.lang.String, de.linogistix.los.location.model.LOSStorageLocation, de.linogistix.los.location.model.LOSUnitLoad, boolean)
-	 */
-	public void transferUnitLoad(String userName, LOSStorageLocation dest, LOSUnitLoad unitLoad, int index, boolean ignoreLock, String info, String activityCode) throws FacadeException {
+	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad unitLoad, int index, boolean ignoreLock, String info, String activityCode) throws FacadeException {
 		transferUnitLoad(userName, dest, unitLoad, index, ignoreLock, true, info, activityCode);
 		
 	}
 
-	public void transferUnitLoad(String userName, LOSStorageLocation dest, LOSUnitLoad unitLoad, int index, boolean ignoreLock, boolean reserve, String info, String activityCode) throws FacadeException { 
+	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad unitLoad, int index, boolean ignoreLock, boolean reserve, String info, String activityCode) throws FacadeException { 
 		String logStr = "transferUnitLoad ";
 		
 		// if we should check lock state before transfer
@@ -117,7 +109,7 @@ public class LOSStorageBean implements LOSStorage {
 
 		if( unitLoad.getCarrierUnitLoadId() != null ) {
 			// Maybe the carrier is no more carrier now
-			LOSUnitLoad carrier = unitLoadService.getParent(unitLoad);
+			UnitLoad carrier = unitLoadService.getParent(unitLoad);
 			if( carrier != null ) {
 				if( !unitLoadService.hasOtherChilds(carrier, unitLoad)) {
 					carrier.setCarrier(false);
@@ -128,7 +120,7 @@ public class LOSStorageBean implements LOSStorage {
 		}
 
 		// if all checks succeed
-		LOSStorageLocation source = unitLoad.getStorageLocation();
+		StorageLocation source = unitLoad.getStorageLocation();
 		locationReserver.deallocateLocation(source, unitLoad);
 		if( reserve ) {
 			locationReserver.allocateLocation(dest, unitLoad);
@@ -150,7 +142,7 @@ public class LOSStorageBean implements LOSStorage {
 
 	}
 
-	private void postTransfer( LOSUnitLoad unitLoad, LOSStorageLocation source, LOSStorageLocation dest, int index, String userName, String activityCode, String comment, int depth ) throws LOSLocationException {
+	private void postTransfer( UnitLoad unitLoad, StorageLocation source, StorageLocation dest, int index, String userName, String activityCode, String comment, int depth ) throws LOSLocationException {
 		String logStr = "postTransfer ";
 
 		if( depth>MAX_CARRIER_DEPTH ) {
@@ -180,8 +172,8 @@ public class LOSStorageBean implements LOSStorage {
 		
 		manager.persist(rec);
 		
-		List<LOSUnitLoad> childs = unitLoadService.getChilds(unitLoad);
-		for( LOSUnitLoad child : childs ) {
+		List<UnitLoad> childs = unitLoadService.getChilds(unitLoad);
+		for( UnitLoad child : childs ) {
 			if( child.equals(unitLoad) ) {
 				log.error(logStr+"Selfreference detected! A unitLoad is its onw carrier. label="+unitLoad.getLabelId());
 				continue;
@@ -190,10 +182,10 @@ public class LOSStorageBean implements LOSStorage {
 		}
 	}
 
-	public void transferToCarrier(String userName, LOSUnitLoad source, LOSUnitLoad destination, String info, String activityCode) throws FacadeException {
+	public void transferToCarrier(String userName, UnitLoad source, UnitLoad destination, String info, String activityCode) throws FacadeException {
 		String logStr = "transferToCarrier ";
 		
-		LOSStorageLocation sourceLocation = source.getStorageLocation();
+		StorageLocation sourceLocation = source.getStorageLocation();
 		
 		if( source.equals(destination) ) {
 			log.warn(logStr+"Source equals destination. Cannot place unitload on itself. label="+source.getLabelId());
@@ -210,7 +202,7 @@ public class LOSStorageBean implements LOSStorage {
 		}
 		else {
 			// Maybe the carrier is no more carrier now
-			LOSUnitLoad carrier = unitLoadService.getParent(source);
+			UnitLoad carrier = unitLoadService.getParent(source);
 			if( carrier != null ) {
 				if( !unitLoadService.hasOtherChilds(carrier, source)) {
 					carrier.setCarrier(false);
@@ -229,7 +221,7 @@ public class LOSStorageBean implements LOSStorage {
 		}
 	}
 
-	private void postTransferToUnitLoad( LOSUnitLoad unitLoad, LOSUnitLoad destination, String userName, String activityCode, String comment, int depth ) throws LOSLocationException {
+	private void postTransferToUnitLoad( UnitLoad unitLoad, UnitLoad destination, String userName, String activityCode, String comment, int depth ) throws LOSLocationException {
 		String logStr = "postTransfer ";
 
 		if( depth>MAX_CARRIER_DEPTH ) {
@@ -257,8 +249,8 @@ public class LOSStorageBean implements LOSStorage {
 
 		manager.persist(rec);
 		
-		List<LOSUnitLoad> childs = unitLoadService.getChilds(unitLoad);
-		for( LOSUnitLoad child : childs ) {
+		List<UnitLoad> childs = unitLoadService.getChilds(unitLoad);
+		for( UnitLoad child : childs ) {
 			if( child.equals(unitLoad) ) {
 				log.error(logStr+"Selfreference detected! A unitLoad is its onw carrier. label="+unitLoad.getLabelId());
 				continue;
@@ -268,17 +260,17 @@ public class LOSStorageBean implements LOSStorage {
 	}
 
 	
-	public void sendToNirwana(String username, LOSUnitLoad u)
+	public void sendToNirwana(String username, UnitLoad u)
 			throws FacadeException {
-		LOSStorageLocation sl = slService.getNirwana();
+		StorageLocation sl = slService.getNirwana();
 		transferUnitLoad(username, sl, u, -1, false, true, "", "");
 		u.setLock(BusinessObjectLockState.GOING_TO_DELETE.getLock());
 		u.setLabelId(u.getLabelId() + "-X-" + u.getId());
 	}
 
-	public void sendToClearing(String username, LOSUnitLoad existing)
+	public void sendToClearing(String username, UnitLoad existing)
 			throws FacadeException {
-		LOSStorageLocation sl = slService.getClearing();
+		StorageLocation sl = slService.getClearing();
 		transferUnitLoad(username, sl, existing);
 	}
 

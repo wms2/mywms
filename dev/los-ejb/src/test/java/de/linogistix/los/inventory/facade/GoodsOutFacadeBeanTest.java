@@ -23,10 +23,10 @@ import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -41,7 +41,7 @@ import de.linogistix.los.test.TestUtilities;
     public LOSGoodsReceipt GR;
     
     BODTO<Client> cdto;
-    BODTO<LOSStorageLocation> goodsInLocation;
+    BODTO<StorageLocation> goodsInLocation;
 
     public GoodsOutFacadeBeanTest(String testName) {
         super(testName);

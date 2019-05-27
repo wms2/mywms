@@ -18,13 +18,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
 import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.util.BusinessObjectHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
 
 @Stateless
 public class QueryItemDataServiceBean 

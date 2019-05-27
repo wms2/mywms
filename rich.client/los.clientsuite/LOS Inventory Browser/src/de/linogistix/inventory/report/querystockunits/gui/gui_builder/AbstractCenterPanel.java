@@ -8,12 +8,11 @@
 package de.linogistix.inventory.report.querystockunits.gui.gui_builder;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.reports.res.ReportsBundleResolver;
 import de.linogistix.inventory.report.querystockunits.gui.component.StockUnitTreeTablePanel;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import org.openide.util.NbBundle;
 
 /**
@@ -49,7 +48,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel {
 
         reloadButton = new javax.swing.JButton();
         itemDataAutoFiltering = new BOAutoFilteringComboBox(ItemData.class);
-        storageLocationComboBox = new BOAutoFilteringComboBox(LOSStorageLocation.class);
+        storageLocationComboBox = new BOAutoFilteringComboBox(StorageLocation.class);
         lotComboBox = new BOAutoFilteringComboBox(Lot.class);
 
         setLayout(new java.awt.GridBagLayout());
@@ -159,7 +158,7 @@ private void reloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
     
     @SuppressWarnings("unchecked")
-    public BOAutoFilteringComboBox<LOSStorageLocation> getStorageLocationComboBox(){
-        return (BOAutoFilteringComboBox<LOSStorageLocation>) storageLocationComboBox;
+    public BOAutoFilteringComboBox<StorageLocation> getStorageLocationComboBox(){
+        return (BOAutoFilteringComboBox<StorageLocation>) storageLocationComboBox;
     }
 }

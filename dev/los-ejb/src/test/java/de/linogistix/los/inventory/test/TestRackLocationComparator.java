@@ -8,7 +8,7 @@
 package de.linogistix.los.inventory.test;
 
 import de.linogistix.los.location.businessservice.LOSRackLocationComparatorByName;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 public class TestRackLocationComparator {
 
@@ -17,10 +17,10 @@ public class TestRackLocationComparator {
 	 */
 	public static void main(String[] args) {
 		
-		LOSStorageLocation rl1 = new LOSStorageLocation();
+		StorageLocation rl1 = new StorageLocation();
 		rl1.setName("R4-23-24");
 		
-		LOSStorageLocation rl2 = new LOSStorageLocation();
+		StorageLocation rl2 = new StorageLocation();
 		rl2.setName("R1-43-44");
 		
 		

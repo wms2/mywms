@@ -11,13 +11,13 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.BasicService;
 import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.UniqueConstraintViolatedException;
 
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  *
@@ -25,34 +25,34 @@ import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
  */
 @Local
 public interface LOSStorageLocationTypeService 
-        extends BasicService<LOSStorageLocationType>
+        extends BasicService<LocationType>
 {
     
-    public LOSStorageLocationType create(String name)
+    public LocationType create(String name)
             throws UniqueConstraintViolatedException;
     
-    public LOSStorageLocationType getByName(String name)
+    public LocationType getByName(String name)
             throws EntityNotFoundException;
 
-    public List<LOSTypeCapacityConstraint> getByLocationType(LOSStorageLocationType slType);
+    public List<TypeCapacityConstraint> getByLocationType(LocationType slType);
     
-    public List<LOSTypeCapacityConstraint> getByUnitLoadType(UnitLoadType ulType);
+    public List<TypeCapacityConstraint> getByUnitLoadType(UnitLoadType ulType);
     
     /**
      * Returns the default LOSStorageLocationType for a warehouse
      * @return
      */
-    public LOSStorageLocationType getDefaultStorageLocationType();
+    public LocationType getDefaultStorageLocationType();
     
     /**
      * Returns a LOSStorageLocationType without any restrictions. 
      * @return
      */
-    public LOSStorageLocationType getNoRestrictionType();
+    public LocationType getNoRestrictionType();
     
     /**
 	 * Returns a LOSStorageLocationType with a fixed unit load attached to it.
 	 */
-    public LOSStorageLocationType getAttachedUnitLoadType();
+    public LocationType getAttachedUnitLoadType();
     
 }

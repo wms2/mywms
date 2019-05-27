@@ -15,14 +15,6 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>de.linogistix.los.common.ejb</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <implementation-version/>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>javax.jaxb</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>

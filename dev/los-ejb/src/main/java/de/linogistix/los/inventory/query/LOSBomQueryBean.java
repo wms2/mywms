@@ -21,7 +21,6 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.Client;
-import org.mywms.model.ItemDataNumber;
 import org.mywms.model.User;
 
 import de.linogistix.los.inventory.model.LOSBom;
@@ -37,6 +36,7 @@ import de.linogistix.los.query.TemplateQueryFilter;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  * @author krane

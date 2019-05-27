@@ -11,9 +11,9 @@ import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.common.gui.component.controls.LOSComboBox;
 import de.linogistix.common.gui.component.controls.LOSTextField;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoadType;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
-import org.mywms.model.UnitLoadType;
 import org.openide.util.NbBundle;
 
 /**

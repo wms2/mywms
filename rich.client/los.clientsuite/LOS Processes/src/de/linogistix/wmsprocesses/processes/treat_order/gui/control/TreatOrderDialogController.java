@@ -22,7 +22,6 @@ import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.inventory.query.dto.LotTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.component.TreatOrderCenterPanel;
@@ -30,6 +29,10 @@ import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderDial
 import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderPickRequestTO;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderStockSelectionModel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -37,10 +40,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemMeasure;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
@@ -56,7 +55,7 @@ public class TreatOrderDialogController {
     
     private BOAutoFilteringComboBox<LOSCustomerOrder> orderCombo;
     private BOAutoFilteringComboBox<LOSCustomerOrderPosition> orderPositionCombo;
-    private BOAutoFilteringComboBox<LOSStorageLocation> targetPlaceCombo;
+    private BOAutoFilteringComboBox<StorageLocation> targetPlaceCombo;
     
     private TreatOrderStockSelectionModel stockSelectionModel;
     private TreatOrderCenterPanel myCenterPanel;
@@ -69,7 +68,7 @@ public class TreatOrderDialogController {
                                       BOAutoFilteringComboBox<LOSCustomerOrder> orderCombo,
                                       BOAutoFilteringComboBox<LOSCustomerOrderPosition> orderPositionCombo,
                                       TreatOrderStockSelectionModel stockSelectionModel,
-                                      BOAutoFilteringComboBox<LOSStorageLocation> targetPlaceCombo)
+                                      BOAutoFilteringComboBox<StorageLocation> targetPlaceCombo)
             throws Exception 
     {
         myCenterPanel = centerPanel;
@@ -182,8 +181,8 @@ public class TreatOrderDialogController {
             
             if(order.getDestination() != null){
                 
-                BODTO<LOSStorageLocation> target;
-                target = new BODTO<LOSStorageLocation>(order.getDestination().getId(), 
+                BODTO<StorageLocation> target;
+                target = new BODTO<StorageLocation>(order.getDestination().getId(), 
                                                        order.getDestination().getVersion(), 
                                                        order.getDestination().getName());
                 
@@ -261,11 +260,11 @@ public class TreatOrderDialogController {
             BigDecimal amountMissing = pos.getAmount().subtract(pos.getAmountPicked());
             BigDecimal amountChoosen = dialogModel.getChosenAmountByOrderId(pos.getId());
 //            BigDecimal amountIST = amountPicked.add(amountChoosen);
-            chosenAmount = new ItemMeasure(dialogModel.getChosenAmountByOrderId(pos.getId()), pos.getItemData().getHandlingUnit());
+            chosenAmount = new ItemMeasure(dialogModel.getChosenAmountByOrderId(pos.getId()), pos.getItemData().getItemUnit());
 
-            myCenterPanel.getRequiredAmountLabel().setText( new ItemMeasure(amountMissing, pos.getItemData().getHandlingUnit()).toString() );
-            myCenterPanel.getChosenAmountLabel().setText( new ItemMeasure(amountChoosen, pos.getItemData().getHandlingUnit()).toString() );
-            myCenterPanel.getPosAmountLabel().setText( new ItemMeasure(amountPos, pos.getItemData().getHandlingUnit()).toString() );
+            myCenterPanel.getRequiredAmountLabel().setText( new ItemMeasure(amountMissing, pos.getItemData().getItemUnit()).toString() );
+            myCenterPanel.getChosenAmountLabel().setText( new ItemMeasure(amountChoosen, pos.getItemData().getItemUnit()).toString() );
+            myCenterPanel.getPosAmountLabel().setText( new ItemMeasure(amountPos, pos.getItemData().getItemUnit()).toString() );
         }
 
     }

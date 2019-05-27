@@ -13,10 +13,10 @@ import javax.persistence.Query;
 
 import org.mywms.service.BasicServiceBean;
 
-import de.linogistix.los.location.model.LOSLocationCluster;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.model.LOSWorkingArea;
 import de.linogistix.los.location.model.LOSWorkingAreaPosition;
+import de.wms2.mywms.location.LocationCluster;
+import de.wms2.mywms.location.StorageLocation;
 
 
 /**
@@ -43,8 +43,8 @@ public class LOSWorkingAreaServiceBean extends BasicServiceBean<LOSWorkingArea> 
  		return null;
  	}
 	
-	public boolean containsLocation(LOSWorkingArea area, LOSStorageLocation location) {
-        LOSLocationCluster cluster = location.getCluster();
+	public boolean containsLocation(LOSWorkingArea area, StorageLocation location) {
+        LocationCluster cluster = location.getCluster();
         if( cluster == null ) {
         	return false;
         }

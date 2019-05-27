@@ -18,14 +18,10 @@ import javax.ejb.Stateless;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.StockUnit;
 import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
@@ -38,6 +34,10 @@ import de.linogistix.los.stocktaking.model.LOSStocktakingRecord;
 import de.linogistix.los.stocktaking.model.LOSStocktakingState;
 import de.linogistix.los.stocktaking.service.QueryStockTakingOrderService;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
 public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
@@ -80,44 +80,44 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 
 	public int generateOrders( 
 				boolean execute, 
-				Long clientId, Long areaId, Long zoneId, Long rackId, Long locationId, String locationName, Long itemId, String itemNo,
+				Long clientId, Long areaId, Long zoneId, Long locationId, String locationName, Long itemId, String itemNo,
 				Date invDate, 
 				boolean enableEmptyLocations, boolean enableFullLocations ) {
 		
 		return stComp.generateOrders(execute, 
-				clientId, areaId, zoneId, rackId, locationId, locationName, itemId, itemNo,
+				clientId, areaId, zoneId, locationId, locationName, itemId, itemNo,
 				invDate, enableEmptyLocations, enableFullLocations);
 		
 	}
 
 	public int generateOrders( 
 			boolean execute, 
-			Long clientId, Long areaId, Long zoneId, Long rackId, Long locationId, String locationName, Long itemId, String itemNo,
+			Long clientId, Long areaId, Long zoneId, Long locationId, String locationName, Long itemId, String itemNo,
 			Date invDate, 
 			boolean enableEmptyLocations, boolean enableFullLocations,
 			boolean clientModeLocations, boolean clientModeItemData) {
 	
 		return stComp.generateOrders(execute, 
-				clientId, areaId, zoneId, rackId, locationId, locationName, itemId, itemNo,
+				clientId, areaId, zoneId, locationId, locationName, itemId, itemNo,
 				invDate, enableEmptyLocations, enableFullLocations, clientModeLocations, clientModeItemData);
 	}
 
-	public void processLocationStart(LOSStorageLocation location)
+	public void processLocationStart(StorageLocation location)
 			throws LOSStockTakingException, UnAuthorizedException {
 		stComp.processLocationStart(location);
 	}
 
-	public void processLocationEmpty(LOSStorageLocation location) 
+	public void processLocationEmpty(StorageLocation location) 
 			throws UnAuthorizedException, LOSStockTakingException {
 		stComp.processLocationEmpty(location);
 	}
 
-	public void processLocationCancel(LOSStorageLocation location)
+	public void processLocationCancel(StorageLocation location)
 			throws LOSStockTakingException, UnAuthorizedException {
 		stComp.processLocationCancel(location);
 	}
 
-	public void processLocationFinish(LOSStorageLocation location)
+	public void processLocationFinish(StorageLocation location)
 			throws UnAuthorizedException, LOSStockTakingException {
 		stComp.processLocationFinish(location);
 	}
@@ -128,7 +128,7 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 		stComp.processUnitloadStart(location, unitLoadLabel);
 	}
 	
-	public void processUnitloadMissing(LOSUnitLoad unitLoad)
+	public void processUnitloadMissing(UnitLoad unitLoad)
 			throws UnAuthorizedException, LOSStockTakingException {
 		stComp.processUnitloadMissing(unitLoad);
 	}
@@ -152,7 +152,7 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 		
 		List<String> ultList = new ArrayList<String>();
 		
-		LOSStorageLocation sl = queryLocationService.getByName(location);
+		StorageLocation sl = queryLocationService.getByName(location);
 		
 		if(sl == null){
 			throw new LOSStockTakingException(
@@ -188,7 +188,7 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 				return ultList;
 			}
 			
-			List<LOSTypeCapacityConstraint> tccList = queryTccService.getListByLocationType(sl.getType());
+			List<TypeCapacityConstraint> tccList = queryTccService.getListByLocationType(sl.getType());
 			
 			if(tccList.size() == 0){
 				ultList.add(queryUltService.getDefaultUnitLoadType().getName());
@@ -196,7 +196,7 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 			}
 			else{
 				
-				for(LOSTypeCapacityConstraint tcc:tccList){
+				for(TypeCapacityConstraint tcc:tccList){
 					ultList.add(tcc.getUnitLoadType().getName());
 				}
 				return ultList;

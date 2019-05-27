@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicEntity;
 
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 @Entity
 @Table(name = "los_outpos")
@@ -23,18 +23,20 @@ public class LOSGoodsOutRequestPosition extends BasicEntity {
 	
 	private static final long serialVersionUID = 1L;
 
-	private LOSUnitLoad source;
+	@ManyToOne(optional=false)
+	private UnitLoad source;
 	
+	@ManyToOne(optional=false)
 	private LOSGoodsOutRequest goodsOutRequest;
 	
+	@Enumerated(EnumType.STRING)
 	private LOSGoodsOutRequestPositionState outState;
 	
-	public void setSource(LOSUnitLoad source) {
+	public void setSource(UnitLoad source) {
 		this.source = source;
 	}
 
-	@ManyToOne(optional=false)
-	public LOSUnitLoad getSource() {
+	public UnitLoad getSource() {
 		return source;
 	}
 
@@ -43,7 +45,6 @@ public class LOSGoodsOutRequestPosition extends BasicEntity {
 		this.goodsOutRequest = goodsOutRequest;
 	}
 
-	@ManyToOne(optional=false)
 	public LOSGoodsOutRequest getGoodsOutRequest() {
 		return goodsOutRequest;
 	}
@@ -52,7 +53,6 @@ public class LOSGoodsOutRequestPosition extends BasicEntity {
 		this.outState = outState;
 	}
 
-	@Enumerated(EnumType.STRING)
 	public LOSGoodsOutRequestPositionState getOutState() {
 		return outState;
 	}

@@ -18,10 +18,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * A position of a customer order
@@ -40,17 +40,35 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
 	private static final long serialVersionUID = 1L;
 
 	private String number;
+
 	private String externalId;
+
+	@Column(nullable = false)
 	private int index;
+
+	@ManyToOne(optional = false)
 	private LOSCustomerOrder order;
+
+	@ManyToOne(optional = false)
 	private ItemData itemData;
-    private BigDecimal amount = BigDecimal.ZERO;
-    private Lot lot;
-    private boolean partitionAllowed;
-    private int state= State.RAW;
-    private BigDecimal amountPicked = BigDecimal.ZERO;
-    private String serialNumber;
-    
+
+	@Column(precision = 17, scale = 4, nullable = false)
+	private BigDecimal amount = BigDecimal.ZERO;
+
+	@ManyToOne(optional = true)
+	private Lot lot;
+
+	@Column(nullable = false)
+	private boolean partitionAllowed;
+
+	@Column(nullable = false)
+	private int state = State.RAW;
+
+	@Column(precision = 17, scale = 4, nullable = false)
+	private BigDecimal amountPicked = BigDecimal.ZERO;
+
+	private String serialNumber;
+
     public String getNumber() {
 		return number;
 	}
@@ -65,7 +83,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
 		this.externalId = externalId;
 	}
 	
-	@ManyToOne(optional=false)
     public ItemData getItemData() {
         return itemData;
     }
@@ -73,7 +90,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
         this.itemData = itemData;
     }
 
-    @Column(precision=17, scale=4, nullable=false)
     public BigDecimal getAmount() {
     	if( itemData != null ) {
 			try{
@@ -88,7 +104,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
         this.amount = amount;
     }
 
-    @ManyToOne(optional=true)
     public Lot getLot() {
         return lot;
     }
@@ -96,7 +111,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
         this.lot = lot;
     }
 
-	@Column(nullable = false)
     public boolean isPartitionAllowed() {
         return partitionAllowed;
     }
@@ -104,7 +118,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
         this.partitionAllowed = partitionAllowed;
     }
 
-	@Column(nullable = false)
 	public void setState(int state) {
 		this.state = state;
 	}
@@ -112,7 +125,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
 		return state;
 	}
 
-	@Column(precision=17, scale=4, nullable=false)
 	public BigDecimal getAmountPicked() {
     	if( itemData != null ) {
 			try{
@@ -127,7 +139,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
 		this.amountPicked = amountPicked;
 	}
 
-	@ManyToOne(optional=false)
 	public LOSCustomerOrder getOrder() {
 		return order;
 	}
@@ -142,7 +153,6 @@ public class LOSCustomerOrderPosition extends BasicClientAssignedEntity{
 		this.serialNumber = serialNumber;
 	}
 	
-	@Column(nullable = false)
 	public int getIndex() {
 		return index;
 	}

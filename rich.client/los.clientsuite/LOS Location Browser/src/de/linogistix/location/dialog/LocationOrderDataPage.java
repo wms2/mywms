@@ -7,10 +7,8 @@
  */
 package de.linogistix.location.dialog;
 
-import de.linogistix.los.query.BODTO;
-import de.linogistix.los.query.LOSResultList;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.query.RackQueryRemote;
+import de.linogistix.common.services.J2EEServiceLocator;
+import de.linogistix.los.location.facade.ManageLocationFacade;
 import de.linogistix.los.location.query.dto.LOSRackTO;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -18,6 +16,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -30,36 +29,15 @@ final public class LocationOrderDataPage implements WizardDescriptor.ValidatingP
     private boolean finishPanel = true;
     /** listener to changes in the wizard */
     private ChangeListener listener;
-            
+    private String currentRack = null;
+
     private LocationOrderDataPanel getPanelUI() {
         if (ui == null) {
             ui = new LocationOrderDataPanel();
             
             ui.getRackComboBox().addItemChangeListener(new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent evt) {
-                    if (wizard == null) {
-                        return;
-                    }
-                    ui.setIndexMin(null);
-                    ui.setIndexMax(null);
-                    ui.setNumLocation(null);
-
-                    try {
-                        BODTO to = getPanelUI().getRackComboBox().getSelectedItem();
-                        RackQueryRemote queryRemote = (RackQueryRemote)getPanelUI().getRackComboBox().getQueryRemote();
-                        LOSResultList<BODTO<LOSRack>> res = queryRemote.autoCompletion(to.getName());
-                        if( res.size()==1 ) {
-                            LOSRackTO rackTo = (LOSRackTO)res.get(0);
-                            ui.setIndexMin(rackTo.getLocationIndexMin());
-                            ui.setIndexMax(rackTo.getLocationIndexMax());
-                            ui.setNumLocation(rackTo.getNumLocation());
-                            wizard.valueStart = rackTo.getLocationIndexMin();
-                        }
-                    }
-                    catch( Throwable t ) {
-                    }
-                    
-                    wizard.stateChanged(null);
+                    rackChange();
                 }
             });
 
@@ -67,6 +45,38 @@ final public class LocationOrderDataPage implements WizardDescriptor.ValidatingP
        
         
         return ui;
+    }
+
+    private void rackChange() {
+        if (wizard == null) {
+            return;
+        }
+
+        try {
+            String value = getPanelUI().getRackComboBox().getText();
+            if(value!=null && (currentRack==null || !value.equals(currentRack))) {
+                currentRack = value;
+
+                J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
+                ManageLocationFacade facade = loc.getStateless(ManageLocationFacade.class);
+                LOSRackTO rackTO = facade.readRackInfo(value);
+                if( rackTO!=null){
+                    ui.setIndexMin(rackTO.getLocationIndexMin());
+                    getPanelUI().setIndexMin(rackTO.getLocationIndexMin());
+                    ui.setIndexMax(rackTO.getLocationIndexMax());
+                    getPanelUI().setIndexMax(rackTO.getLocationIndexMax());
+                    ui.setNumLocation(rackTO.getNumLocation());
+                    getPanelUI().setNumLocation(rackTO.getNumLocation());
+                    wizard.valueStart = rackTO.getLocationIndexMin();
+                    getPanelUI().setValueStart(rackTO.getLocationIndexMin());
+                }
+            }
+        }
+        catch( Throwable t ) {
+            t.printStackTrace();
+        }
+
+        wizard.stateChanged(null);
     }
 
     /** Add a listener to changes of the panel's validity.
@@ -118,8 +128,8 @@ final public class LocationOrderDataPage implements WizardDescriptor.ValidatingP
         wizard = (LocationOrderWizard)settings;
 
         if (wizard.rack != null) {
-            getPanelUI().getRackComboBox().addItem(wizard.rack);
-            getPanelUI().getRackComboBox().fireItemChangeEvent();
+            getPanelUI().getRackComboBox().setText(wizard.rack);
+            rackChange();
         }
 
         getPanelUI().setValueStart(wizard.valueStart);
@@ -137,7 +147,7 @@ final public class LocationOrderDataPage implements WizardDescriptor.ValidatingP
      */
     public void storeSettings(Object settings) {
         wizard = (LocationOrderWizard) settings;
-        wizard.rack = getPanelUI().getRackComboBox().getSelectedItem();
+        wizard.rack = getPanelUI().getRackComboBox().getText();
         wizard.valueStart = getPanelUI().getValueStart();
         wizard.valueDiff = getPanelUI().getValueDiff();
     }

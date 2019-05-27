@@ -16,14 +16,14 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
 
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class LOSStorageReportFacadeBean implements LOSStorageReportFacade {

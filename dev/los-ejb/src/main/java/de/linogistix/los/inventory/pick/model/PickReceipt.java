@@ -37,12 +37,14 @@ public class PickReceipt extends Document{
 	
 	private String pickNumber;
 	
+	@Temporal(TemporalType.DATE)
 	private Date date;
 	
 	private String labelID;
 	
 	private String state;
 
+	@OneToMany(mappedBy="receipt")
 	private List<PickReceiptPosition> positions;
 	
     @Override
@@ -70,7 +72,6 @@ public class PickReceipt extends Document{
 		this.date = date;
 	}
 
-	@Temporal(TemporalType.DATE)
 	public Date getDate() {
 		return date;
 	}
@@ -95,7 +96,6 @@ public class PickReceipt extends Document{
 		this.positions = positions;
 	}
 
-	@OneToMany(mappedBy="receipt")
 	public List<PickReceiptPosition> getPositions() {
 		return positions;
 	}

@@ -14,11 +14,11 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.mywms.model.ItemUnit;
 import org.mywms.service.BasicService;
-import org.mywms.service.ItemUnitService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
+import de.linogistix.los.inventory.service.ItemUnitService;
+import de.wms2.mywms.product.ItemUnit;
 
 
 /**

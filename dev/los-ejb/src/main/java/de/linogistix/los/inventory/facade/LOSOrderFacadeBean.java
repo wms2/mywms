@@ -23,11 +23,7 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.Document;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.mywms.service.ClientService;
-import org.mywms.service.ItemDataService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
@@ -52,6 +48,7 @@ import de.linogistix.los.inventory.model.OrderReceipt;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.inventory.report.LOSOrderReceiptReport;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
@@ -64,14 +61,17 @@ import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 
 // TODO i18n
@@ -182,7 +182,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
 		
-		LOSStorageLocation destination = null;
+		StorageLocation destination = null;
 		if( destinationName != null && destinationName.length()>0 ) {
 			destination = slService1.getByName(destinationName);
 			if( destination == null ){
@@ -321,7 +321,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 		// 4. Remove all LOSPickingUnitLoad and LOSGoodsOutRequestPosition with removable LOSPickingOrder
 		for( LOSPickingUnitLoad pul : pickingUnitLoadSetRemovable ) {
-			LOSUnitLoad ul = pul.getUnitLoad();
+			UnitLoad ul = pul.getUnitLoad();
 			
 
 			List<LOSStorageRequest> storageList = storageService.getListByUnitLoad(ul);
@@ -381,7 +381,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		log.debug(logStr);
 		
 		
-		List<LOSStorageLocation> slList;
+		List<StorageLocation> slList;
 		slList = slService2.getListForGoodsOut();
 
 		if (slList.size() == 0) {
@@ -394,18 +394,18 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		
 		List<String> ret = new ArrayList<String>();
 
-		for (LOSStorageLocation sl : slList) {
+		for (StorageLocation sl : slList) {
 			ret.add(sl.getName());
 		}
 		return ret;
 	}
 	
-	public List<BODTO<LOSStorageLocation>> getGoodsOutLocationsBO() throws FacadeException {
+	public List<BODTO<StorageLocation>> getGoodsOutLocationsBO() throws FacadeException {
 		String logStr = "getGoodsOutLocationsBO ";
 		log.debug(logStr);
 		
 		
-		List<LOSStorageLocation> slList;
+		List<StorageLocation> slList;
 		slList = slService2.getListForGoodsOut();
 
 		if (slList.size() == 0) {
@@ -416,10 +416,10 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 					new Object[0]);
 		}
 		
-		List<BODTO<LOSStorageLocation>> ret = new ArrayList<BODTO<LOSStorageLocation>>();
+		List<BODTO<StorageLocation>> ret = new ArrayList<BODTO<StorageLocation>>();
 
-		for (LOSStorageLocation sl : slList) {
-			ret.add( new BODTO<LOSStorageLocation>(sl) );
+		for (StorageLocation sl : slList) {
+			ret.add( new BODTO<StorageLocation>(sl) );
 		}
 		return ret;
 	}
@@ -470,7 +470,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		log.debug(logStr+"label="+label);
 
 
-		LOSUnitLoad unitLoad = null;
+		UnitLoad unitLoad = null;
 		try {
 			unitLoad = unitLoadService.getByLabelId(label);
 		} catch (UnAuthorizedException e) {

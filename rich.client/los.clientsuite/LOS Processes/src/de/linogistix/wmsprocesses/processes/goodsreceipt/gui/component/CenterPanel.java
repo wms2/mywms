@@ -32,12 +32,13 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -49,7 +50,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.mywms.model.Client;
-import org.mywms.model.Lot;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.explorer.ExplorerManager;
@@ -80,7 +80,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     private BOAutoFilteringComboBox<Client> clientComboBox = null;
     private BOAutoFilteringComboBox<LOSGoodsReceipt> goodsReceiptComboBox = null;
     private BODTO<Client> myClient;
-    private BODTO<LOSStorageLocation> defaultLocation = null;
+    private BODTO<StorageLocation> defaultLocation = null;
     
     BOMultiSelectionChooser adviceSelectionDialog;
     QuickAdviceDialog quickAdviceDialog;
@@ -170,8 +170,8 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
             if( locationName != null ) {
                 LOSStorageLocationQueryRemote locationQuery = loc.getStateless(LOSStorageLocationQueryRemote.class); 
 
-                LOSStorageLocation sl = locationQuery.queryByIdentity(locationName);
-                defaultLocation = new BODTO<LOSStorageLocation>(sl.getId(), sl.getVersion(), sl.getName());
+                StorageLocation sl = locationQuery.queryByIdentity(locationName);
+                defaultLocation = new BODTO<StorageLocation>(sl.getId(), sl.getVersion(), sl.getName());
 
             }
             
@@ -662,7 +662,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
             w.allowChangeOfClient = false;
             w.date = r.getReceiptDate();
             w.deliverer = r.getForwarder();
-            w.gate = new BODTO<LOSStorageLocation>(r.getGoodsInLocation().getId(), r.getGoodsInLocation().getVersion(), r.getGoodsInLocation().toUniqueString());
+            w.gate = new BODTO<StorageLocation>(r.getGoodsInLocation().getId(), r.getGoodsInLocation().getVersion(), r.getGoodsInLocation().toUniqueString());
             w.externNumber = r.getDeliveryNoteNumber();
             w.info = r.getAdditionalContent();
             

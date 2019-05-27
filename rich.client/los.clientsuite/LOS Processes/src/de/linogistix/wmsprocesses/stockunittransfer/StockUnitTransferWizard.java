@@ -12,9 +12,10 @@
 package de.linogistix.wmsprocesses.stockunittransfer;
 
 import de.linogistix.common.res.CommonBundleResolver;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.MessageFormat;
@@ -24,7 +25,6 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.mywms.model.StockUnit;
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.Panel;
 import org.openide.util.HelpCtx;
@@ -42,12 +42,12 @@ public class StockUnitTransferWizard extends WizardDescriptor implements ActionL
   
   private BODTO<StockUnit> su;
   
-  private BODTO<LOSUnitLoad> ul;
+  private BODTO<UnitLoad> ul;
   
   
   private StockUnit stockUnit;
   
-  private LOSUnitLoad unitLoad;
+  private UnitLoad unitLoad;
   
   private boolean removeReservationFromSu;
   
@@ -101,11 +101,11 @@ public class StockUnitTransferWizard extends WizardDescriptor implements ActionL
         this.su = su;
     }
 
-    public BODTO<LOSUnitLoad> getUl() {
+    public BODTO<UnitLoad> getUl() {
         return ul;
     }
 
-    public void setUl(BODTO<LOSUnitLoad> ul) {
+    public void setUl(BODTO<UnitLoad> ul) {
         this.ul = ul;
     }
 
@@ -149,11 +149,11 @@ public class StockUnitTransferWizard extends WizardDescriptor implements ActionL
         this.stockUnit = stockUnit;
     }
 
-    public LOSUnitLoad getUnitLoad() {
+    public UnitLoad getUnitLoad() {
         return unitLoad;
     }
 
-    public void setUnitLoad(LOSUnitLoad unitLoad) {
+    public void setUnitLoad(UnitLoad unitLoad) {
         this.unitLoad = unitLoad;
     }
 

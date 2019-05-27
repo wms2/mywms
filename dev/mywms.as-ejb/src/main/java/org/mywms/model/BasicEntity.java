@@ -41,26 +41,6 @@ public class BasicEntity
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
-
-    private int version;
-
-    private Date created = new Date();
-
-    private Date modified = new Date();
-
-    private int lock = 0;
-
-    private String additionalContent = null;
-
-    public BasicEntity(){
-    	
-    }
-    
-    public BasicEntity(Long id){
-    	setId(id);
-    }
-    
     /**
      * The id of an entity is an imutable and unique identifier of an
      * entity. Ids are used by the underlying persistence engine to
@@ -71,29 +51,7 @@ public class BasicEntity
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seqEntities")
     @SequenceGenerator(name = "seqEntities", sequenceName = "seqEntities")
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
-     * The creation date is an imutable date, filled during
-     * instantiation of the entity.
-     * 
-     * @return Returns the created.
-     */
-    @Column(updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    public Date getCreated() {
-        return this.created;
-    }
-
-    protected void setCreated(Date created) {
-        this.created = created;
-    }
+    private Long id;
 
     /**
      * The version is a technical feature, used by the underlying
@@ -107,6 +65,54 @@ public class BasicEntity
      * @return Returns the version.
      */
     @Version
+    private int version;
+
+    /**
+     * The creation date is an imutable date, filled during
+     * instantiation of the entity.
+     * 
+     * @return Returns the created.
+     */
+    @Column(updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created = new Date();
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date modified = new Date();
+
+    /**
+     * @see #setLock(int)
+     * @return Returns the lock.
+     */
+    @Column(name="entity_lock")
+    private int lock = 0;
+
+    private String additionalContent = null;
+
+    public BasicEntity(){
+    	
+    }
+    
+    public BasicEntity(Long id){
+    	setId(id);
+    }
+    
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getCreated() {
+        return this.created;
+    }
+
+    protected void setCreated(Date created) {
+        this.created = created;
+    }
+
     public int getVersion() {
         return this.version;
     }
@@ -115,11 +121,6 @@ public class BasicEntity
         this.version = version;
     }
 
-    /**
-     * @see #setLock(int)
-     * @return Returns the lock.
-     */
-    @Column(name="entity_lock")
     public int getLock() {
         return this.lock;
     }
@@ -150,7 +151,6 @@ public class BasicEntity
     /**
      * @return Returns the modified.
      */
-    @Temporal(TemporalType.TIMESTAMP)
     public Date getModified() {
         return this.modified;
     }

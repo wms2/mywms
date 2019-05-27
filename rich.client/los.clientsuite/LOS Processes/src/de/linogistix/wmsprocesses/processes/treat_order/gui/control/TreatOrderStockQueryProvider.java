@@ -15,11 +15,13 @@ import de.linogistix.common.bobrowser.query.gui.component.ProviderChangeEventLis
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderStockSelectionModel;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -28,8 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
@@ -45,7 +45,7 @@ public class TreatOrderStockQueryProvider implements BOQueryComponentProvider {
     StockUnitQueryRemote queryRemote;
     
     BOAutoFilteringComboBox<Lot> lotCombo;
-    BOAutoFilteringComboBox<LOSStorageLocation> slCombo;
+    BOAutoFilteringComboBox<StorageLocation> slCombo;
     
     private ProviderChangeEventListener providerChangeEventListener;
     
@@ -168,7 +168,7 @@ public class TreatOrderStockQueryProvider implements BOQueryComponentProvider {
         return lotCombo;
     }
     
-    public BOAutoFilteringComboBox<LOSStorageLocation> getStorageLocationCombo(){
+    public BOAutoFilteringComboBox<StorageLocation> getStorageLocationCombo(){
         return slCombo;
     }
 

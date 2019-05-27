@@ -15,8 +15,8 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -74,9 +74,9 @@ public final class BOUnitLoadNirwanaAction extends NodeAction {
                     NotifyDescriptor.OK_CANCEL_OPTION);
 
             if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-                List<BODTO<LOSUnitLoad>> l = new ArrayList<BODTO<LOSUnitLoad>>();
+                List<BODTO<UnitLoad>> l = new ArrayList<BODTO<UnitLoad>>();
                 for (Node n : activatedNodes) {
-                    l = new ArrayList<BODTO<LOSUnitLoad>>();
+                    l = new ArrayList<BODTO<UnitLoad>>();
                     if (n == null) {
                         continue;
                     }

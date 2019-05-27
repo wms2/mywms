@@ -41,7 +41,7 @@ import org.mywms.service.UserService;
 import de.wms2.mywms.exception.BusinessException;
 
 /**
- * Setup of the base business module
+ * Setup of the wms2 base module
  * 
  * @author krane
  *
@@ -81,7 +81,7 @@ public class Wms2SetupService extends ModuleSetup {
 			return;
 		}
 	}
-	
+
 	@Override
 	public void setup(SetupLevel level, Locale locale) throws BusinessException {
 		logger.log(Level.WARNING, "Start Setup");
@@ -92,14 +92,13 @@ public class Wms2SetupService extends ModuleSetup {
 			return;
 		}
 
-
 		client = clientService.create("System-Client", "System", "System-Client");
 		Query clientSetup = manager.createQuery("UPDATE Client set id=0");
 		clientSetup.executeUpdate();
 
 		manager.clear();
 		client = manager.find(Client.class, 0L);
-		
+
 		User admin = userService.create(client, "admin", "", "", "admin");
 		admin.setLocale("en");
 		User de = userService.create(client, "de", "", "", "de");

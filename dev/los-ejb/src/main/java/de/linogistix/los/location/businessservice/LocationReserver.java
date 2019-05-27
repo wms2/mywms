@@ -8,9 +8,9 @@ import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Local
 public interface LocationReserver {
@@ -28,13 +28,13 @@ public interface LocationReserver {
      * @throws LOSLocationWrongClientException doesn't rollback transaction
      * @throws LOSLocationReservedException doesn't rollback transaction
 	 */
-	public LOSTypeCapacityConstraint checkAllocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, boolean ignoreLock) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException;
+	public TypeCapacityConstraint checkAllocateLocation(StorageLocation location, UnitLoad unitLoad, boolean ignoreLock) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException;
 	
-	public LOSTypeCapacityConstraint allocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException;
-	public void deallocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, boolean checkEmptyLocation) throws FacadeException;
-	public void deallocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException;
-	public void deallocateLocationComplete(LOSStorageLocation location) throws FacadeException;
+	public TypeCapacityConstraint allocateLocation(StorageLocation location, UnitLoad unitLoad) throws FacadeException;
+	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad, boolean checkEmptyLocation) throws FacadeException;
+	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad) throws FacadeException;
+	public void deallocateLocationComplete(StorageLocation location) throws FacadeException;
 
-	public void recalculateAllocation(LOSStorageLocation location, LOSUnitLoad... knownAsRemoved) throws FacadeException;
+	public void recalculateAllocation(StorageLocation location, UnitLoad... knownAsRemoved) throws FacadeException;
 	
 }

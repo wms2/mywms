@@ -16,12 +16,12 @@ import javax.persistence.Query;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  * @author krane

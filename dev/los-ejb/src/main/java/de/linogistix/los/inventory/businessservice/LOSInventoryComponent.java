@@ -14,17 +14,16 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoad;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSStockUnitRecord;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoadPackageType;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface LOSInventoryComponent {
@@ -46,7 +45,7 @@ public interface LOSInventoryComponent {
 								 Lot batch,
 								 ItemData item,
 								 BigDecimal amount,
-								 LOSUnitLoad unitLoad,
+								 UnitLoad unitLoad,
 								 String activityCode, String serialNumber) throws FacadeException;
 	
 	/**
@@ -67,7 +66,7 @@ public interface LOSInventoryComponent {
 								 Lot batch,
 								 ItemData item,
 								 BigDecimal amount,
-								 LOSUnitLoad unitLoad,
+								 UnitLoad unitLoad,
 								 String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException;
 
     /**
@@ -79,8 +78,8 @@ public interface LOSInventoryComponent {
      * @throws de.linogistix.los.inventory.exception.InventoryException
      * @throws FacadeException 
      */
-    public void transferStock(LOSUnitLoad src, LOSUnitLoad dest, String activityCode) throws InventoryException, FacadeException;
-	public void transferStock(LOSUnitLoad src, LOSUnitLoad dest, String activityCode, boolean yesReallyDoIt) throws FacadeException;
+    public void transferStock(UnitLoad src, UnitLoad dest, String activityCode) throws InventoryException, FacadeException;
+	public void transferStock(UnitLoad src, UnitLoad dest, String activityCode, boolean yesReallyDoIt) throws FacadeException;
 
     /**
      * Transfers given StockUnit from source UnitLoad to destination UnitLoad.
@@ -89,7 +88,7 @@ public interface LOSInventoryComponent {
      * @throws InventoryException
      * @throws FacadeException 
      */
-    public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode) throws InventoryException, FacadeException; 
+    public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode) throws InventoryException, FacadeException; 
     
     /**
      * Transfers given StockUnit from source UnitLoad to destination UnitLoad.
@@ -99,7 +98,7 @@ public interface LOSInventoryComponent {
      * @throws InventoryException
      * @throws FacadeException 
      */
-    public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode, String info) throws InventoryException, FacadeException;
+    public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String info) throws InventoryException, FacadeException;
     
     /**
      * Transfers given StockUnit from source UnitLoad to destination UnitLoad.
@@ -110,8 +109,8 @@ public interface LOSInventoryComponent {
      * @throws InventoryException
      * @throws FacadeException
      */
-    public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode, String info, String operator) throws InventoryException, FacadeException;
-	public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode, String comment, String operator, boolean yesReallyDoIt) throws FacadeException;
+    public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String info, String operator) throws InventoryException, FacadeException;
+	public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String comment, String operator, boolean yesReallyDoIt) throws FacadeException;
 
     /**
      * Tests whether the StockUnit can be placed on UnitLoad
@@ -119,14 +118,14 @@ public interface LOSInventoryComponent {
      * @param ul
      * @return
      */
-    boolean testSuiable(StockUnit su, LOSUnitLoad ul);
+    boolean testSuiable(StockUnit su, UnitLoad ul);
     
     /**
      * Returns amount of ItemData on this UnitLoad
      * @param idat
      * @return
      */
-    BigDecimal getAmountOfUnitLoad(ItemData idat, LOSUnitLoad ul) throws InventoryException;
+    BigDecimal getAmountOfUnitLoad(ItemData idat, UnitLoad ul) throws InventoryException;
     
     /**
      * Returns total count of {@link StockUnit}s on this {@link UnitLoad} including carried {@link UnitLoad}s.
@@ -134,7 +133,7 @@ public interface LOSInventoryComponent {
      * @return
      * @throws InventoryException
      */
-    public int getTotalStockUnitCount(LOSUnitLoad ul) throws InventoryException ;
+    public int getTotalStockUnitCount(UnitLoad ul) throws InventoryException ;
 
 	/**
      * Returns amount of ItemData on this StorageLocation
@@ -144,7 +143,7 @@ public interface LOSInventoryComponent {
      * @return
      * @throws InventoryException
      */
-	public BigDecimal getAmountOfStorageLocation(ItemData idat, LOSStorageLocation sl) throws InventoryException;
+	public BigDecimal getAmountOfStorageLocation(ItemData idat, StorageLocation sl) throws InventoryException;
 
 	/**
 	 * Transfers the given amount of one StockUnit to another and reduces reservation
@@ -179,7 +178,7 @@ public interface LOSInventoryComponent {
 	 * @throws FacadeException
 	 */
 	public StockUnit splitStock(StockUnit stockToSplit, 
-			LOSUnitLoad destUl, 
+			UnitLoad destUl, 
 			BigDecimal takeAwayAmount, 
 			String activityCode) throws FacadeException;
 	
@@ -247,41 +246,41 @@ public interface LOSInventoryComponent {
 			String activityCode) throws InventoryException;
 	
 	/**
-	 * Consolidates (combines) StockUnits on given UnitLoad paying attention to {@link LOSUnitLoadPackageType}
+	 * Consolidates (combines) StockUnits on given UnitLoad paying attention to {@link UnitLoadPackageType}
 	 *
 	 * @param ul
 	 * @param activityCode
 	 * @throws InventoryException
 	 * @throws FacadeException
 	 */
-	public void consolidate(LOSUnitLoad ul, String activityCode) throws InventoryException, FacadeException;
+	public void consolidate(UnitLoad ul, String activityCode) throws InventoryException, FacadeException;
 	
 	/**
-	 * Tests whether all StockUnits on given {@link LOSUnitLoad} are of the same {@link ItemData} (than the given {@link StockUnit}).
+	 * Tests whether all StockUnits on given {@link UnitLoad} are of the same {@link ItemData} (than the given {@link StockUnit}).
 	 * @param su
 	 * @param ul
-	 * @return true if all StockUnits on given {@link LOSUnitLoad} are of the same {@link ItemData}
+	 * @return true if all StockUnits on given {@link UnitLoad} are of the same {@link ItemData}
 	 * 
 	 */
-	public boolean testSameItemData(StockUnit su, LOSUnitLoad ul);
+	public boolean testSameItemData(StockUnit su, UnitLoad ul);
 	
 	/**
-	 * Tests whether all StockUnits on given {@link LOSUnitLoad} are of the same {@link Lot} (than the given {@link Lot}).
+	 * Tests whether all StockUnits on given {@link UnitLoad} are of the same {@link Lot} (than the given {@link Lot}).
 	 *
 	 * @param lot
 	 * @param ul
-	 * @return true if all StockUnits on given {@link LOSUnitLoad} are of the same {@link Lot}
+	 * @return true if all StockUnits on given {@link UnitLoad} are of the same {@link Lot}
 	 */
-	public boolean testSameLot(Lot lot, LOSUnitLoad ul);
+	public boolean testSameLot(Lot lot, UnitLoad ul);
 	
 	/**
-	 * Tests whether all StockUnits on given {@link LOSUnitLoad} are of the same {@link ItemData} (than the given {@link ItemData}).
+	 * Tests whether all StockUnits on given {@link UnitLoad} are of the same {@link ItemData} (than the given {@link ItemData}).
 	 * @param idat
 	 * @param ul
-	 * @return true if all StockUnits on given {@link LOSUnitLoad} are of the same {@link ItemData}
+	 * @return true if all StockUnits on given {@link UnitLoad} are of the same {@link ItemData}
 	 * 
 	 */
-	public boolean testSameItemData(ItemData idat, LOSUnitLoad ul);
+	public boolean testSameItemData(ItemData idat, UnitLoad ul);
 	
 	/**
 	 * 
@@ -289,10 +288,10 @@ public interface LOSInventoryComponent {
 	 * @param ul
 	 * @return
 	 */
-	public boolean testSameLot(StockUnit su, LOSUnitLoad ul);
+	public boolean testSameLot(StockUnit su, UnitLoad ul);
 	
 	/**
-	 * Sends {@link StockUnit} to special purpose {@link LOSStorageLocation} <strong>Nirwana</strong>.
+	 * Sends {@link StockUnit} to special purpose {@link StorageLocation} <strong>Nirwana</strong>.
 	 * From here they will be deleted later.
 	 * Programmers should be aware that after a call to this method
 	 * the {@link StockUnit} should not be used any more.
@@ -304,7 +303,7 @@ public interface LOSInventoryComponent {
 	 */
 	public void sendStockUnitsToNirwana(StockUnit su, String activityCode) throws InventoryException, FacadeException;
 	/**
-	 * Sends {@link StockUnit} to special purpose {@link LOSStorageLocation} <strong>Nirwana</strong>.
+	 * Sends {@link StockUnit} to special purpose {@link StorageLocation} <strong>Nirwana</strong>.
 	 * From here they will be deleted later.
 	 * Programmers should be aware that after a call to this method
 	 * the {@link StockUnit} should not be used any more.
@@ -316,7 +315,7 @@ public interface LOSInventoryComponent {
 	public void sendStockUnitsToNirwana(StockUnit su, String activityCode, String operator) throws FacadeException;
 
 	/**
-	 * Sends all {@link StockUnit} of given {@link LOSUnitLoad} to special purpose {@link LOSStorageLocation} <strong>Nirwana</strong>.
+	 * Sends all {@link StockUnit} of given {@link UnitLoad} to special purpose {@link StorageLocation} <strong>Nirwana</strong>.
 	 * From here they will be deleted later.
 	 * Programmers should be aware that after a call to this method
 	 * the {@link StockUnit} should not be used any more.
@@ -325,10 +324,10 @@ public interface LOSInventoryComponent {
 	 * @param activityCode
 	 * @throws FacadeException
 	 */
-	public void sendStockUnitsToNirwana(LOSUnitLoad ul, String activityCode) throws FacadeException ;
+	public void sendStockUnitsToNirwana(UnitLoad ul, String activityCode) throws FacadeException ;
 	
 	/**
-	 * * Sends all {@link StockUnit} on given {@link LOSStorageLocation} to special purpose {@link LOSStorageLocation} <strong>Nirwana</strong>.
+	 * * Sends all {@link StockUnit} on given {@link StorageLocation} to special purpose {@link StorageLocation} <strong>Nirwana</strong>.
 	 * From here they will be deleted later.
 	 * Programmers should be aware that after a call to this method
 	 * the {@link StockUnit} should not be used any more.
@@ -337,7 +336,7 @@ public interface LOSInventoryComponent {
 	 * @param activityCode
 	 * @throws FacadeException
 	 */
-	public void sendStockUnitsToNirwana(LOSStorageLocation sl, String activityCode) throws FacadeException; 
+	public void sendStockUnitsToNirwana(StorageLocation sl, String activityCode) throws FacadeException; 
 	
 	/**
 	 * Sets dates as indicated and locks the Lot if necessary.
@@ -353,7 +352,7 @@ public interface LOSInventoryComponent {
 	 * @param ul
 	 * @throws FacadeException
 	 */
-	public void sendUnitLoadToNirwanaIfEmpty(LOSUnitLoad ul) throws FacadeException;
+	public void sendUnitLoadToNirwanaIfEmpty(UnitLoad ul) throws FacadeException;
 	
 	 /**
      * Removes {@link StockUnit} from system
@@ -364,7 +363,7 @@ public interface LOSInventoryComponent {
     void removeStockUnit(StockUnit su, String activityCode, boolean sendNotify) throws FacadeException;
     
     /**
-     * Creates a StockUnit on given {@link LOSStorageLocation}
+     * Creates a StockUnit on given {@link StorageLocation}
      * 
      * @param clientRef
      * @param slName
@@ -381,13 +380,13 @@ public interface LOSInventoryComponent {
             throws EntityNotFoundException,InventoryException, FacadeException;
     
     /**
-     * Deletes all StockUnits that are on the given {@link LOSStorageLocation}
+     * Deletes all StockUnits that are on the given {@link StorageLocation}
      * 
      * @param sl
      * @param activityCode for history {@link LOSStockUnitRecord}
      * @throws FacadeException
      */
-    void deleteStockUnitsFromStorageLocation(LOSStorageLocation sl, String activityCode) throws FacadeException;
+    void deleteStockUnitsFromStorageLocation(StorageLocation sl, String activityCode) throws FacadeException;
 
 	
 	//--------------------------------------------------------------------------------------
@@ -401,8 +400,8 @@ public interface LOSInventoryComponent {
 	 * 
 	 * @param unitLoad
 	 */
-	public BigDecimal recalculateWeight( LOSUnitLoad unitLoad );
+	public BigDecimal recalculateWeight( UnitLoad unitLoad );
 
-	public LOSUnitLoad getOrCreateUnitLoad(Client c, ItemData idat, LOSStorageLocation sl, String ref) throws FacadeException;
+	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref) throws FacadeException;
 
 }

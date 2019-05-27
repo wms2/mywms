@@ -20,17 +20,17 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemUnit;
 import org.mywms.model.Role;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemUnitService;
 import org.mywms.service.RoleService;
 
 import de.linogistix.los.customization.EntityGenerator;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.res.BundleResolver;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.product.ItemUnit;
 
 /**
  * @author krane
@@ -78,7 +78,7 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 		} catch (EntityNotFoundException e) {}
 		if( pce == null || pce.getModified().compareTo(pce.getCreated())==0 ) {
 			pce = unitService.getDefault();
-			pce.setUnitName( resolve("BasicDataUnitNameDefault", locale) );
+			pce.setName( resolve("BasicDataUnitNameDefault", locale) );
 		}
 		
 		log.info("Create Properties...");

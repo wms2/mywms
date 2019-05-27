@@ -13,10 +13,10 @@ import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacade;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractCreateWizardDetailPanel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -66,7 +66,7 @@ public class CreateWizardDetailPanelUI extends AbstractCreateWizardDetailPanel i
         //
     }
 
-    void initValues(BODTO<Client> client,BODTO<LOSStorageLocation> gate, Date date, String deliverer, String externNumber ) {
+    void initValues(BODTO<Client> client,BODTO<StorageLocation> gate, Date date, String deliverer, String externNumber ) {
         LOSGoodsReceiptFacade goodsReceiptFacade;
         
         clear();
@@ -84,10 +84,10 @@ public class CreateWizardDetailPanelUI extends AbstractCreateWizardDetailPanel i
         if (externNumber != null) setExternNumber(externNumber);
          try{
             getGateComboBox().removeAllItems();
-            List<BODTO<LOSStorageLocation>> gates = goodsReceiptFacade.getGoodsReceiptLocations();
-            BODTO<LOSStorageLocation> selected = null;
+            List<BODTO<StorageLocation>> gates = goodsReceiptFacade.getGoodsReceiptLocations();
+            BODTO<StorageLocation> selected = null;
                 
-            for (BODTO<LOSStorageLocation> dto : gates) {
+            for (BODTO<StorageLocation> dto : gates) {
                 getGateComboBox().addItem(dto);
                 if( dto.equals(gate) ) {
                     selected = dto;

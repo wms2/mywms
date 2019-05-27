@@ -14,11 +14,11 @@ import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 @Stateless
 public class LOSUnitLoadCRUDBean 
-			extends BusinessObjectCRUDBean<LOSUnitLoad>
+			extends BusinessObjectCRUDBean<UnitLoad>
 			implements LOSUnitLoadCRUDRemote 
 {
 
@@ -26,7 +26,7 @@ public class LOSUnitLoadCRUDBean
 	private LOSUnitLoadService ulService;
 	
 	@Override
-	protected BasicService<LOSUnitLoad> getBasicService() {
+	protected BasicService<UnitLoad> getBasicService() {
 		return ulService; 
 	}
 

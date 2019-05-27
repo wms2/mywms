@@ -16,10 +16,12 @@ import de.linogistix.common.bobrowser.query.gui.component.ProviderChangeEventLis
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -30,8 +32,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -47,7 +47,7 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
     Method m;
     StockUnitQueryRemote queryRemote;
     ClientItemDataLotFilteringComponent cilComp;
-    BOAutoFilteringComboBox<LOSStorageLocation> slCombo;
+    BOAutoFilteringComboBox<StorageLocation> slCombo;
     
     private ProviderChangeEventListener providerChangeEventListener;
     
@@ -89,8 +89,8 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
                 Exceptions.printStackTrace(ex);
                 return null;
             }
-            slCombo = new BOAutoFilteringComboBox<LOSStorageLocation>();
-            slCombo.setBoClass(LOSStorageLocation.class);
+            slCombo = new BOAutoFilteringComboBox<StorageLocation>();
+            slCombo.setBoClass(StorageLocation.class);
             slCombo.initAutofiltering();
             slCombo.setEditorLabelTitle(NbBundle.getMessage(
                     InventoryBundleResolver.class, "StockUnitDefaultQueryProvider.StorageLocation"));
@@ -174,7 +174,7 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
         return cilComp.getLotCombo();
     }
     
-    public BOAutoFilteringComboBox<LOSStorageLocation> getStorageLocationCombo(){
+    public BOAutoFilteringComboBox<StorageLocation> getStorageLocationCombo(){
         return slCombo;
     }
 

@@ -13,7 +13,7 @@ package de.linogistix.los.crud;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.Lot;
+import de.wms2.mywms.inventory.Lot;
 
 /**
  * CRUD operations for {@link Lot} entities

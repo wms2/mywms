@@ -25,7 +25,7 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
   <SubComponents>
-    <Component class="de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox" name="fRack">
+    <Component class="de.linogistix.common.gui.component.controls.QueryAutoFilteringComboBox" name="fRack">
       <Properties>
         <Property name="editorLabelTitle" type="java.lang.String" value="Rack"/>
       </Properties>

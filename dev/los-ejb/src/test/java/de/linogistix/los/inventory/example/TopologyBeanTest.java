@@ -9,8 +9,6 @@ package de.linogistix.los.inventory.example;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.mywms.ejb.BeanLocator;
 import org.mywms.model.Client;
 
@@ -21,7 +19,6 @@ import de.linogistix.los.example.LocationTestTopologyRemote;
 import de.linogistix.los.inventory.crud.StockUnitCRUDRemote;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.location.crud.LOSAreaCRUDRemote;
-import de.linogistix.los.location.crud.LOSRackCRUDRemote;
 import de.linogistix.los.location.crud.LOSStorageLocationCRUDRemote;
 import de.linogistix.los.location.crud.LOSStorageLocationTypeCRUDRemote;
 import de.linogistix.los.location.crud.LOSTypeCapacityConstraintCRUDRemote;
@@ -31,12 +28,12 @@ import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationTypeQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
-import de.linogistix.los.location.query.RackQueryRemote;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.test.TestUtilities;
+import junit.framework.TestCase;
 
 /**
  *
@@ -54,7 +51,6 @@ public class TopologyBeanTest extends TestCase {
     private static LOSStorageLocationTypeCRUDRemote slTypeService;
     private static LOSTypeCapacityConstraintCRUDRemote capacityService;
     private static LOSAreaCRUDRemote areaService;
-    private static LOSRackCRUDRemote rackService;
     private static ClientQueryRemote clQuery;
     private static LOSStorageLocationQueryRemote slQuery;
     private static UnitLoadQueryRemote ulQuery;
@@ -63,7 +59,6 @@ public class TopologyBeanTest extends TestCase {
     private static LOSStorageLocationTypeQueryRemote slTypeQuery;
     private static LOSTypeCapacityConstraintQueryRemote capacityQuery;
     private static LOSAreaQueryRemote areaQuery;
-    private static RackQueryRemote rackQuery;
     
     protected static LocationTestTopologyRemote locTopology;
     protected static InventoryTestTopologyRemote invTopology;
@@ -97,7 +92,6 @@ public class TopologyBeanTest extends TestCase {
         slTypeService = getBeanLocator().getStateless(LOSStorageLocationTypeCRUDRemote.class);
         capacityService = getBeanLocator().getStateless(LOSTypeCapacityConstraintCRUDRemote.class);
         areaService = getBeanLocator().getStateless(LOSAreaCRUDRemote.class);
-        rackService = getBeanLocator().getStateless(LOSRackCRUDRemote.class);
 
         clQuery = getBeanLocator().getStateless(ClientQueryRemote.class);
         slQuery = getBeanLocator().getStateless(LOSStorageLocationQueryRemote.class);
@@ -107,7 +101,6 @@ public class TopologyBeanTest extends TestCase {
         slTypeQuery = getBeanLocator().getStateless(LOSStorageLocationTypeQueryRemote.class);
         capacityQuery = getBeanLocator().getStateless(LOSTypeCapacityConstraintQueryRemote.class);
         areaQuery = getBeanLocator().getStateless(LOSAreaQueryRemote.class);
-        rackQuery = getBeanLocator().getStateless(RackQueryRemote.class);
     }
 
     @Override
@@ -168,10 +161,6 @@ public class TopologyBeanTest extends TestCase {
         return areaService;
     }
 
-     public static LOSRackCRUDRemote getRackService() {
-        return rackService;
-    }
-
      public static ClientQueryRemote getClQuery() {
         return clQuery;
     }
@@ -202,10 +191,6 @@ public class TopologyBeanTest extends TestCase {
 
      public static LOSAreaQueryRemote getAreaQuery() {
         return areaQuery;
-    }
-
-     public static RackQueryRemote getRackQuery() {
-        return rackQuery;
     }
 
 	public static Client getTESTCLIENT() throws BusinessObjectNotFoundException {

@@ -16,14 +16,14 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
 import org.mywms.service.ClientService;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
 import de.linogistix.los.stocktaking.model.LOSStocktakingOrder;
 import de.linogistix.los.stocktaking.model.LOSStocktakingState;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 
 public class LOSManageStocktakingServiceBean implements LOSManageStocktakingService {
@@ -59,7 +59,7 @@ public class LOSManageStocktakingServiceBean implements LOSManageStocktakingServ
 			
 		StringBuffer sb = new StringBuffer("SELECT so.locationName FROM ");
 		sb.append(LOSStocktakingOrder.class.getSimpleName()+" so, ");
-		sb.append(LOSStorageLocation.class.getSimpleName()+" sl ");
+		sb.append(StorageLocation.class.getSimpleName()+" sl ");
 		sb.append("WHERE sl.name=so.locationName ");
 		sb.append(" AND so.state in (:stateCreated,:stateFree) ");
 		sb.append(" AND sl.client in (:cl1,:cl2) ");

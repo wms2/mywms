@@ -7,9 +7,8 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import org.mywms.model.ItemData;
-
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.product.ItemData;
 
 public class ItemDataTO extends BODTO<ItemData> {
 
@@ -26,7 +25,7 @@ public class ItemDataTO extends BODTO<ItemData> {
 		this.nameX = idat.getName();
 		this.number = idat.getNumber();
 		this.clientNumber = idat.getClient().getNumber();
-		this.itemUnitName = idat.getHandlingUnit().getUnitName();
+		this.itemUnitName = idat.getItemUnit().getName();
 		this.scale = idat.getScale();
 	}
 	

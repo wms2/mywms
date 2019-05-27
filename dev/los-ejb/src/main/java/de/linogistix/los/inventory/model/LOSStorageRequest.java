@@ -19,8 +19,8 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -36,15 +36,18 @@ public class LOSStorageRequest extends BasicClientAssignedEntity{
 
 	private static final long serialVersionUID = 1L;
 
+    @Column(nullable=false, unique=true)
 	private String number;
 
-	private LOSStorageLocation destination;
+    @ManyToOne(optional=true, fetch=FetchType.LAZY)
+	private StorageLocation destination;
     
+    @Enumerated(EnumType.STRING)
     private LOSStorageRequestState requestState;
     
-    private LOSUnitLoad unitLoad;
+    @ManyToOne(optional=false)
+    private UnitLoad unitLoad;
 
-    @Column(nullable=false, unique=true)
 	public String getNumber() {
 		return number;
 	}
@@ -52,16 +55,14 @@ public class LOSStorageRequest extends BasicClientAssignedEntity{
 		this.number = number;
 	}
 	
-    @ManyToOne(optional=true, fetch=FetchType.LAZY)
-    public LOSStorageLocation getDestination() {
+    public StorageLocation getDestination() {
         return destination;
     }
 
-    public void setDestination(LOSStorageLocation destination) {
+    public void setDestination(StorageLocation destination) {
         this.destination = destination;
     }
 
-    @Enumerated(EnumType.STRING)
     public LOSStorageRequestState getRequestState() {
         return requestState;
     }
@@ -70,12 +71,11 @@ public class LOSStorageRequest extends BasicClientAssignedEntity{
         this.requestState = requestState;
     }
 
-    @ManyToOne(optional=false)
-    public LOSUnitLoad getUnitLoad() {
+    public UnitLoad getUnitLoad() {
         return unitLoad;
     }
 
-    public void setUnitLoad(LOSUnitLoad unitLoad) {
+    public void setUnitLoad(UnitLoad unitLoad) {
         this.unitLoad = unitLoad;
     }
 

@@ -13,8 +13,8 @@ import javax.ejb.Stateless;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 
 /**
@@ -22,13 +22,13 @@ import de.linogistix.los.inventory.service.LOSStorageStrategyService;
  *
  */
 @Stateless
-public class LOSStorageStrategyCRUDBean extends BusinessObjectCRUDBean<LOSStorageStrategy> implements LOSStorageStrategyCRUDRemote {
+public class LOSStorageStrategyCRUDBean extends BusinessObjectCRUDBean<StorageStrategy> implements LOSStorageStrategyCRUDRemote {
 
 	@EJB 
 	LOSStorageStrategyService service;
 	
 	@Override
-	protected BasicService<LOSStorageStrategy> getBasicService() {
+	protected BasicService<StorageStrategy> getBasicService() {
 		return service;
 	}
 	

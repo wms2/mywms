@@ -13,13 +13,13 @@ import java.util.Date;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 @Local
 public interface LOSStockTakingProcessComp {
@@ -30,28 +30,28 @@ public interface LOSStockTakingProcessComp {
 	
 	public int generateOrders(
 			boolean execute, 
-			Long clientId, Long areaId, Long zoneId, Long rackId, Long locationId, String locationName, Long itemId, String itemNo, 
+			Long clientId, Long areaId, Long zoneId,Long locationId, String locationName, Long itemId, String itemNo, 
 			Date invDate, 
 			boolean enableEmptyLocations, boolean enableFullLocations );
 
 	public int generateOrders(
 			boolean execute, 
-			Long clientId, Long areaId, Long zoneId, Long rackId, Long locationId, String locationName, Long itemId, String itemNo, 
+			Long clientId, Long areaId, Long zoneId, Long locationId, String locationName, Long itemId, String itemNo, 
 			Date invDate,
 			boolean enableEmptyLocations, boolean enableFullLocations,
 			boolean clientModeLocations, boolean clientModeItemData);
 
-	public void processLocationStart(LOSStorageLocation sl) throws LOSStockTakingException, UnAuthorizedException;
+	public void processLocationStart(StorageLocation sl) throws LOSStockTakingException, UnAuthorizedException;
 	
-	public void processLocationEmpty(LOSStorageLocation sl) throws UnAuthorizedException, LOSStockTakingException;
+	public void processLocationEmpty(StorageLocation sl) throws UnAuthorizedException, LOSStockTakingException;
 
-	public void processLocationCancel(LOSStorageLocation sl) throws LOSStockTakingException, UnAuthorizedException;
+	public void processLocationCancel(StorageLocation sl) throws LOSStockTakingException, UnAuthorizedException;
 	
-	public void processLocationFinish(LOSStorageLocation sl) throws UnAuthorizedException, LOSStockTakingException;
+	public void processLocationFinish(StorageLocation sl) throws UnAuthorizedException, LOSStockTakingException;
 
 	public void processUnitloadStart(String location, String unitLoadLabel) throws LOSStockTakingException, UnAuthorizedException;
 
-	public void processUnitloadMissing(LOSUnitLoad ul) throws UnAuthorizedException, LOSStockTakingException;
+	public void processUnitloadMissing(UnitLoad ul) throws UnAuthorizedException, LOSStockTakingException;
 	
 	public void processStockCount(StockUnit su, BigDecimal counted) throws LOSStockTakingException, UnAuthorizedException;
 	

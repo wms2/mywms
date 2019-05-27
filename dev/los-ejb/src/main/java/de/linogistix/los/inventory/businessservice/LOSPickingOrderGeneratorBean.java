@@ -29,8 +29,8 @@ import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -138,7 +138,7 @@ public class LOSPickingOrderGeneratorBean implements LOSPickingOrderGenerator {
 		// Find the highest priority (lowest value)
 		// Find location of customer order
 		Integer prioObject = null;
-		LOSStorageLocation location = null;
+		StorageLocation location = null;
 		boolean locationSelected = false;
 		for( LOSCustomerOrder customerOrder : orderSet ) {
 			if( customerOrder != null ) {
@@ -285,7 +285,7 @@ public class LOSPickingOrderGeneratorBean implements LOSPickingOrderGenerator {
 		// Find the highest priority (lowest value)
 		// Find location of customer order
 		Integer prioObject = null;
-		LOSStorageLocation location = null;
+		StorageLocation location = null;
 		boolean locationSelected = false;
 		for( LOSCustomerOrder customerOrder : customerOrderSet ) {
 			if( customerOrder != null ) {

@@ -13,7 +13,8 @@ import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.StockUnit;
+
+import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * @author krane

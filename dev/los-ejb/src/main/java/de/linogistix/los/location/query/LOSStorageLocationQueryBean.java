@@ -20,7 +20,6 @@ import javax.ejb.Stateless;
 import org.mywms.model.Client;
 
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.dto.StorageLocationTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
@@ -28,6 +27,7 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -35,7 +35,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
  */
 @Stateless
 public class LOSStorageLocationQueryBean 
-        extends BusinessObjectQueryBean<LOSStorageLocation> 
+        extends BusinessObjectQueryBean<StorageLocation> 
         implements LOSStorageLocationQueryRemote
 {
 	
@@ -66,7 +66,7 @@ public class LOSStorageLocationQueryBean
 		propList.add(new BODTOConstructorProperty("version", false));
 		propList.add(new BODTOConstructorProperty("name", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
-		propList.add(new BODTOConstructorProperty("type.name", false));
+		propList.add(new BODTOConstructorProperty("locationType.name", false));
 		propList.add(new BODTOConstructorProperty("area.name", null, BODTOConstructorProperty.JoinType.LEFT, "area"));
 		propList.add(new BODTOConstructorProperty("zone.name", null, BODTOConstructorProperty.JoinType.LEFT, "zone"));
 		propList.add(new BODTOConstructorProperty("lock", false));
@@ -77,7 +77,7 @@ public class LOSStorageLocationQueryBean
 	
     
 
-	public LOSResultList<BODTO<LOSStorageLocation>> autoCompletionClientAndAreaType(String searchString, 
+	public LOSResultList<BODTO<StorageLocation>> autoCompletionClientAndAreaType(String searchString, 
 											BODTO<Client> clientTO, 
 											QueryDetail detail) 
 	{
@@ -123,7 +123,7 @@ public class LOSStorageLocationQueryBean
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "type.name", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "locationType.name", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
@@ -148,11 +148,11 @@ public class LOSStorageLocationQueryBean
 		return ret;
 	}
     
-	public LOSStorageLocation getClearing() {
+	public StorageLocation getClearing() {
 		return slService.getClearing();
 	}
 
-	public LOSStorageLocation getNirwana() {
+	public StorageLocation getNirwana() {
 		return slService.getNirwana();
 	}
 	

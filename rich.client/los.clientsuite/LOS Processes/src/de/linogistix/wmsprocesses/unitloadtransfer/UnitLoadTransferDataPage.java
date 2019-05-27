@@ -13,12 +13,12 @@ package de.linogistix.wmsprocesses.unitloadtransfer;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.location.facade.ManageLocationFacade;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.dto.StorageLocationTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -61,7 +61,7 @@ final public class UnitLoadTransferDataPage implements WizardDescriptor.Validati
                     BODTO to = getPanelUI().getUnitLoadAutoFilteringComboBox().getSelectedItem();
                     if (to != null) {
                         wizard.setUnitLoadTO(to);
-                        LOSUnitLoad ul = (LOSUnitLoad)getPanelUI().getUnitLoadAutoFilteringComboBox().getSelectedAsEntity();
+                        UnitLoad ul = (UnitLoad)getPanelUI().getUnitLoadAutoFilteringComboBox().getSelectedAsEntity();
                         if( ul != null ) {
                             getPanelUI().setSourceInfoText(ul.getStorageLocation().getName());
                         }
@@ -84,8 +84,8 @@ final public class UnitLoadTransferDataPage implements WizardDescriptor.Validati
                         if (getPanelUI().getDestinationAutofilteringComboBox().getSelectedItem() != null) {
                             J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
                             LOSStorageLocationQueryRemote slQuery = loc.getStateless(LOSStorageLocationQueryRemote.class);
-                            BODTO<LOSStorageLocation> to = getPanelUI().getDestinationAutofilteringComboBox().getSelectedItem();
-                            LOSStorageLocation sl = slQuery.queryById(to.getId());
+                            BODTO<StorageLocation> to = getPanelUI().getDestinationAutofilteringComboBox().getSelectedItem();
+                            StorageLocation sl = slQuery.queryById(to.getId());
                             BODTO slTo = new StorageLocationTO(sl);
                             wizard.setStorageLocationTO(slTo); 
                             if (sl.getLock() > 0 ){
@@ -177,7 +177,7 @@ final public class UnitLoadTransferDataPage implements WizardDescriptor.Validati
             J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
             ManageLocationFacade mangeLoc = loc.getStateless(ManageLocationFacade.class);
             StorageLocationTO sl = (StorageLocationTO) this.wizard.getStorageLocationTO();
-            BODTO<LOSUnitLoad> ul =  this.wizard.getUnitLoadTO();
+            BODTO<UnitLoad> ul =  this.wizard.getUnitLoadTO();
                     
             if (ul == null) {
                 throw new WizardValidationException(getPanelUI(), "no unit load set",
@@ -268,7 +268,7 @@ final public class UnitLoadTransferDataPage implements WizardDescriptor.Validati
             J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
             ManageLocationFacade mangeLoc = loc.getStateless(ManageLocationFacade.class);
             StorageLocationTO sl = (StorageLocationTO) this.wizard.getStorageLocationTO();
-            BODTO<LOSUnitLoad> ul =  this.wizard.getUnitLoadTO();
+            BODTO<UnitLoad> ul =  this.wizard.getUnitLoadTO();
                     
             if (ul == null) {
                 throw new WizardValidationException(getPanelUI(), "no unit load set",

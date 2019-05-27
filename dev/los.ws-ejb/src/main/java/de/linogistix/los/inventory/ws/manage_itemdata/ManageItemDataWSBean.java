@@ -24,12 +24,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ws.api.annotation.WebContext;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
-import org.mywms.model.ItemUnit;
 import org.mywms.model.ItemUnitType;
 import org.mywms.service.ConstraintViolatedException;
-import org.mywms.service.ItemUnitService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
@@ -40,8 +36,12 @@ import de.linogistix.los.inventory.exception.StockExistException;
 import de.linogistix.los.inventory.model.LOSBom;
 import de.linogistix.los.inventory.service.ClientItemNumberTO;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSBomService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemUnit;
 
 @Stateless
 @SecurityDomain("los-login")
@@ -108,7 +108,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 			log.warn(logStr+"Unit not found="+updateReq.getHandlingUnit()+", Try to create");
 			try {
 				reqUnit = entityGenerator.generateEntity(ItemUnit.class);
-				reqUnit.setUnitName(updateReq.getHandlingUnit());
+				reqUnit.setName(updateReq.getHandlingUnit());
 				reqUnit.setUnitType(ItemUnitType.PIECE);
 				reqUnit.setBaseFactor(1);
 

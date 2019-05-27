@@ -20,10 +20,10 @@ import org.mywms.model.Client;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 @Stateless
 public class QueryUnitLoadServiceBean 
@@ -43,7 +43,7 @@ public class QueryUnitLoadServiceBean
 	 * (non-Javadoc)
 	 * @see de.linogistix.los.location.service.QueryUnitLoadService#getByLabelId(java.lang.String)
 	 */
-	public LOSUnitLoad getByLabelId(String label) throws UnAuthorizedException {
+	public UnitLoad getByLabelId(String label) throws UnAuthorizedException {
 		
 		if( StringTools.isEmpty(ctxService.getCallerUserName()) ){
     		throw new UnAuthorizedException();
@@ -53,7 +53,7 @@ public class QueryUnitLoadServiceBean
 		query = query.setParameter("label", label);
 
 		try {
-			LOSUnitLoad ul = (LOSUnitLoad) query.getSingleResult();
+			UnitLoad ul = (UnitLoad) query.getSingleResult();
 			
 			if(!ctxService.getCallersClient().equals(queryClientService.getSystemClient())
 	        	&& !ctxService.getCallersClient().equals(ul.getClient()))
@@ -73,13 +73,13 @@ public class QueryUnitLoadServiceBean
 	 * @see de.linogistix.los.location.service.QueryUnitLoadService#getListByLocation(de.linogistix.los.location.model.LOSStorageLocation)
 	 */
 	@SuppressWarnings("unchecked")
-	public List<LOSUnitLoad> getListByLocation(LOSStorageLocation sl) {
+	public List<UnitLoad> getListByLocation(StorageLocation sl) {
 		
 		Client callersClient = ctxService.getCallersClient();
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT ul FROM "
-                	+ LOSUnitLoad.class.getSimpleName()+ " ul "
+                	+ UnitLoad.class.getSimpleName()+ " ul "
                 	+ "WHERE ul.storageLocation = :sl");
 		
         if (!callersClient.isSystemClient()) {
@@ -94,6 +94,6 @@ public class QueryUnitLoadServiceBean
         	query.setParameter("cl", callersClient);
         }
 
-        return (List<LOSUnitLoad>) query.getResultList();
+        return (List<UnitLoad>) query.getResultList();
 	}
 }

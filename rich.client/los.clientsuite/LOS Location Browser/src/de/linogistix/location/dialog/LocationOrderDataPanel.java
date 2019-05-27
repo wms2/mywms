@@ -7,9 +7,9 @@
  */
 package de.linogistix.location.dialog;
 
-import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
+import de.linogistix.common.gui.component.controls.QueryAutoFilteringComboBox;
 import de.linogistix.location.res.LocationBundleResolver;
-import de.linogistix.los.location.model.LOSRack;
+import de.wms2.mywms.location.StorageLocation;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import org.openide.util.NbBundle;
@@ -19,6 +19,7 @@ import org.openide.util.NbBundle;
  * @author krane
  */
 public class LocationOrderDataPanel extends javax.swing.JPanel {
+    String currentRack = null;
 
     /** Creates new form AbstractCenterPanel */
     public LocationOrderDataPanel() {
@@ -32,7 +33,8 @@ public class LocationOrderDataPanel extends javax.swing.JPanel {
         fValueDiff.setMandatory(false);
         fValueDiff.setMinimumValue(BigDecimal.valueOf(-2), true);
 
-        fRack.setBoClass(LOSRack.class);
+        fRack.setBoClass(StorageLocation.class);
+        fRack.setSearchProperty("rack");
         fRack.initAutofiltering();
         fRack.setEditorLabelTitle( NbBundle.getMessage(LocationBundleResolver.class,"LocationOrderWizard.labelRack") );
 
@@ -44,7 +46,7 @@ public class LocationOrderDataPanel extends javax.swing.JPanel {
         valIndexMax.setText( "" );
     }
 
-    public BOAutoFilteringComboBox getRackComboBox() {
+    public QueryAutoFilteringComboBox getRackComboBox() {
         return fRack;
     }
 
@@ -61,7 +63,7 @@ public class LocationOrderDataPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        fRack = new de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox();
+        fRack = new de.linogistix.common.gui.component.controls.QueryAutoFilteringComboBox();
         fValueStart = new de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField();
         fValueDiff = new de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField();
         lNumLoc = new javax.swing.JLabel();
@@ -161,7 +163,7 @@ public class LocationOrderDataPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox fRack;
+    private de.linogistix.common.gui.component.controls.QueryAutoFilteringComboBox fRack;
     private de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField fValueDiff;
     private de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField fValueStart;
     private javax.swing.JLabel lIndexMax;

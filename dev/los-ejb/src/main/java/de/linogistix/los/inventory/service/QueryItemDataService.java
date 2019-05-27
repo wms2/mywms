@@ -12,9 +12,9 @@ import java.util.List;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface QueryItemDataService {

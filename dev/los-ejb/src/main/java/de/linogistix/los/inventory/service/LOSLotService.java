@@ -13,10 +13,11 @@ import java.util.List;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.mywms.service.BasicService;
 import org.mywms.service.EntityNotFoundException;
+
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 /**
  *

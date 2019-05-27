@@ -13,11 +13,11 @@ import java.math.BigDecimal;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
 import org.mywms.model.User;
 
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -30,6 +30,6 @@ public interface LOSReplenishBusiness {
 	public void removeOrder(LOSReplenishOrder order) throws FacadeException;
 	public void startOrder(LOSReplenishOrder order, User user) throws FacadeException;
 	public void resetOrder(LOSReplenishOrder order) throws FacadeException;
-    public LOSReplenishOrder confirmOrder(LOSReplenishOrder order, StockUnit sourceStock, LOSStorageLocation destinationLocation, BigDecimal amount) throws FacadeException;
+    public LOSReplenishOrder confirmOrder(LOSReplenishOrder order, StockUnit sourceStock, StorageLocation destinationLocation, BigDecimal amount) throws FacadeException;
 
 }

@@ -22,9 +22,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -44,6 +41,9 @@ import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.product.ItemData;
 
 public class GoodsReceiptBean extends BasicDialogBean {
 	protected Logger log = Logger.getLogger(GoodsReceiptBean.class);
@@ -652,7 +652,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 	}
 	
 	public String getCurrentUnit() {
-		return currentAdvice.getItemData().getHandlingUnit().getUnitName();
+		return currentAdvice.getItemData().getItemUnit().getName();
 	}
 
 	//---------------------------------------------------------------------

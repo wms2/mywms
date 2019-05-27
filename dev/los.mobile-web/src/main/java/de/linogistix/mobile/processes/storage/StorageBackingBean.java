@@ -20,12 +20,12 @@ import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExt;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExtBean;
 import de.linogistix.mobile.common.listener.ButtonListener;
+import de.wms2.mywms.location.StorageLocation;
 
 public class StorageBackingBean extends BasicDialogBean{
     private static final Logger log = Logger.getLogger(StorageBackingBean.class);
@@ -221,7 +221,7 @@ public class StorageBackingBean extends BasicDialogBean{
             else if (isComplete()) {
         		boolean isDiffLocation = false;
         		boolean isTransfer = false;
-                LOSStorageLocation reqLoc = req.getDestination();
+                StorageLocation reqLoc = req.getDestination();
                 if( req.getRequestState() == LOSStorageRequestState.PROCESSING || req.getRequestState() == LOSStorageRequestState.RAW ) {
                 	isTransfer = true;
                 }

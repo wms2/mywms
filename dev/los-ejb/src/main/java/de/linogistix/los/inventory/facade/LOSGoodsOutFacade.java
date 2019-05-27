@@ -12,11 +12,11 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.UnitLoad;
 
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
+import de.wms2.mywms.inventory.UnitLoad;
 /**
  * After picking there are a number of {@link UnitLoad}s at the goods out area.
  * 

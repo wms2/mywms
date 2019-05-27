@@ -14,8 +14,8 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -81,7 +81,7 @@ public final class BOStorageLocationEmptyAction extends NodeAction {
             if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
                  
                 for (Node n : activatedNodes) {
-                    List<BODTO<LOSStorageLocation>> l = new ArrayList<BODTO<LOSStorageLocation>>();
+                    List<BODTO<StorageLocation>> l = new ArrayList<BODTO<StorageLocation>>();
                     if (n == null) {
                         continue;
                     }

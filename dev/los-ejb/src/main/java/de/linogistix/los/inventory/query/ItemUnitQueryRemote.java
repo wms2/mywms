@@ -14,9 +14,8 @@ package de.linogistix.los.inventory.query;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.ItemUnit;
-
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.product.ItemUnit;
 
 /**
  *

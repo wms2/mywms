@@ -9,14 +9,14 @@ package de.linogistix.los.location.query.dto;
 
 import java.math.BigDecimal;
 
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  * @author krane
  *
  */
-public class LOSTypeCapacityConstraintTO extends BODTO<LOSTypeCapacityConstraint>{
+public class LOSTypeCapacityConstraintTO extends BODTO<TypeCapacityConstraint>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +25,7 @@ public class LOSTypeCapacityConstraintTO extends BODTO<LOSTypeCapacityConstraint
 	private String unitLoadTypeName;
     private BigDecimal allocation = BigDecimal.valueOf(100);
 
-	public LOSTypeCapacityConstraintTO(LOSTypeCapacityConstraint constraint){
+	public LOSTypeCapacityConstraintTO(TypeCapacityConstraint constraint){
 		super(constraint.getId(), constraint.getVersion(), constraint.getId());
 		this.locationTypeName = constraint.getStorageLocationType() == null ? "" : constraint.getStorageLocationType().getName();
 		this.unitLoadTypeName = constraint.getUnitLoadType() == null ? "" : constraint.getUnitLoadType().getName();

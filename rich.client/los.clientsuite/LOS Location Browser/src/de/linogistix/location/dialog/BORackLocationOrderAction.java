@@ -14,9 +14,12 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.location.res.LocationBundleResolver;
+import de.linogistix.los.inventory.model.LOSCustomerOrder;
+import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.location.facade.ManageLocationFacade;
-import de.linogistix.los.location.model.LOSRack;
+import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
+import de.linogistix.los.model.State;
 import java.awt.Dialog;
 import java.util.logging.Logger;
 import org.mywms.globals.Role;
@@ -29,6 +32,7 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 import org.openide.windows.WindowManager;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -64,8 +68,6 @@ public final class BORackLocationOrderAction extends NodeAction {
 
     protected void performAction(Node[] activatedNodes) {
 
-        BasicEntity e;
-
         if (activatedNodes == null || activatedNodes.length < 1 ) {
             return;
         }
@@ -74,11 +76,23 @@ public final class BORackLocationOrderAction extends NodeAction {
             log.warning("Not a BOMasterNodeType: " + node.toString());
             return;
         }
-        BODTO<LOSRack> to = ((BOMasterNode)node).getEntity();
+
+        BODTO<StorageLocation> to = ((BOMasterNode)node).getEntity();
+        String rackName = "";
+
+        J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
+        try {
+            LOSStorageLocationQueryRemote orderQuery = loc.getStateless(LOSStorageLocationQueryRemote.class);
+            StorageLocation location = orderQuery.queryById(((BOMasterNode)node).getEntity().getId());
+            rackName = location.getRack();
+        } catch (Exception e) {
+            return;
+        }
+
 
         LocationOrderWizard wizard;
         try {
-            wizard = new LocationOrderWizard(to);
+            wizard = new LocationOrderWizard(rackName);
         } catch (InstantiationException ex) {
             ExceptionAnnotator.annotate(ex);
             return;
@@ -98,7 +112,6 @@ public final class BORackLocationOrderAction extends NodeAction {
                 
                 if( DialogDisplayer.getDefault().notify(msg) == NotifyDescriptor.YES_OPTION) {
                     CursorControl.showWaitCursor();
-                    J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
                     ManageLocationFacade facade = loc.getStateless(ManageLocationFacade.class);
                     int indexMax = facade.setLocationOrderIndex(wizard.rack, wizard.valueStart, wizard.valueDiff);
 

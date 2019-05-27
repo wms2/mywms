@@ -24,8 +24,8 @@ import javax.persistence.TemporalType;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * Represents an order of goods/items that should be retrieved from the warehouse.
@@ -44,20 +44,27 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
 	
 	public static final int PRIO_DEFAULT = 50;
 	
+	@Column(unique=true)
     private String number;
     
     private String externalNumber;
 	private String externalId;
 
+    @OneToMany(mappedBy="order")
+    @OrderBy("index ASC")
 	private List<LOSCustomerOrderPosition> positions;
 
+	@ManyToOne(optional=false)
 	private LOSOrderStrategy strategy;
 	
+	@Column(nullable = false)
     private int state = State.RAW;
 
+    @Temporal(TemporalType.DATE)
     private Date delivery;
     
-    private LOSStorageLocation destination;
+    @ManyToOne(optional=true)
+    private StorageLocation destination;
     
     private String documentUrl;
     
@@ -66,11 +73,12 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
     private String customerNumber;
     private String customerName;
 
+	@Column(nullable = false)
     private int prio = PRIO_DEFAULT;
     
-    private String dtype;
-    
     @Column(insertable = false, updatable = false) 
+    private String dtype;
+
     public String getDtype() {
 		return dtype;
 	}
@@ -79,7 +87,6 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
 	}
 	
 	
-	@Column(unique=true)
     public String getNumber() {
 		return number;
 	}
@@ -94,8 +101,6 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
 		this.externalId = externalId;
 	}
 	
-    @OneToMany(mappedBy="order")
-    @OrderBy("index ASC")
     public List<LOSCustomerOrderPosition> getPositions() {
         return positions;
     }
@@ -103,7 +108,6 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
         this.positions = positions;
     }
 
-	@Column(nullable = false)
     public int getState() {
         return state;
     }
@@ -111,7 +115,6 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
         this.state = state;
     }
 
-    @Temporal(TemporalType.DATE)
     public Date getDelivery() {
         return delivery;
     }
@@ -119,11 +122,10 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
         this.delivery = delivery;
     }
 
-    @ManyToOne(optional=true)
-    public LOSStorageLocation getDestination() {
+    public StorageLocation getDestination() {
         return destination;
     }
-    public void setDestination(LOSStorageLocation destination) {
+    public void setDestination(StorageLocation destination) {
         this.destination = destination;
     }
 
@@ -162,7 +164,6 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
 		this.externalNumber = externalNumber;
 	}
 
-	@Column(nullable = false)
 	public int getPrio() {
 		return prio;
 	}
@@ -170,7 +171,6 @@ public class LOSCustomerOrder extends BasicClientAssignedEntity {
 		this.prio = prio;
 	}
 
-	@ManyToOne(optional=false)
 	public LOSOrderStrategy getStrategy() {
 		return strategy;
 	}

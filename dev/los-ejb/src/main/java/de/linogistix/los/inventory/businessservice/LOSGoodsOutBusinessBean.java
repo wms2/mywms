@@ -38,11 +38,11 @@ import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * 
@@ -86,7 +86,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 			switch (pos.getOutState()) {
 			case RAW:
 				if (force) {
-					finishPosition( out, (LOSUnitLoad) pos.getSource() );
+					finishPosition( out, pos.getSource() );
 				} else {
 					throw new InventoryException(
 							InventoryExceptionKey.ORDER_NOT_FINIHED, "");
@@ -159,7 +159,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		
 	}
 
-	public LOSGoodsOutRequestPosition finishPosition(LOSGoodsOutRequest out, LOSUnitLoad ul) throws FacadeException {
+	public LOSGoodsOutRequestPosition finishPosition(LOSGoodsOutRequest out, UnitLoad ul) throws FacadeException {
 		String logStr = "finishPosition ";
 		
 		if( ul == null ) {
@@ -185,8 +185,8 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 			}
 		}
 		
-		List<LOSUnitLoad> childList = unitLoadService.getChilds(ul); //ul.getUnitLoadList();
-		for( LOSUnitLoad child : childList ) {
+		List<UnitLoad> childList = unitLoadService.getChilds(ul); //ul.getUnitLoadList();
+		for( UnitLoad child : childList ) {
 			child.setLock(LOSUnitLoadLockState.SHIPPED.getLock());
 		}
 
@@ -201,7 +201,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		
 		String targetLocationName = propertyService.getStringDefault(out.getClient(), null, LOSInventoryPropertyKey.SHIPPING_LOCATION, null);
 		if( targetLocationName!=null && targetLocationName.trim().length()>0 ) {
-			LOSStorageLocation targetLocation = locationService.getByName(targetLocationName);
+			StorageLocation targetLocation = locationService.getByName(targetLocationName);
 			if( targetLocation == null ) {
 				log.warn(logStr+"Cannot find configured location. name="+targetLocationName);
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, targetLocationName);

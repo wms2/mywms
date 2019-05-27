@@ -10,9 +10,9 @@ package de.linogistix.los.stocktaking.customization;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
 
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface LOSManageStocktakingService {

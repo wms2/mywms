@@ -16,11 +16,11 @@ import javax.ejb.Remote;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -28,16 +28,16 @@ import de.linogistix.los.query.QueryDetail;
  */
 @Remote
 public interface LOSStorageLocationQueryRemote 
-        extends BusinessObjectQueryRemote<LOSStorageLocation>
+        extends BusinessObjectQueryRemote<StorageLocation>
 { 
 	
-	public LOSResultList<BODTO<LOSStorageLocation>> autoCompletionClientAndAreaType(String searchString, 
+	public LOSResultList<BODTO<StorageLocation>> autoCompletionClientAndAreaType(String searchString, 
 																		       		BODTO<Client> clientTO, 
 																		       		QueryDetail detail);
 	
-	public LOSStorageLocation getClearing();
+	public StorageLocation getClearing();
 	
-	public LOSStorageLocation getNirwana();
+	public StorageLocation getNirwana();
 	
 	public String getNirwanaName();
 	

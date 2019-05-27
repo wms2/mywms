@@ -17,16 +17,16 @@ import javax.jws.WebParam;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * Facade for managing {@link ItemData}, {@link LOSAdvice} and {@link StockUnit} in the warehouse.
@@ -159,7 +159,7 @@ public interface ManageInventoryFacade {
 			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch, String requestId, String comment);
     
     /**
-     * Creates a {@link StockUnit} on given {@link LOSStorageLocation}
+     * Creates a {@link StockUnit} on given {@link StorageLocation}
      * 
      * @param clientRef the client the stock unit belongs to
      * @param slName the name of the storage location
@@ -190,17 +190,17 @@ public interface ManageInventoryFacade {
     //-------------
     
     /**
-     * Deletes {@link StockUnit} from {@link LOSStorageLocation}. Does not necessarily delete the {@link StockUnit} itself!
+     * Deletes {@link StockUnit} from {@link StorageLocation}. Does not necessarily delete the {@link StockUnit} itself!
      */
-    void deleteStockUnitsFromStorageLocations(List<BODTO<LOSStorageLocation>> locations) throws FacadeException;
+    void deleteStockUnitsFromStorageLocations(List<BODTO<StorageLocation>> locations) throws FacadeException;
     
     /**
-     * Sends all {@link StockUnit} on given {@link LOSStorageLocation}s to nirwana.
+     * Sends all {@link StockUnit} on given {@link StorageLocation}s to nirwana.
      * 
      * @param locations
      * @throws FacadeException
      */
-    void sendStockUnitsToNirwanaFromSl(List<BODTO<LOSStorageLocation>> locations) throws FacadeException;
+    void sendStockUnitsToNirwanaFromSl(List<BODTO<StorageLocation>> locations) throws FacadeException;
     
     /**
      * Send given List of {@link StockUnit}s to nirwana
@@ -211,14 +211,14 @@ public interface ManageInventoryFacade {
     void sendStockUnitsToNirwana(List<BODTO<StockUnit>> sus) throws FacadeException;
     
     /**
-     * Sends all {@link StockUnit}s on given {@link LOSUnitLoad} to nirwana.
+     * Sends all {@link StockUnit}s on given {@link UnitLoad} to nirwana.
      * @param uls
      * @throws FacadeException
      */
-    void sendStockUnitsToNirwanaFromUl(List<BODTO<LOSUnitLoad>> uls) throws FacadeException;
+    void sendStockUnitsToNirwanaFromUl(List<BODTO<UnitLoad>> uls) throws FacadeException;
     
     /**
-     * Sends {@link StockUnit}s on given {@link LOSStorageLocation} to nirwana.
+     * Sends {@link StockUnit}s on given {@link StorageLocation} to nirwana.
      * 
      * @param location the name of the storage location
      * @throws FacadeException
@@ -228,9 +228,9 @@ public interface ManageInventoryFacade {
     //-------------
     
     /**
-     * Transferres {@link StockUnit} to given {@link LOSUnitLoad}
+     * Transferres {@link StockUnit} to given {@link UnitLoad}
      */
-    void transferStockUnit(BODTO<StockUnit> su, BODTO<LOSUnitLoad> ul) throws FacadeException;
+    void transferStockUnit(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException;
     
     /**
      * 
@@ -239,7 +239,7 @@ public interface ManageInventoryFacade {
      * @param comment
      * @throws FacadeException
      */
-    public void transferStockUnit(BODTO<StockUnit> suTO, BODTO<LOSUnitLoad> ulTO, String comment) throws FacadeException;
+    public void transferStockUnit(BODTO<StockUnit> suTO, BODTO<UnitLoad> ulTO, String comment) throws FacadeException;
      
     /**
      * 
@@ -249,7 +249,7 @@ public interface ManageInventoryFacade {
      * @param removeSuLock remove any lock on the stock unit	
      * @throws FacadeException
      */public void transferStockUnit(BODTO<StockUnit> suTO,
-			BODTO<LOSUnitLoad> ulTO, 
+			BODTO<UnitLoad> ulTO, 
 			boolean removeSuReservation,
 			boolean removeSuLock, String comment) throws FacadeException;
     
@@ -261,7 +261,7 @@ public interface ManageInventoryFacade {
       * @return
       * @throws FacadeException
       */
-     public boolean testSuitable(BODTO<StockUnit> su, BODTO<LOSUnitLoad> ul) throws FacadeException;
+     public boolean testSuitable(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException;
 
      
      /**
@@ -282,7 +282,7 @@ public interface ManageInventoryFacade {
       * @param relesereservation releases reservations on stock unit being transferred
       * @throws FacadeException
       */
-     public void transferStock(BODTO<LOSUnitLoad> from, BODTO<LOSUnitLoad> to
+     public void transferStock(BODTO<UnitLoad> from, BODTO<UnitLoad> to
  			, boolean relesereservation) throws FacadeException ;
      
      /**
@@ -343,6 +343,6 @@ public interface ManageInventoryFacade {
  	 * @param info
  	 * @throws FacadeException
  	 */
- 	public void transferUnitLoad(BODTO<LOSStorageLocation> target,
-			BODTO<LOSUnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException;
+ 	public void transferUnitLoad(BODTO<StorageLocation> target,
+			BODTO<UnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException;
 }

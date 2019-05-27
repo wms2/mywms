@@ -16,7 +16,7 @@ import org.mywms.facade.FacadeException;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 @Local
 public interface LOSGoodsOutBusiness {
@@ -33,7 +33,7 @@ public interface LOSGoodsOutBusiness {
 	 */
 	public LOSGoodsOutRequest finishOrder(LOSGoodsOutRequest out) throws FacadeException;
 
-	public LOSGoodsOutRequestPosition finishPosition(LOSGoodsOutRequest out, LOSUnitLoad ul) throws FacadeException;
+	public LOSGoodsOutRequestPosition finishPosition(LOSGoodsOutRequest out, UnitLoad ul) throws FacadeException;
 	
 	public List<LOSGoodsOutRequestTO> getRaw();
 	

@@ -26,12 +26,8 @@ import org.jboss.ws.api.annotation.WebContext;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSGoodsReceiptComponent;
@@ -41,14 +37,18 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryAdviceService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 @SecurityDomain("los-login")
@@ -106,7 +106,7 @@ public class GoodsReceiptBean implements GoodsReceipt {
 					licencePlate, driver, forwarder, deliveryNoteNumber,
 					new Date());
 
-			LOSStorageLocation sl = slService.getByName(storageLocation);
+			StorageLocation sl = slService.getByName(storageLocation);
 			if (sl == null){
 				throw new BusinessObjectNotFoundException(storageLocation);
 			}
@@ -121,7 +121,7 @@ public class GoodsReceiptBean implements GoodsReceipt {
 				Lot lot = resolveLot(c, itemData, position.getLotName());
 				UnitLoadType type = resolveUnitLoadType(c, position.getUnitLoadType());
 				
-				LOSUnitLoad ul = goodsReceiptComponent.getOrCreateUnitLoad(c,
+				UnitLoad ul = goodsReceiptComponent.getOrCreateUnitLoad(c,
 						sl, type, position.getUnitLoadLabelId());
 				
 				LOSGoodsReceiptPosition pos = goodsReceiptComponent

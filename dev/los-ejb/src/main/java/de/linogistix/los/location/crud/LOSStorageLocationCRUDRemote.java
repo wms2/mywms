@@ -12,7 +12,7 @@
 package de.linogistix.los.location.crud;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 import javax.ejb.Remote;
 
@@ -25,6 +25,6 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface LOSStorageLocationCRUDRemote 
-        extends BusinessObjectCRUDRemote<LOSStorageLocation>{
+        extends BusinessObjectCRUDRemote<StorageLocation>{
 
 }

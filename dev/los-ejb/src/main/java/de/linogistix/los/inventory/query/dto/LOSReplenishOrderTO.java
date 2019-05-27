@@ -9,12 +9,10 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
-
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -43,7 +41,7 @@ public class LOSReplenishOrderTO extends BODTO<LOSReplenishOrder>{
 		super(id, version, number);
 		this.number = number;
 		this.clientNumber = clientNumber;
-		this.sourceLocationName = ((LOSUnitLoad)stock.getUnitLoad()).getStorageLocation().getName();
+		this.sourceLocationName = stock.getUnitLoad().getStorageLocation().getName();
 		this.destinationLocationName = destinationName;
 		this.state = state;
 		this.prio = prio;

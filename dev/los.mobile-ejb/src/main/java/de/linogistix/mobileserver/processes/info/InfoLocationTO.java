@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -32,7 +32,7 @@ public class InfoLocationTO implements Serializable{
 
 	public InfoLocationTO() {
 	}
-	public InfoLocationTO( LOSStorageLocation loc, List<LOSFixedLocationAssignment> fixList ) {
+	public InfoLocationTO( StorageLocation loc, List<LOSFixedLocationAssignment> fixList ) {
 		if( loc == null ) {
 			return;
 		}

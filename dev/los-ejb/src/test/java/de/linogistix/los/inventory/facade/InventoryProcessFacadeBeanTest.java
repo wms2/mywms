@@ -9,8 +9,6 @@ package de.linogistix.los.inventory.facade;
 
 import java.math.BigDecimal;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
@@ -18,9 +16,10 @@ import de.linogistix.los.example.CommonTestTopologyRemote;
 import de.linogistix.los.example.InventoryTestTopologyRemote;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.inventory.UnitLoad;
+import junit.framework.TestCase;
 
 public class InventoryProcessFacadeBeanTest extends TestCase {
 
@@ -130,7 +129,7 @@ public class InventoryProcessFacadeBeanTest extends TestCase {
 		LOSUnitLoadQueryRemote ulQuery = TestUtilities.beanLocator.getStateless(LOSUnitLoadQueryRemote.class);
 		
 		try{
-			LOSUnitLoad ul = ulQuery.queryByIdentity("T1-1-4-1-Expectedfull");
+			UnitLoad ul = ulQuery.queryByIdentity("T1-1-4-1-Expectedfull");
 			assertEquals(1, ul.getStockUnitList().size());
 		} catch (FacadeException e) {
 			logger.error(e.getMessage(),e);

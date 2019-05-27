@@ -18,9 +18,9 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.UnitLoadTypeCRUDRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
+import de.wms2.mywms.inventory.UnitLoadType;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.UnitLoadType;
 import org.openide.util.Lookup;
 
 /**

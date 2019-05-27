@@ -18,14 +18,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.UnitLoadType;
 import org.mywms.model.User;
 import org.mywms.service.UniqueConstraintViolatedException;
-import org.mywms.service.UnitLoadTypeService;
 
 import de.linogistix.los.location.res.BundleResolver;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 @Stateless
 public class QueryUnitLoadTypeServiceBean implements QueryUnitLoadTypeService,

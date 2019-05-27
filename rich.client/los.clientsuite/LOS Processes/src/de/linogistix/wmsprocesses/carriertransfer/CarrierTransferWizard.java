@@ -8,9 +8,9 @@
 package de.linogistix.wmsprocesses.carriertransfer;
 
 import de.linogistix.common.res.CommonBundleResolver;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ import org.openide.util.NbBundle;
  */
 public class CarrierTransferWizard extends WizardDescriptor implements ChangeListener {
 
-    private BODTO<LOSUnitLoad> source;
-    private BODTO<LOSUnitLoad> destination;
+    private BODTO<UnitLoad> source;
+    private BODTO<UnitLoad> destination;
     private String hint;
 
     /**
@@ -115,19 +115,19 @@ public class CarrierTransferWizard extends WizardDescriptor implements ChangeLis
         return new HelpCtx("de.linogistix.wmsprocesses.unitloadtransfer");
     }
 
-    public BODTO<LOSUnitLoad> getDestination() {
+    public BODTO<UnitLoad> getDestination() {
         return destination;
     }
 
-    public void setDestination(BODTO<LOSUnitLoad> destination) {
+    public void setDestination(BODTO<UnitLoad> destination) {
         this.destination = destination;
     }
 
-    public BODTO<LOSUnitLoad> getSource() {
+    public BODTO<UnitLoad> getSource() {
         return source;
     }
 
-    public void setSource(BODTO<LOSUnitLoad> source) {
+    public void setSource(BODTO<UnitLoad> source) {
         this.source = source;
     }
 

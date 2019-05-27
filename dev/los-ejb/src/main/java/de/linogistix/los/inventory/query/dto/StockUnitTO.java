@@ -10,11 +10,10 @@ package de.linogistix.los.inventory.query.dto;
 import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
 
 public class StockUnitTO  extends BODTO<StockUnit>{
 
@@ -115,7 +114,7 @@ public class StockUnitTO  extends BODTO<StockUnit>{
 		this.itemDataName= su.getItemData().getName();
 		int scale = su.getItemData().getScale();
 		this.unitLoad = su.getUnitLoad().getLabelId();
-		this.storageLocation= ((LOSUnitLoad)(su.getUnitLoad())).getStorageLocation().getName();
+		this.storageLocation= su.getUnitLoad().getStorageLocation().getName();
 		BigDecimal amount = su.getAmount();
 		BigDecimal reservedAmount  =su.getReservedAmount();
 		

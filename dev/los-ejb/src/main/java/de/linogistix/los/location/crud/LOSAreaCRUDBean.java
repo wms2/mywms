@@ -13,7 +13,7 @@ package de.linogistix.los.location.crud;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
 import de.linogistix.los.location.entityservice.LOSAreaService;
-import de.linogistix.los.location.model.LOSArea;
+import de.wms2.mywms.location.Area;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -26,13 +26,13 @@ import org.mywms.service.BasicService;
  *
  */
 @Stateless
-public class LOSAreaCRUDBean extends BusinessObjectCRUDBean<LOSArea> implements LOSAreaCRUDRemote {
+public class LOSAreaCRUDBean extends BusinessObjectCRUDBean<Area> implements LOSAreaCRUDRemote {
 
 	@EJB 
 	LOSAreaService service;
 	
 	@Override
-	protected BasicService<LOSArea> getBasicService() {
+	protected BasicService<Area> getBasicService() {
 		
 		return service;
 	}

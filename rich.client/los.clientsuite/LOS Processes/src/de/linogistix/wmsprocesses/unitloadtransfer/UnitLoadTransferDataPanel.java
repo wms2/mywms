@@ -9,9 +9,9 @@ package de.linogistix.wmsprocesses.unitloadtransfer;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.common.gui.component.controls.LosLabel;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 import javax.swing.JCheckBox;
 import org.openide.util.NbBundle;
 
@@ -26,14 +26,14 @@ public class UnitLoadTransferDataPanel extends javax.swing.JPanel {
         
         initComponents();
 
-        unitLoadAutoFilteringComboBox.setBoClass(LOSUnitLoad.class);
+        unitLoadAutoFilteringComboBox.setBoClass(UnitLoad.class);
         unitLoadAutoFilteringComboBox.initAutofiltering();
         unitLoadAutoFilteringComboBox.setEditorLabelTitle(NbBundle.getMessage(de.linogistix.common.res.CommonBundleResolver.class, "unitLoad"));
         unitLoadAutoFilteringComboBox.setEditorLabelText();
         unitLoadAutoFilteringComboBox.setEnabled(true);
 
 
-        destinationAutofilteringComboBox.setBoClass(LOSStorageLocation.class);
+        destinationAutofilteringComboBox.setBoClass(StorageLocation.class);
         destinationAutofilteringComboBox.initAutofiltering();
         destinationAutofilteringComboBox.setEditorLabelTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class, "AbstractChooseDestinationPanel.destinationSl"));
         destinationAutofilteringComboBox.setEditorLabelText();

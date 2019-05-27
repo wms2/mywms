@@ -16,7 +16,7 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.location.facade.ManageLocationFacade;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -74,7 +74,7 @@ public final class BOUnitLoadNirwanaAction extends NodeAction {
                     NotifyDescriptor.OK_CANCEL_OPTION);
 
             if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-                List<BODTO<LOSUnitLoad>> l = new ArrayList();
+                List<BODTO<UnitLoad>> l = new ArrayList();
                 for (Node n : activatedNodes) {
                     
                     l = new ArrayList();

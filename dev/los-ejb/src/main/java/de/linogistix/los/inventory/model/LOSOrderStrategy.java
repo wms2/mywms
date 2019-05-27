@@ -16,7 +16,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * Handling of strategies for outbound orders.<br>
@@ -42,13 +42,15 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
     /**
      * The destination is used as default value on order creation.
      */
-    private LOSStorageLocation defaultDestination;
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
+    private StorageLocation defaultDestination;
     
 
     
     /**
      * If TRUE, a goods out order is created, when the customer order is picked complete
      */
+	@Column(nullable = false)
     private boolean createGoodsOutOrder = true;
     
     /**
@@ -57,6 +59,7 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
      * If FALSE, the order position is finished with differences.<br>
      * Default value is false. No useful follow up pick can be created for manual created orders.
      */
+	@Column(nullable = false)
     private boolean createFollowUpPicks = true;
     
     /**
@@ -64,26 +67,31 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
      * It is the order of the GUI selection field.<br>
      * Values must be >= 0. Others are not available in the selection field. 
      */
+	@Column(nullable = false)
     private int manualCreationIndex = 99;
     
     /**
      * If true, locked stock will be used for picking
      */
+	@Column(nullable = false)
     private boolean useLockedStock = false;
 
     /**
      * If true, locked lots will be used for picking
      */
+	@Column(nullable = false)
     private boolean useLockedLot = false;
     
     /**
      * An unopened stock (complete unit load) will be preferred. Overrides FIFO.
      */
+	@Column(nullable = false)
     private boolean preferUnopened = true;
 
     /**
      * A matching amount of a stock unit overwrites FIFO
      */
+	@Column(nullable = false)
     private boolean preferMatchingStock= true;
 
 
@@ -95,15 +103,13 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.name = name;
 	}
 	
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	public LOSStorageLocation getDefaultDestination() {
+	public StorageLocation getDefaultDestination() {
 		return defaultDestination;
 	}
-	public void setDefaultDestination(LOSStorageLocation defaultDestination) {
+	public void setDefaultDestination(StorageLocation defaultDestination) {
 		this.defaultDestination = defaultDestination;
 	}
 	
-	@Column(nullable = false)
 	public boolean isCreateGoodsOutOrder() {
 		return createGoodsOutOrder;
 	}
@@ -111,7 +117,6 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.createGoodsOutOrder = createGoodsOutOrder;
 	}
 	
-	@Column(nullable = false)
 	public boolean isUseLockedLot() {
 		return useLockedLot;
 	}
@@ -119,7 +124,6 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.useLockedLot = useLockedLot;
 	}
 
-	@Column(nullable = false)
 	public boolean isPreferUnopened() {
 		return preferUnopened;
 	}
@@ -127,7 +131,6 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.preferUnopened = preferUnopened;
 	}
 	
-	@Column(nullable = false)
 	public boolean isCreateFollowUpPicks() {
 		return createFollowUpPicks;
 	}
@@ -135,7 +138,6 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.createFollowUpPicks = createFollowUpPicks;
 	}
 
-	@Column(nullable = false)
 	public boolean isUseLockedStock() {
 		return useLockedStock;
 	}
@@ -143,7 +145,6 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.useLockedStock = useLockedStock;
 	}
 	
-	@Column(nullable = false)
 	public int getManualCreationIndex() {
 		return manualCreationIndex;
 	}
@@ -151,7 +152,6 @@ public class LOSOrderStrategy extends BasicClientAssignedEntity {
 		this.manualCreationIndex = manualCreationIndex;
 	}
 
-	@Column(nullable = false)
 	public boolean isPreferMatchingStock() {
 		return preferMatchingStock;
 	}

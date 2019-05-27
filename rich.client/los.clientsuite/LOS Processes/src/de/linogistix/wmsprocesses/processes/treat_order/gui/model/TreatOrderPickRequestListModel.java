@@ -10,8 +10,8 @@ package de.linogistix.wmsprocesses.processes.treat_order.gui.model;
 import de.linogistix.common.gui.component.view.DefaultLOSListViewModel;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.services.J2EEServiceLocatorException;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 import java.util.ArrayList;
 import java.util.List;
 import org.openide.util.Lookup;
@@ -52,7 +52,7 @@ public class TreatOrderPickRequestListModel extends DefaultLOSListViewModel{
         super.clear();
     }
         
-    public void addNewPickRequest(String reqNumber, BODTO<LOSStorageLocation> target){
+    public void addNewPickRequest(String reqNumber, BODTO<StorageLocation> target){
         
         String[] reqNumberParts = reqNumber.split(" ");
         

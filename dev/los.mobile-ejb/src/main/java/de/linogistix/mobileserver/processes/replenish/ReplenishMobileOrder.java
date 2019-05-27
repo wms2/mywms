@@ -5,14 +5,13 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
-
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 public class ReplenishMobileOrder implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -41,7 +40,7 @@ public class ReplenishMobileOrder implements Serializable {
 		if( item != null ) {
 			itemNumber = item.getNumber();
 			itemName = item.getName();
-			itemUnit = item.getHandlingUnit().getUnitName();
+			itemUnit = item.getItemUnit().getName();
 			itemScale = item.getScale();
 			if( StringTools.isEmpty(clientNumber) ) {
 				clientNumber = item.getClient().getNumber();
@@ -49,7 +48,7 @@ public class ReplenishMobileOrder implements Serializable {
 		}
 	}
 	
-	public void setDestination( LOSStorageLocation destination ) {
+	public void setDestination( StorageLocation destination ) {
 		if( destination != null ) {
 			destinationLocationName = destination.getName();
 			destinationLocationCode = destination.getScanCode();
@@ -58,7 +57,7 @@ public class ReplenishMobileOrder implements Serializable {
 
 	public void setStock( StockUnit stock ) {
 		if( stock != null ) {
-			LOSUnitLoad unitLoad = (LOSUnitLoad)stock.getUnitLoad();
+			UnitLoad unitLoad = stock.getUnitLoad();
 			if( state<State.PICKED ) {
 				sourceLocationName = unitLoad.getStorageLocation().getName();
 				sourceLocationCode = unitLoad.getStorageLocation().getScanCode();

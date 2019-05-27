@@ -10,7 +10,8 @@ package de.linogistix.los.inventory.customization;
 import java.math.BigDecimal;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
+
+import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * @author krane

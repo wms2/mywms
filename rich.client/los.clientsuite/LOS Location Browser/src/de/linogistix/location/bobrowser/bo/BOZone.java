@@ -19,9 +19,9 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.ZoneCRUDRemote;
 import de.linogistix.los.location.query.ZoneQueryRemote;
+import de.wms2.mywms.strategy.Zone;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.Zone;
 import org.openide.util.Lookup;
 
 /**
@@ -71,9 +71,6 @@ public class BOZone extends BO {
         o = new Zone();
         o.setName("Template");
         
-        LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
-        o.setClient( login.getUsersClient() );
-
         return o;
 
     }

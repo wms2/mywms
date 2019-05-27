@@ -18,7 +18,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.globals.ServiceExceptionKey;
-import org.mywms.model.UnitLoadType;
 import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ConstraintViolatedException;
@@ -26,12 +25,13 @@ import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.UniqueConstraintViolatedException;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.location.res.BundleResolver;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  *
@@ -39,7 +39,7 @@ import de.linogistix.los.util.businessservice.ContextService;
  */
 @Stateless
 public class LOSStorageLocationTypeServiceBean 
-        extends BasicServiceBean<LOSStorageLocationType>
+        extends BasicServiceBean<LocationType>
         implements LOSStorageLocationTypeService, LOSStorageLocationTypeServiceRemote {
 	private static final Logger log = Logger.getLogger(LOSStorageLocationTypeServiceBean.class);
 
@@ -50,7 +50,7 @@ public class LOSStorageLocationTypeServiceBean
 	@EJB
 	private QueryTypeCapacityConstraintService capaService;
 	
-    public LOSStorageLocationType create(String name)
+    public LocationType create(String name)
             throws UniqueConstraintViolatedException 
     {
         if (name == null) {
@@ -67,7 +67,7 @@ public class LOSStorageLocationTypeServiceBean
             
         }catch(EntityNotFoundException enf){}
         
-        LOSStorageLocationType type = entityGenerator.generateEntity(LOSStorageLocationType.class);
+        LocationType type = entityGenerator.generateEntity(LocationType.class);
         type.setName(name);
         
         manager.persist(type);
@@ -76,20 +76,20 @@ public class LOSStorageLocationTypeServiceBean
     }
 
     //----------------------------------------------------------------------
-    public LOSStorageLocationType getByName(String name) 
+    public LocationType getByName(String name) 
             throws EntityNotFoundException 
     {
         
         Query query = manager.createQuery("SELECT slt FROM "
-                        + LOSStorageLocationType.class.getSimpleName()
+                        + LocationType.class.getSimpleName()
                         + " slt "
                         + "WHERE slt.name=:name ");
 
         query.setParameter("name", name);
 
         try {
-            LOSStorageLocationType slt;
-            slt = (LOSStorageLocationType) query.getSingleResult();
+            LocationType slt;
+            slt = (LocationType) query.getSingleResult();
             return slt;
         }
         catch (NoResultException ex) {
@@ -102,14 +102,14 @@ public class LOSStorageLocationTypeServiceBean
     
     //----------------------------------------------------------------------
 	@Override
-	public void delete(LOSStorageLocationType slType)
+	public void delete(LocationType slType)
 			throws ConstraintViolatedException 
 	{
-		Collection<LOSTypeCapacityConstraint> constraints;
+		Collection<TypeCapacityConstraint> constraints;
 		
 		constraints = capaService.getListByLocationType(slType);
 //		constraints = slType.getTypeCapacityConstraints();
-		for(LOSTypeCapacityConstraint c:constraints){
+		for(TypeCapacityConstraint c:constraints){
 			manager.remove(c);
 		}
 		super.delete(slType);
@@ -119,18 +119,18 @@ public class LOSStorageLocationTypeServiceBean
 	@Override
 	public void deleteAll() {
 		Query query = manager.createQuery(
-                "DELETE FROM "+LOSTypeCapacityConstraint.class.getSimpleName());
+                "DELETE FROM "+TypeCapacityConstraint.class.getSimpleName());
 		query.executeUpdate();
 		super.deleteAll();
 	}
 
 	//----------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	public List<LOSTypeCapacityConstraint> getByLocationType(LOSStorageLocationType slType) {
+	public List<TypeCapacityConstraint> getByLocationType(LocationType slType) {
 		
 		Query query = manager.createQuery(
-						"SELECT tcc FROM "+LOSTypeCapacityConstraint.class.getSimpleName()+" tcc "+
-						"WHERE tcc.storageLocationType=:slt");
+						"SELECT tcc FROM "+TypeCapacityConstraint.class.getSimpleName()+" tcc "+
+						"WHERE tcc.locationType=:slt");
 		
 		query.setParameter("slt", slType);
 		
@@ -139,9 +139,9 @@ public class LOSStorageLocationTypeServiceBean
 
 	//----------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	public List<LOSTypeCapacityConstraint> getByUnitLoadType(UnitLoadType ulType) {
+	public List<TypeCapacityConstraint> getByUnitLoadType(UnitLoadType ulType) {
 		Query query = manager.createQuery(
-				"SELECT tcc FROM "+LOSTypeCapacityConstraint.class.getSimpleName()+" tcc "+
+				"SELECT tcc FROM "+TypeCapacityConstraint.class.getSimpleName()+" tcc "+
 				"WHERE tcc.unitLoadType=:ult");
 
 		query.setParameter("ult", ulType);
@@ -152,52 +152,52 @@ public class LOSStorageLocationTypeServiceBean
 	/**
 	 * This implementations interprets a LOSStorageLocationType with id <code>0</code> as default.
 	 */
-	public LOSStorageLocationType getDefaultStorageLocationType() {
+	public LocationType getDefaultStorageLocationType() {
 		
 		Query query = manager.createQuery(
-						"SELECT slt FROM "+LOSStorageLocationType.class.getSimpleName()+" slt "+
+						"SELECT slt FROM "+LocationType.class.getSimpleName()+" slt "+
 						"WHERE slt.id = 0 ");
 		
 		try {
-			return (LOSStorageLocationType) query.getSingleResult();
+			return (LocationType) query.getSingleResult();
 		}
 		catch( NoResultException ex ) {
 			createSystemStorageLocationType(0, "SYSTEM_DATA_DEFAULT_LOCATION_TYPE", "SYSTEM_DATA_DEFAULT_LOCATION_TYPE_DESC");
-			return (LOSStorageLocationType) query.getSingleResult();
+			return (LocationType) query.getSingleResult();
 		}
 	}
 
 	/**
 	 * This implementations interprets a LOSStorageLocationType with id <code>1</code> as type without restrictions.
 	 */
-	public LOSStorageLocationType getNoRestrictionType() {
+	public LocationType getNoRestrictionType() {
 		Query query = manager.createQuery(
-				"SELECT slt FROM "+LOSStorageLocationType.class.getSimpleName()+" slt "+
+				"SELECT slt FROM "+LocationType.class.getSimpleName()+" slt "+
 				"WHERE slt.id = 1 ");
 
 		try {
-			return (LOSStorageLocationType) query.getSingleResult();
+			return (LocationType) query.getSingleResult();
 		}
 		catch( NoResultException ex ) {
 			createSystemStorageLocationType(1, "SYSTEM_DATA_SYSTEM_LOCATION_TYPE", "SYSTEM_DATA_SYSTEM_LOCATION_TYPE_DESC");
-			return (LOSStorageLocationType) query.getSingleResult();
+			return (LocationType) query.getSingleResult();
 		}
 	}
     
 	/**
 	 * This implementations interprets a LOSStorageLocationType with id <code>2</code> as type with a fixed unit load attached to it.
 	 */
-	public LOSStorageLocationType getAttachedUnitLoadType() {
+	public LocationType getAttachedUnitLoadType() {
 		Query query = manager.createQuery(
-				"SELECT slt FROM "+LOSStorageLocationType.class.getSimpleName()+" slt "+
+				"SELECT slt FROM "+LocationType.class.getSimpleName()+" slt "+
 				"WHERE slt.id = 2 ");
 
 		try {
-			return (LOSStorageLocationType) query.getSingleResult();
+			return (LocationType) query.getSingleResult();
 		}
 		catch( NoResultException ex ) {
 			createSystemStorageLocationType(2, "SYSTEM_DATA_FIXED_LOCATION_TYPE", "SYSTEM_DATA_FIXED_LOCATION_TYPE_DESC");
-			return (LOSStorageLocationType) query.getSingleResult();
+			return (LocationType) query.getSingleResult();
 		}
 	}
     
@@ -220,7 +220,7 @@ public class LOSStorageLocationTypeServiceBean
 		
 		log.warn("Try to create system LocationType name="+nameKey+", desc="+descriptionKey+", lang="+locale);
 		
-		LOSStorageLocationType slType;
+		LocationType slType;
 		try {
 			slType = getByName(name);
 		}
@@ -238,7 +238,7 @@ public class LOSStorageLocationTypeServiceBean
 		}
 		manager.flush();
 		
-		String queryStr = "UPDATE " + LOSStorageLocationType.class.getSimpleName() + " SET id=:idNew WHERE id=:idOld";
+		String queryStr = "UPDATE " + LocationType.class.getSimpleName() + " SET id=:idNew WHERE id=:idOld";
 		Query query = manager.createQuery(queryStr);
 		query.setParameter("idNew", id);
 		query.setParameter("idOld", slType.getId());

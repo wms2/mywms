@@ -11,29 +11,28 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.UnitLoadType;
-
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Local
 public interface QueryTypeCapacityConstraintServiceRemote {
 
 	/**
-	 * Search for a {@link LOSTypeCapacityConstraint} for specified types.
+	 * Search for a {@link TypeCapacityConstraint} for specified types.
 	 * 
-	 * @param slType affected {@link LOSStorageLocationType}
+	 * @param slType affected {@link LocationType}
 	 * @param ulType affected {@link UnitLoadType}
-	 * @return matching {@link LOSTypeCapacityConstraint} or NULL if there is none.
+	 * @return matching {@link TypeCapacityConstraint} or NULL if there is none.
 	 */
-	public LOSTypeCapacityConstraint getByTypes(LOSStorageLocationType slType, UnitLoadType ulType);
+	public TypeCapacityConstraint getByTypes(LocationType slType, UnitLoadType ulType);
 	
 	
 	/**
-	 * Search for {@link LOSTypeCapacityConstraint}s that affect the specified {@link LOSStorageLocationType}.
+	 * Search for {@link TypeCapacityConstraint}s that affect the specified {@link LocationType}.
 	 * 
-	 * @param slType the {@link LOSStorageLocationType} to search for.
-	 * @return {@link List} of {@link LOSTypeCapacityConstraint}s. May be empty.
+	 * @param slType the {@link LocationType} to search for.
+	 * @return {@link List} of {@link TypeCapacityConstraint}s. May be empty.
 	 */
-	List<LOSTypeCapacityConstraint> getListByLocationType(LOSStorageLocationType slType);
+	List<TypeCapacityConstraint> getListByLocationType(LocationType slType);
 }

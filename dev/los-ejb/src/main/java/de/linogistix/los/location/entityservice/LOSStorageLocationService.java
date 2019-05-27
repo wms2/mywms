@@ -14,10 +14,9 @@ import javax.ejb.Local;
 import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.location.model.LOSArea;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSStorageLocationType;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -25,12 +24,12 @@ import de.linogistix.los.location.model.LOSStorageLocationType;
  */
 @Local
 public interface LOSStorageLocationService 
-        extends BasicService<LOSStorageLocation>
+        extends BasicService<StorageLocation>
 {
 
-    public LOSStorageLocation createStorageLocation(Client client, String name, LOSStorageLocationType type);
+    public StorageLocation createStorageLocation(Client client, String name, LocationType type);
     
-    public LOSStorageLocation createStorageLocation(Client client, String name, LOSStorageLocationType type, LOSArea area);
+    public StorageLocation createStorageLocation(Client client, String name, LocationType type, Area area);
     
     /**
      * Searches for a LOSStorageLocation which has the specified name. 
@@ -38,15 +37,15 @@ public interface LOSStorageLocationService
      * @param name specifies the LOSStorageLocation
      * @return a LOSStorageLocation, null if nothing was found
      */
-    public LOSStorageLocation getByName(String name);
+    public StorageLocation getByName(String name);
 
-    public List<LOSStorageLocation> getListByArea(Client client, LOSArea area);
+    public List<StorageLocation> getListByArea(Client client, Area area);
     
-    public List<LOSStorageLocation> getListByRack(LOSRack rack);
+    public List<StorageLocation> getListByRack(String rack);
     
-	public LOSStorageLocation getNirwana();
+	public StorageLocation getNirwana();
 
-	public LOSStorageLocation getClearing();
+	public StorageLocation getClearing();
     
-	public LOSStorageLocation getCurrentUsersLocation();
+	public StorageLocation getCurrentUsersLocation();
 }

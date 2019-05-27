@@ -18,7 +18,6 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
-import org.mywms.model.ItemDataNumber;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.EntityNotFoundException;
 
@@ -30,6 +29,7 @@ import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.product.ItemDataNumber;
 
 @Stateless
 public class QueryAdviceServiceBean extends BasicServiceBean<LOSAdvice>

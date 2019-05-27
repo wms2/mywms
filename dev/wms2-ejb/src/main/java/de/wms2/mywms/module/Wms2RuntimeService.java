@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.module;
 
 /**
- * Registration of the base business module
+ * Registration of the wms2 base module
  * 
  * @author krane
  *
