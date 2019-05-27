@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.ejb.EJB;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
@@ -24,12 +25,16 @@ import org.mywms.model.Client;
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.service.QueryItemDataServiceRemote;
 import de.linogistix.los.inventory.service.QueryStockServiceRemote;
+import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
+import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryStorageLocationServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
+import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
+import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
 import de.linogistix.los.stocktaking.facade.LOSStocktakingFacade;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
@@ -41,6 +46,8 @@ import de.wms2.mywms.product.ItemData;
 
 public class StockTakingBean extends BasicDialogBean {
 	private static final Logger log = Logger.getLogger(StockTakingBean.class);
+
+	private LOSStorageLocationQueryRemote locationQuery;
 
 	protected StorageLocation stockTakingLocation;
 	
@@ -108,6 +115,8 @@ public class StockTakingBean extends BasicDialogBean {
 		queryClient = super.getStateless(ClientQueryRemote.class);
 		
 		stFacade = super.getStateless(LOSStocktakingFacade.class);
+
+		locationQuery = super.getStateless(LOSStorageLocationQueryRemote.class);
 	}
 	
 	public String getNavigationKey() {
@@ -135,7 +144,6 @@ public class StockTakingBean extends BasicDialogBean {
 			stockTakingLocationName = "";
 			return StockTakingNavigation.SCAN_LOCATION.name();
 		}
-
 		
 		if(stockTakingLocation == null){
 			JSFHelper.getInstance().message(resolve("MsgLocationUnknown", new Object[]{stockTakingLocationName}));
@@ -347,7 +355,10 @@ public class StockTakingBean extends BasicDialogBean {
 		}
 		try {
 			unitLoadToCount = queryUnitLoadService.getByLabelId(unitLoadLabel);
-
+			StorageLocation locationToCount = null;
+			if(unitLoadToCount!=null) {
+				locationToCount = reloadLocation(unitLoadToCount.getStorageLocation());
+			}
 
 			if( currentClient == null ) {
 				currentClient = stFacade.getDefaultClient();
@@ -356,7 +367,7 @@ public class StockTakingBean extends BasicDialogBean {
 					return processStart();
 				}
 			}
-			if(unitLoadToCount == null || !unitLoadToCount.getStorageLocation().equals(stockTakingLocation)) {
+			if(unitLoadToCount == null || !locationToCount.equals(stockTakingLocation)) {
 				return StockTakingNavigation.CONFIRM_UNEXPECTED_UNITLOAD.name();
 			}
 			if( !unitLoadToCount.getClient().isSystemClient() && !currentClient.equals(unitLoadToCount.getClient()) ) {
@@ -1073,4 +1084,15 @@ public class StockTakingBean extends BasicDialogBean {
 		return bundle;
 	}
 	
+	private StorageLocation reloadLocation(StorageLocation location) {
+		if (location != null) {
+			try {
+				// Just to load lazy loaded entity
+				location = locationQuery.queryById(location.getId());
+			} catch (BusinessObjectNotFoundException | BusinessObjectSecurityException e) {
+				// ignore
+			}
+		}
+		return location;
+	}
 }

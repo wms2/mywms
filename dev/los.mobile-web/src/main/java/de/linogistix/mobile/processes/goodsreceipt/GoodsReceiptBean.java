@@ -35,8 +35,11 @@ import de.linogistix.los.inventory.service.QueryAdviceServiceRemote;
 import de.linogistix.los.inventory.service.QueryGoodsReceiptServiceRemote;
 import de.linogistix.los.inventory.service.QueryLotServiceRemote;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
+import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryUnitLoadTypeServiceRemote;
 import de.linogistix.los.query.BODTO;
+import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
@@ -47,6 +50,8 @@ import de.wms2.mywms.product.ItemData;
 
 public class GoodsReceiptBean extends BasicDialogBean {
 	protected Logger log = Logger.getLogger(GoodsReceiptBean.class);
+
+	private UnitLoadTypeQueryRemote unitLoadTypeQuery;
 
 	protected QueryLotServiceRemote queryLotService;
 	
@@ -111,7 +116,8 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		queryUltService = super.getStateless(QueryUnitLoadTypeServiceRemote.class);
 		queryGoodsReceiptService = super.getStateless(QueryGoodsReceiptServiceRemote.class);
 		goodsReceiptFacade = super.getStateless(LOSGoodsReceiptFacade.class);
-		
+		unitLoadTypeQuery = super.getStateless(UnitLoadTypeQueryRemote.class);
+
 	}
 	public String getNavigationKey() {
 		return GoodsReceiptNavigationEnum.GOODS_RECEIPT.name();
@@ -302,7 +308,8 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		
 		ItemData item =currentAdvice.getItemData();
 		currentUnitLoadType = item.getDefaultUnitLoadType();
-		
+		currentUnitLoadType = reloadUnitLoadType(currentUnitLoadType);
+
 		if( lotName_Input.length() == 0 ){
 			if( item.isLotMandatory() ){
 				JSFHelper.getInstance().message(super.resolve("LOT_INPUT_REQUIRED", new Object[]{}));
@@ -345,6 +352,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		}
 		
 		currentUnitLoadType = item.getDefaultUnitLoadType();
+		currentUnitLoadType = reloadUnitLoadType(currentUnitLoadType);
 		
 		if(currentAdvice.getLot() != null && currentAdvice.getLot().getName().equals(lotName_Input)) {
 			currentLot = currentAdvice.getLot();
@@ -696,4 +704,15 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		
 	}
 
+	private UnitLoadType reloadUnitLoadType(UnitLoadType type) {
+		if (type != null) {
+			try {
+				// Just to load lazy loaded entity
+				type = unitLoadTypeQuery.queryById(type.getId());
+			} catch (BusinessObjectNotFoundException | BusinessObjectSecurityException e) {
+				// ignore
+			}
+		}
+		return type;
+	}
 }

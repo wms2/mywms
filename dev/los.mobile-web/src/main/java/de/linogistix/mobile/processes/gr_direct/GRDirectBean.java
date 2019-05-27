@@ -43,11 +43,14 @@ import de.linogistix.los.inventory.service.QueryStockServiceRemote;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
+import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentServiceRemote;
 import de.linogistix.los.location.service.QueryStorageLocationServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadTypeServiceRemote;
 import de.linogistix.los.query.BODTO;
+import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
@@ -170,6 +173,7 @@ public class GRDirectBean extends BasicDialogBean {
 	
 	protected QueryItemDataServiceRemote queryItemData;
 	
+	private UnitLoadTypeQueryRemote unitLoadTypeQuery;
 	
 	public GRDirectBean(){
 		super();
@@ -186,6 +190,7 @@ public class GRDirectBean extends BasicDialogBean {
 		queryStockService = super.getStateless(QueryStockServiceRemote.class);
 		queryUnitLoadRemote = super.getStateless(UnitLoadQueryRemote.class);
 		queryItemData = super.getStateless(QueryItemDataServiceRemote.class);
+		unitLoadTypeQuery = super.getStateless(UnitLoadTypeQueryRemote.class);
 		
 		collectUlType = propertyService.getBooleanDefault(getWorkstationName(), GRD_COLLECT_UNITLOAD_TYPE, collectUlType);
 		log.info(GRD_COLLECT_UNITLOAD_TYPE+"="+collectUlType);
@@ -324,7 +329,7 @@ public class GRDirectBean extends BasicDialogBean {
 		if( currentUnitLoadType == null ) {
 			currentUnitLoadType = queryUltService.getDefaultUnitLoadType();
 		}
-
+		currentUnitLoadType = reloadUnitLoadType(currentUnitLoadType);
 	}
 	
 	protected void initUl() {
@@ -1386,6 +1391,18 @@ public class GRDirectBean extends BasicDialogBean {
 		loc = getUIViewRoot().getLocale();
 		bundle = ResourceBundle.getBundle("de.linogistix.mobile.processes.gr_direct.GRDirectBundle", loc);
 		return bundle;
+	}
+
+	private UnitLoadType reloadUnitLoadType(UnitLoadType type) {
+		if (type != null) {
+			try {
+				// Just to load lazy loaded entity
+				type = unitLoadTypeQuery.queryById(type.getId());
+			} catch (BusinessObjectNotFoundException | BusinessObjectSecurityException e) {
+				// ignore
+			}
+		}
+		return type;
 	}
 
 }
