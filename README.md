@@ -72,7 +72,6 @@ Please contribute to the project. Bring your ideas, code and modules. Vote for n
 - Output Interfaces. Output of stock, goods-in and goods-out information. Connect to external web services or other interfaces.
 - Remote connector. Connect to and use the backend via remote interfaces or other interfaces. E.g. REST Services.
 - Easy to use capability to introduce individual add-ons
-- Switch mobile processes to android and iOS
 - Switch netbeans rich-client to a web-client
 - Switch customization beans to CDI events
 - Make a set of entity services with equal behavior

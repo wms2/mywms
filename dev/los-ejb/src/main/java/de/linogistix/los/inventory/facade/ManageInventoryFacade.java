@@ -272,7 +272,7 @@ public interface ManageInventoryFacade {
 	  * @param comment
       * @throws FacadeException
       */
-     public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String comment) throws FacadeException;
+     public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String packaging, String comment) throws FacadeException;
 
      /**
       * Transfers all stock units from one unit load to the other.
@@ -345,4 +345,7 @@ public interface ManageInventoryFacade {
  	 */
  	public void transferUnitLoad(BODTO<StorageLocation> target,
 			BODTO<UnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException;
+
+	List<String> readPackagingNames(ItemData itemData);
 }
+

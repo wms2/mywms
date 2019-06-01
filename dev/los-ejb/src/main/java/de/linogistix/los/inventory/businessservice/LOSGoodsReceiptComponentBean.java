@@ -64,6 +64,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 
 @Stateless
 public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
@@ -167,7 +168,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	}
 
 	public LOSGoodsReceiptPosition createGoodsReceiptPosition(Client client,
-			LOSGoodsReceipt gr, String orderReference, BigDecimal amount,
+			LOSGoodsReceipt gr, String orderReference, BigDecimal amount, 
 			LOSGoodsReceiptType receiptType, String qaFault) throws FacadeException {
 		String logStr = "createGoodsReceiptPosition ";
 		
@@ -221,9 +222,8 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	}
 	
 	// --------------------------------------------------------------------------------------------
-	public StockUnit receiveStock(LOSGoodsReceiptPosition grPosition,
-			Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String serialNumber)
-			throws FacadeException {
+	public StockUnit receiveStock(LOSGoodsReceiptPosition grPosition, Lot batch, ItemData item, BigDecimal amount,
+			PackagingUnit packagingUnit, UnitLoad unitLoad, String serialNumber) throws FacadeException {
 		StockUnit su;
 
 		if( batch == null ) {
@@ -264,7 +264,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 		String activityCode = grPosition.getPositionNumber();
 
 		su = inventoryComp.createStock(grPosition.getClient(), batch, item,
-				amount, unitLoad, activityCode, serialNumber, null, false);
+				amount, packagingUnit, unitLoad, activityCode, serialNumber, null, false);
 		manager.flush();
 
 		grPosition.setStockUnit(su);

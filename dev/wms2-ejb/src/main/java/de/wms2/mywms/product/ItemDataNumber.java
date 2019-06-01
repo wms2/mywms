@@ -59,6 +59,13 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 	@Column(nullable = false)
 	private int index = 0;
 
+	/**
+	 * The packaging unit linked to the code.<br>
+	 * If not set the base unit will be used.
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.EAGER)
+	private PackagingUnit packagingUnit;
+
 	@PreUpdate
 	@PrePersist
 	public void preUpdate() throws FacadeException {
@@ -110,6 +117,14 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 
 	public void setIndex(int index) {
 		this.index = index;
+	}
+
+	public PackagingUnit getPackagingUnit() {
+		return packagingUnit;
+	}
+
+	public void setPackagingUnit(PackagingUnit packagingUnit) {
+		this.packagingUnit = packagingUnit;
 	}
 
 }

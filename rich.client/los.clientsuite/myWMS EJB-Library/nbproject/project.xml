@@ -86,6 +86,7 @@
                 <package>de.linogistix.los.util</package>
                 <package>de.linogistix.los.util.businessservice</package>
                 <package>de.linogistix.los.util.entityservice</package>
+                <package>de.wms2.mywms.entity</package>
                 <package>de.wms2.mywms.exception</package>
                 <package>de.wms2.mywms.inventory</package>
                 <package>de.wms2.mywms.location</package>

@@ -307,7 +307,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 		else if (su == null && ul.getStockUnitList().size() > 0){
 			if (force){
 				su = inventoryComponent.createStock(idat.getClient(),
-						l, idat, amount, ul, "IMAN", null);
+						l, idat, amount, null, ul, "IMAN", null);
 				//dgrys portierung wildfly 8.2
 				//su.setLabelId(labelId);
 				inventoryComponent.transferStockUnit(su, ul, "IMAN");
@@ -317,7 +317,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			}
 		} else if (su == null){
 			su = inventoryComponent.createStock(idat.getClient(),
-					l, idat, amount, ul, "IMAN", null);
+					l, idat, amount, null, ul, "IMAN", null);
 			//dgrys portierung wildfly 8.2
 			//su.setLabelId(labelId);
 			inventoryComponent.transferStockUnit(su, ul, "IMAN");

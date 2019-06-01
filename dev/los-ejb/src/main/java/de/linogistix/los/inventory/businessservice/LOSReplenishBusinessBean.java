@@ -212,7 +212,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 
 		if( destinationUnitLoad == null && moveComplete ) {
 			log.debug(logStr+"Move complete source unit load to location. label="+sourceStock.getUnitLoad().getLabelId()+" location="+destinationLocation.getName());
-			sourceStock.getUnitLoad().setType(virtual);
+			sourceStock.getUnitLoad().setUnitLoadType(virtual);
 			storageBusiness.transferUnitLoad(contextService.getCallerUserName(), destinationLocation, sourceStock.getUnitLoad(), -1, true, true, "", order.getNumber());
 		}
 		else {
@@ -242,7 +242,9 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 			// TODO Bestandsbuchung benutzbar machen. splitStock vernichtet alles, wenn die komplette Menge genommen wird!
 
 			log.debug(logStr+"Move amount to location. amount="+amount+", label="+sourceStock.getUnitLoad().getLabelId()+", location="+destinationLocation.getName());
-			StockUnit newStock = inventoryBusiness.createStock(sourceStock.getClient(), sourceStock.getLot(), sourceStock.getItemData(), BigDecimal.ZERO, destinationUnitLoad, order.getNumber(), null);
+			StockUnit newStock = inventoryBusiness.createStock(sourceStock.getClient(), sourceStock.getLot(),
+					sourceStock.getItemData(), BigDecimal.ZERO, sourceStock.getPackagingUnit(), destinationUnitLoad,
+					order.getNumber(), null);
 			inventoryBusiness.transferStock(sourceStock, newStock, amount, order.getNumber());
 			log.debug(logStr+"consolidate "+newStock.getUnitLoad().getLabelId());
 			inventoryBusiness.consolidate(newStock.getUnitLoad(), order.getNumber());

@@ -82,6 +82,16 @@
 				<typeHint>org.mywms.model.ItemDataNumber</typeHint>
 			</value>
 		</entry>
+		<entry>
+			<key>defaultPackagingUnit</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>true</hidden>
+				<position>99</position>
+			</value>
+		</entry>
 
         <entry>
             <key>zone</key>
@@ -145,7 +155,7 @@
         </entry>
 
 		<entry>
-            <key>handlingUnit</key>
+            <key>itemUnit</key>
             <value>
                 <group>
                     <name>unit</name>
@@ -161,7 +171,7 @@
                     <name>unit</name>
                 </group>
                 <hidden>false</hidden>
-                <position>2s</position>
+                <position>2</position>
             </value>
         </entry>
 

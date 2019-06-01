@@ -128,7 +128,7 @@ public class GoodsReceiptBean implements GoodsReceipt {
 						.createGoodsReceiptPosition(c, goodsReceipt,
 								deliveryNoteNumber, position.getAmount());
 				
-				goodsReceiptComponent.receiveStock(pos, lot, itemData, position.getAmount(), ul, null);
+				goodsReceiptComponent.receiveStock(pos, lot, itemData, position.getAmount(), null, ul, null);
 				
 				LOSAdvice adv = resolveAdvice(position.getAdvice());
 				

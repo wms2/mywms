@@ -43,6 +43,25 @@
 		<plugins>
 
 			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>copy-and-rename-file</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<sourceFile>${project.build.outputDirectory}/translation/Bundle.properties</sourceFile>
+							<destinationFile>${project.build.outputDirectory}/translation/Bundle_en.properties</destinationFile>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${version.maven-surefire-plugin}</version>
 				<configuration>

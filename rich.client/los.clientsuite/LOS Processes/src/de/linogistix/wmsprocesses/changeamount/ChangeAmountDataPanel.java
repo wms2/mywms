@@ -8,11 +8,13 @@
 package de.linogistix.wmsprocesses.changeamount;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
+import de.linogistix.common.res.CommonBundleResolver;
 
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.inventory.StockUnit;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import org.openide.util.NbBundle;
 
@@ -34,11 +36,13 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
         amountLabel1.setText(NbBundle.getMessage(WMSProcessesBundleResolver.class, "amount")+":");
         unitLoadLabel.setText(NbBundle.getMessage(WMSProcessesBundleResolver.class, "unitLoad")+":");
         locationLabel.setText(NbBundle.getMessage(WMSProcessesBundleResolver.class, "location")+":");
+        packagingLabel.setText(NbBundle.getMessage(CommonBundleResolver.class, "packagingUnit"));
 
         getItemDataField().setText("");
         getAmountField().setText("");
         getUnitLoadField().setText("");
         getLocationField().setText("");
+        packagingField.removeAllItems();
 
         fAmount.setTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class, "amount"));
         fAmount.setMandatory(true);
@@ -73,6 +77,8 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
         stockUnitAutoFilteringComboBox = new de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox();
         fAmount = new de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField();
         fAmountReserved = new de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField();
+        packagingField = new javax.swing.JComboBox<>();
+        packagingLabel = new javax.swing.JLabel();
 
         setAlignmentX(0.0F);
         setAlignmentY(0.0F);
@@ -169,6 +175,7 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         jPanel1.add(stockUnitAutoFilteringComboBox, gridBagConstraints);
 
@@ -177,6 +184,7 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
         jPanel1.add(fAmount, gridBagConstraints);
@@ -186,9 +194,28 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         jPanel1.add(fAmountReserved, gridBagConstraints);
+
+        packagingField.setName(""); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(packagingField, gridBagConstraints);
+
+        packagingLabel.setText("packaging");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 20);
+        jPanel1.add(packagingLabel, gridBagConstraints);
 
         add(jPanel1);
     }// </editor-fold>//GEN-END:initComponents
@@ -203,6 +230,8 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel locationLabel;
     private javax.swing.JLabel locationText;
+    private javax.swing.JComboBox<String> packagingField;
+    private javax.swing.JLabel packagingLabel;
     private javax.swing.JPanel stockInfoPanel;
     protected de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox stockUnitAutoFilteringComboBox;
     private javax.swing.JLabel unitLoadLabel;
@@ -250,4 +279,16 @@ public class ChangeAmountDataPanel extends javax.swing.JPanel {
         fAmountReserved.setValue(reserveAmount == null ? BigDecimal.ZERO : reserveAmount);
     }
 
+    public JComboBox<String> getPackagingField() {
+        return packagingField;
+    }
+
+    public String getPackagingUnit() {
+        String value = (String)packagingField.getSelectedItem();
+        return value;
+    }
+
+    public void setPackagingUnit(String packagingUnit){
+        packagingField.setSelectedItem(packagingUnit);
+    }
 }

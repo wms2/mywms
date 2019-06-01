@@ -59,7 +59,7 @@ public class StockUnitChangeAmountAction extends SystemAction {
 
         J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
         ManageInventoryFacade m = loc.getStateless(ManageInventoryFacade.class);
-        m.changeAmount(w.getSu(), w.getAmount(), w.getReserveAmount(), w.getInfo());
+        m.changeAmount(w.getSu(), w.getAmount(), w.getReserveAmount(), w.getPackagingUnit(), w.getInfo());
 
       }
     } catch (Throwable ex) {

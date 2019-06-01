@@ -14,10 +14,12 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jws.WebParam;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
@@ -43,6 +45,8 @@ import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -50,6 +54,8 @@ import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.PackagingUnit;
+import de.wms2.mywms.product.PackagingUnitEntityService;
 
 /**
  * A Webservice for managing ItemData/articles in the wms.
@@ -110,6 +116,13 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
 	
+	@Inject
+	private PackagingUnitEntityService packagingUnitService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private PackagingUnitEntityService packagingUnitEntityService;
+
 	/* 
 	 * @see ManageInventoryRemote#createItemData(java.lang.String, java.lang.String)
 	 */
@@ -446,13 +459,25 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		return inventoryComponent.testSuiable(stockUnit, unitLoad);
 	}
 
-	public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String comment)
+	public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String packaging, String comment)
 			throws FacadeException {
 		
 		StockUnit stockUnit = manager.find(StockUnit.class, su.getId());
 		String s = genService.generateManageInventoryNumber();
 
+		PackagingUnit packagingUnit = null;
+		if (!StringUtils.isEmpty(packaging)) {
+			packagingUnit = packagingUnitService.readIgnoreCase(packaging, stockUnit.getItemData());
+		}
+
 		inventoryComponent.changeAmount(stockUnit, amount, true, s, comment, null, true);
+		try {
+			inventoryBusiness.changePackagingUnit(stockUnit, packagingUnit);
+		} catch (BusinessException e) {
+			// TODO krane Factory bauen und testen
+			throw new FacadeException(e.getMessage(), e.getMessage(), new Object[] {}, e.getBundleResolver());
+		}
+
 		inventoryComponent.changeReservedAmount(stockUnit, reserved, s);
 	}
 	
@@ -648,7 +673,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			} else {
 				UnitLoadType virtual = queryUltService.getPickLocationUnitLoadType();
 
-				unitLoad.setType(virtual);
+				unitLoad.setUnitLoadType(virtual);
 				unitLoad.setLabelId(targetLocation.getName());
 				storage.transferUnitLoad( contextService.getCallerUserName(), targetLocation, unitLoad, -1, false, null, null);
 
@@ -661,4 +686,10 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		storage.transferUnitLoad(contextService.getCallerUserName(), targetLocation, unitLoad, -1, ignoreSlLock, info, "");
 		
 	}
+
+	@Override
+	public List<String> readPackagingNames(ItemData itemData) {
+		return packagingUnitEntityService.readNamesByItemData(itemData);
+	}
+
 }

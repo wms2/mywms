@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.PackagingUnit;
 
 import javax.ejb.Remote;
 
@@ -39,8 +40,9 @@ public interface ManageInventoryBusiness {
      * @throws de.linogistix.los.inventory.exception.InventoryException
      * @throws org.mywms.facade.FacadeException
      */
-    StockUnit createStockUnitOnStorageLocation(String clientRef, String slName, String articleRef, String lotRef, BigDecimal amount, String unitLoadRef, String activityCode, String serialNumber) 
-            throws EntityNotFoundException,InventoryException, FacadeException;
+	StockUnit createStockUnitOnStorageLocation(String clientRef, String slName, String articleRef, String lotRef,
+			BigDecimal amount, PackagingUnit packagingUnit, String unitLoadRef, String activityCode,
+			String serialNumber) throws EntityNotFoundException, InventoryException, FacadeException;
     
     void deleteStockUnitsFromStorageLocation(StorageLocation sl, String activityCode) throws FacadeException;
 

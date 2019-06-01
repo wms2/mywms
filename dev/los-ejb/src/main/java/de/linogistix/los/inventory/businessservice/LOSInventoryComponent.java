@@ -24,6 +24,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 
 @Local
 public interface LOSInventoryComponent {
@@ -44,7 +45,7 @@ public interface LOSInventoryComponent {
 	public StockUnit createStock(Client client, 
 								 Lot batch,
 								 ItemData item,
-								 BigDecimal amount,
+								 BigDecimal amount, PackagingUnit packagingUnit,
 								 UnitLoad unitLoad,
 								 String activityCode, String serialNumber) throws FacadeException;
 	
@@ -65,7 +66,7 @@ public interface LOSInventoryComponent {
 	public StockUnit createStock(Client client, 
 								 Lot batch,
 								 ItemData item,
-								 BigDecimal amount,
+								 BigDecimal amount, PackagingUnit packagingUnit,
 								 UnitLoad unitLoad,
 								 String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException;
 
