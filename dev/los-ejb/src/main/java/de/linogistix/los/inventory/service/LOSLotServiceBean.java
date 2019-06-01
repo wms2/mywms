@@ -19,12 +19,12 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.customization.EntityGenerator;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 
 /**

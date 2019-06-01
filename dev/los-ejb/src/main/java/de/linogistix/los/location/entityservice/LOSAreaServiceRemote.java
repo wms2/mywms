@@ -15,7 +15,7 @@ import javax.ejb.Remote;
 import org.mywms.model.Client;
 import org.mywms.service.EntityNotFoundException;
 
-import de.linogistix.los.location.model.LOSArea;
+import de.wms2.mywms.location.Area;
 
 
 /**
@@ -25,14 +25,14 @@ import de.linogistix.los.location.model.LOSArea;
 @Remote
 public interface LOSAreaServiceRemote {
 	
-    public LOSArea getByName(Client c, String name) throws EntityNotFoundException;
+    public Area getByName(Client c, String name) throws EntityNotFoundException;
 
-    public LOSArea getDefault();
+    public Area getDefault();
 
-    public List<LOSArea> getForGoodsIn();
-    public List<LOSArea> getForGoodsOut();
-    public List<LOSArea> getForStorage();
-    public List<LOSArea> getForPicking();
-    public List<LOSArea> getForTransfer();
+    public List<Area> getForGoodsIn();
+    public List<Area> getForGoodsOut();
+    public List<Area> getForStorage();
+    public List<Area> getForPicking();
+    public List<Area> getForTransfer();
     
 }

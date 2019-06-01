@@ -11,20 +11,20 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 @Local
 public interface LOSStorage {
 	
-	public void transferUnitLoad(String userName, LOSStorageLocation dest, LOSUnitLoad ul) throws FacadeException;
-	public void transferUnitLoad(String userName, LOSStorageLocation dest, LOSUnitLoad ul, int index, boolean ignoreLock, String info, String activityCode) throws FacadeException; 
-	public void transferUnitLoad(String userName, LOSStorageLocation dest, LOSUnitLoad ul, int index, boolean ignoreLock, boolean reserve, String info, String activityCode) throws FacadeException;
+	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad ul) throws FacadeException;
+	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad ul, int index, boolean ignoreLock, String info, String activityCode) throws FacadeException; 
+	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad ul, int index, boolean ignoreLock, boolean reserve, String info, String activityCode) throws FacadeException;
 	
-	public void transferToCarrier(String userName, LOSUnitLoad source, LOSUnitLoad destination, String info, String activityCode) throws FacadeException; 
+	public void transferToCarrier(String userName, UnitLoad source, UnitLoad destination, String info, String activityCode) throws FacadeException; 
 	
-	public void sendToNirwana(String username, LOSUnitLoad u) throws FacadeException;
+	public void sendToNirwana(String username, UnitLoad u) throws FacadeException;
 
-	public void sendToClearing(String username, LOSUnitLoad existing) throws FacadeException;
+	public void sendToClearing(String username, UnitLoad existing) throws FacadeException;
      
 }

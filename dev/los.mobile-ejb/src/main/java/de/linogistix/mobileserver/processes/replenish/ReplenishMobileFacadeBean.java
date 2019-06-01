@@ -15,13 +15,9 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 import org.mywms.model.User;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.StockUnitService;
 
 import de.linogistix.los.common.exception.LOSExceptionRB;
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -30,17 +26,21 @@ import de.linogistix.los.inventory.businessservice.LOSReplenishGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSReplenishOrderService;
 import de.linogistix.los.inventory.service.QueryStockService;
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 // TODO krane: I18N
 @Stateless
@@ -103,7 +103,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 
 
 	public ReplenishMobileOrder loadOrderByDestination( String locationName ) throws FacadeException {
-		LOSStorageLocation loc = locService.getByName(locationName);
+		StorageLocation loc = locService.getByName(locationName);
 		if( loc == null ) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, locationName);
 		}
@@ -166,12 +166,12 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		
 		log.debug(logStr+"Check location");
 		if( code.equals(mOrder.getSourceLocationName()) || code.equals(mOrder.getSourceLocationCode()) || code.toLowerCase().equals(mOrder.getSourceLocationName().toLowerCase())  ) {
-			LOSStorageLocation location = locService.getByName(code);
+			StorageLocation location = locService.getByName(code);
 			if( location == null ) {
 				log.info(logStr+"No storage location found for code="+code);
 				throw new LOSExceptionRB("MsgLocationNotFound", this.getClass());
 			}
-			List<LOSUnitLoad> unitLoadList = unitLoadService.getListByLocation(location);
+			List<UnitLoad> unitLoadList = unitLoadService.getListByLocation(location);
 			if( unitLoadList.size()!=1) {
 				log.info(logStr+"More than one unit load on location, code="+code);
 				throw new LOSExceptionRB("MsgMoreThanOnUnitLoad", this.getClass());
@@ -181,7 +181,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		}
 		
 		log.debug(logStr+"Check unit load");
-		LOSUnitLoad unitLoad = null;
+		UnitLoad unitLoad = null;
 		try {
 			unitLoad = unitLoadService.getByLabelId(code);
 		} catch (UnAuthorizedException e) {}
@@ -256,7 +256,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 			}
 		}
 		
-		LOSStorageLocation destinationLocation = null;
+		StorageLocation destinationLocation = null;
 		if( mOrder.getDestinationLocationName() != null ) {
 			destinationLocation = locService.getByName(mOrder.getDestinationLocationName());
 		}
@@ -323,8 +323,8 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		
 		ArrayList<SelectItem> orderSelectList = new ArrayList<SelectItem>();
 		for( LOSReplenishOrder order : res ) {
-			LOSStorageLocation destination = order.getDestination();
-			String label = destination.getName() + "  (" + ((LOSUnitLoad)order.getStockUnit().getUnitLoad()).getStorageLocation().getName() + ")";
+			StorageLocation destination = order.getDestination();
+			String label = destination.getName() + "  (" + order.getStockUnit().getUnitLoad().getStorageLocation().getName() + ")";
 			orderSelectList.add(new SelectItem(order.getId(), label));
 		}
 
@@ -340,7 +340,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		
 		Client client = clientService.getByNumber(mOrder.getClientNumber());
 		ItemData item = itemDataService.getByItemNumber(client, mOrder.getItemNumber());
-		LOSStorageLocation loc = locService.getByName(mOrder.getDestinationLocationName());
+		StorageLocation loc = locService.getByName(mOrder.getDestinationLocationName());
 		
 		LOSReplenishOrder order = orderGenerator.calculateOrder(item, null, mOrder.getAmountRequested(), loc, null);
 		if( order == null ) {
@@ -396,7 +396,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		if( order.getDestinationLocationName() != null ) {
 			BigDecimal amountDestination = BigDecimal.ZERO;
 			
-			LOSStorageLocation destination = locService.getByName(order.getDestinationLocationName());
+			StorageLocation destination = locService.getByName(order.getDestinationLocationName());
 			LOSFixedLocationAssignment fix = fixService.getByLocation(destination);
 			if( fix != null ) {
 				order.setAmountDestinationMax(fix.getDesiredAmount());

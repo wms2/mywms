@@ -16,7 +16,8 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicEntity;
-import org.mywms.model.ItemData;
+
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -30,13 +31,17 @@ public class LOSBom extends BasicEntity {
 	
 	private static final long serialVersionUID = 1L;
 
+	@ManyToOne(optional = false)
 	private ItemData parent;
+
+	@ManyToOne(optional = false)
 	private ItemData child;
+
+	@Column(nullable = false, precision = 17, scale = 4)
 	private BigDecimal amount = BigDecimal.ONE;
 	private int index = 0;
 	private boolean pickable = true;
 	
-    @ManyToOne(optional=false)
 	public ItemData getParent() {
 		return parent;
 	}
@@ -44,7 +49,6 @@ public class LOSBom extends BasicEntity {
 		this.parent = parent;
 	}
 	
-    @ManyToOne(optional=false)
 	public ItemData getChild() {
 		return child;
 	}
@@ -52,7 +56,6 @@ public class LOSBom extends BasicEntity {
 		this.child = child;
 	}
 	
-	@Column(nullable = false, precision=17, scale=4)
 	public BigDecimal getAmount() {
 		if (child != null){
 			try{

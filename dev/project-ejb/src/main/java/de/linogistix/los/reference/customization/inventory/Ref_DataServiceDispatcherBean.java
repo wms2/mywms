@@ -18,14 +18,9 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemUnit;
 import org.mywms.model.ItemUnitType;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.ItemUnitService;
 import org.mywms.service.UniqueConstraintViolatedException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -33,20 +28,23 @@ import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.customization.ImportDataServiceDispatcher;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
+import de.linogistix.los.inventory.service.ItemDataService;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
-import de.linogistix.los.location.query.RackQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
 public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatcher {
@@ -67,9 +65,6 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	@EJB
 	private LOSStorageLocationQueryRemote locationQuery; 
 	
-	@EJB
-	private RackQueryRemote rackQuery;
-		
 	@EJB
 	private LOSStorageLocationTypeService locationTypeService;
 
@@ -112,7 +107,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 			else if (className.equals(ItemUnit.class.getSimpleName())){
 				importItemUnit(className, dataRecord, sysClient, log);
 			}
-			else if(className.equals(LOSStorageLocation.class.getSimpleName())){
+			else if(className.equals(StorageLocation.class.getSimpleName())){
 				importRackLocation(className, dataRecord, sysClient, log);
 			}
 			else{
@@ -195,7 +190,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		// ----------- Location type -------------------------------------
 		
-		LOSStorageLocationType locType;
+		LocationType locType;
 
 		try {
 			locType = locationTypeService.getByName(locTypeName);
@@ -206,7 +201,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		// ----------- Capacity Constraint -------------------------------------
 		
-		LOSTypeCapacityConstraint capacityConstraint;
+		TypeCapacityConstraint capacityConstraint;
 
 		try {
 			capacityConstraint = capacityConstrQuery.queryByIdentity(capacityConstrName);
@@ -229,7 +224,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 			
 		// ----------- Area -------------------------------------
 		
-		LOSArea area;
+		Area area;
 		try {
 			area = areaQuery.queryByIdentity(areaName);
 		} catch (BusinessObjectNotFoundException ex) {
@@ -258,24 +253,12 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		// ----------- Rack -------------------------------------
 		
-		LOSRack rack;
 		String rackName = region + aisleNo + rackNo;
 
-		try {
-			rack = rackQuery.queryByIdentity(rackName);
-		} catch (BusinessObjectNotFoundException ex) {
-
-			rack = entityGenerator.generateEntity( LOSRack.class );
-			rack.setName(rackName);
-			rack.setLabelOffset(new Integer(3));
-			rack.setClient(c);
-			manager.persist(rack);
-			manager.flush();
-		}
 			
 		// ----------- Rack Location -------------------------------------
 		
-		LOSStorageLocation rl;
+		StorageLocation rl;
 		int y = 0;
 		try {
 			y = Integer.parseInt(levelNo);
@@ -288,18 +271,17 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		}
 		catch( Throwable t ) {}
 		
-//		String locName = rack.getName() + "-" + levelNo + "-" + placeNo;
-		String locName = rack.getName() + "-" + placeNo + "-" + levelNo;
+		String locName = rackName + "-" + placeNo + "-" + levelNo;
 		
 		try {
 			rl = locationQuery.queryByIdentity(locName);
 			logger.warn("Already exists: " + locName);
 		} catch (BusinessObjectNotFoundException ex) {
-			rl = entityGenerator.generateEntity( LOSStorageLocation.class );
+			rl = entityGenerator.generateEntity( StorageLocation.class );
 			rl.setClient(c);
 			rl.setArea(area);
 			rl.setName(locName);
-			rl.setRack(rack);
+			rl.setRack(rackName);
 			rl.setType(locType);
 			
 			rl.setCurrentTypeCapacityConstraint(capacityConstraint);
@@ -386,7 +368,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		String factorString = dataRecord.get("faktor");
 		
 		unit = entityGenerator.generateEntity( ItemUnit.class );
-		unit.setUnitName(unitName);
+		unit.setName(unitName);
 		unit.setUnitType(unitType);
 		unit.setBaseUnit(base);
 		unit.setBaseFactor(Integer.parseInt(factorString));
@@ -490,7 +472,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		item.setDescription(descr);
 		item.setDefaultUnitLoadType(ulType);
 	    item.setLotMandatory(lotMandatory);
-	    item.setHandlingUnit(unit);
+	    item.setItemUnit(unit);
 
 	    manager.flush();
 	    

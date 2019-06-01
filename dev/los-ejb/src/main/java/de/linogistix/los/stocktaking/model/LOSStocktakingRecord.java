@@ -22,6 +22,7 @@ public class LOSStocktakingRecord extends BasicEntity{
 
 	private static final long serialVersionUID = 1L;
 
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	private LOSStocktakingOrder stocktakingOrder;
 	
 	private String clientNo;
@@ -46,7 +47,6 @@ public class LOSStocktakingRecord extends BasicEntity{
 
 	private String ulTypeNo = null;
 	
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public LOSStocktakingOrder getStocktakingOrder() {
 		return stocktakingOrder;
 	}

@@ -17,8 +17,8 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.LOSStorageLocationTypeCRUDRemote;
-import de.linogistix.los.location.model.LOSStorageLocationType;
 import de.linogistix.los.location.query.LOSStorageLocationTypeQueryRemote;
+import de.wms2.mywms.location.LocationType;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.util.Lookup;
@@ -64,9 +64,9 @@ public class BOLOSStorageLocationType extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSStorageLocationType c;
+        LocationType c;
 
-        c = new LOSStorageLocationType();
+        c = new LocationType();
         
         c.setName("Template");
         

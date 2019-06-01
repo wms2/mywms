@@ -21,15 +21,8 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemUnit;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.ItemUnitService;
 
 import de.linogistix.los.inventory.businessservice.LOSAdviceBusiness;
 import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
@@ -39,17 +32,24 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.exception.InventoryTransactionException;
 import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
+import de.linogistix.los.inventory.service.ItemDataService;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
 
 /**
  * A Webservice for managing ItemData/articles in the wms.
@@ -328,28 +328,28 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
         inventoryComponent.createStockUnitOnStorageLocation(clientRef, slName, articleRef, lotRef, amount, unitLoadRef,genService.generateManageInventoryNumber(), null );
     }
 
-    public void deleteStockUnitsFromStorageLocations(List<BODTO<LOSStorageLocation>> locations) throws FacadeException{
+    public void deleteStockUnitsFromStorageLocations(List<BODTO<StorageLocation>> locations) throws FacadeException{
     	
     	if (locations == null){
     		return;
     	}
     
-    	for (BODTO<LOSStorageLocation> loc : locations){
-    		LOSStorageLocation sl = manager.find(LOSStorageLocation.class, loc.getId());
+    	for (BODTO<StorageLocation> loc : locations){
+    		StorageLocation sl = manager.find(StorageLocation.class, loc.getId());
     		if (sl != null){
     			inventoryComponent.deleteStockUnitsFromStorageLocation(sl, genService.generateManageInventoryNumber());
     		}
     	}
     }
 
-    public void sendStockUnitsToNirwanaFromSl(List<BODTO<LOSStorageLocation>> locations) throws FacadeException{
+    public void sendStockUnitsToNirwanaFromSl(List<BODTO<StorageLocation>> locations) throws FacadeException{
     	
     	if (locations == null){
     		return;
     	}
     	
-    	for (BODTO<LOSStorageLocation> loc : locations){
-    		LOSStorageLocation sl = manager.find(LOSStorageLocation.class, loc.getId());
+    	for (BODTO<StorageLocation> loc : locations){
+    		StorageLocation sl = manager.find(StorageLocation.class, loc.getId());
     		if (sl != null){
     			inventoryComponent.sendStockUnitsToNirwana(sl, genService.generateManageInventoryNumber());
     		}
@@ -372,15 +372,15 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     	}
     }
     
-    public void sendStockUnitsToNirwanaFromUl(List<BODTO<LOSUnitLoad>> unitLoads) throws FacadeException{
+    public void sendStockUnitsToNirwanaFromUl(List<BODTO<UnitLoad>> unitLoads) throws FacadeException{
     	
     	if (unitLoads == null){
     		return;
     	}
     	
     	
-    	for (BODTO<LOSUnitLoad> loc : unitLoads){
-    		LOSUnitLoad ul = manager.find(LOSUnitLoad.class, loc.getId());
+    	for (BODTO<UnitLoad> loc : unitLoads){
+    		UnitLoad ul = manager.find(UnitLoad.class, loc.getId());
     		if (ul != null){
     			inventoryComponent.sendStockUnitsToNirwana(ul, genService.generateManageInventoryNumber());
     		}
@@ -393,39 +393,39 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     		return;
     	}
   
-        LOSStorageLocation sl = slQueryRemote.queryByIdentity(location);
-        sl = manager.find(LOSStorageLocation.class, sl.getId());
+        StorageLocation sl = slQueryRemote.queryByIdentity(location);
+        sl = manager.find(StorageLocation.class, sl.getId());
         if (sl != null) {
             inventoryComponent.sendStockUnitsToNirwana(sl, genService.generateManageInventoryNumber());
         }
     }
 
 	public void transferStockUnit(BODTO<StockUnit> suTO,
-			BODTO<LOSUnitLoad> ulTO) throws FacadeException {
+			BODTO<UnitLoad> ulTO) throws FacadeException {
 		
 		transferStockUnit(suTO, ulTO, false, false, null);
 		
 	}
 	
-    public void transferStockUnit(BODTO<StockUnit> suTO, BODTO<LOSUnitLoad> ulTO, String info) throws FacadeException {
+    public void transferStockUnit(BODTO<StockUnit> suTO, BODTO<UnitLoad> ulTO, String info) throws FacadeException {
 		transferStockUnit(suTO, ulTO, false, false, info);
     }
 
 	public void transferStockUnit(BODTO<StockUnit> suTO,
-			BODTO<LOSUnitLoad> ulTO, 
+			BODTO<UnitLoad> ulTO, 
 			boolean removeSuReservation,
 			boolean removeSuLock) throws FacadeException {
 		transferStockUnit(suTO, ulTO, removeSuReservation, removeSuLock, null);
 	}
 	
 	public void transferStockUnit(BODTO<StockUnit> suTO,
-			BODTO<LOSUnitLoad> ulTO, 
+			BODTO<UnitLoad> ulTO, 
 			boolean removeSuReservation,
 			boolean removeSuLock,
 			String comment) throws FacadeException {
 		
 		StockUnit su = manager.find(StockUnit.class, suTO.getId());
-		LOSUnitLoad ul = manager.find(LOSUnitLoad.class, ulTO.getId());
+		UnitLoad ul = manager.find(UnitLoad.class, ulTO.getId());
 		
 		String s = genService.generateManageInventoryNumber();
 		if (removeSuLock){
@@ -440,8 +440,8 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		
 	}
   
-	public boolean testSuitable(BODTO<StockUnit> su, BODTO<LOSUnitLoad> ul) throws FacadeException{
-		LOSUnitLoad unitLoad = manager.find(LOSUnitLoad.class, ul.getId());
+	public boolean testSuitable(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException{
+		UnitLoad unitLoad = manager.find(UnitLoad.class, ul.getId());
 		StockUnit stockUnit = manager.find(StockUnit.class, su.getId());
 		return inventoryComponent.testSuiable(stockUnit, unitLoad);
 	}
@@ -470,11 +470,11 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		inventoryComponent.transferStockFromReserved(fromStockUnit, toStockUnit, amount, s);		
 	}
 	
-	public void transferStock(BODTO<LOSUnitLoad> from, BODTO<LOSUnitLoad> to
+	public void transferStock(BODTO<UnitLoad> from, BODTO<UnitLoad> to
 			, boolean relesereservation) throws FacadeException {
 		
-		LOSUnitLoad fromUl = manager.find(LOSUnitLoad.class, from.getId());
-		LOSUnitLoad toUl = manager.find(LOSUnitLoad.class, to.getId());
+		UnitLoad fromUl = manager.find(UnitLoad.class, from.getId());
+		UnitLoad toUl = manager.find(UnitLoad.class, to.getId());
 		String s = genService.generateManageInventoryNumber();
 
 		inventoryComponent.transferStock(fromUl, toUl, s, false);		
@@ -598,13 +598,13 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 
 	}
 	
-	public void transferUnitLoad(BODTO<LOSStorageLocation> target,
-			BODTO<LOSUnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException {
-		LOSStorageLocation targetLocation = manager.find(LOSStorageLocation.class, target.getId());
+	public void transferUnitLoad(BODTO<StorageLocation> target,
+			BODTO<UnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException {
+		StorageLocation targetLocation = manager.find(StorageLocation.class, target.getId());
 		if (targetLocation == null)
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, new String[]{target.getName()});
 		
-		LOSUnitLoad unitLoad = manager.find(LOSUnitLoad.class, ul.getId());
+		UnitLoad unitLoad = manager.find(UnitLoad.class, ul.getId());
 		if (unitLoad == null)
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, new String[]{ul.getName()});
 		
@@ -640,7 +640,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			if (targetLocation.getUnitLoads() != null && targetLocation.getUnitLoads().size() > 0) {
 				// There is aready a unit load on the destination. => Add stock
 				
-				LOSUnitLoad onDestination = targetLocation.getUnitLoads().get(0);
+				UnitLoad onDestination = targetLocation.getUnitLoads().get(0);
 				
 				inventoryComponent.transferStock(unitLoad, onDestination, "", false);
 				storage.sendToNirwana( contextService.getCallerUserName(), unitLoad);

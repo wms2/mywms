@@ -25,12 +25,12 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -103,7 +103,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			strat.setManualCreationIndex(0);
 			strat.setAdditionalContent(description);
 			
-			List<LOSStorageLocation> locations = locationService.getListForGoodsOut();
+			List<StorageLocation> locations = locationService.getListForGoodsOut();
 			if( locations.size()==1 ) {
 				strat.setDefaultDestination(locations.get(0));
 				

@@ -19,15 +19,13 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.mywms.model.User;
 
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -38,28 +36,37 @@ import de.linogistix.los.model.State;
 public class LOSReplenishOrder extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 	
+	@Column(nullable = false, unique = true)
     private String number;
     
+    @ManyToOne(optional=false)
     private ItemData itemData;
+
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
     private Lot lot;
 	
     private int state = State.RAW;
 
-    private LOSStorageLocation destination;
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
+    private StorageLocation destination;
     
-    private LOSRack requestedRack;
-    private LOSStorageLocation requestedLocation;
+    private String requestedRack;
+
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
+    private StorageLocation requestedLocation;
     
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
     private StockUnit stockUnit;
     private String sourceLocationName;
 
     private int prio = 50;
 
+	@Column(nullable = true, precision=17, scale=4)
     private BigDecimal requestedAmount = null;
     
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
     private User operator;
 
-    @ManyToOne(optional=false)
     public ItemData getItemData() {
 		return itemData;
 	}
@@ -67,7 +74,6 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public Lot getLot() {
 		return lot;
 	}
@@ -76,7 +82,6 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
 	}
 
 	
-	@Column(nullable = true, precision=17, scale=4)
     public BigDecimal getRequestedAmount() {
 		if( getItemData() != null && requestedAmount != null ) {
 			return requestedAmount.setScale(getItemData().getScale());
@@ -87,7 +92,6 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
 		this.requestedAmount = requestedAmount;
 	}
 	
-	@Column(nullable = false, unique = true)
     public String getNumber() {
 		return number;
 	}
@@ -102,11 +106,10 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
         this.state = state;
     }
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-    public LOSStorageLocation getDestination() {
+    public StorageLocation getDestination() {
         return destination;
     }
-    public void setDestination(LOSStorageLocation destination) {
+    public void setDestination(StorageLocation destination) {
         this.destination = destination;
     }
 
@@ -117,7 +120,6 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
 		this.prio = prio;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public StockUnit getStockUnit() {
 		return stockUnit;
 	}
@@ -125,7 +127,6 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
 		this.stockUnit = stockUnit;
 	}
 	
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public User getOperator() {
 		return operator;
 	}
@@ -143,26 +144,24 @@ public class LOSReplenishOrder extends BasicClientAssignedEntity {
 		this.sourceLocationName = sourceLocationName;
 	}
 	
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	public LOSRack getRequestedRack() {
+	public String getRequestedRack() {
 		return requestedRack;
 	}
-	public void setRequestedRack(LOSRack requestedRack) {
+	public void setRequestedRack(String requestedRack) {
 		this.requestedRack = requestedRack;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	public LOSStorageLocation getRequestedLocation() {
+	public StorageLocation getRequestedLocation() {
 		return requestedLocation;
 	}
-	public void setRequestedLocation(LOSStorageLocation requestedLocation) {
+	public void setRequestedLocation(StorageLocation requestedLocation) {
 		this.requestedLocation = requestedLocation;
 	}
 	
 	@PrePersist
 	@PreUpdate
 	public void setRedundantValues() {
-		sourceLocationName = stockUnit == null ? null : ((LOSUnitLoad)stockUnit.getUnitLoad()).getStorageLocation().getName();
+		sourceLocationName = stockUnit == null ? null : stockUnit.getUnitLoad().getStorageLocation().getName();
 	}
 	
 	@Override

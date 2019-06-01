@@ -18,8 +18,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.model.User;
 import org.mywms.service.EntityNotFoundException;
 
@@ -31,11 +29,13 @@ import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
 
 
 // TODO krane i18n
@@ -89,7 +89,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 			sourceStock.setReservedAmount(BigDecimal.ZERO);
 			
 			if( order.getDestination() != null ) {
-				locationReserver.deallocateLocation(order.getDestination(), (LOSUnitLoad)sourceStock.getUnitLoad());
+				locationReserver.deallocateLocation(order.getDestination(), sourceStock.getUnitLoad());
 			}
 		}
 		
@@ -154,7 +154,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 		manageOrderService.onReplenishStateChange(order, stateOld);
 	}
 	
-    public LOSReplenishOrder confirmOrder(LOSReplenishOrder order, StockUnit sourceStock, LOSStorageLocation destinationLocation, BigDecimal amount) throws FacadeException {
+    public LOSReplenishOrder confirmOrder(LOSReplenishOrder order, StockUnit sourceStock, StorageLocation destinationLocation, BigDecimal amount) throws FacadeException {
 		String logStr = "confirmOrder ";
 		log.debug(logStr+"orderNumber="+order.getNumber());
 
@@ -192,10 +192,10 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 			moveComplete = true;
 		}
 		
-		LOSUnitLoad destinationUnitLoad = null;
-		List<LOSUnitLoad> unitLoadList = unitLoadService.getListByStorageLocation(destinationLocation);
+		UnitLoad destinationUnitLoad = null;
+		List<UnitLoad> unitLoadList = unitLoadService.getListByStorageLocation(destinationLocation);
 		
-		for( LOSUnitLoad ul : unitLoadList ) {
+		for( UnitLoad ul : unitLoadList ) {
 			destinationUnitLoad = ul;
 			for( StockUnit su : ul.getStockUnitList() ) {
 				if( !su.getItemData().equals(sourceStock.getItemData()) ) {
@@ -213,7 +213,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 		if( destinationUnitLoad == null && moveComplete ) {
 			log.debug(logStr+"Move complete source unit load to location. label="+sourceStock.getUnitLoad().getLabelId()+" location="+destinationLocation.getName());
 			sourceStock.getUnitLoad().setType(virtual);
-			storageBusiness.transferUnitLoad(contextService.getCallerUserName(), destinationLocation, (LOSUnitLoad)sourceStock.getUnitLoad(), -1, true, true, "", order.getNumber());
+			storageBusiness.transferUnitLoad(contextService.getCallerUserName(), destinationLocation, sourceStock.getUnitLoad(), -1, true, true, "", order.getNumber());
 		}
 		else {
 			if( destinationUnitLoad == null ) {
@@ -237,7 +237,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 				amount = sourceStock.getAmount();
 			}
 
-			LOSUnitLoad sourceUnitLoad = (LOSUnitLoad)sourceStock.getUnitLoad();
+			UnitLoad sourceUnitLoad = sourceStock.getUnitLoad();
 			
 			// TODO Bestandsbuchung benutzbar machen. splitStock vernichtet alles, wenn die komplette Menge genommen wird!
 
@@ -245,7 +245,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 			StockUnit newStock = inventoryBusiness.createStock(sourceStock.getClient(), sourceStock.getLot(), sourceStock.getItemData(), BigDecimal.ZERO, destinationUnitLoad, order.getNumber(), null);
 			inventoryBusiness.transferStock(sourceStock, newStock, amount, order.getNumber());
 			log.debug(logStr+"consolidate "+newStock.getUnitLoad().getLabelId());
-			inventoryBusiness.consolidate((LOSUnitLoad)newStock.getUnitLoad(), order.getNumber());
+			inventoryBusiness.consolidate(newStock.getUnitLoad(), order.getNumber());
 			
 			if( BigDecimal.ZERO.compareTo(sourceStock.getAmount())==0 ) {
 				boolean remove = true;

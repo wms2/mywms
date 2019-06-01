@@ -11,6 +11,16 @@
                 <position>2</position>
             </value>
         </entry>
+        <entry>
+            <key>nextZone</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
 
 		<entry>
 			<key>lock</key>

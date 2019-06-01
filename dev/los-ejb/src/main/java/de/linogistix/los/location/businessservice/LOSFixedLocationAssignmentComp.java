@@ -9,15 +9,14 @@ package de.linogistix.los.location.businessservice;
 
 import javax.ejb.Local;
 
-import org.mywms.model.ItemData;
-
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface LOSFixedLocationAssignmentComp {
 
-	public void createFixedLocationAssignment(LOSStorageLocation sl, ItemData item)
+	public void createFixedLocationAssignment(StorageLocation sl, ItemData item)
 					throws LOSLocationException;
 	
 }

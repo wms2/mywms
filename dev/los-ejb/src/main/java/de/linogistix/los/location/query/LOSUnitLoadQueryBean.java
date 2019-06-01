@@ -17,11 +17,11 @@ import java.util.List;
 import javax.ejb.Stateless;
 
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.dto.UnitLoadTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  *
@@ -29,7 +29,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
  */
 @Stateless
 public class LOSUnitLoadQueryBean 
-        extends BusinessObjectQueryBean<LOSUnitLoad> 
+        extends BusinessObjectQueryBean<UnitLoad> 
         implements LOSUnitLoadQueryRemote
 {
 	
@@ -53,8 +53,8 @@ public class LOSUnitLoadQueryBean
 		propList.add(new BODTOConstructorProperty("client.number", false));
 		propList.add(new BODTOConstructorProperty("lock", false));
 		propList.add(new BODTOConstructorProperty("storageLocation.name", false));
-		propList.add(new BODTOConstructorProperty("carrier", false));
-		propList.add(new BODTOConstructorProperty("type.name", false));
+		propList.add(new BODTOConstructorProperty("isCarrier", false));
+		propList.add(new BODTOConstructorProperty("unitLoadType.name", false));
 		
 		return propList;
 	}

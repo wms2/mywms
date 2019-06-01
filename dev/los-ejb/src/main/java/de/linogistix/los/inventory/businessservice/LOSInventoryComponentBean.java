@@ -24,15 +24,8 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoad;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.StockUnitService;
 
 import de.linogistix.los.common.businessservice.HostMsgService;
 import de.linogistix.los.entityservice.BusinessObjectLockState;
@@ -53,12 +46,14 @@ import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptPositionQueryRemote;
 import de.linogistix.los.inventory.query.LOSPickingPositionQueryRemote;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.inventory.service.StockUnitLockState;
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.crud.LOSUnitLoadCRUDRemote;
@@ -67,10 +62,6 @@ import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoadPackageType;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
@@ -84,6 +75,14 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class LOSInventoryComponentBean implements LOSInventoryComponent {
@@ -173,10 +172,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	@EJB
 	private ManageStockService manageStockService;
 	
-	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, LOSUnitLoad unitLoad, String activityCode, String serialNumber) throws FacadeException {
+	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String activityCode, String serialNumber) throws FacadeException {
 		return createStock(client, batch, item, amount, unitLoad, activityCode, serialNumber, null, true);
 	}
-	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, LOSUnitLoad unitLoad, String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException {
+	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException {
 
 		if (amount.compareTo(new BigDecimal(0)) < 0) {
 			throw new InventoryException(InventoryExceptionKey.AMOUNT_MUST_BE_GREATER_THAN_ZERO, "");
@@ -229,12 +228,12 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return su;
 	}
 
-	public void transferStock(LOSUnitLoad src, LOSUnitLoad dest, String activityCode) throws FacadeException {
+	public void transferStock(UnitLoad src, UnitLoad dest, String activityCode) throws FacadeException {
 		transferStock(src, dest, activityCode, false);
 	}
 
 	
-	public void transferStock(LOSUnitLoad src, LOSUnitLoad dest, String activityCode, boolean yesReallyDoIt) throws FacadeException {
+	public void transferStock(UnitLoad src, UnitLoad dest, String activityCode, boolean yesReallyDoIt) throws FacadeException {
 
 		List<StockUnit> sus = new ArrayList<StockUnit>();
 		sus.addAll(src.getStockUnitList());
@@ -261,7 +260,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		src.setStockUnitList(new ArrayList<StockUnit>());
 	}
 
-	public void consolidate(LOSUnitLoad ul, String activityCode) throws FacadeException {
+	public void consolidate(UnitLoad ul, String activityCode) throws FacadeException {
 
 		HashMap<Lot, StockUnit> lots;
 		HashMap<ItemData, StockUnit> is;
@@ -289,10 +288,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		for (Long id : suIds) {
 			StockUnit su = manager.find(StockUnit.class, id);
 
-			if (LOSUnitLoadPackageType.CONTAINER == ul.getPackageType() ) {
+			if (UnitLoadPackageType.CONTAINER == ul.getPackageType() ) {
 				// OK. 
 			}
-			else if (su.getItemData().isLotMandatory() && LOSUnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE.equals(ul.getPackageType())) {
+			else if (su.getItemData().isLotMandatory() && UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE.equals(ul.getPackageType())) {
 
 				if (su.getLot() == null) {
 					throw new InventoryException(InventoryExceptionKey.STOCKUNIT_NO_LOT, su.getId().toString());
@@ -315,8 +314,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 					lots.put(su.getLot(), su);
 				}
 
-			} else if (LOSUnitLoadPackageType.MIXED_CONSOLIDATE.equals(ul.getPackageType()) || LOSUnitLoadPackageType.OF_SAME_ITEMDATA_CONSOLIDATE.equals(ul.getPackageType())
-					|| LOSUnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE.equals(ul.getPackageType())) {
+			} else if (UnitLoadPackageType.MIXED_CONSOLIDATE.equals(ul.getPackageType()) || UnitLoadPackageType.OF_SAME_ITEMDATA_CONSOLIDATE.equals(ul.getPackageType())
+					|| UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE.equals(ul.getPackageType())) {
 
 				existing = is.get(su.getItemData());
 				if (existing != null && !existing.equals(su)) {
@@ -369,11 +368,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			su.setAmount(su.getAmount().subtract(amount));
 			su.releaseReservedAmount(amount);
 			
-			((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
-			((LOSUnitLoad)dest.getUnitLoad()).setOpened(true);
+			su.getUnitLoad().setOpened(true);
+			dest.getUnitLoad().setOpened(true);
 			
-			recalculateWeightDiff((LOSUnitLoad)su.getUnitLoad(), su.getItemData(), amount.negate());
-			recalculateWeightDiff((LOSUnitLoad)dest.getUnitLoad(), dest.getItemData(), amount);
+			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amount.negate());
+			recalculateWeightDiff(dest.getUnitLoad(), dest.getItemData(), amount);
 
 			recordService.recordRemoval(amount.negate(), su, activityCode);
 			recordService.recordCreation(amount, dest, activityCode);
@@ -426,11 +425,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			dest.setAmount(dest.getAmount().add(amount));
 			su.setAmount(su.getAmount().subtract(amount));
 			
-			((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
-			((LOSUnitLoad)dest.getUnitLoad()).setOpened(true);
+			su.getUnitLoad().setOpened(true);
+			dest.getUnitLoad().setOpened(true);
 
-			recalculateWeightDiff((LOSUnitLoad)su.getUnitLoad(), su.getItemData(), amount.negate());
-			recalculateWeightDiff((LOSUnitLoad)dest.getUnitLoad(), dest.getItemData(), amount);
+			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amount.negate());
+			recalculateWeightDiff(dest.getUnitLoad(), dest.getItemData(), amount);
 
 			recordService.recordRemoval(amount.negate(), su, activityCode, null, null);
 			recordService.recordCreation(amount, dest, activityCode);
@@ -439,7 +438,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			manageStockService.onStockAmountChange(dest, amountDestOld);
 			if (su.getAmount().compareTo(new BigDecimal(0)) == 0) {
 				log.info(logStr+"remove empty stock. id="+su.getId()+" ul="+su.getUnitLoad().getLabelId());
-				LOSUnitLoad sourceUnitLoad = (LOSUnitLoad)su.getUnitLoad();
+				UnitLoad sourceUnitLoad = su.getUnitLoad();
 				sendStockUnitsToNirwana(su, activityCode, null);
 				
 				if( sourceUnitLoad.getStockUnitList() == null || sourceUnitLoad.getStockUnitList().size()==0 ) {
@@ -452,7 +451,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		}
 	}
 
-	public StockUnit splitStock(StockUnit stockToSplit, LOSUnitLoad destUl, BigDecimal takeAwayAmount, String activityCode) throws FacadeException {
+	public StockUnit splitStock(StockUnit stockToSplit, UnitLoad destUl, BigDecimal takeAwayAmount, String activityCode) throws FacadeException {
 		stockToSplit = manager.merge(stockToSplit);
 
 		if (stockToSplit.isLocked()) {
@@ -535,11 +534,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			su.setAmount(new BigDecimal(0));
 			su.setReservedAmount(new BigDecimal(0));
 			
-			((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
-			((LOSUnitLoad)dest.getUnitLoad()).setOpened(true);
+			su.getUnitLoad().setOpened(true);
+			dest.getUnitLoad().setOpened(true);
 			
-			recalculateWeightDiff((LOSUnitLoad)su.getUnitLoad(), su.getItemData(), amount.negate());
-			recalculateWeightDiff((LOSUnitLoad)dest.getUnitLoad(), dest.getItemData(), amount);
+			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amount.negate());
+			recalculateWeightDiff(dest.getUnitLoad(), dest.getItemData(), amount);
 
 			recordService.recordRemoval(amount.negate(), su, activityCode);
 			recordService.recordCreation(amount, dest, activityCode);
@@ -559,7 +558,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	}
 
 	public void sendStockUnitsToNirwana(StockUnit su, String activityCode, String operator) throws FacadeException {
-		LOSUnitLoad ul = ulService.getNirwana();
+		UnitLoad ul = ulService.getNirwana();
 
 		if (su.getReservedAmount().compareTo(new BigDecimal(0)) > 0) {
 			log.error("Cannot be deleted: " + su.toShortString());
@@ -570,17 +569,17 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		su.setLock(BusinessObjectLockState.GOING_TO_DELETE.getLock());
 	}
 
-	public void sendStockUnitsToNirwana(LOSStorageLocation sl, String activityCode) throws FacadeException {
+	public void sendStockUnitsToNirwana(StorageLocation sl, String activityCode) throws FacadeException {
 
 		sl = manager.merge(sl);
 
-		for (LOSUnitLoad ul : (List<LOSUnitLoad>) sl.getUnitLoads()) {
+		for (UnitLoad ul : sl.getUnitLoads()) {
 			sendStockUnitsToNirwana(ul, activityCode);
 		}
 
 	}
 
-	public void sendStockUnitsToNirwana(LOSUnitLoad ul, String activityCode) throws FacadeException {
+	public void sendStockUnitsToNirwana(UnitLoad ul, String activityCode) throws FacadeException {
 
 		List<Long> sus = new ArrayList<Long>();
 		// List<Long> uls = new ArrayList<Long>();
@@ -635,9 +634,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			log.info("GOING TO SET amount of StockUnit " + su.toShortString() + " *** to *** " + amount);
 			su.setAmount(amount);
 			
-			((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
+			su.getUnitLoad().setOpened(true);
 			
-			recalculateWeightDiff((LOSUnitLoad)su.getUnitLoad(), su.getItemData(), diffAmount);
+			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), diffAmount);
 
 			recordService.recordChange(diffAmount, su, activityCode, comment, operator);
 			manageStockService.onStockAmountChange(su, amountOld);
@@ -659,8 +658,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			log.info("GOING TO SET amount of StockUnit " + su.toShortString() + " *** to *** " + amount);
 			su.setAmount(amount);
 			
-			((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
-			recalculateWeightDiff((LOSUnitLoad)su.getUnitLoad(), su.getItemData(), diffAmount);
+			su.getUnitLoad().setOpened(true);
+			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), diffAmount);
 
 			try{
 				if (BigDecimal.ZERO.compareTo(amount) < 0) {
@@ -699,16 +698,16 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		}
 	}
 
-	public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode) throws FacadeException {
+	public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode) throws FacadeException {
 		transferStockUnit(su, dest, activityCode, null, null, false);
 	}
-	public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode, String comment) throws FacadeException {
+	public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String comment) throws FacadeException {
 		transferStockUnit(su, dest, activityCode, null, null, false);
 	}
-	public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode, String comment, String operator) throws FacadeException {
+	public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String comment, String operator) throws FacadeException {
 		transferStockUnit(su, dest, activityCode, comment, operator, false);
 	}
-	public void transferStockUnit(StockUnit su, LOSUnitLoad dest, String activityCode, String comment, String operator, boolean yesReallyDoIt) throws FacadeException {
+	public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String comment, String operator, boolean yesReallyDoIt) throws FacadeException {
 		
 		if( !yesReallyDoIt ) {
 			boolean destAllowed = false;
@@ -724,20 +723,20 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 				throw new InventoryException(InventoryExceptionKey.STOCKUNIT_TRANSFER_NOT_ALLOWED, new String[] { su.toUniqueString(), dest.getLabelId() });
 			}
 		}
-		LOSUnitLoad old = (LOSUnitLoad) su.getUnitLoad();
+		UnitLoad old = su.getUnitLoad();
 		// Do not actualize stock unit list of container unit loads. This will cause problems in parallel access (Nirwana) 
-		if( old.getPackageType() != LOSUnitLoadPackageType.CONTAINER ) {
+		if( old.getPackageType() != UnitLoadPackageType.CONTAINER ) {
 			old.getStockUnitList().remove(su);
 		}
 
 		// add to destination
 		su.setUnitLoad(dest);
 		// Do not actualize stock unit list of container unit loads. This will cause problems in parallel access (Nirwana) 
-		if( dest.getPackageType() != LOSUnitLoadPackageType.CONTAINER ) {
+		if( dest.getPackageType() != UnitLoadPackageType.CONTAINER ) {
 			dest.getStockUnitList().add(su);
 		}
 
-		((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
+		su.getUnitLoad().setOpened(true);
 		dest.setOpened(true);
 		
 		recalculateWeightDiff(old, su.getItemData(), su.getAmount().negate());
@@ -759,7 +758,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	}
 
-	public void sendUnitLoadToNirwanaIfEmpty(LOSUnitLoad ul) throws FacadeException {
+	public void sendUnitLoadToNirwanaIfEmpty(UnitLoad ul) throws FacadeException {
 		ul = manager.merge(ul);
 		
 		// Fix by dbruegmann
@@ -797,9 +796,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	 * @param ul
 	 * @throws FacadeException
 	 */
-	public void sendUnitLoadWithParentsToNirwana(LOSUnitLoad ul)
+	public void sendUnitLoadWithParentsToNirwana(UnitLoad ul)
 			throws FacadeException {
-		LOSUnitLoad carrierUl = ul.getCarrierUnitLoad();
+		UnitLoad carrierUl = ul.getCarrierUnitLoad();
 
 		/*
 		 * If the carrier, has no stock units itself and only one child (the
@@ -826,7 +825,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		
 	}
 
-	public boolean testSuiable(StockUnit su, LOSUnitLoad ul) {
+	public boolean testSuiable(StockUnit su, UnitLoad ul) {
 		boolean ret;
 
 		if (ul.isLocked()) {
@@ -865,7 +864,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	}
 
-	public boolean testSameItemData(StockUnit su, LOSUnitLoad ul) {
+	public boolean testSameItemData(StockUnit su, UnitLoad ul) {
 
 		boolean ret = false;
 		if (ul.getStockUnitList() != null && ul.getStockUnitList().size() > 0) {
@@ -886,7 +885,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return ret;
 	}
 
-	public boolean testSameItemData(ItemData idat, LOSUnitLoad ul) {
+	public boolean testSameItemData(ItemData idat, UnitLoad ul) {
 
 		boolean ret = false;
 		if (ul.getStockUnitList() != null && ul.getStockUnitList().size() > 0) {
@@ -907,9 +906,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return ret;
 	}
 
-	public boolean testSameLot(StockUnit su, LOSUnitLoad ul) {
+	public boolean testSameLot(StockUnit su, UnitLoad ul) {
 		boolean ret = false;
-		// ul = manager.find(LOSUnitLoad.class, ul.getId());
 		if (ul.getStockUnitList() != null && ul.getStockUnitList().size() > 0) {
 
 			for (StockUnit s : ul.getStockUnitList()) {
@@ -939,9 +937,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return ret;
 	}
 
-	public BigDecimal getAmountOfUnitLoad(ItemData idat, LOSUnitLoad ul) throws InventoryException {
+	public BigDecimal getAmountOfUnitLoad(ItemData idat, UnitLoad ul) throws InventoryException {
 		BigDecimal amount = new BigDecimal(0);
-		if( ul.getPackageType() == LOSUnitLoadPackageType.CONTAINER ) {
+		if( ul.getPackageType() == UnitLoadPackageType.CONTAINER ) {
 			return amount;
 		}
 		
@@ -959,9 +957,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	}
 
 	
-	public int getTotalStockUnitCount(LOSUnitLoad ul) throws InventoryException {
+	public int getTotalStockUnitCount(UnitLoad ul) throws InventoryException {
 		String q = "SELECT count(DISTINCT su) ";
-		q += " FROM " + StockUnit.class.getSimpleName() + " su, " + LOSUnitLoad.class.getSimpleName() + " ul";
+		q += " FROM " + StockUnit.class.getSimpleName() + " su, " + UnitLoad.class.getSimpleName() + " ul";
 		q += " WHERE (su.unitLoad = ul ) AND (ul =:ul OR ul.carrierUnitLoad =:ul )";
 		Query query = manager.createQuery(q);
 		query.setParameter("ul", ul);
@@ -969,11 +967,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return l.intValue();
 	}
 	
-	public BigDecimal getAmountOfStorageLocation(ItemData idat, LOSStorageLocation sl) throws InventoryException {
+	public BigDecimal getAmountOfStorageLocation(ItemData idat, StorageLocation sl) throws InventoryException {
 		BigDecimal amount = new BigDecimal(0);
 
-		for (LOSUnitLoad ul : sl.getUnitLoads()) {
-			if( ul.getPackageType() == LOSUnitLoadPackageType.CONTAINER ) {
+		for (UnitLoad ul : sl.getUnitLoads()) {
+			if( ul.getPackageType() == UnitLoadPackageType.CONTAINER ) {
 				continue;
 			}
 			for (StockUnit su : ul.getStockUnitList()) {
@@ -986,7 +984,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return amount;
 	}
 
-	public boolean testSameLot(Lot lot, LOSUnitLoad ul) {
+	public boolean testSameLot(Lot lot, UnitLoad ul) {
 		boolean ret = false;
 		if (ul.getStockUnitList() != null && ul.getStockUnitList().size() > 0) {
 
@@ -1051,21 +1049,21 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	public void cleanupUnitLoads() throws FacadeException {
 
-		List<LOSStorageLocation> sls = slService2.getListForGoodsOut();
+		List<StorageLocation> sls = slService2.getListForGoodsOut();
 
 		int i = 1;
-		for (LOSStorageLocation sl : sls) {
+		for (StorageLocation sl : sls) {
 			manager.flush();
 			manager.clear();
-			sl = manager.find(LOSStorageLocation.class, sl.getId());
-			for (LOSUnitLoad ul : sl.getUnitLoads()) {
+			sl = manager.find(StorageLocation.class, sl.getId());
+			for (UnitLoad ul : sl.getUnitLoads()) {
 				if (i % 30 == 0) {
 					manager.flush();
 					manager.clear();
 				}
 				if (ulService.getNirwana().equals(ul))
 					continue;
-				ul = manager.find(LOSUnitLoad.class, ul.getId());
+				ul = manager.find(UnitLoad.class, ul.getId());
 				List<Long> susIds = new ArrayList<Long>();
 				for (StockUnit su : ul.getStockUnitList()) {
 					su = manager.find(StockUnit.class, su.getId());
@@ -1187,8 +1185,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	public void cleanupStockUnitsOnNirwana() throws FacadeException {
 
-		LOSUnitLoad ul = ulService.getNirwana();
-		ul = manager.find(LOSUnitLoad.class, ul.getId());
+		UnitLoad ul = ulService.getNirwana();
+		ul = manager.find(UnitLoad.class, ul.getId());
 		List<Long> susIds = new ArrayList<Long>();
 		for (StockUnit su : ul.getStockUnitList()) {
 			if (!checkStockUnitDelete(su)) {
@@ -1212,8 +1210,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	private boolean checkStockUnitDelete(StockUnit su) {
 
-//		LOSUnitLoad ul;
-
 		if (su.getAmount().compareTo(new BigDecimal(0)) != 0) {
 			log.error("pickrequest has amount - skip: " + su.toShortString());
 			return false;
@@ -1221,23 +1217,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			log.error("pickrequest has wrong lock - skip: " + su.toShortString());
 			return false;
 		}
-
-//		ul = manager.find(LOSUnitLoad.class, su.getUnitLoad().getId());
-
-//		if (ul.getStorageLocation().getArea() == null) {
-//			log.error("unit load is on storage location without area: " + ul.getStorageLocation().toShortString());
-//			return false;
-//		}
-//
-//		switch (ul.getStorageLocation().getArea().getAreaType()) {
-//		case GOODS_IN_OUT:
-//		case GOODS_OUT:
-//		case PRODUCTION:
-//			break;
-//		default:
-//			log.error("StockUnit not on goods out location: " + su.toShortString());
-//			return false;
-//		}
 
 		TemplateQueryWhereToken bySu = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "pickFromStockUnit", su);
 		TemplateQuery q = new TemplateQuery();
@@ -1279,7 +1258,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			throws EntityNotFoundException, InventoryException, FacadeException {
 
 		Client c;
-		LOSStorageLocation sl;
+		StorageLocation sl;
 		Lot lot = null;
 		StockUnit su;
 		UnitLoad ul;
@@ -1296,7 +1275,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			if (sl == null) {
 				log.warn("NOT FOUND. Going to CREATE StorageLocation " + slName);
 
-				LOSStorageLocationType type;
+				LocationType type;
 				try {
 					type = slTypeService.getDefaultStorageLocationType();
 					if (type == null)
@@ -1332,11 +1311,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			}
 
 			// Fucking hibernate is not able to handle the stock unit list without accessing it in advance
-			((LOSUnitLoad)ul).getStockUnitList().size();
+			ul.getStockUnitList().size();
 
-			su = createStock(c, lot, idat, amount, (LOSUnitLoad) ul, activityCode, serialNumber);
+			su = createStock(c, lot, idat, amount, ul, activityCode, serialNumber);
 
-			consolidate((LOSUnitLoad) su.getUnitLoad(), activityCode);
+			consolidate( su.getUnitLoad(), activityCode);
 
 			return su;
 
@@ -1366,7 +1345,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return lot;
 	}
 
-	public LOSUnitLoad getOrCreateUnitLoad(Client c, ItemData idat, LOSStorageLocation sl, String ref) throws FacadeException {
+	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref) throws FacadeException {
 		UnitLoad ul;
 		UnitLoadType type;
 
@@ -1393,7 +1372,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 						throw new RuntimeException("Cannot retrieve default UnitLoadType");
 					}
 					ul = ulService.createLOSUnitLoad(c, ref, type, sl);
-					locationReserver.allocateLocation(sl, (LOSUnitLoad)ul);
+					locationReserver.allocateLocation(sl, ul);
 				} catch (LOSLocationException lex) {
 					throw lex;
 				}
@@ -1401,17 +1380,17 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		} else {
 			throw new IllegalArgumentException("Missing labelId");
 		}
-		return (LOSUnitLoad)ul;
+		return ul;
 	}
 
-	public void deleteStockUnitsFromStorageLocation(LOSStorageLocation sl, String activityCode) throws FacadeException {
+	public void deleteStockUnitsFromStorageLocation(StorageLocation sl, String activityCode) throws FacadeException {
 
 		List<Long> sus = new ArrayList<Long>();
 		List<Long> uls = new ArrayList<Long>();
 
-		sl = manager.find(LOSStorageLocation.class, sl.getId());
+		sl = manager.find(StorageLocation.class, sl.getId());
 
-		for (LOSUnitLoad ul : (List<LOSUnitLoad>) sl.getUnitLoads()) {
+		for (UnitLoad ul : sl.getUnitLoads()) {
 			for (StockUnit su : ul.getStockUnitList()) {
 				sus.add(su.getId());
 				// su = manager.find(StockUnit.class, su.getId());
@@ -1446,9 +1425,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		su.setAmount(BigDecimal.ZERO);
 		if (BigDecimal.ZERO.compareTo(amountOld) < 0) {
 
-			((LOSUnitLoad)su.getUnitLoad()).setOpened(true);
+			su.getUnitLoad().setOpened(true);
 
-			recalculateWeightDiff((LOSUnitLoad)su.getUnitLoad(), su.getItemData(), amountOld.negate());
+			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amountOld.negate());
 
 			recordService.recordRemoval(amountOld.negate(), su, activityCode);
 			manageStockService.onStockAmountChange(su, amountOld);
@@ -1467,9 +1446,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	}
 
-	public BigDecimal recalculateWeight( LOSUnitLoad unitLoad ) {
+	public BigDecimal recalculateWeight( UnitLoad unitLoad ) {
 		String logStr = "recalculateWeight ";
-		if( unitLoad.getPackageType() == LOSUnitLoadPackageType.CONTAINER ) {
+		if( unitLoad.getPackageType() == UnitLoadPackageType.CONTAINER ) {
 //			log.debug(logStr+"no weight calculation on CONTAINER unit loads");
 			return null;
 		}
@@ -1493,7 +1472,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return weightSum;
 	}
 	
-	private BigDecimal recalculateWeightDiff(LOSUnitLoad unitLoad, ItemData item, BigDecimal amount) {
+	private BigDecimal recalculateWeightDiff(UnitLoad unitLoad, ItemData item, BigDecimal amount) {
 		BigDecimal weightNew = unitLoad.getWeightCalculated();
 		if( weightNew == null || weightNew.compareTo(BigDecimal.ZERO)<=0 ) {
 			return recalculateWeight(unitLoad);

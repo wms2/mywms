@@ -15,10 +15,9 @@ import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  * User exits for storage location allocation purposes.
@@ -36,8 +35,8 @@ public interface CustomLocationService {
 	 * @param location
 	 * @throws FacadeException
 	 */
-	public void onLocationGetsEmpty( LOSStorageLocation location ) throws FacadeException;
-	public void onLocationGetsEmpty( LOSStorageLocation location, boolean checkEmptyLocation ) throws FacadeException;
+	public void onLocationGetsEmpty( StorageLocation location ) throws FacadeException;
+	public void onLocationGetsEmpty( StorageLocation location, boolean checkEmptyLocation ) throws FacadeException;
 
 	/**
 	 * User exit. This method checks, whether the allocation of a location with the given parameters will be valid.
@@ -51,7 +50,7 @@ public interface CustomLocationService {
 	 * @throws LOSLocationWrongClientException
 	 * @throws LOSLocationReservedException
 	 */
-	public void checkAllocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, LOSTypeCapacityConstraint constraint) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException;
+	public void checkAllocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException;
 	
 	/**
 	 * User exit. This method writes an allocation.<br>
@@ -61,7 +60,7 @@ public interface CustomLocationService {
 	 * @param constraint
 	 * @throws FacadeException
 	 */
-	public void allocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, LOSTypeCapacityConstraint constraint) throws FacadeException;
+	public void allocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint) throws FacadeException;
 	
 	/**
 	 * User exit. This method removes an allocation.<br>
@@ -71,7 +70,7 @@ public interface CustomLocationService {
 	 * @param constraint
 	 * @throws FacadeException
 	 */
-	public void deallocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, LOSTypeCapacityConstraint constraint, boolean checkEmptyLocation) throws FacadeException;
+	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint, boolean checkEmptyLocation) throws FacadeException;
 
 	/**
 	 * User exit. This method is called, after a unit load has been removed from a location
@@ -79,7 +78,7 @@ public interface CustomLocationService {
 	 * @param unitLoad
 	 * @throws FacadeException
 	 */
-	public void onUnitLoadRemoved(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException;
+	public void onUnitLoadRemoved(StorageLocation location, UnitLoad unitLoad) throws FacadeException;
 
 	/**
 	 * User exit. This method is called, after a unit load has been placed on a location
@@ -87,9 +86,9 @@ public interface CustomLocationService {
 	 * @param unitLoad
 	 * @throws FacadeException
 	 */
-	public void onUnitLoadPlaced(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException;
+	public void onUnitLoadPlaced(StorageLocation location, UnitLoad unitLoad) throws FacadeException;
 
 	
-	public int setLocationOrderIndex( LOSRack rack, int startValue, int diffValue );
+	public int setLocationOrderIndex( String rack, int startValue, int diffValue );
 
 }

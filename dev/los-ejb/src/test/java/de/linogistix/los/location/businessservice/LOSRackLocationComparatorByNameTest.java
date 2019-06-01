@@ -7,8 +7,8 @@
  */
 package de.linogistix.los.location.businessservice;
 
+import de.wms2.mywms.location.StorageLocation;
 import junit.framework.TestCase;
-import de.linogistix.los.location.model.LOSStorageLocation;
 
 public class LOSRackLocationComparatorByNameTest extends TestCase {
 
@@ -25,8 +25,8 @@ public class LOSRackLocationComparatorByNameTest extends TestCase {
 		
 		c = new LOSRackLocationComparatorByName();
 		
-		LOSStorageLocation r1 = new LOSStorageLocation();
-		LOSStorageLocation r2 = new LOSStorageLocation();
+		StorageLocation r1 = new StorageLocation();
+		StorageLocation r2 = new StorageLocation();
 		
 		r1.setName("R1-2-1-1");
 		r2.setName("R1-10-1-1");

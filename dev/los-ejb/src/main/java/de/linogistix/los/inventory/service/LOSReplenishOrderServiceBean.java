@@ -12,14 +12,13 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -47,7 +46,7 @@ public class LOSReplenishOrderServiceBean extends BasicServiceBean<LOSReplenishO
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<LOSReplenishOrder> getActive(ItemData item, Lot lot, LOSStorageLocation requestedLocation, LOSRack requestedRack) {
+	public List<LOSReplenishOrder> getActive(ItemData item, Lot lot, StorageLocation requestedLocation, String requestedRack) {
 		String queryStr = 
 				"SELECT o FROM " + LOSReplenishOrder.class.getSimpleName() + " o " +
 				"WHERE o.state<:state";

@@ -11,9 +11,8 @@ import javax.ejb.Remote;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-import org.mywms.model.ItemData;
-
 import de.linogistix.los.inventory.service.ClientItemNumberTO;
+import de.wms2.mywms.product.ItemData;
 
 @Remote
 @WebService

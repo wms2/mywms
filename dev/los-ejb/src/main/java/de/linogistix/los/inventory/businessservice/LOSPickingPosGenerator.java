@@ -13,12 +13,12 @@ import java.util.List;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
+import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * Strategy service to handle generation of picking positions.<br>

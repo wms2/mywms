@@ -17,14 +17,14 @@ import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.UnitLoadService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.linogistix.los.location.service.UnitLoadService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *  
@@ -46,9 +46,9 @@ public class LOSStorageRequestServiceBean
     @SuppressWarnings("unchecked")
 	public LOSStorageRequest getRawOrCreateByLabel(Client c, String label) throws InventoryException, EntityNotFoundException {
         LOSStorageRequest ret;
-        LOSUnitLoad ul;
+        UnitLoad ul;
                 
-        ul = (LOSUnitLoad)ulService.getByLabelId(clService.getSystemClient(), label);
+        ul = ulService.getByLabelId(clService.getSystemClient(), label);
         
         Query query =
                 manager.createQuery("SELECT req FROM " 
@@ -89,7 +89,7 @@ public class LOSStorageRequestServiceBean
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<LOSStorageRequest> getListByUnitLoad(LOSUnitLoad unitLoad) {
+	public List<LOSStorageRequest> getListByUnitLoad(UnitLoad unitLoad) {
 		
 		Query query = manager.createQuery("SELECT req FROM "
 				+ LOSStorageRequest.class.getSimpleName() + " req "
@@ -101,7 +101,7 @@ public class LOSStorageRequestServiceBean
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSStorageRequest> getActiveListByDestination(LOSStorageLocation destination) {
+	public List<LOSStorageRequest> getActiveListByDestination(StorageLocation destination) {
 		Query query = manager.createNamedQuery("LOSStorageRequest.queryActiveByDestination");
 		query.setParameter("destination", destination);
 		query.setParameter("stateRaw", LOSStorageRequestState.RAW);

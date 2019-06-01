@@ -11,7 +11,7 @@ import javax.ejb.Remote;
 
 import org.mywms.service.EntityNotFoundException;
 
-import de.linogistix.los.location.model.LOSLocationCluster;
+import de.wms2.mywms.location.LocationCluster;
 
 /**
  *
@@ -21,8 +21,8 @@ import de.linogistix.los.location.model.LOSLocationCluster;
 public interface LOSLocationClusterServiceRemote {
 
    
-    public LOSLocationCluster getByName(String name) throws EntityNotFoundException;
+    public LocationCluster getByName(String name) throws EntityNotFoundException;
     
-    public LOSLocationCluster getDefault();
+    public LocationCluster getDefault();
 
 }

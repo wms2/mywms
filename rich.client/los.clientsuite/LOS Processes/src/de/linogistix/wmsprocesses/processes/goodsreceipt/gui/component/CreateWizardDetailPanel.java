@@ -11,9 +11,9 @@
 package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.location.StorageLocation;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -133,7 +133,7 @@ final public class CreateWizardDetailPanel implements WizardDescriptor.Validatin
         this.wizard = (CreateWizard) settings;
         getPanelUI().implStoreSettings(settings);
         wizard.client = ui.clientComboBox.getSelectedItem();
-        wizard.gate = (BODTO<LOSStorageLocation>) ui.getGateComboBox().getSelectedItem();
+        wizard.gate = (BODTO<StorageLocation>) ui.getGateComboBox().getSelectedItem();
         wizard.deliverer = ui.getDeliverer();
         wizard.externNumber = ui.getExternNumber();
         wizard.date = ui.getDate();

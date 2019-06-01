@@ -17,11 +17,14 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.browser.masternode.BOStockUnitMasterNode;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.inventory.query.dto.StockUnitTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.inventory.report.queryinventory.gui.component.TreeTableViewPanel;
 import de.linogistix.inventory.report.querystockunits.gui.gui_builder.AbstractStockUnitTreeTabelPanel;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.beans.IntrospectionException;
 import java.beans.PropertyEditor;
@@ -29,9 +32,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.TreeTableView;
 import org.openide.nodes.AbstractNode;
@@ -63,7 +63,7 @@ public class StockUnitTreeTablePanel extends AbstractStockUnitTreeTabelPanel imp
     }
 
     @SuppressWarnings("unchecked")
-    public void setNodes(final BODTO<ItemData> idat, final BODTO<Lot> lot, final BODTO<LOSStorageLocation> sl) {
+    public void setNodes(final BODTO<ItemData> idat, final BODTO<Lot> lot, final BODTO<StorageLocation> sl) {
         Children.Keys<Object> keys = new Children.Keys<Object>() {
 
             @Override

@@ -30,12 +30,16 @@ public class LOSJasperReport extends BasicClientAssignedEntity {
 	
 	private static final long serialVersionUID = 1L;
 
+    @Column(nullable = false)
 	private String name;
+
+    @Lob
 	private byte[] compiledDocument;
+
+    @Lob
 	private String sourceDocument;
 
     
-    @Column(nullable = false)
 	public String getName() {
 		return name;
 	}
@@ -43,7 +47,6 @@ public class LOSJasperReport extends BasicClientAssignedEntity {
 		this.name = name;
 	}
 
-    @Lob
 	public byte[] getCompiledDocument() {
 		return compiledDocument;
 	}
@@ -51,7 +54,6 @@ public class LOSJasperReport extends BasicClientAssignedEntity {
 		this.compiledDocument = compiledDocument;
 	}
 	
-    @Lob
 	public String getSourceDocument() {
 		return sourceDocument;
 	}

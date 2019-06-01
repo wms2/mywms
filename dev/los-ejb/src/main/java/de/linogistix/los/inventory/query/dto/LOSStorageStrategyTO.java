@@ -7,15 +7,15 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 
 /**
  * @author krane
  *
  */
-public class LOSStorageStrategyTO extends BODTO<LOSStorageStrategy> {
+public class LOSStorageStrategyTO extends BODTO<StorageStrategy> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +25,7 @@ public class LOSStorageStrategyTO extends BODTO<LOSStorageStrategy> {
 		super(id, version, id2);
 	}
 	
-	public LOSStorageStrategyTO( LOSStorageStrategy rec ) {
+	public LOSStorageStrategyTO( StorageStrategy rec ) {
 		super(rec.getId(), rec.getVersion(), rec.getName());
 		this.name = rec.getName();
 	}

@@ -16,6 +16,12 @@
             <fileset dir="../../../dev/mywms.as-ejb/target">
                 <include name="mywms.as-ejb.jar"/>
             </fileset>
+            <fileset dir="../../../dev/wms2-ejb/target">
+                <include name="wms2-ejb.jar"/>
+            </fileset>
+            <fileset dir="../../../dev/los-ejb/target">
+                <include name="los-ejb.jar"/>
+            </fileset>
         </copy>
     </target>
 </project>

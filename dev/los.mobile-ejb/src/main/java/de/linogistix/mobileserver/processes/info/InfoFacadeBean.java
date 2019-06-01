@@ -18,8 +18,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -33,13 +31,15 @@ import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryStockService;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -122,7 +122,7 @@ public class InfoFacadeBean implements InfoFacade {
 	
 	public InfoLocationTO readLocation( String locationName ) {
 		log.info("readLocation locationName="+locationName);
-		LOSStorageLocation loc = null;
+		StorageLocation loc = null;
 		try {
 			loc = queryLocationService.getByName(locationName);
 		} catch (UnAuthorizedException e) {
@@ -174,7 +174,7 @@ public class InfoFacadeBean implements InfoFacade {
 	public List<InfoUnitLoadTO> readUnitLoadList( String locationName ) {
 		log.info("readUnitLoadList locationName="+locationName);
 		List<InfoUnitLoadTO> toList = new ArrayList<InfoUnitLoadTO>();
-		LOSStorageLocation loc = null;
+		StorageLocation loc = null;
 		try {
 			loc = queryLocationService.getByName( locationName );
 		} catch (UnAuthorizedException e) {
@@ -184,7 +184,7 @@ public class InfoFacadeBean implements InfoFacade {
 			return toList;
 		}
 		
-		for( LOSUnitLoad ul : loc.getUnitLoads() ) {
+		for( UnitLoad ul : loc.getUnitLoads() ) {
 			InfoUnitLoadTO ulto = new InfoUnitLoadTO(ul);
 			readOrder(ulto, ul);
 			
@@ -198,7 +198,7 @@ public class InfoFacadeBean implements InfoFacade {
 	
 	public InfoUnitLoadTO readUnitLoad( String label ) {
 		log.info("readUnitLoad label="+label);
-		LOSUnitLoad ul = null;
+		UnitLoad ul = null;
 		try {
 			ul = queryUlService.getByLabelId(label);
 		} catch (UnAuthorizedException e) {
@@ -214,7 +214,7 @@ public class InfoFacadeBean implements InfoFacade {
 
 	}
 
-	private void readOrder( InfoUnitLoadTO ulto, LOSUnitLoad ul ) {
+	private void readOrder( InfoUnitLoadTO ulto, UnitLoad ul ) {
 		HashSet<LOSCustomerOrder> orderSetUl = new HashSet<LOSCustomerOrder>();
 		HashSet<LOSCustomerOrder> pickSetUl = new HashSet<LOSCustomerOrder>();
 		LOSCustomerOrder customerOrder = null;

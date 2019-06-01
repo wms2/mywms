@@ -10,13 +10,9 @@ package de.linogistix.los.inventory.facade;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoad;
 
 import de.linogistix.los.example.CommonTestTopologyRemote;
 import de.linogistix.los.example.InventoryTestTopologyRemote;
@@ -29,14 +25,17 @@ import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.StorageLocation;
+import junit.framework.TestCase;
 
 /**
  * 
@@ -87,13 +86,13 @@ public class StorageFacadeBeanTest extends TestCase {
 		TemplateQuery q = new TemplateQuery();
 		q.addWhereToken(t);
 //		q.addWhereToken(tc);
-		q.setBoClass(LOSUnitLoad.class);
+		q.setBoClass(UnitLoad.class);
 
-		List<LOSUnitLoad> l = ulQuery.queryByTemplate(d, q);
+		List<UnitLoad> l = ulQuery.queryByTemplate(d, q);
 		
 		Vector<String> labels = new Vector<String>();
 		for (UnitLoad u : l) {
-			LOSUnitLoad ul = (LOSUnitLoad) ulQuery.queryById(u.getId());
+			UnitLoad ul = ulQuery.queryById(u.getId());
 			if (ul.getStockUnitList().size() > 0) {
 				for (StockUnit su : ul.getStockUnitList()){
 					su = suQuery.queryById(ul.getStockUnitList().get(0).getId());
@@ -101,7 +100,7 @@ public class StorageFacadeBeanTest extends TestCase {
 							TopologyBeanTest.getTESTCLIENT()) 
 							|| su.getClient().equals(TopologyBeanTest.getTESTMANDANT())) {
 //						if (ul.getStorageLocation().getArea().getAreaType().equals(LOSAreaType.GOODS_IN)) {
-						if (ul.getStorageLocation().getArea().isUseForGoodsIn()) {
+						if (ul.getStorageLocation().getArea().isUseFor(AreaUsages.GOODS_IN)) {
 							label = ul.getLabelId();
 							labels.add(label);
 						}
@@ -127,7 +126,7 @@ public class StorageFacadeBeanTest extends TestCase {
 			LOSStorageRequest r = bean.getStorageRequest(label, false);
 			assertNotNull(r);
 
-			LOSUnitLoad ul = (LOSUnitLoad) ulQuery.queryById(r.getUnitLoad()
+			UnitLoad ul = ulQuery.queryById(r.getUnitLoad()
 					.getId());
 			StockUnit su = ul.getStockUnitList().get(0);
 
@@ -138,7 +137,7 @@ public class StorageFacadeBeanTest extends TestCase {
 				assertEquals(r.getRequestState(), LOSStorageRequestState.RAW);
 				assertNotNull(r.getDestination());
 				
-				LOSStorageLocation dest = r.getDestination();
+				StorageLocation dest = r.getDestination();
 				dest = slQuery.queryById(dest.getId());
 				Client c = dest.getClient();		
 				assertTrue(c.equals(TopologyBeanTest.getTESTCLIENT())
@@ -146,7 +145,7 @@ public class StorageFacadeBeanTest extends TestCase {
 
 				bean.finishStorageRequest(label, r.getDestination().getName(),
 						false, false);
-				LOSStorageLocation sl = slQuery.queryByIdentity(r
+				StorageLocation sl = slQuery.queryByIdentity(r
 						.getDestination().getName());
 				assertTrue(sl.getUnitLoads().size() == 1);
 				assertEquals(sl.getUnitLoads().get(0), r.getUnitLoad());
@@ -239,8 +238,8 @@ public class StorageFacadeBeanTest extends TestCase {
 										.getInventoryExceptionKey()
 										.equals(
 												InventoryExceptionKey.STORAGE_ADD_TO_EXISTING)) {
-									LOSUnitLoad u = r.getUnitLoad();
-									u = (LOSUnitLoad) ulQuery.queryById(u
+									UnitLoad u = r.getUnitLoad();
+									u = ulQuery.queryById(u
 											.getId());
 									StockUnit sUnit = u.getStockUnitList().get(
 											0);
@@ -250,7 +249,7 @@ public class StorageFacadeBeanTest extends TestCase {
 													+ addLabel);
 									bean.finishStorageRequest(label,
 											addLabel, true, false);
-									u = (LOSUnitLoad) ulQuery.queryById(u
+									u = ulQuery.queryById(u
 											.getId());
 									assertEquals(slQuery.getNirwanaName(),
 											u.getStorageLocation().getName());
@@ -259,7 +258,7 @@ public class StorageFacadeBeanTest extends TestCase {
 									sUnit = TopologyBeanTest.getSuQuery()
 											.queryById(sUnit.getId());
 									assertFalse(sUnit.getUnitLoad().equals(u));
-									u = (LOSUnitLoad) ulQuery.queryByIdentity(addLabel);
+									u = ulQuery.queryByIdentity(addLabel);
 									// now there are two StockUnits on a pallet
 //									//assertTrue(u.getStockUnitList().size() == 2);
 									// but should be consolidated??
@@ -281,7 +280,7 @@ public class StorageFacadeBeanTest extends TestCase {
 							LOSStorageRequestState.RAW);
 					assertNotNull(r.getDestination());
 					
-					LOSStorageLocation dest = r.getDestination();
+					StorageLocation dest = r.getDestination();
 					dest = slQuery.queryById(dest.getId());
 					Client c = dest.getClient();		
 					assertTrue(c.equals(TopologyBeanTest
@@ -294,7 +293,7 @@ public class StorageFacadeBeanTest extends TestCase {
 					} else if (su.getClient().getNumber().equals(CommonTestTopologyRemote.TESTMANDANT_NUMBER)){
 						lastLotXLabelTestMandant = label; 
 					}
-					LOSStorageLocation sl = slQuery.queryByIdentity(r
+					StorageLocation sl = slQuery.queryByIdentity(r
 							.getDestination().getName());
 					assertTrue(sl.getUnitLoads().size() == 1);
 					assertEquals(sl.getUnitLoads().get(0), r.getUnitLoad());

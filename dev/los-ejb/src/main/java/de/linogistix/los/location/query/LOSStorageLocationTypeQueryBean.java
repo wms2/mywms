@@ -10,8 +10,8 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.location.model.LOSStorageLocationType;
 import de.linogistix.los.query.BusinessObjectQueryBean;
+import de.wms2.mywms.location.LocationType;
 
 /**
  *
@@ -19,7 +19,7 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
  */
 @Stateless
 public class LOSStorageLocationTypeQueryBean 
-        extends BusinessObjectQueryBean<LOSStorageLocationType>
+        extends BusinessObjectQueryBean<LocationType>
         implements LOSStorageLocationTypeQueryRemote 
 {
 

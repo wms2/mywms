@@ -27,27 +27,27 @@ import de.linogistix.los.crud.BusinessObjectModifiedException;
 import de.linogistix.los.location.entityservice.LOSTypeCapacityConstraintService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  * @author trautm
  *
  */
 @Stateless
-public class LOSTypeCapacityConstraintCRUDBean extends BusinessObjectCRUDBean<LOSTypeCapacityConstraint> implements LOSTypeCapacityConstraintCRUDRemote {
+public class LOSTypeCapacityConstraintCRUDBean extends BusinessObjectCRUDBean<TypeCapacityConstraint> implements LOSTypeCapacityConstraintCRUDRemote {
 
 	@EJB 
 	LOSTypeCapacityConstraintService service;
 	
 	@Override
-	protected BasicService<LOSTypeCapacityConstraint> getBasicService() {		
+	protected BasicService<TypeCapacityConstraint> getBasicService() {		
 		return service;
 	}
 	
 	@Override
-	public LOSTypeCapacityConstraint create(LOSTypeCapacityConstraint entity) throws BusinessObjectExistsException, BusinessObjectCreationException, BusinessObjectSecurityException {
+	public TypeCapacityConstraint create(TypeCapacityConstraint entity) throws BusinessObjectExistsException, BusinessObjectCreationException, BusinessObjectSecurityException {
 		// TODO: make it possible to throw a regular i18n exception
 		try {
 			checkValues( entity );
@@ -58,23 +58,23 @@ public class LOSTypeCapacityConstraintCRUDBean extends BusinessObjectCRUDBean<LO
 		return super.create(entity);
 	}
 	
-	public void update(LOSTypeCapacityConstraint entity) throws BusinessObjectNotFoundException,	BusinessObjectModifiedException, BusinessObjectMergeException, BusinessObjectSecurityException, FacadeException {
+	public void update(TypeCapacityConstraint entity) throws BusinessObjectNotFoundException,	BusinessObjectModifiedException, BusinessObjectMergeException, BusinessObjectSecurityException, FacadeException {
 		checkValues( entity );
 		super.update(entity);
 	}
 	
 	
-	protected void checkValues(LOSTypeCapacityConstraint entity) throws FacadeException {
+	protected void checkValues(TypeCapacityConstraint entity) throws FacadeException {
 		if( entity.getAllocation() == null ) {
 			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_MANDATORY, new Object[]{});
 		}
 		if( BigDecimal.ZERO.compareTo(entity.getAllocation())>=0 ) {
 			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_MORE_THAN_0, new Object[]{});
 		}
-		if( entity.getAllocationType() == LOSTypeCapacityConstraint.ALLOCATE_PERCENTAGE && BigDecimal.valueOf(100).compareTo(entity.getAllocation())<0 ) { 
+		if( entity.getAllocationType() == TypeCapacityConstraint.ALLOCATE_PERCENTAGE && BigDecimal.valueOf(100).compareTo(entity.getAllocation())<0 ) { 
 			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_LESS_THAN_100, new Object[]{});
 		}
-		if( entity.getAllocationType() == LOSTypeCapacityConstraint.ALLOCATE_UNIT_LOAD_TYPE && BigDecimal.valueOf(100).compareTo(entity.getAllocation())<0 ) { 
+		if( entity.getAllocationType() == TypeCapacityConstraint.ALLOCATE_UNIT_LOAD_TYPE && BigDecimal.valueOf(100).compareTo(entity.getAllocation())<0 ) { 
 			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_LESS_THAN_100, new Object[]{});
 		}
 	}

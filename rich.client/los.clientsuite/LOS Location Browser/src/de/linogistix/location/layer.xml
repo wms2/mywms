@@ -5,11 +5,6 @@
     <!-- Define location actions -->
     <folder name="Actions">
         <folder name="BOBrowser">
-            <folder name="Racks">
-                <folder name="MasterActions">
-                    <file name="de-linogistix-location-dialog-BORackLocationOrderAction.instance"/>
-                </folder>
-            </folder>
             <folder name="LOSUnitLoads">
                 <folder name="MasterActions">
                     <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
@@ -26,6 +21,9 @@
                 </folder>
                 <folder name="MasterActions">
                     <file name="de-linogistix-location-bobrowser-action-BOStorageLocationReleaseAction.instance"/>
+                </folder>
+                <folder name="MasterActions">
+                    <file name="de-linogistix-location-dialog-BORackLocationOrderAction.instance"/>
                 </folder>
             </folder>
             <folder name="RackLocations">
@@ -74,9 +72,6 @@
                     <attr name="position" intvalue="220"/>
                 </file>
 
-                <file name="de-linogistix-location-bobrowser-bo-BORack.instance">
-                    <attr name="position" intvalue="310"/>
-                </file>
                 <file name="de-linogistix-location-bobrowser-bo-BOStorageLocation.instance">
                     <attr name="position" intvalue="350"/>
                 </file>

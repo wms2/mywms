@@ -25,7 +25,6 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.DocumentTypes;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.customization.EntityGenerator;
@@ -37,8 +36,9 @@ import de.linogistix.los.inventory.model.OrderType;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.OrderReceiptService;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
 
 
 /**
@@ -86,7 +86,7 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
 		Map<String, LOSStockUnitReportTO> valueMap = new HashMap<String, LOSStockUnitReportTO>();
 
 		for( LOSPickingUnitLoad pul : pulList ) {
-			LOSUnitLoad unitLoad = pul.getUnitLoad();
+			UnitLoad unitLoad = pul.getUnitLoad();
 			for( StockUnit stock : unitLoad.getStockUnitList() ) {
 				String key = stock.getItemData().getNumber();
 				if( stock.getLot() != null ) {
@@ -97,7 +97,7 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
 					receiptPos = new LOSStockUnitReportTO();
 					receiptPos.itemNumber = stock.getItemData().getNumber();
 					receiptPos.itemName = stock.getItemData().getName();
-					receiptPos.itemUnit = stock.getItemData().getHandlingUnit().getUnitName();
+					receiptPos.itemUnit = stock.getItemData().getItemUnit().getName();
 					receiptPos.itemScale = stock.getItemData().getScale();
 					receiptPos.lotName = stock.getLot() == null ? "" : stock.getLot().getName();
 					receiptPos.amount = stock.getAmount();

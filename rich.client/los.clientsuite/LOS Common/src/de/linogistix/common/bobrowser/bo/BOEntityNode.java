@@ -175,7 +175,7 @@ public class BOEntityNode extends BOBeanNode {
       support.setValue(aname, p.getValue(aname));
     }
     
-    if (p.getReadMethod().getAnnotation(Transient.class) != null){
+    if (p.getReadMethod()!=null && p.getReadMethod().getAnnotation(Transient.class) != null){
         support.setValue(PropertyDescriptorElement.VALUE_PERSISTENT_FIELD, Boolean.FALSE);
     }
 

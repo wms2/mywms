@@ -32,12 +32,16 @@ public class User
     private String lastname = "";
     private String email = "";
     private String phone = "";
+
+    @Column(nullable = false)
     private String password = "";
 
+    @Column(nullable = false, unique = true)
     private String name = null;
 
     private String locale = Locale.getDefault().toString();
 
+    @ManyToMany
     private List<Role> roles = new ArrayList<Role>();
 
     /**
@@ -48,7 +52,6 @@ public class User
      * 
      * @return Returns the name.
      */
-    @Column(nullable = false, unique = true)
     public String getName() {
         return this.name;
     }
@@ -64,7 +67,6 @@ public class User
     /**
      * @return Returns the email.
      */
-//    @Column(nullable = false)
     public String getEmail() {
         return this.email;
     }
@@ -80,7 +82,6 @@ public class User
     /**
      * @return Returns the firstname.
      */
-//    @Column(nullable = false)
     public String getFirstname() {
         return this.firstname;
     }
@@ -95,7 +96,6 @@ public class User
     /**
      * @return Returns the lastname.
      */
-//    @Column(nullable = false)
     public String getLastname() {
         return this.lastname;
     }
@@ -113,7 +113,6 @@ public class User
      * 
      * @return Returns the password.
      */
-    @Column(nullable = false)
     public String getPassword() {
         return this.password;
     }
@@ -129,7 +128,6 @@ public class User
     /**
      * @return Returns the phone.
      */
-//    @Column(nullable = false)
     public String getPhone() {
         return this.phone;
     }
@@ -144,7 +142,6 @@ public class User
     /**
      * @return Returns the roles.
      */
-    @ManyToMany
     public List<Role> getRoles() {
         if (this.roles == null) {
             this.roles = new ArrayList<Role>();

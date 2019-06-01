@@ -13,9 +13,8 @@ package de.linogistix.los.inventory.crud;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.ItemUnit;
-
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
+import de.wms2.mywms.product.ItemUnit;
 
 /**
  * CRUD operations for User entities

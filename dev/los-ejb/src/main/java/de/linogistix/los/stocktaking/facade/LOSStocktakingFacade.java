@@ -15,13 +15,13 @@ import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 
 @Remote
@@ -55,7 +55,7 @@ public interface LOSStocktakingFacade {
 	 * @param execute
 	 * @param clientId
 	 * @param areaId
-	 * @param rackId
+	 * @param rackName
 	 * @param locationId
 	 * @param locationName
 	 * @param itemId
@@ -67,7 +67,7 @@ public interface LOSStocktakingFacade {
 	 */
 	public int generateOrders( 
 			boolean execute, 
-			Long clientId, Long areaId, Long zoneId, Long rackId, Long locationId, String locationName, Long itemId, String itemNo,
+			Long clientId, Long areaId, Long zoneId, Long locationId, String locationName, Long itemId, String itemNo,
 			Date invDate, 
 			boolean enableEmptyLocations, boolean enableFullLocations );
 
@@ -79,7 +79,7 @@ public interface LOSStocktakingFacade {
 	 * @param execute
 	 * @param clientId
 	 * @param areaId
-	 * @param rackId
+	 * @param rackName
 	 * @param locationId
 	 * @param locationName
 	 * @param itemId
@@ -93,7 +93,7 @@ public interface LOSStocktakingFacade {
 	 */
 	public int generateOrders( 
 			boolean execute, 
-			Long clientId, Long areaId, Long zoneId, Long rackId, Long locationId, String locationName, Long itemId, String itemNo,
+			Long clientId, Long areaId, Long zoneId, Long locationId, String locationName, Long itemId, String itemNo,
 			Date invDate, 
 			boolean enableEmptyLocations, boolean enableFullLocations, boolean clientModeLocations, boolean clientModeItemData );
 
@@ -105,7 +105,7 @@ public interface LOSStocktakingFacade {
 	 * @throws UnAuthorizedException
 	 * @throws LOSStockTakingException
 	 */
-	public void processLocationEmpty(LOSStorageLocation location) throws UnAuthorizedException, LOSStockTakingException;
+	public void processLocationEmpty(StorageLocation location) throws UnAuthorizedException, LOSStockTakingException;
 
 	/**
 	 * Start the counting of a location.
@@ -116,7 +116,7 @@ public interface LOSStocktakingFacade {
 	 * @throws LOSStockTakingException
 	 * @throws UnAuthorizedException
 	 */
-	public void processLocationStart(LOSStorageLocation location) throws LOSStockTakingException, UnAuthorizedException;
+	public void processLocationStart(StorageLocation location) throws LOSStockTakingException, UnAuthorizedException;
 	
 	/**
 	 * Cancel the counting of a location.
@@ -127,7 +127,7 @@ public interface LOSStocktakingFacade {
 	 * @throws LOSStockTakingException
 	 * @throws UnAuthorizedException
 	 */
-	public void processLocationCancel(LOSStorageLocation location) throws LOSStockTakingException, UnAuthorizedException;
+	public void processLocationCancel(StorageLocation location) throws LOSStockTakingException, UnAuthorizedException;
 	
 	/**
 	 * Finish the counting of a location.
@@ -138,7 +138,7 @@ public interface LOSStocktakingFacade {
 	 * @throws UnAuthorizedException
 	 * @throws LOSStockTakingException
 	 */
-	public void processLocationFinish(LOSStorageLocation location) throws UnAuthorizedException, LOSStockTakingException;
+	public void processLocationFinish(StorageLocation location) throws UnAuthorizedException, LOSStockTakingException;
 
 	/**
 	 * Start the counting of a unit-load.
@@ -159,7 +159,7 @@ public interface LOSStocktakingFacade {
 	 * @throws UnAuthorizedException
 	 * @throws LOSStockTakingException
 	 */
-	public void processUnitloadMissing(LOSUnitLoad unitLoad) throws UnAuthorizedException, LOSStockTakingException;
+	public void processUnitloadMissing(UnitLoad unitLoad) throws UnAuthorizedException, LOSStockTakingException;
 
 	/**
 	 * Processing the counting of a stock-unit.

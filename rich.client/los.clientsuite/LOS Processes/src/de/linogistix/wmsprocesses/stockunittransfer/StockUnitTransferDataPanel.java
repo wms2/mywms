@@ -8,9 +8,9 @@
 package de.linogistix.wmsprocesses.stockunittransfer;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
-import org.mywms.model.StockUnit;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
 import org.openide.util.NbBundle;
 
 /**
@@ -29,7 +29,7 @@ public class StockUnitTransferDataPanel extends javax.swing.JPanel {
         stockUnitAutoFilteringComboBox.setEditorLabelText();
         stockUnitAutoFilteringComboBox.setEnabled(true);
 
-        unitLoadAutofilteringComboBox.setBoClass(LOSUnitLoad.class);
+        unitLoadAutofilteringComboBox.setBoClass(UnitLoad.class);
         unitLoadAutofilteringComboBox.initAutofiltering();
         unitLoadAutofilteringComboBox.setEditorLabelTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class, "destinationUnitLoad"));
         unitLoadAutofilteringComboBox.setEditorLabelText();
@@ -320,7 +320,7 @@ public class StockUnitTransferDataPanel extends javax.swing.JPanel {
         return stockUnitAutoFilteringComboBox;
     }
 
-    public BOAutoFilteringComboBox<LOSUnitLoad> getUnitLoadAutofilteringComboBox() {
+    public BOAutoFilteringComboBox<UnitLoad> getUnitLoadAutofilteringComboBox() {
         return unitLoadAutofilteringComboBox;
     }
 

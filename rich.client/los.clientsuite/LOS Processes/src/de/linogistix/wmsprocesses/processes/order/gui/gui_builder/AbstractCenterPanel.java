@@ -15,6 +15,8 @@ import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField;
 import de.linogistix.common.gui.component.controls.LosLabel;
 import de.linogistix.common.gui.listener.TopComponentListener;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +24,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.util.NbBundle;
 
 /**

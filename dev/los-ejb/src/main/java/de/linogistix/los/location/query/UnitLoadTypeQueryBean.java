@@ -15,10 +15,9 @@ package de.linogistix.los.location.query;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.mywms.model.UnitLoadType;
-
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BusinessObjectQueryBean;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 
 /**

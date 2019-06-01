@@ -9,7 +9,7 @@ package de.linogistix.los.location.entityservice;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.location.model.LOSStorageLocationType;
+import de.wms2.mywms.location.LocationType;
 
 /**
  * @author krane
@@ -22,17 +22,17 @@ public interface LOSStorageLocationTypeServiceRemote {
      * Returns the default LOSStorageLocationType for a warehouse
      * @return
      */
-    public LOSStorageLocationType getDefaultStorageLocationType();
+    public LocationType getDefaultStorageLocationType();
     
     /**
      * Returns a LOSStorageLocationType without any restrictions. 
      * @return
      */
-    public LOSStorageLocationType getNoRestrictionType();
+    public LocationType getNoRestrictionType();
     
     /**
 	 * Returns a LOSStorageLocationType with a fixed unit load attached to it.
 	 */
-    public LOSStorageLocationType getAttachedUnitLoadType();
+    public LocationType getAttachedUnitLoadType();
     
 }

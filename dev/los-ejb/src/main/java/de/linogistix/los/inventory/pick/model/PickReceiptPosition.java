@@ -27,10 +27,13 @@ public class PickReceiptPosition extends BasicEntity {
 	
 	private String lotRef;
 	
+	@Column(precision=17, scale=4)
 	private BigDecimal amountordered;
 	
+	@Column(precision=17, scale=4)
 	private BigDecimal amount;
 	
+	@ManyToOne
 	private PickReceipt receipt;
 
 	public void setArticleRef(String articleRef) {
@@ -62,7 +65,6 @@ public class PickReceiptPosition extends BasicEntity {
 		this.amountordered = amountordered;
 	}
 
-	@Column(precision=17, scale=4)
 	public BigDecimal getAmountordered() {
 		return amountordered;
 	}
@@ -71,7 +73,6 @@ public class PickReceiptPosition extends BasicEntity {
 		this.amount = amount;
 	}
 
-	@Column(precision=17, scale=4)
 	public BigDecimal getAmount() {
 		return amount;
 	}
@@ -80,7 +81,6 @@ public class PickReceiptPosition extends BasicEntity {
 		this.receipt = receipt;
 	}
 
-	@ManyToOne
 	public PickReceipt getReceipt() {
 		return receipt;
 	}

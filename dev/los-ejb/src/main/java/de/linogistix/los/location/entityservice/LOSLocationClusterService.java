@@ -16,7 +16,7 @@ import javax.ejb.Local;
 import org.mywms.service.BasicService;
 import org.mywms.service.EntityNotFoundException;
 
-import de.linogistix.los.location.model.LOSLocationCluster;
+import de.wms2.mywms.location.LocationCluster;
 
 /**
  *
@@ -24,14 +24,14 @@ import de.linogistix.los.location.model.LOSLocationCluster;
  */
 @Local
 public interface LOSLocationClusterService 
-        extends BasicService<LOSLocationCluster>
+        extends BasicService<LocationCluster>
 {
 
-    public LOSLocationCluster createLocationCluster(String name); 
+    public LocationCluster createLocationCluster(String name); 
     
-    public LOSLocationCluster getByName(String name) 
+    public LocationCluster getByName(String name) 
     	throws EntityNotFoundException;
     
-    public LOSLocationCluster getDefault();
+    public LocationCluster getDefault();
 
 }

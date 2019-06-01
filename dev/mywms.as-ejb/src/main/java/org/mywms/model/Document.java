@@ -41,16 +41,22 @@ public class Document
 {
     private static final long serialVersionUID = 1L;
 
+    @Column(nullable = false)
     private String name = null;
+
+    @Column(nullable = false)
     private String type = DocumentTypes.TEXT_PLAIN.toString();
+
+    @Column(name="document_size")
     private int size = 0;
+
+    @Column(nullable = false)
+    @Lob
     private byte[] document = new byte[0];
 
     /**
      * @return Returns the document.
      */
-    @Column(nullable = false)
-    @Lob
     public byte[] getDocument() {
         return this.document;
     }
@@ -70,7 +76,6 @@ public class Document
      * 
      * @return Returns the name.
      */
-    @Column(nullable = false)
     public String getName() {
         return this.name;
     }
@@ -85,7 +90,6 @@ public class Document
     /**
      * @return Returns the size.
      */
-    @Column(name="document_size")
     public int getSize() {
         return this.size;
     }
@@ -101,7 +105,6 @@ public class Document
     /**
      * @return Returns the type.
      */
-    @Column(nullable = false)
     public String getType() {
         return this.type;
     }

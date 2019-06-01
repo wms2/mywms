@@ -23,12 +23,7 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.StockUnitService;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -56,12 +51,11 @@ import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
+import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
@@ -76,6 +70,12 @@ import de.linogistix.los.util.BusinessObjectHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
@@ -141,11 +141,11 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         return clientQuery.queryAllHandles(new QueryDetail(0, Integer.MAX_VALUE, "name", true));
     }
 
-    public List<BODTO<LOSStorageLocation>> getGoodsReceiptLocations() throws LOSLocationException {
-        List<LOSStorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
-        List<BODTO<LOSStorageLocation>> ret = new ArrayList<BODTO<LOSStorageLocation>>();
-        for (LOSStorageLocation sl : sls) {
-            ret.add(new BODTO<LOSStorageLocation>(sl.getId(), sl.getVersion(), sl.getName()));
+    public List<BODTO<StorageLocation>> getGoodsReceiptLocations() throws LOSLocationException {
+        List<StorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
+        List<BODTO<StorageLocation>> ret = new ArrayList<BODTO<StorageLocation>>();
+        for (StorageLocation sl : sls) {
+            ret.add(new BODTO<StorageLocation>(sl.getId(), sl.getVersion(), sl.getName()));
         }
 
         return ret;
@@ -247,9 +247,9 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     //------------------------------------------------------------------------
     // Process
     //-----------------------------------------------------------------------
-    public LOSGoodsReceipt createGoodsReceipt(BODTO<Client> client, String licencePlate, String driverName, String forwarder, String deliveryNoteNumber, Date receiptDate, BODTO<LOSStorageLocation> goodsInLocation, String additionalContent) {
+    public LOSGoodsReceipt createGoodsReceipt(BODTO<Client> client, String licencePlate, String driverName, String forwarder, String deliveryNoteNumber, Date receiptDate, BODTO<StorageLocation> goodsInLocation, String additionalContent) {
         LOSGoodsReceipt r;
-        LOSStorageLocation sl = manager.find(LOSStorageLocation.class, goodsInLocation.getId());
+        StorageLocation sl = manager.find(StorageLocation.class, goodsInLocation.getId());
         Client c = manager.find(Client.class, client.getId());
 
         r = receiptComponent.createGoodsReceipt(c, licencePlate, driverName, forwarder, deliveryNoteNumber, receiptDate);
@@ -309,13 +309,13 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
             String lockCause, String serialNumber, String targetLocationName, String targetUnitLoadName, String printer) throws FacadeException, ReportException {
 
         LOSGoodsReceiptPosition pos;
-        LOSUnitLoad ul;
+        UnitLoad ul;
         
         Client c = manager.find(Client.class, client.getId());
         LOSGoodsReceipt goodsReceipt = manager.find(LOSGoodsReceipt.class, gr.getId());
         Lot lot;
         ItemData idat = manager.find(ItemData.class, item.getId());
-        LOSStorageLocation sl = manager.find(LOSStorageLocation.class, gr.getGoodsInLocation().getId());
+        StorageLocation sl = manager.find(StorageLocation.class, gr.getGoodsInLocation().getId());
         
         UnitLoadType ulType;
         
@@ -350,8 +350,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         
         boolean printLabel = true;
         boolean isFixedLocation = false;
-        LOSStorageLocation targetLocation = null;
-        LOSUnitLoad targetUnitLoad = null;
+        StorageLocation targetLocation = null;
+        UnitLoad targetUnitLoad = null;
         if( targetLocationName != null && targetLocationName.length()>0 ) {
         	try {
 				targetLocation = locService.getByName(targetLocationName);
@@ -384,7 +384,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         
         
-        BODTO<LOSStorageLocation> sldto = new BODTO<LOSStorageLocation>(sl.getId(), sl.getVersion(), sl.toUniqueString());
+        BODTO<StorageLocation> sldto = new BODTO<StorageLocation>(sl.getId(), sl.getVersion(), sl.toUniqueString());
         BODTO<UnitLoadType> ultTO = new BODTO<UnitLoadType>(ulType.getId(), ulType.getVersion(), ulType.getName());
         
         
@@ -405,8 +405,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        									 new Object[]{unitLoadLabel}); 
 	        		
 	        	}catch(EntityNotFoundException enf){ 
-	        		BODTO<LOSUnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, unitLoadLabel);
-	                ul = manager.find(LOSUnitLoad.class, unitLoad.getId()); 
+	        		BODTO<UnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, unitLoadLabel);
+	                ul = manager.find(UnitLoad.class, unitLoad.getId()); 
 	        	}
 	        } 
 	        else {
@@ -427,8 +427,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        		logger.info("UnitLoadLabel " + label + " already exists. Try the next");
 	        	}
 
-            	BODTO<LOSUnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, label);
-                ul = manager.find(LOSUnitLoad.class, unitLoad.getId());
+            	BODTO<UnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, label);
+                ul = manager.find(UnitLoad.class, unitLoad.getId());
 	
 	        }     
 	        
@@ -571,10 +571,10 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
      * @return
      * @throws de.linogistix.los.location.exception.LOSLocationException
      */
-    public BODTO<LOSUnitLoad> getOrCreateUnitLoad(BODTO<Client> c,
-            BODTO<LOSStorageLocation> sl, BODTO<UnitLoadType> type, String ref) throws FacadeException {
+    public BODTO<UnitLoad> getOrCreateUnitLoad(BODTO<Client> c,
+            BODTO<StorageLocation> sl, BODTO<UnitLoadType> type, String ref) throws FacadeException {
 
-        LOSUnitLoad ul;
+        UnitLoad ul;
         Client cl;
         if (c != null){
             cl = manager.find(Client.class, c.getId());
@@ -598,15 +598,15 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         	ref = genService.generateUnitLoadLabelId(cl, ulType);
         }
 
-        LOSStorageLocation storLoc = manager.find(LOSStorageLocation.class, sl.getId());
+        StorageLocation storLoc = manager.find(StorageLocation.class, sl.getId());
 
         ul = receiptComponent.getOrCreateUnitLoad(cl, storLoc, ulType, ref);
         
-        return new BODTO<LOSUnitLoad>(ul.getId(), ul.getVersion(), ul.getLabelId());
+        return new BODTO<UnitLoad>(ul.getId(), ul.getVersion(), ul.getLabelId());
     }
 
-    public BODTO<UnitLoadType> getUnitLoadType(BODTO<LOSStorageLocation> sl) {
-        LOSStorageLocation storLoc = manager.find(LOSStorageLocation.class, sl.getId());
+    public BODTO<UnitLoadType> getUnitLoadType(BODTO<StorageLocation> sl) {
+        StorageLocation storLoc = manager.find(StorageLocation.class, sl.getId());
         UnitLoadType type;
         if (storLoc.getCurrentTypeCapacityConstraint() != null){
         	type = storLoc.getCurrentTypeCapacityConstraint().getUnitLoadType();
@@ -728,7 +728,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			throw new InventoryException(InventoryExceptionKey.GRPOS_HAS_NO_STOCK, "");
 		}
 		
-		LOSUnitLoad unitLoad = (LOSUnitLoad)stock.getUnitLoad();
+		UnitLoad unitLoad = stock.getUnitLoad();
 		
     	StockUnitLabel label = suLabelReport.generateStockUnitLabel(unitLoad);
         boolean storeLabel = propertyService.getBooleanDefault(LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, false);
@@ -761,7 +761,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 
 	
 	
-	protected void putOnFixedAssigned( String userName, String activityCode, LOSUnitLoad unitload, LOSStorageLocation targetLocation) throws InventoryException,
+	protected void putOnFixedAssigned( String userName, String activityCode, UnitLoad unitload, StorageLocation targetLocation) throws InventoryException,
 			FacadeException {
 		
 		// To picking? (implicitly if virtual ul type)
@@ -770,7 +770,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		if (targetLocation.getUnitLoads() != null && targetLocation.getUnitLoads().size() > 0) {
 			// There is aready a unit load on the destination. => Add stock
 			
-			LOSUnitLoad onDestination = targetLocation.getUnitLoads().get(0);
+			UnitLoad onDestination = targetLocation.getUnitLoads().get(0);
 			
 			inventoryComponent.transferStock(unitload, onDestination, activityCode, false);
 			storageService.sendToNirwana( contextService.getCallerUserName(), unitload);
@@ -795,7 +795,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		    String targetLocationName, 
 		    String targetUnitLoadName) throws FacadeException {
 
-        LOSUnitLoad ul;
+        UnitLoad ul;
         
         Client client = null;
 		try {
@@ -820,8 +820,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         	ulType = queryUltService.getDefaultUnitLoadType();
         }
                 
-        List<LOSStorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
-        LOSStorageLocation sl = null;
+        List<StorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
+        StorageLocation sl = null;
         if( sls.size()<1 ) {
         	throw new InventoryException(InventoryExceptionKey.NO_GOODS_RECEIPT_LOCATION, "");
         }
@@ -843,8 +843,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         
         boolean printLabel = true;
         boolean isFixedLocation = false;
-        LOSStorageLocation targetLocation = null;
-        LOSUnitLoad targetUnitLoad = null;
+        StorageLocation targetLocation = null;
+        UnitLoad targetUnitLoad = null;
         if( targetLocationName != null && targetLocationName.length()>0 ) {
         	try {
 				targetLocation = locService.getByName(targetLocationName);

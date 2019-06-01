@@ -13,8 +13,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class QueryLotServiceBean 

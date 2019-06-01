@@ -22,11 +22,11 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.product.ItemData;
 
 /**
  *
@@ -45,31 +45,42 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 	public final static int PICKING_TYPE_PICK = 1;
 	public final static int PICKING_TYPE_COMPLETE = 2;
 
+	@ManyToOne(optional = true)
 	private LOSPickingOrder pickingOrder;
 	private String pickingOrderNumber;
 
+	@ManyToOne(optional = true, fetch=FetchType.EAGER)
 	private LOSCustomerOrderPosition customerOrderPosition;
 	
+	@Column(nullable = false, precision = 17, scale = 4)
 	private BigDecimal amount = BigDecimal.ZERO;
+
+	@Column(nullable = false, precision = 17, scale = 4)
 	private BigDecimal amountPicked = BigDecimal.ZERO;
 
+	@ManyToOne(optional = true, fetch=FetchType.EAGER)
 	private StockUnit pickFromStockUnit;
 	private String pickFromLocationName;
 	private String pickFromUnitLoadLabel;
 	
+	@ManyToOne(optional = false)
 	private ItemData itemData;
 
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	private LOSPickingUnitLoad pickToUnitLoad;
 
+	@Column(nullable = false)
 	private int state = State.RAW;
 	
+	@Column(nullable = false)
 	private int pickingType = PICKING_TYPE_DEFAULT;
 	
+	@ManyToOne(optional=false)
 	private LOSOrderStrategy strategy;
 
+	@ManyToOne(optional = true, fetch=FetchType.EAGER)
 	private Lot lotPicked;
 
-	@ManyToOne(optional = true, fetch=FetchType.EAGER)
 	public Lot getLotPicked() {
 		return lotPicked;
 	}
@@ -77,7 +88,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.lotPicked = lotPicked;
 	}
 	
-	@ManyToOne(optional = true, fetch=FetchType.EAGER)
 	public LOSCustomerOrderPosition getCustomerOrderPosition() {
 		return customerOrderPosition;
 	}
@@ -85,7 +95,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.customerOrderPosition = customerOrderPosition;
 	}
 	
-	@Column(nullable = false, precision = 17, scale = 4)
 	public BigDecimal getAmount() {
 		if( getItemData() != null ) {
 			return amount.setScale(getItemData().getScale());
@@ -96,7 +105,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.amount = amount;
 	}
 
-	@Column(nullable = false, precision = 17, scale = 4)
 	public BigDecimal getAmountPicked() {
 		if( getItemData() != null ) {
 			return amountPicked.setScale(getItemData().getScale());
@@ -107,7 +115,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.amountPicked = amountPicked;
 	}
 
-	@ManyToOne(optional = true)
 	public LOSPickingOrder getPickingOrder() {
 		return pickingOrder;
 	}
@@ -125,7 +132,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.pickingOrderNumber = pickingOrderNumber;
 	}
 	
-	@ManyToOne(optional = true, fetch=FetchType.EAGER)
 	public StockUnit getPickFromStockUnit() {
 		return pickFromStockUnit;
 	}
@@ -147,7 +153,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.pickFromUnitLoadLabel = pickFromUnitLoadLabel;
 	}
 	
-	@ManyToOne(optional = false)
 	public ItemData getItemData() {
 		return itemData;
 	}
@@ -155,7 +160,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.itemData = itemData;
 	}
 	
-	@Column(nullable = false)
 	public int getState() {
 		return state;
 	}
@@ -163,7 +167,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.state = state;
 	}
 	
-	@Column(nullable = false)
 	public int getPickingType() {
 		return pickingType;
 	}
@@ -171,7 +174,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 		this.pickingType = pickingType;
 	}
 	
-	@ManyToOne(optional=false)
 	public LOSOrderStrategy getStrategy() {
 		return strategy;
 	}
@@ -180,7 +182,6 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 	}
 	
 	
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public LOSPickingUnitLoad getPickToUnitLoad() {
 		return pickToUnitLoad;
 	}
@@ -190,7 +191,7 @@ public class LOSPickingPosition extends BasicClientAssignedEntity{
 	
 	@Transient
 	public String getUnit() {
-		return itemData == null ? null : itemData.getHandlingUnit().getUnitName();
+		return itemData == null ? null : itemData.getItemUnit().getName();
 	}
 
 	@SuppressWarnings("unused")

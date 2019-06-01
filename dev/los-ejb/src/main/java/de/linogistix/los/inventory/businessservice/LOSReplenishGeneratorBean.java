@@ -22,9 +22,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
@@ -32,10 +29,11 @@ import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSReplenishOrderService;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -112,7 +110,7 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 	}
 
 
-	public LOSReplenishOrder calculateOrder( ItemData itemData, Lot lot, BigDecimal amount, LOSStorageLocation requestedLocation, LOSRack requestedRack ) throws FacadeException {
+	public LOSReplenishOrder calculateOrder( ItemData itemData, Lot lot, BigDecimal amount, StorageLocation requestedLocation, String requestedRack ) throws FacadeException {
 		String logStr = "generateOrder ";
 
 		if( itemData == null ) {
@@ -122,7 +120,7 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 		
 		log.info(logStr+"ItemData="+itemData.getNumber());
 		
-		List<LOSStorageLocation> vetoList = new ArrayList<LOSStorageLocation>();
+		List<StorageLocation> vetoList = new ArrayList<StorageLocation>();
 		if( requestedLocation != null ) {
 			vetoList.add(requestedLocation);
 		}
@@ -164,14 +162,14 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 
 		invBusiness.changeReservedAmount(sourceStock, sourceStock.getAmount(), null);
 
-		locationReserver.allocateLocation(requestedLocation, (LOSUnitLoad)sourceStock.getUnitLoad());
+		locationReserver.allocateLocation(requestedLocation, sourceStock.getUnitLoad());
 
 		return order;
 	}
 	
 	
 	@TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
-	public void generateRequest( ItemData itemData, Lot lot, BigDecimal amount, LOSStorageLocation requestedLocation, LOSRack requestedRack ) {
+	public void generateRequest( ItemData itemData, Lot lot, BigDecimal amount, StorageLocation requestedLocation, String requestedRack ) {
 		String logStr = "generateRequest ";
 		List<LOSReplenishOrder> replList = orderService.getActive( itemData, lot, requestedLocation, requestedRack );
 		if( replList.size() > 0 ) {

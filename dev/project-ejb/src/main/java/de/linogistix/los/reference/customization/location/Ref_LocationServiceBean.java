@@ -20,10 +20,10 @@ import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.location.customization.CustomLocationService;
 import de.linogistix.los.location.customization.CustomLocationServiceBean;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  * @author krane
@@ -39,7 +39,7 @@ public class Ref_LocationServiceBean extends CustomLocationServiceBean implement
 	private QueryTypeCapacityConstraintService capacityService;
 	
 	@Override
-	public void onLocationGetsEmpty(LOSStorageLocation location) throws FacadeException {
+	public void onLocationGetsEmpty(StorageLocation location) throws FacadeException {
 		String logStr = "onLocationGetsEmpty ";
 		// Check existing storage orders
 		List<LOSStorageRequest> storageRequestList = storageService.getActiveListByDestination(location);
@@ -50,9 +50,9 @@ public class Ref_LocationServiceBean extends CustomLocationServiceBean implement
 		else {
 			log.warn(logStr+"Try to deallocate reserved location. restore reservation.");
 			for( LOSStorageRequest storageRequest : storageRequestList ) {
-				LOSUnitLoad unitLoad = storageRequest.getUnitLoad();
+				UnitLoad unitLoad = storageRequest.getUnitLoad();
 				if( unitLoad != null ) {
-					LOSTypeCapacityConstraint constraint = capacityService.getByTypes(location.getType(), unitLoad.getType());
+					TypeCapacityConstraint constraint = capacityService.getByTypes(location.getType(), unitLoad.getType());
 					if( location.getCurrentTypeCapacityConstraint() == null ) {
 						location.setCurrentTypeCapacityConstraint(constraint);
 					}

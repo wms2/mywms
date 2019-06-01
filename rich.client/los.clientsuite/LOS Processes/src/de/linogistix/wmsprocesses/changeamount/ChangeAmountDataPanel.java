@@ -10,10 +10,10 @@ package de.linogistix.wmsprocesses.changeamount;
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.StockUnit;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import javax.swing.JLabel;
-import org.mywms.model.StockUnit;
 import org.openide.util.NbBundle;
 
 /**

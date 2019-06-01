@@ -14,10 +14,9 @@ package de.linogistix.los.inventory.query;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.mywms.model.ItemUnit;
-import org.mywms.service.ItemUnitService;
-
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.query.BusinessObjectQueryBean;
+import de.wms2.mywms.product.ItemUnit;
 
 /**
  *
@@ -30,7 +29,7 @@ public class ItemUnitQueryBean extends BusinessObjectQueryBean<ItemUnit> impleme
     
 	@Override
     public String getUniqueNameProp() {
-        return "unitName";
+        return "name";
     }
 
 	public ItemUnit getDefault() {

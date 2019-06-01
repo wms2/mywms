@@ -4,7 +4,7 @@ OpenIDE-Module-Layer: de/linogistix/common/layer.xml
 OpenIDE-Module-Install: de/linogistix/common/Installer.class
 OpenIDE-Module-Localizing-Bundle: de/linogistix/common/res/Bundle.properties
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
-OpenIDE-Module-Specification-Version: 1.13
+OpenIDE-Module-Specification-Version: 1.14
 
 
 

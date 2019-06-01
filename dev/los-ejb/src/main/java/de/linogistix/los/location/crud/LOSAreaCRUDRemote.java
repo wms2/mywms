@@ -12,7 +12,7 @@
 package de.linogistix.los.location.crud;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.location.model.LOSArea;
+import de.wms2.mywms.location.Area;
 
 import javax.ejb.Remote;
 
@@ -25,6 +25,6 @@ import javax.ejb.Remote;
  *
  */
 @Remote
-public interface LOSAreaCRUDRemote extends BusinessObjectCRUDRemote<LOSArea>{
+public interface LOSAreaCRUDRemote extends BusinessObjectCRUDRemote<Area>{
 
 }

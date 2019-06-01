@@ -9,10 +9,9 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
 
 public class LOSOrderStockUnitTO extends BODTO<StockUnit> {
 

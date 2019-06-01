@@ -20,8 +20,8 @@ import org.mywms.service.BasicServiceBean;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.location.model.LOSLocationCluster;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.location.LocationCluster;
 
 /**
  * @see de.linogistix.los.location.entityservice.LOSLocationClusterService
@@ -30,7 +30,7 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
  */
 @Stateless 
 public class LOSLocationClusterServiceBean 
-	extends BasicServiceBean<LOSLocationCluster> 
+	extends BasicServiceBean<LocationCluster> 
 	implements LOSLocationClusterService , LOSLocationClusterServiceRemote
 {	
 	public static final String PROPERTY_KEY_CLUSTER_DEFAULT = "CLUSTER_DEFAULT";
@@ -40,8 +40,8 @@ public class LOSLocationClusterServiceBean
 	@EJB
 	private LOSSystemPropertyService propertyService;
 	
-	public LOSLocationCluster createLocationCluster(String name) {
-		LOSLocationCluster cluster = entityGenerator.generateEntity(LOSLocationCluster.class);
+	public LocationCluster createLocationCluster(String name) {
+		LocationCluster cluster = entityGenerator.generateEntity(LocationCluster.class);
         cluster.setName(name);
         
         manager.persist(cluster);
@@ -50,15 +50,15 @@ public class LOSLocationClusterServiceBean
         return cluster;
 	}
 
-	public LOSLocationCluster getByName(String name) throws EntityNotFoundException {
-		String sql = "SELECT cl FROM " + LOSLocationCluster.class.getSimpleName() + " cl " +
+	public LocationCluster getByName(String name) throws EntityNotFoundException {
+		String sql = "SELECT cl FROM " + LocationCluster.class.getSimpleName() + " cl " +
         	"WHERE cl.name=:name";
 		Query query = manager.createQuery(sql);
 
 		query.setParameter("name", name);
 		
 		try {
-			LOSLocationCluster cluster = (LOSLocationCluster) query.getSingleResult();
+			LocationCluster cluster = (LocationCluster) query.getSingleResult();
 		    return cluster;
 		}
 		catch (NoResultException ex) {
@@ -67,10 +67,10 @@ public class LOSLocationClusterServiceBean
 		}
 	}
     
-    public LOSLocationCluster getDefault() {
+    public LocationCluster getDefault() {
     	String name = propertyService.getStringDefault(PROPERTY_KEY_CLUSTER_DEFAULT, "Default");
     	
-    	LOSLocationCluster cluster = null;
+    	LocationCluster cluster = null;
 		try {
 			cluster = getByName(name);
 		} catch (EntityNotFoundException e) {}

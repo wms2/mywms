@@ -7,13 +7,11 @@
  */
 package de.linogistix.inventory.report.querystockunits.gui.gui_builder;
 
-import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.common.gui.listener.TopComponentListener;
 import de.linogistix.inventory.report.querystockunits.gui.component.CenterPanel;
 import de.linogistix.inventory.report.querystockunits.gui.component.HeaderPanel;
 import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
-import org.mywms.model.ItemData;
 import org.openide.windows.TopComponent;
 
 /**

@@ -13,11 +13,11 @@ import java.util.Collection;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -26,6 +26,6 @@ import de.linogistix.los.location.model.LOSStorageLocation;
 @Local
 public interface LOSReplenishStockService {
 
-	public StockUnit findReplenishStock( ItemData itemData, Lot lot, BigDecimal amount, Collection<LOSStorageLocation> vetoLocations ) throws FacadeException;
+	public StockUnit findReplenishStock( ItemData itemData, Lot lot, BigDecimal amount, Collection<StorageLocation> vetoLocations ) throws FacadeException;
 
 }

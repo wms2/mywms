@@ -22,8 +22,8 @@ import javax.persistence.Table;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * 
@@ -36,20 +36,38 @@ import de.linogistix.los.model.State;
 })
 public class LOSPickingOrder extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
-	
-    private String number;
-    private String customerOrderNumber;
+
+	@Column(nullable = false, unique = true)
+	private String number;
+
+	private String customerOrderNumber;
+
+	@Column(nullable = false)
 	private int state = State.RAW;
+
+	@Column(nullable = false)
 	private int prio = 50;
-    private User operator;
-    private boolean manualCreation;
-    private List<LOSPickingPosition> positions;
-    private List<LOSPickingUnitLoad> unitLoads;
-    private LOSStorageLocation destination;
+
+	@ManyToOne(optional = true)
+	private User operator;
+
+	@Column(nullable = false)
+	private boolean manualCreation;
+
+	@OneToMany(mappedBy = "pickingOrder")
+	@OrderBy("id")
+	private List<LOSPickingPosition> positions;
+
+	@OneToMany(mappedBy = "pickingOrder")
+	@OrderBy("id")
+	private List<LOSPickingUnitLoad> unitLoads;
+
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private StorageLocation destination;
+
+	@ManyToOne(optional = false)
 	private LOSOrderStrategy strategy;
 
-    
-    @Column(nullable = false, unique = true)
 	public String getNumber() {
 		return number;
 	}
@@ -66,7 +84,6 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 	}
 	
 	
-    @Column(nullable = false)
 	public int getState() {
 		return state;
 	}
@@ -74,7 +91,6 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 		this.state = state;
 	}
 	
-	@ManyToOne(optional=true)
 	public User getOperator() {
 		return operator;
 	}
@@ -82,8 +98,6 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 		this.operator = operator;
 	}
 
-	@OneToMany(mappedBy="pickingOrder")
-	@OrderBy("id")
 	public List<LOSPickingPosition> getPositions() {
 		return positions;
 	}
@@ -91,8 +105,6 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 		this.positions = positions;
 	}
 	
-	@OneToMany(mappedBy="pickingOrder")
-	@OrderBy("id")
 	public List<LOSPickingUnitLoad> getUnitLoads() {
 		return unitLoads;
 	}
@@ -100,7 +112,6 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 		this.unitLoads = unitLoads;
 	}
 	
-	@Column(nullable = false)
 	public int getPrio() {
 		return prio;
 	}
@@ -108,7 +119,6 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 		this.prio = prio;
 	}
 	
-	@Column(nullable = false)
 	public boolean isManualCreation() {
 		return manualCreation;
 	}
@@ -116,15 +126,13 @@ public class LOSPickingOrder extends BasicClientAssignedEntity {
 		this.manualCreation = manualCreation;
 	}
 	
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	public LOSStorageLocation getDestination() {
+	public StorageLocation getDestination() {
 		return destination;
 	}
-	public void setDestination(LOSStorageLocation destination) {
+	public void setDestination(StorageLocation destination) {
 		this.destination = destination;
 	}
 	
-	@ManyToOne(optional=false)
 	public LOSOrderStrategy getStrategy() {
 		return strategy;
 	}

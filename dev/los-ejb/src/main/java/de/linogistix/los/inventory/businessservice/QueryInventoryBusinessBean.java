@@ -22,9 +22,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -33,7 +30,10 @@ import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSAdviceState;
 import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * Inventory relevant business operations
@@ -254,7 +254,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append("(");
 		b.append("client.number, ");
 		b.append("item.number, ");
-		b.append("item.scale, item.handlingUnit.unitName, ");
+		b.append("item.scale, item.itemUnit.name, ");
 		b.append("lot.name, ");
 		b.append("su.amount, ");
 		b.append("su.reservedAmount, ");
@@ -264,7 +264,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 
 		b.append(" FROM ");
 		b.append(StockUnit.class.getSimpleName()+" su, ");
-		b.append(LOSUnitLoad.class.getSimpleName()+" ul, ");
+		b.append(UnitLoad.class.getSimpleName()+" ul, ");
 		b.append(Client.class.getSimpleName()+" client, ");
 		b.append(ItemData.class.getSimpleName()+" item ");
 		b.append("LEFT OUTER JOIN su.lot as lot ");
@@ -342,7 +342,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append("SELECT NEW ");
 		b.append(AdviseLotResult.class.getName());
 		b.append("(");
-		b.append("client.number, item.number, item.scale, item.handlingUnit.unitName, ad.notifiedAmount, ad.receiptAmount, lot.name");
+		b.append("client.number, item.number, item.scale, item.itemUnit.name, ad.notifiedAmount, ad.receiptAmount, lot.name");
 		b.append(")");
 		b.append(" FROM ");
 		b.append(LOSAdvice.class.getSimpleName()+" ad, ");

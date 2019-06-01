@@ -20,8 +20,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.businessservice.LOSPickingOrderGenerator;
@@ -38,11 +36,12 @@ import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
 
 @Stateless
 public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
@@ -71,7 +70,7 @@ public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 		
 		Map<String,List<LOSPickingPosition>> pickingOrderMap = new HashMap<String, List<LOSPickingPosition>>();
 		
-		LOSStorageLocation target = null;
+		StorageLocation target = null;
 		
 		for(CreatePickRequestPositionTO posTO:chosenStocks){	
 			log.debug( "createPickRequestPosition posTO=" + posTO.orderPosition.getName() + ", amount=" + posTO.amountToPick );
@@ -140,7 +139,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 	
 	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(BODTO<LOSCustomerOrderPosition> orderPosTO,
 			  																	 BODTO<Lot> lotTO,
-			  																	 BODTO<LOSStorageLocation> locationTO) 
+			  																	 BODTO<StorageLocation> locationTO) 
 		throws InventoryException
 	{
 		
@@ -163,7 +162,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 		List<LOSOrderStockUnitTO> toList = new ArrayList<LOSOrderStockUnitTO>();
 		
 		for( StockUnit su : stockList ) {
-			LOSOrderStockUnitTO suto = new LOSOrderStockUnitTO(su.getId(), su.getVersion(), su.getLot(), su.getUnitLoad().getLabelId(), ((LOSUnitLoad)su.getUnitLoad()).getStorageLocation().getName(), su.getAmount(), su.getReservedAmount());
+			LOSOrderStockUnitTO suto = new LOSOrderStockUnitTO(su.getId(), su.getVersion(), su.getLot(), su.getUnitLoad().getLabelId(), su.getUnitLoad().getStorageLocation().getName(), su.getAmount(), su.getReservedAmount());
 			toList.add(suto);
 		}
 		

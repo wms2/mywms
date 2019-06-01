@@ -21,10 +21,6 @@ import org.apache.log4j.Logger;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ws.api.annotation.WebContext;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoadType;
-import org.mywms.service.LotService;
 
 import de.linogistix.los.common.exception.OutOfRangeException;
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -39,11 +35,15 @@ import de.linogistix.los.inventory.model.LOSAdviceType;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvicePosition;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdviceState;
+import de.linogistix.los.inventory.service.LotService;
 import de.linogistix.los.inventory.service.QueryAdviceService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.inventory.service.QueryUnitLoadAdviceService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 @SecurityDomain("los-login")

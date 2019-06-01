@@ -14,9 +14,10 @@ package de.linogistix.los.crud;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.mywms.model.Lot;
 import org.mywms.service.BasicService;
-import org.mywms.service.LotService;
+
+import de.linogistix.los.inventory.service.LotService;
+import de.wms2.mywms.inventory.Lot;
 
 
 /**

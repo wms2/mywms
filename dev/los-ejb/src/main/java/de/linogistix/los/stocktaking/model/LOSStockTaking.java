@@ -25,17 +25,19 @@ public class LOSStockTaking extends BasicEntity {
 
 	private static final long serialVersionUID = 1L;
 	
+	@Column(nullable=false, unique=true)
 	private String stockTakingNumber;
 
+	@Enumerated(EnumType.STRING)
 	private LOSStockTakingType stockTakingType;
 	
 	private Date started;
 	
 	private Date ended;
 	
+	@OneToMany(mappedBy="stockTaking")
 	private List<LOSStocktakingOrder> orderList;
 
-	@Column(nullable=false, unique=true)
 	public String getStockTakingNumber() {
 		return stockTakingNumber;
 	}
@@ -44,7 +46,6 @@ public class LOSStockTaking extends BasicEntity {
 		this.stockTakingNumber = stockTakingNumber;
 	}
 
-	@Enumerated(EnumType.STRING)
 	public LOSStockTakingType getStockTakingType() {
 		return stockTakingType;
 	}
@@ -69,7 +70,6 @@ public class LOSStockTaking extends BasicEntity {
 		this.ended = ended;
 	}
 
-	@OneToMany(mappedBy="stockTaking")
 	public List<LOSStocktakingOrder> getOrderList() {
 		return orderList;
 	}

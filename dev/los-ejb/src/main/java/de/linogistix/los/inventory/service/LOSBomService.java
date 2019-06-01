@@ -13,11 +13,11 @@ import java.util.List;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
 import org.mywms.service.BasicService;
 import org.mywms.service.ConstraintViolatedException;
 
 import de.linogistix.los.inventory.model.LOSBom;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane

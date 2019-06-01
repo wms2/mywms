@@ -26,7 +26,6 @@
 	</modules>
 
 	<properties>
-        <pom.version>2-SNAPSHOT</pom.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>

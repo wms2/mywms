@@ -12,8 +12,8 @@ import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
+import de.wms2.mywms.location.StorageLocation;
 import org.mywms.model.Client;
 import org.openide.util.Lookup;
 
@@ -21,21 +21,21 @@ import org.openide.util.Lookup;
  *
  * @author Jordan
  */
-public class LOSStorageLocationComboBoxModel extends BOAutoFilteringComboBoxModel<LOSStorageLocation>{
+public class LOSStorageLocationComboBoxModel extends BOAutoFilteringComboBoxModel<StorageLocation>{
 
     private LOSStorageLocationQueryRemote slQuery;
     
     private BODTO<Client> clientTO = null;
     
     public LOSStorageLocationComboBoxModel() throws Exception {
-        super(LOSStorageLocation.class);
+        super(StorageLocation.class);
         
         J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
         slQuery = loc.getStateless(LOSStorageLocationQueryRemote.class);
     }
     
     @Override
-    public LOSResultList<BODTO<LOSStorageLocation>> getResults(String searchString, QueryDetail detail) {
+    public LOSResultList<BODTO<StorageLocation>> getResults(String searchString, QueryDetail detail) {
         
         return slQuery.autoCompletionClientAndAreaType(searchString, null, detail);
         

@@ -14,7 +14,7 @@ import de.linogistix.common.gui.component.controls.LOSTextField;
 import de.linogistix.common.gui.listener.TopComponentListener;
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -32,7 +32,7 @@ public class AbstractTreatOrderCenterPanel
     
     private BOAutoFilteringComboBox<LOSCustomerOrderPosition> orderPositionComboBox;
     
-    private BOAutoFilteringComboBox<LOSStorageLocation> targetPlaceComboBox;
+    private BOAutoFilteringComboBox<StorageLocation> targetPlaceComboBox;
     
     /** Creates new form AbstractTreatOrderCenterPanel */
     public AbstractTreatOrderCenterPanel() {
@@ -362,10 +362,10 @@ public class AbstractTreatOrderCenterPanel
         return orderPositionComboBox;
     }
     
-    public BOAutoFilteringComboBox<LOSStorageLocation> getTargetPlaceComboBox(){
+    public BOAutoFilteringComboBox<StorageLocation> getTargetPlaceComboBox(){
         
         if(targetPlaceComboBox == null){
-            targetPlaceComboBox = new BOAutoFilteringComboBox<LOSStorageLocation>(LOSStorageLocation.class);
+            targetPlaceComboBox = new BOAutoFilteringComboBox<StorageLocation>(StorageLocation.class);
             targetPlaceComboBoxPanel.add(targetPlaceComboBox, BorderLayout.WEST);
         }
         

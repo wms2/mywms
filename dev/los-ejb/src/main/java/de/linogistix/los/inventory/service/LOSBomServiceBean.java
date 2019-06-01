@@ -16,7 +16,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ConstraintViolatedException;
 
@@ -24,6 +23,7 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSBom;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane

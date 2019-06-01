@@ -12,15 +12,15 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.pick.facade.CreatePickRequestPositionTO;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
 
 @Remote
 public interface LOSCompatibilityFacade {
@@ -31,7 +31,7 @@ public interface LOSCompatibilityFacade {
 	@Deprecated
 	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(
 			BODTO<LOSCustomerOrderPosition> orderPosTO, BODTO<Lot> lotTO,
-			BODTO<LOSStorageLocation> locationTO) throws InventoryException;
+			BODTO<StorageLocation> locationTO) throws InventoryException;
 	
 	@Deprecated
 	public String getNewPickRequestNumber();

@@ -10,13 +10,13 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
  * @author krane
  *
  */
 @Remote
-public interface LOSStorageStrategyCRUDRemote extends BusinessObjectCRUDRemote<LOSStorageStrategy>{
+public interface LOSStorageStrategyCRUDRemote extends BusinessObjectCRUDRemote<StorageStrategy>{
 
 }

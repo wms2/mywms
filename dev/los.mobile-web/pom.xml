@@ -26,6 +26,12 @@
         </dependency>
         <dependency>
             <groupId>de.wms2.mywms</groupId>
+            <artifactId>wms2-ejb</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.wms2.mywms</groupId>
             <artifactId>los-ejb</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.mywms.globals.SerialNoRecordType;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -64,7 +64,7 @@ public class PickingMobilePos implements Serializable {
 		this.locationName = pos.getPickFromLocationName();
 		this.unitLoadLabel = pos.getPickFromUnitLoadLabel();
 		this.amount = pos.getAmount();
-		this.unitName = pos.getItemData().getHandlingUnit().getUnitName();
+		this.unitName = pos.getItemData().getItemUnit().getName();
 		this.state = pos.getState();
 		this.pickingOrderId = pos.getPickingOrder().getId();
 		this.pickingType = pos.getPickingType();
@@ -79,8 +79,8 @@ public class PickingMobilePos implements Serializable {
 		StockUnit su = pos.getPickFromStockUnit();
 		if( su != null ) {
 			this.amountStock = su.getAmount();
-			LOSUnitLoad ul = (LOSUnitLoad)su.getUnitLoad();
-			LOSStorageLocation loc = ul.getStorageLocation();
+			UnitLoad ul = su.getUnitLoad();
+			StorageLocation loc = ul.getStorageLocation();
 			if( loc.getUnitLoads().size()<=1 ) {
 				if( ul.getStockUnitList().size() == 1 ) {
 					if( su.getAmount().compareTo(amountStock)<=0 ) {

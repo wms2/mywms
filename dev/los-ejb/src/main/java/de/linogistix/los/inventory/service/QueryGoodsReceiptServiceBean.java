@@ -17,7 +17,6 @@ import javax.persistence.Query;
 
 import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
-import org.mywms.model.ItemDataNumber;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -27,6 +26,7 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.product.ItemDataNumber;
 
 @Stateless
 public class QueryGoodsReceiptServiceBean 

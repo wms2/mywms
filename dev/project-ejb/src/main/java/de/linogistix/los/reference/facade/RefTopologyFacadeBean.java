@@ -26,16 +26,8 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
-import org.mywms.model.ItemUnit;
 import org.mywms.model.ItemUnitType;
-import org.mywms.model.UnitLoadType;
-import org.mywms.model.Zone;
 import org.mywms.service.ClientService;
-import org.mywms.service.ItemDataService;
-import org.mywms.service.ItemUnitService;
-import org.mywms.service.ZoneService;
 
 import de.linogistix.los.common.businessservice.CommonBasicDataService;
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
@@ -48,33 +40,39 @@ import de.linogistix.los.inventory.facade.OrderPositionTO;
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
+import de.linogistix.los.inventory.service.ItemDataService;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.businessservice.LocationBasicDataService;
 import de.linogistix.los.location.entityservice.LOSAreaService;
 import de.linogistix.los.location.entityservice.LOSLocationClusterService;
-import de.linogistix.los.location.entityservice.LOSRackService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSLocationCluster;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSStorageLocationType;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoadPackageType;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
+import de.linogistix.los.location.service.ZoneService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.reference.model.ProjectPropertyKey;
 import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.LocationCluster;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
+import de.wms2.mywms.strategy.Zone;
 
 @Stateless
 public class RefTopologyFacadeBean implements RefTopologyFacade {
@@ -102,9 +100,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	
 	@EJB
 	private LOSStorageLocationService slService;
-	
-	@EJB
-	private LOSRackService rackService;
 	
 	@EJB
 	private ItemDataService itemDataService;
@@ -210,13 +205,13 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create LocationTypes...");
 		
-		LOSStorageLocationType pType = locationTypeService.getDefaultStorageLocationType();
+		LocationType pType = locationTypeService.getDefaultStorageLocationType();
 		pType.setName( resolve("LocationTypePallet") );
 		
-		LOSStorageLocationType fixType = locationTypeService.getAttachedUnitLoadType();
+		LocationType fixType = locationTypeService.getAttachedUnitLoadType();
 		fixType.setName( resolve("LocationTypePicking") );
 
-		LOSStorageLocationType fType = createLocationType(sys, resolve("LocationTypeShelf") );
+		LocationType fType = createLocationType(sys, resolve("LocationTypeShelf") );
 		
 
 		log.info("Create UnitLoadTypes...");
@@ -248,16 +243,16 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 
 		log.info("Create StorageLocations...");
 		
-		LOSLocationCluster cluster = lcService.getDefault();
+		LocationCluster cluster = lcService.getDefault();
 		
 
-		List<LOSArea> areaList = null;
-		LOSArea rackArea = null;
+		List<Area> areaList = null;
+		Area rackArea = null;
 		areaList = areaService.getForStorage();
 		if( areaList.size()>0 ) {
 			rackArea = areaList.get(0);
 		}
-		LOSArea pickArea = null;
+		Area pickArea = null;
 		areaList = areaService.getForPicking();
 		if( areaList.size()>0 ) {
 			pickArea = areaList.get(0);
@@ -360,7 +355,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		itemUnit = itemUnitService.getByName(name);
 		if( itemUnit == null ) {
 			itemUnit = entityGenerator.generateEntity( ItemUnit.class );
-			itemUnit.setUnitName(name);
+			itemUnit.setName(name);
 			manager.persist(itemUnit);
 		}
 		itemUnit.setUnitType(unitType);
@@ -379,26 +374,23 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		}
 		if( zone == null ) {
 			zone = entityGenerator.generateEntity( Zone.class );
-			zone.setClient(client);
 			zone.setName(name);
 			manager.persist(zone);
 		}
 
-		
-		zone.setClient(client);
 		return zone;
 	}
 	
 
-	private LOSStorageLocationType createLocationType(Client client, String name) {
-		LOSStorageLocationType type = null;
+	private LocationType createLocationType(Client client, String name) {
+		LocationType type = null;
 		try {
 			type = locationTypeService.getByName(name);
 		} catch (Exception e) {
 			// ignore
 		}
 		if( type == null ) {
-			type = entityGenerator.generateEntity( LOSStorageLocationType.class );
+			type = entityGenerator.generateEntity( LocationType.class );
 			type.setName(name);
 			manager.persist(type);
 		}
@@ -425,11 +417,11 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		return type;
 	}
 
-	private LOSTypeCapacityConstraint createCapa( LOSStorageLocationType slType, UnitLoadType ulType, BigDecimal capa ) {
-		LOSTypeCapacityConstraint constraint = null;
+	private TypeCapacityConstraint createCapa( LocationType slType, UnitLoadType ulType, BigDecimal capa ) {
+		TypeCapacityConstraint constraint = null;
 		constraint = capaService.getByTypes(slType, ulType);
 		if( constraint == null ) {
-			constraint = entityGenerator.generateEntity( LOSTypeCapacityConstraint.class );
+			constraint = entityGenerator.generateEntity( TypeCapacityConstraint.class );
 			constraint.setStorageLocationType(slType);
 			constraint.setUnitLoadType(ulType);
 			constraint.setAllocation(capa);
@@ -439,49 +431,33 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		return constraint;
 	}
 
-	private LOSRack createRack(Client client, String name, String locationName, int noColumns, int noLoc, int noRows, LOSArea area, LOSStorageLocationType type, LOSLocationCluster cluster, Zone zone) {
-		LOSRack rack = null;
-		try {
-			rack = rackService.getByName(client, name);
-		} catch (Exception e) {
-			// ignore
-		}
-		if( rack == null ) {
-			rack = entityGenerator.generateEntity( LOSRack.class );
-			rack.setClient(client);
-			rack.setName(name);
-			manager.persist(rack);
-		}
-
-		rack.setNumberOfColumns(noColumns);
-		rack.setNumberOfRows(noRows);
+	private void createRack(Client client, String name, String locationName, int noColumns, int noLoc, int noRows, Area area, LocationType type, LocationCluster cluster, Zone zone) {
 
 		for(int x1=0; x1<noColumns; x1++){
 			for(int x2=0; x2<noLoc; x2++){
 				for(int y=0; y<noRows; y++){
 	//				String slName = locationName + "-" + String.format("%1$02d",y+1) + "-" + String.format("%1$03d",x+1) ;
 					String slName = locationName + "-" + String.format("%1$02d",x1+1) + String.format("%1$01d",x2+1) + "-" + String.format("%1$01d",y+1) ;
-					LOSStorageLocation rl = null;
+					StorageLocation rl = null;
 					rl = slService.getByName(slName);
 					if( rl == null ) {
-						rl = entityGenerator.generateEntity( LOSStorageLocation.class );
+						rl = entityGenerator.generateEntity( StorageLocation.class );
 						rl.setClient(client);
 						rl.setName(slName);
-						rl.setType(type);
-						rl.setRack(rack);
+						rl.setLocationType(type);
+						rl.setRack(name);
 						rl.setArea(area);
 						manager.persist(rl);
 					}				
 					rl.setClient(client);
 					rl.setArea(area);
-					rl.setType(type);
-					rl.setRack(rack);
-					rl.setCluster(cluster);
+					rl.setLocationType(type);
+					rl.setRack(name);
+					rl.setLocationCluster(cluster);
 					rl.setZone(zone);
 				}
 			}
 		}
-		return rack;
 	}
 
 	private ItemData createItemData(Client client, String number, String name, String descr, ItemUnit unit, boolean lotMandatory, SerialNoRecordType serialType, Zone zone, UnitLoadType type) {
@@ -491,13 +467,13 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 			itemData = entityGenerator.generateEntity( ItemData.class );
 			itemData.setClient(client);
 			itemData.setNumber(number);
-			itemData.setHandlingUnit(unit);
+			itemData.setItemUnit(unit);
 			manager.persist(itemData);
 		}
 
 		itemData.setName(name);
 		itemData.setDescription(descr);
-		itemData.setHandlingUnit(unit);
+		itemData.setItemUnit(unit);
 		itemData.setLotMandatory(lotMandatory);
 		itemData.setSerialNoRecordType(serialType);
 		itemData.setZone(zone);
@@ -518,8 +494,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		}
 		return ean;
 	}
-	private LOSFixedLocationAssignment createFixLocation( Client client, String locationName, ItemData itemData, LOSStorageLocationType locType ) throws FacadeException {
-		LOSStorageLocation sl = slService.getByName(locationName);
+	private LOSFixedLocationAssignment createFixLocation( Client client, String locationName, ItemData itemData, LocationType locType ) throws FacadeException {
+		StorageLocation sl = slService.getByName(locationName);
 		if(sl == null) {
 			return null;
 		}
@@ -547,7 +523,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		sl.setType(locationTypeService.getNoRestrictionType());
 		
 		UnitLoadType pickUlType = ultService.getPickLocationUnitLoadType();
-		LOSUnitLoad ul = null;
+		UnitLoad ul = null;
 		try {
 			ul = ulQueryService.getByLabelId(locationName);
 		} catch (UnAuthorizedException e) {
@@ -558,20 +534,20 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		}
 		else {
 			ul.setClient(client);
-			ul.setType(pickUlType);
+			ul.setUnitLoadType(pickUlType);
 			ul.setStorageLocation(sl);
 		}
 		
-		ul.setPackageType(LOSUnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
+		ul.setPackageType(UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
 		
 		return fl;
 	}
 	
 	private void createStock( Client client, String locationName, ItemData idat, BigDecimal amount, String unitLoadNumber, String lotNumber) {
 		try {
-			LOSUnitLoad ul = ulQueryService.getByLabelId(unitLoadNumber);
+			UnitLoad ul = ulQueryService.getByLabelId(unitLoadNumber);
 			if( ul != null ) {
-				LOSStorageLocation sl = slService.getByName(locationName);
+				StorageLocation sl = slService.getByName(locationName);
 				LOSFixedLocationAssignment x = fixedService.getByLocation(sl);
 				if( x == null ) {
 					log.error("Do not create UnitLoad " + unitLoadNumber+" twice");
@@ -605,10 +581,10 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 				OrderPositionTO pos = new OrderPositionTO(client.getNumber(), null, idat2.getNumber(), amount2);
 				posList.add(pos);
 			}
-			List<LOSStorageLocation>locList = locService.getListForGoodsOut();
+			List<StorageLocation>locList = locService.getListForGoodsOut();
 			String locName = null;
 			if( locList != null && locList.size() > 0 ) {
-				LOSStorageLocation loc = locList.get(0);
+				StorageLocation loc = locList.get(0);
 				locName = loc.getName();
 			}
 			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null, null, locName, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, false, null );
@@ -620,7 +596,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 
 	private void createStocktaking( Client client, String locationName ) {
 		try {
-		stService.generateOrders(true, client.getId(), null, null, null, null, locationName, null, null, null, true, true);
+		stService.generateOrders(true, client.getId(), null, null, null, locationName, null, null, null, true, true);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

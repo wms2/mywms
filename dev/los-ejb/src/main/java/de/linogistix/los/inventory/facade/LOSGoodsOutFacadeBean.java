@@ -38,10 +38,10 @@ import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.BusinessObjectHelper;
+import de.wms2.mywms.inventory.UnitLoad;
 @Stateless
 public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
@@ -93,7 +93,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 	@Override
 	public LOSGoodsOutRequestPosition finishPosition(String labelId, Long orderId) throws FacadeException {
 		LOSGoodsOutRequestPosition ret;
-		LOSUnitLoad ul = null;
+		UnitLoad ul = null;
 		
 		try {
 			ul = ulQuery.getByLabelId(labelId);
@@ -271,7 +271,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 	@Override
 	public void createGoodsOutOrder(List<Long> pickingUnitLoadIdList) throws FacadeException {
 		String logStr = "createGoodsOutOrder ";
-		List<LOSUnitLoad> ulList = new ArrayList<LOSUnitLoad>();
+		List<UnitLoad> ulList = new ArrayList<UnitLoad>();
 		LOSCustomerOrder customerOrder = null;
 		Set<String> orderSet = new HashSet<String>();
 		Client client = null;
@@ -303,7 +303,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		LOSGoodsOutRequest out = outGenerator.createOrder(client, null, shipmentNumber, new Date(), null, null);
 		out.setCustomerOrder(customerOrder);
 		
-		for( LOSUnitLoad unitLoad : ulList ) {
+		for( UnitLoad unitLoad : ulList ) {
 			outGenerator.addPosition(out, unitLoad);
 		}
 	}

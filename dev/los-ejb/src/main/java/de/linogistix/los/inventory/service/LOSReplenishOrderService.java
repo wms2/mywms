@@ -11,13 +11,12 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -28,6 +27,6 @@ public interface LOSReplenishOrderService extends BasicService<LOSReplenishOrder
 
 	public LOSReplenishOrder getByNumber(String number);
 	
-	public List<LOSReplenishOrder> getActive(ItemData item, Lot lot, LOSStorageLocation requestedLocation, LOSRack requestedRack);
+	public List<LOSReplenishOrder> getActive(ItemData item, Lot lot, StorageLocation requestedLocation, String requestedRack);
 	
 }

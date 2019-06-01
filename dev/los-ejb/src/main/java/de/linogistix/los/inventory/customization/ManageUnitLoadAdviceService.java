@@ -12,8 +12,6 @@ import java.math.BigDecimal;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.common.exception.OutOfRangeException;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -22,6 +20,8 @@ import de.linogistix.los.inventory.model.LOSAdviceType;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvicePosition;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdviceState;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface ManageUnitLoadAdviceService {

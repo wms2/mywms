@@ -23,11 +23,7 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
 import org.mywms.model.ItemUnitType;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
@@ -46,18 +42,25 @@ import de.linogistix.los.inventory.service.QueryLotServiceRemote;
 import de.linogistix.los.inventory.service.QueryStockServiceRemote;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
+import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentServiceRemote;
 import de.linogistix.los.location.service.QueryStorageLocationServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadTypeServiceRemote;
 import de.linogistix.los.query.BODTO;
+import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 /*
  * TODO krane
  * Storage on fixed location. Do not suggest it, when receiving a different lot
@@ -119,7 +122,7 @@ public class GRDirectBean extends BasicDialogBean {
 
 	
 	
-	protected LOSStorageLocation currentFixTarget;
+	protected StorageLocation currentFixTarget;
 	protected String inputLotName;
 	protected Date currentLotDate;
 	protected String currentUlLabel;
@@ -170,6 +173,7 @@ public class GRDirectBean extends BasicDialogBean {
 	
 	protected QueryItemDataServiceRemote queryItemData;
 	
+	private UnitLoadTypeQueryRemote unitLoadTypeQuery;
 	
 	public GRDirectBean(){
 		super();
@@ -186,6 +190,7 @@ public class GRDirectBean extends BasicDialogBean {
 		queryStockService = super.getStateless(QueryStockServiceRemote.class);
 		queryUnitLoadRemote = super.getStateless(UnitLoadQueryRemote.class);
 		queryItemData = super.getStateless(QueryItemDataServiceRemote.class);
+		unitLoadTypeQuery = super.getStateless(UnitLoadTypeQueryRemote.class);
 		
 		collectUlType = propertyService.getBooleanDefault(getWorkstationName(), GRD_COLLECT_UNITLOAD_TYPE, collectUlType);
 		log.info(GRD_COLLECT_UNITLOAD_TYPE+"="+collectUlType);
@@ -324,7 +329,7 @@ public class GRDirectBean extends BasicDialogBean {
 		if( currentUnitLoadType == null ) {
 			currentUnitLoadType = queryUltService.getDefaultUnitLoadType();
 		}
-
+		currentUnitLoadType = reloadUnitLoadType(currentUnitLoadType);
 	}
 	
 	protected void initUl() {
@@ -753,7 +758,7 @@ public class GRDirectBean extends BasicDialogBean {
 		currentAmount = BigDecimal.ONE;
 		currentSerialNo = code;
 		
-		if( ! ItemUnitType.PIECE.equals(currentItemData.getHandlingUnit().getUnitType()) ) {
+		if( ! ItemUnitType.PIECE.equals(currentItemData.getItemUnit().getUnitType()) ) {
 			return GRDirectNavigationEnum.GRD_ENTER_AMOUNT.name();
 		}
 		else if( currentFixTarget == null && collectUlType ) {
@@ -851,7 +856,7 @@ public class GRDirectBean extends BasicDialogBean {
 		String code = inputCode == null ? "" : inputCode.trim();
 		inputCode = "";
 
-		LOSUnitLoad ul = null;
+		UnitLoad ul = null;
 		try {
 			ul = queryUlService.getByLabelId(code);
 		} catch (UnAuthorizedException e) {
@@ -962,8 +967,8 @@ public class GRDirectBean extends BasicDialogBean {
 				return postUnitLoad( currentFixTarget.getName(), null );
 			}
 
-			LOSUnitLoad targetUl = null;
-			LOSStorageLocation loc = null;
+			UnitLoad targetUl = null;
+			StorageLocation loc = null;
 			try {
 				loc = locService.getByName(code);
 			}
@@ -982,7 +987,7 @@ public class GRDirectBean extends BasicDialogBean {
 				if( su1.getItemData().equals(currentItemData) ) {
 					su = su1;
 					try {
-						targetUl = (LOSUnitLoad) queryUnitLoadRemote.queryById(su.getUnitLoad().getId());
+						targetUl = queryUnitLoadRemote.queryById(su.getUnitLoad().getId());
 					} catch (Exception e) {
 					}
 					if( targetUl != null && targetUl.getStockUnitList().size() == 1 ) {
@@ -1003,7 +1008,7 @@ public class GRDirectBean extends BasicDialogBean {
 		
 		// The mode is to store not to the fixed location
 
-		LOSStorageLocation loc = null;
+		StorageLocation loc = null;
 		try {
 			loc = locService.getByName(code);
 		}
@@ -1029,9 +1034,9 @@ public class GRDirectBean extends BasicDialogBean {
 			return "";
 		}
 
-		LOSUnitLoad targetUl = null;
-		LOSUnitLoad scannedUl = null;
-		LOSStorageLocation loc = null;
+		UnitLoad targetUl = null;
+		UnitLoad scannedUl = null;
+		StorageLocation loc = null;
 		List<StockUnit> stockList;
 		
 		try {
@@ -1065,9 +1070,9 @@ public class GRDirectBean extends BasicDialogBean {
 		else {
 			for( StockUnit su : stockList ) {
 				if( su.getItemData().equals(currentItemData) ) {
-					LOSUnitLoad ul = null;
+					UnitLoad ul = null;
 					try {
-						ul = (LOSUnitLoad) queryUnitLoadRemote.queryById(su.getUnitLoad().getId());
+						ul = queryUnitLoadRemote.queryById(su.getUnitLoad().getId());
 					} catch (Exception e) {
 					}
 					if( ul != null && ul.getStockUnitList().size() == 1 ) {
@@ -1292,7 +1297,7 @@ public class GRDirectBean extends BasicDialogBean {
 		if( currentAdvice == null ) {
 			return "";
 		}
-		return "" + currentAdvice.getReceiptAmount() + " / " + currentAdvice.getNotifiedAmount() + " "+ currentAdvice.getItemData().getHandlingUnit();
+		return "" + currentAdvice.getReceiptAmount() + " / " + currentAdvice.getNotifiedAmount() + " "+ currentAdvice.getItemData().getItemUnit();
 	}
 
 	public String getAmount() {
@@ -1326,7 +1331,7 @@ public class GRDirectBean extends BasicDialogBean {
 		if( currentItemData == null ) {
 			return "";
 		}
-		return currentItemData.getHandlingUnit().getUnitName();
+		return currentItemData.getItemUnit().getName();
 	}
 
 	public String getTargetAddLocation() {
@@ -1386,6 +1391,18 @@ public class GRDirectBean extends BasicDialogBean {
 		loc = getUIViewRoot().getLocale();
 		bundle = ResourceBundle.getBundle("de.linogistix.mobile.processes.gr_direct.GRDirectBundle", loc);
 		return bundle;
+	}
+
+	private UnitLoadType reloadUnitLoadType(UnitLoadType type) {
+		if (type != null) {
+			try {
+				// Just to load lazy loaded entity
+				type = unitLoadTypeQuery.queryById(type.getId());
+			} catch (BusinessObjectNotFoundException | BusinessObjectSecurityException e) {
+				// ignore
+			}
+		}
+		return type;
 	}
 
 }

@@ -13,14 +13,14 @@ import javax.ejb.Stateless;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.StockUnit;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  * @author krane
@@ -51,7 +51,7 @@ public class LOSPickingPositionServiceBean extends BasicServiceBean<LOSPickingPo
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<LOSPickingPosition> getByPickFromUnitLoad(LOSUnitLoad pickFromUnitLoad) {
+	public List<LOSPickingPosition> getByPickFromUnitLoad(UnitLoad pickFromUnitLoad) {
 
 		StringBuffer b = new StringBuffer();
 		Query query;

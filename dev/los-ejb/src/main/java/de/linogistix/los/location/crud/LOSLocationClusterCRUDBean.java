@@ -18,7 +18,7 @@ import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
 import de.linogistix.los.location.entityservice.LOSLocationClusterService;
-import de.linogistix.los.location.model.LOSLocationCluster;
+import de.wms2.mywms.location.LocationCluster;
 
 
 /**
@@ -26,13 +26,13 @@ import de.linogistix.los.location.model.LOSLocationCluster;
  *
  */
 @Stateless
-public class LOSLocationClusterCRUDBean extends BusinessObjectCRUDBean<LOSLocationCluster> implements LOSLocationClusterCRUDRemote {
+public class LOSLocationClusterCRUDBean extends BusinessObjectCRUDBean<LocationCluster> implements LOSLocationClusterCRUDRemote {
 
 	@EJB 
 	LOSLocationClusterService service;
 	
 	@Override
-	protected BasicService<LOSLocationCluster> getBasicService() {
+	protected BasicService<LocationCluster> getBasicService() {
 		
 		return service;
 	}

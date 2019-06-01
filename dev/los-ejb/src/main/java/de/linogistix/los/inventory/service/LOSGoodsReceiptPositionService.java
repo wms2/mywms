@@ -11,11 +11,11 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.StockUnit;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
+import de.wms2.mywms.inventory.StockUnit;
 
 @Local
 public interface LOSGoodsReceiptPositionService extends BasicService<LOSGoodsReceiptPosition> {

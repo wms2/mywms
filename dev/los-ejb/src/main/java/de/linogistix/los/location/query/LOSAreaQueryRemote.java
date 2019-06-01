@@ -14,14 +14,14 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.location.Area;
 
 /**
  *
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Remote
-public interface LOSAreaQueryRemote extends BusinessObjectQueryRemote<LOSArea>{ 
+public interface LOSAreaQueryRemote extends BusinessObjectQueryRemote<Area>{ 
 
 }

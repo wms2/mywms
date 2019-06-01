@@ -13,10 +13,10 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
  * Business Services for the Storage process (move goods/unitloads to the warehouse).
@@ -37,9 +37,9 @@ public interface StorageBusiness {
      *  
      * @return
      */
-    LOSStorageRequest getOrCreateStorageRequest(Client c,LOSUnitLoad ul) throws FacadeException;
-    LOSStorageRequest getOrCreateStorageRequest(Client c,LOSUnitLoad ul, boolean startProcessing) throws FacadeException;
-	public LOSStorageRequest getOrCreateStorageRequest(Client c, LOSUnitLoad ul, boolean startProcessing, LOSStorageLocation location, LOSStorageStrategy strategy) throws FacadeException;
+    LOSStorageRequest getOrCreateStorageRequest(Client c,UnitLoad ul) throws FacadeException;
+    LOSStorageRequest getOrCreateStorageRequest(Client c,UnitLoad ul, boolean startProcessing) throws FacadeException;
+	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul, boolean startProcessing, StorageLocation location, StorageStrategy strategy) throws FacadeException;
 
     /**
      * Gets an open LOSStorageRequest (Movement of a UnitLoad to a StorageLocation).
@@ -59,7 +59,7 @@ public interface StorageBusiness {
      * @throws LOSLocationException 
      * @throws FacadeException 
      */
-    public void finishStorageRequest(LOSStorageRequest req, LOSUnitLoad destination) throws FacadeException, LOSLocationException, FacadeException;
+    public void finishStorageRequest(LOSStorageRequest req, UnitLoad destination) throws FacadeException, LOSLocationException, FacadeException;
 
     /**
      * Finish LOSStorageRequest by transferring the UnitLoad to the given StorageLocation.
@@ -70,7 +70,7 @@ public interface StorageBusiness {
      * @throws de.linogistix.los.inventory.exception.InventoryException
      * @throws de.linogistix.los.location.exception.LOSLocationException
      */
-    public void finishStorageRequest(LOSStorageRequest req, LOSStorageLocation sl, boolean force) throws FacadeException, LOSLocationException;
+    public void finishStorageRequest(LOSStorageRequest req, StorageLocation sl, boolean force) throws FacadeException, LOSLocationException;
    
 
     /**
@@ -82,7 +82,7 @@ public interface StorageBusiness {
      * @param ul
      * @return
      */
-    public Client determineClient(LOSUnitLoad ul);
+    public Client determineClient(UnitLoad ul);
     
     
 	/**

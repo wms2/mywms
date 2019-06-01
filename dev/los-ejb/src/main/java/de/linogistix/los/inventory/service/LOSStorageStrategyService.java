@@ -11,14 +11,14 @@ import javax.ejb.Local;
 
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSStorageStrategyService extends BasicService<LOSStorageStrategy> {
-	public LOSStorageStrategy getByName( String name );
-	public LOSStorageStrategy getDefault();
+public interface LOSStorageStrategyService extends BasicService<StorageStrategy> {
+	public StorageStrategy getByName( String name );
+	public StorageStrategy getDefault();
 }

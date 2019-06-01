@@ -10,12 +10,12 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.gui.component.controls.ItemDataComboBoxModel;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractQuickAdvicePanel;
+import de.wms2.mywms.product.ItemData;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
 import org.openide.util.NbBundle;
 
 /**
@@ -47,7 +47,7 @@ public class QuickAdvicePanel extends AbstractQuickAdvicePanel{
 
                     if(selItemData != null){
     //                    getAmountTextField().setEnabled(true);
-                        amountTextField.setUnitName(selItemData.getHandlingUnit().getUnitName());
+                        amountTextField.setUnitName(selItemData.getItemUnit().getName());
                         amountTextField.setScale(selItemData.getScale());
                     }
     //                else {

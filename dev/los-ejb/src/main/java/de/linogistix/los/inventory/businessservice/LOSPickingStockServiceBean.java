@@ -10,6 +10,7 @@ package de.linogistix.los.inventory.businessservice;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -22,20 +23,20 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoad;
 
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -260,14 +261,14 @@ public class LOSPickingStockServiceBean implements LOSPickingStockService {
 		sb.append(" SELECT NEW ");
 		sb.append(PickingStockUnitTO.class.getName());
 		sb.append("(su.id, su.amount, su.reservedAmount");
-		sb.append(", area.useForPicking, area.useForStorage");
+		sb.append(", area.usages ");
 		sb.append(", loc.id, loc.name");
 		sb.append(", ul.id, ul.labelId, ul.opened ");
 		sb.append(") FROM ");			
 		sb.append(StockUnit.class.getSimpleName()+" su, ");
-		sb.append(LOSUnitLoad.class.getSimpleName()+" ul, ");
-		sb.append(LOSStorageLocation.class.getSimpleName()+" loc, ");
-		sb.append(LOSArea.class.getSimpleName()+" area ");
+		sb.append(UnitLoad.class.getSimpleName()+" ul, ");
+		sb.append(StorageLocation.class.getSimpleName()+" loc, ");
+		sb.append(Area.class.getSimpleName()+" area ");
 		sb.append("WHERE ul = su.unitLoad AND loc = ul.storageLocation AND loc.area=area ");
 		sb.append(" AND ul.lock=0 AND loc.lock in (0,:lockStorage) and su.lock!=2 and area.lock=0 ");
 		
@@ -351,7 +352,7 @@ class PickingStockUnitTO implements Serializable {
 	public BigDecimal amountReserved;
 	public BigDecimal amountAvailable;
 	
-	public PickingStockUnitTO(long id, BigDecimal amount, BigDecimal amountReserved, boolean useForPick, boolean useForTransport, long locationId, String locationName, long unitLoadId, String unitLoadLabel, boolean opened) {
+	public PickingStockUnitTO(long id, BigDecimal amount, BigDecimal amountReserved, String usages, long locationId, String locationName, long unitLoadId, String unitLoadLabel, boolean opened) {
 		this.stockId = id;
 		this.locationId = locationId;
 		this.locationName = locationName;
@@ -361,8 +362,8 @@ class PickingStockUnitTO implements Serializable {
 		this.unitLoadId = unitLoadId;
 		this.unitLoadLabel = unitLoadLabel;
 		this.opened = opened;
-		this.useForPick = useForPick;
-		this.useForTransport = useForTransport;
+		this.useForPick = (usages == null ? false : usages.contains(AreaUsages.PICKING));
+		this.useForTransport = (usages == null ? false : usages.contains(AreaUsages.STORAGE));
 	}
 
 	

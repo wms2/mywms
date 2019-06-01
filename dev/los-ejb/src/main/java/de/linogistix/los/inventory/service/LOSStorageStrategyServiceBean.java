@@ -21,19 +21,19 @@ import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ClientService;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSStorageStrategyServiceBean extends BasicServiceBean<LOSStorageStrategy> implements LOSStorageStrategyService {
+public class LOSStorageStrategyServiceBean extends BasicServiceBean<StorageStrategy> implements LOSStorageStrategyService {
 	Logger log = Logger.getLogger(LOSStorageStrategyServiceBean.class);
 
 	@EJB
@@ -46,9 +46,9 @@ public class LOSStorageStrategyServiceBean extends BasicServiceBean<LOSStorageSt
 	private ClientService clientService;
 	
 	
-	public LOSStorageStrategy getByName( String name ) {
+	public StorageStrategy getByName( String name ) {
 
-    	String queryStr = "SELECT o FROM " + LOSStorageStrategy.class.getSimpleName() + " o WHERE o.name=:name ";
+    	String queryStr = "SELECT o FROM " + StorageStrategy.class.getSimpleName() + " o WHERE o.name=:name ";
 
         Query query = manager.createQuery( queryStr );
 
@@ -56,7 +56,7 @@ public class LOSStorageStrategyServiceBean extends BasicServiceBean<LOSStorageSt
 
 		
 		try {
-			return (LOSStorageStrategy)query.getSingleResult();
+			return (StorageStrategy)query.getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -64,29 +64,29 @@ public class LOSStorageStrategyServiceBean extends BasicServiceBean<LOSStorageSt
     }
 
 
-	public LOSStorageStrategy getDefault(){
+	public StorageStrategy getDefault(){
 		return getDefault(null);
 	}
 	
-	public LOSStorageStrategy getDefault(Client client){
+	public StorageStrategy getDefault(Client client){
 		if( client == null ) {
 			client = contextService.getCallersClient();
 		}
 
 		String description =null;
-		String name = propertyService.getStringDefault(client, null, LOSStorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, null);
+		String name = propertyService.getStringDefault(client, null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, null);
 		if( StringTools.isEmpty(name) ) {
 			User user = contextService.getCallersUser();
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSStorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, null, description, false, true);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, null, description, false, true);
 		}
 		
-		LOSStorageStrategy strat = getByName(name);
+		StorageStrategy strat = getByName(name);
 		
 		if( strat == null ) {
-			strat = entityGenerator.generateEntity(LOSStorageStrategy.class);
+			strat = entityGenerator.generateEntity(StorageStrategy.class);
 			
 			strat.setName(name);
 			strat.setAdditionalContent(description);

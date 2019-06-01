@@ -14,11 +14,11 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * Strategy Service.<br>

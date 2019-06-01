@@ -24,11 +24,11 @@ import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  *
@@ -58,8 +58,8 @@ public class StorageFacadeBean implements StorageFacade {
     public LOSStorageRequest getStorageRequest(String labelId, boolean startProcessing) throws FacadeException {
         try {
             LOSStorageRequest req;
-            LOSUnitLoad ul = (LOSUnitLoad) ulQuery.queryByIdentity(labelId);
-            ul = manager.find(LOSUnitLoad.class, ul.getId());
+            UnitLoad ul = ulQuery.queryByIdentity(labelId);
+            ul = manager.find(UnitLoad.class, ul.getId());
             Client c = storage.determineClient(ul);
             req = storage.getOrCreateStorageRequest(c, ul, startProcessing);
             try {
@@ -80,15 +80,15 @@ public class StorageFacadeBean implements StorageFacade {
     	log.debug(logStr+" label="+srcLabel+", destination="+destination);
     	
         LOSStorageRequest r;
-        LOSStorageLocation sl = null;
-        LOSUnitLoad ul;
+        StorageLocation sl = null;
+        UnitLoad ul;
                  
         r = getStorageRequest(srcLabel, false);
        
         if (addToExisting){
 	        //try unit load first
         	try {
-	            ul = (LOSUnitLoad) ulQuery.queryByIdentity(destination);
+	            ul = ulQuery.queryByIdentity(destination);
 	            
 	            try{
 //	            	sl = locQuery.queryByIdentity(destination);
@@ -145,7 +145,7 @@ public class StorageFacadeBean implements StorageFacade {
             	}
 
 	        	try{
-	        		ul = (LOSUnitLoad) ulQuery.queryByIdentity(destination);
+	        		ul = ulQuery.queryByIdentity(destination);
 	        		if ( ! ul.getStorageLocation().equals(sl)){
 	            		log.error("Ambigous scan of id " + destination);
 	            		throw new InventoryException(InventoryExceptionKey.AMBIGUOUS_SCAN, destination);
@@ -164,7 +164,7 @@ public class StorageFacadeBean implements StorageFacade {
 	        } else {
 	            log.warn("No StorageLocation found: " + destination + ". Test for UnitLoad");
 	            try {
-	                ul = (LOSUnitLoad) ulQuery.queryByIdentity(destination);
+	                ul = ulQuery.queryByIdentity(destination);
 	            } catch (BusinessObjectNotFoundException ex) {
 	                throw new InventoryException(InventoryExceptionKey.STORAGE_WRONG_LOCATION_NOT_ALLOWED, srcLabel);
 	            }

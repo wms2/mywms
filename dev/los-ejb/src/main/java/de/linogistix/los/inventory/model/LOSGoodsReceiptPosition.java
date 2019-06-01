@@ -21,8 +21,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.StockUnit;
 import org.mywms.model.User;
+
+import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * A Position within {@link LOSGoodsReceipt}. 
@@ -43,48 +44,78 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Unique identifier
+	 */
+	@Column(unique = true)
 	private String positionNumber;
 
+	/**
+	 * Containing {@link LOSGoodsReceipt}
+	 */
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	private LOSGoodsReceipt goodsReceipt;
 
+	/**
+	 * References an external order number
+	 */
 	private String orderReference;
 
+	/**
+	 * The amount that has been entered during goods receipt process.
+	 */
+	@Column(precision=17, scale=4)
 	private BigDecimal amount;
 
 	private String itemData;
 	
+	/**
+	 * Scale of item data
+	 */
 	private int scale;
 
 	private String lot;
 
+	/**
+	 * Permanently holds string reference to the {@link StockUnit} that has been created 
+	 * during goods receipt
+	 */
 	private String stockUnitStr;
 
+	/**
+	 * {@link StockUnit} of this entity.
+	 * 
+	 * Might be null after parent {@link LOSGoodsReceipt} has been set to {@link LOSGoodsOutRequestState.FINISHED}!
+	 * Information of StockUnit is therefore permanently stored in {@link LOSGoodsReceiptPosition.getStockUnitStr}
+	 */
+	@OneToOne
 	private StockUnit stockUnit;
 
 	private String unitLoad;
 
+	@Enumerated(EnumType.STRING)
 	private LOSGoodsReceiptType receiptType;
 
+	/**
+	 * An optional description of quality faults seen during goods receipt process. 
+	 */
+	@Column(length=1024)
 	private String qaFault;
 	
 	private int qaLock = 0;
 	
+	@ManyToOne(optional=true)
 	private LOSAdvice relatedAdvice;
 	
 	private LOSGoodsReceiptState state=LOSGoodsReceiptState.RAW;
 	
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	private User operator;
 	
 	public LOSGoodsReceiptPosition(){
 		
 	}
 	
-	/**
-	 * Unique identifier
-	 * 
-	 * @return
-	 */
-	@Column(unique = true)
 	public String getPositionNumber() {
 		return positionNumber;
 	}
@@ -93,11 +124,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.positionNumber = positionNumber;
 	}
 
-	/**
-	 * Containing {@link LOSGoodsReceipt}
-	 * @return
-	 */
-	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	public LOSGoodsReceipt getGoodsReceipt() {
 		return goodsReceipt;
 	}
@@ -106,11 +132,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.goodsReceipt = goodsReceipt;
 	}
 
-	/**
-	 * References an external order number
-	 * 
-	 * @return
-	 */
 	public String getOrderReference() {
 		return orderReference;
 	}
@@ -119,12 +140,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.orderReference = orderReference;
 	}
 
-	/**
-	 * The amount that has been entered during goods receipt process.
-	 * 
-	 * @return
-	 */
-	@Column(precision=17, scale=4)
 	public BigDecimal getAmount() {
 		try {
 			return amount.setScale(scale);
@@ -144,15 +159,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 	}
 
 
-	/**
-	 * Returns {@link StockUnit} of this entity.
-	 * 
-	 * Might be null after parent {@link LOSGoodsReceipt} has been set to {@link LOSGoodsOutRequestState.FINISHED}!
-	 * Information of StockUnit is therefore permanently stored in {@link LOSGoodsReceiptPosition.getStockUnitStr}
-	 * 
-	 * @return stock unit 
-	 */
-	@OneToOne
 	public StockUnit getStockUnit() {
 		return stockUnit;
 	}
@@ -193,12 +199,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.lot = lot;
 	}
 
-	/**
-	 * Permanently holds string reference to the {@link StockUnit} that has been created 
-	 * during goods receipt
-	 * 
-	 * @return
-	 */
 	public String getStockUnitStr() {
 		return stockUnitStr;
 	}
@@ -211,7 +211,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.receiptType = receiptType;
 	}
 
-	@Enumerated(EnumType.STRING)
 	public LOSGoodsReceiptType getReceiptType() {
 		return receiptType;
 	}
@@ -220,11 +219,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.qaFault = qaFault;
 	}
 	
-	/**
-	 * An optional description of quality faults seen during goods receipt process. 
-	 * @return
-	 */
-	@Column(length=1024)
 	public String getQaFault() {
 		return this.qaFault;
 	}
@@ -241,15 +235,10 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.scale = scale;
 	}
 
-	/**
-	 * Scale of item data
-	 * @return
-	 */
 	public int getScale() {
 		return scale;
 	}
 
-	@ManyToOne(optional=true)
 	public LOSAdvice getRelatedAdvice() {
 		return relatedAdvice;
 	}
@@ -274,7 +263,6 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 		this.state = state;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public User getOperator() {
 		return operator;
 	}

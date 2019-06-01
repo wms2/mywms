@@ -10,11 +10,10 @@ package de.linogistix.los.inventory.pick.facade;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import org.mywms.model.StockUnit;
-
 import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
 
 public class CreatePickRequestPositionTO implements Serializable{
 
@@ -25,7 +24,7 @@ public class CreatePickRequestPositionTO implements Serializable{
 	 */
 	public String pickRequestNumber;
 	
-	public BODTO<LOSStorageLocation> targetPlace;
+	public BODTO<StorageLocation> targetPlace;
 	
 	/**
 	 * ---- PickRequestPosition data

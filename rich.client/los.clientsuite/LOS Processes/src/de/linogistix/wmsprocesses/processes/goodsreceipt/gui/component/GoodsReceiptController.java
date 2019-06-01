@@ -29,7 +29,6 @@ import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.ClientQueryRemote;
@@ -37,6 +36,10 @@ import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
@@ -47,9 +50,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoadType;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -159,7 +159,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         
     }
 
-    void edit(BODTO<Client> client, String string, String string0, String deliverer, String externNumber, Date date, BODTO<LOSStorageLocation> gate, String info) throws FacadeException {
+    void edit(BODTO<Client> client, String string, String string0, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info) throws FacadeException {
         
         LOSGoodsReceiptCRUDRemote crud = loc.getStateless(LOSGoodsReceiptCRUDRemote.class);
         ClientQueryRemote clQuery = loc.getStateless(ClientQueryRemote.class);
@@ -213,7 +213,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         }
     }
 
-    void createGoodsReceipt(BODTO<Client> client, String licence, String driver, String deliverer, String externNumber, Date date, BODTO<LOSStorageLocation> gate, String info) {
+    void createGoodsReceipt(BODTO<Client> client, String licence, String driver, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info) {
         if( goodsReceiptFacade == null ) {
             log.info("Facade not loaded");
             init();
@@ -265,15 +265,15 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         return adviceQuery.queryById(id);
     }
 
-    List<BODTO<LOSStorageLocation>> getGoodsReceiptLocations() {
+    List<BODTO<StorageLocation>> getGoodsReceiptLocations() {
         if (goodsReceiptFacade == null) {
-            return new ArrayList<BODTO<LOSStorageLocation>>();
+            return new ArrayList<BODTO<StorageLocation>>();
         } else {
             try {
                 return goodsReceiptFacade.getGoodsReceiptLocations();
             } catch (LOSLocationException ex) {
                 ExceptionAnnotator.annotate(ex);
-                return new ArrayList<BODTO<LOSStorageLocation>>();
+                return new ArrayList<BODTO<StorageLocation>>();
             }
         }
     }

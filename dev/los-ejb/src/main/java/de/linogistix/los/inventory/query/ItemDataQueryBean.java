@@ -19,9 +19,6 @@ import javax.ejb.Stateless;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemDataNumber;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.inventory.query.dto.ItemDataTO;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
@@ -30,6 +27,9 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  *
@@ -51,7 +51,7 @@ public class ItemDataQueryBean extends BusinessObjectQueryBean<ItemData> impleme
 	private static final String[] dtoProps = new String[] { "id", "version", "number",  
 		"name",
 		"client.number",
-		"handlingUnit.unitName"};
+		"itemUnit.name"};
 
 	@Override
 	protected String[] getBODTOConstructorProps() {

@@ -15,14 +15,14 @@ import javax.ejb.Stateless;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.common.exception.OutOfRangeException;
 import de.linogistix.los.inventory.customization.ManageAdviceService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSAdvice;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * Inventory relevant business operations

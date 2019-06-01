@@ -20,14 +20,12 @@ import javax.ejb.Stateless;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.LotService;
 
 import de.linogistix.los.inventory.query.dto.LotTO;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.LotLockState;
+import de.linogistix.los.inventory.service.LotService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
@@ -36,6 +34,8 @@ import de.linogistix.los.query.TemplateQuery;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * 

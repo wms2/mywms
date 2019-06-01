@@ -11,12 +11,11 @@ import java.util.List;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Remote
 public interface QueryStockServiceRemote {
@@ -24,13 +23,13 @@ public interface QueryStockServiceRemote {
 	/**
 	 * In case of lazily loading you have to fetch stocks extra.
 	 *  For security reasons result will be limited according to the callers client <br> 
-	 * - callers who belong to the system client will get all {@link StockUnit}s for the specified {@link LOSUnitLoad}<br>
+	 * - callers who belong to the system client will get all {@link StockUnit}s for the specified {@link UnitLoad}<br>
 	 * - callers of a certain client will get only those {@link StockUnit}s that are also assigned to that client.
 	 * 
-	 * @param ul {@link LOSUnitLoad} the stocks are placed on
+	 * @param ul {@link UnitLoad} the stocks are placed on
 	 * @return {@link List} of {@link StockUnit}s
 	 */
-	public List<StockUnit> getListByUnitLoad(LOSUnitLoad ul);
+	public List<StockUnit> getListByUnitLoad(UnitLoad ul);
 	
 	/**
 	 * Reading the stock units of a unit load.<br>
@@ -85,6 +84,6 @@ public interface QueryStockServiceRemote {
 	 * @param loc
 	 * @return
 	 */
-	public List<StockUnit> getListByStorageLocation(LOSStorageLocation loc);
+	public List<StockUnit> getListByStorageLocation(StorageLocation loc);
 
 }

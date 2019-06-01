@@ -11,7 +11,7 @@ import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * Compares LOSRackLocation by name so that A1-2-1-1 is smaller than A1-10-1-1.
@@ -20,11 +20,11 @@ import de.linogistix.los.location.model.LOSStorageLocation;
  * 
  */
 public class LOSRackLocationComparatorByName implements
-		Comparator<LOSStorageLocation> {
+		Comparator<StorageLocation> {
 
 	private static final Logger log = Logger.getLogger(LOSRackLocationComparatorByName.class);
 	
-	public int compare(LOSStorageLocation o1, LOSStorageLocation o2) {
+	public int compare(StorageLocation o1, StorageLocation o2) {
 		String[] n1 = o1.getName().split("[_-]");
 		String[] n2 = o2.getName().split("[_-]");
 		int max = n1.length > n2.length ? n1.length : n2.length;

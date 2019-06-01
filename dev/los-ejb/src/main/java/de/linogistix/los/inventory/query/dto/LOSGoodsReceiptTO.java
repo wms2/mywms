@@ -11,8 +11,8 @@ import java.util.Date;
 
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 
 public class LOSGoodsReceiptTO extends BODTO<LOSGoodsReceipt> {
 
@@ -30,7 +30,7 @@ public class LOSGoodsReceiptTO extends BODTO<LOSGoodsReceipt> {
 	
 	public LOSGoodsReceiptTO(Long id, int version, 
 			String goodsReceiptNumber, String deliveryNoteNumber,
-			Date receiptDate, LOSGoodsReceiptState receiptState, String clientNumber, LOSStorageLocation location) {
+			Date receiptDate, LOSGoodsReceiptState receiptState, String clientNumber, StorageLocation location) {
 		super(id, version, goodsReceiptNumber);
 		this.deliveryNoteNumber = deliveryNoteNumber;
 		this.receiptDate = receiptDate;

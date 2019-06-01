@@ -16,8 +16,8 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Document;
 
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -82,7 +82,7 @@ public interface LOSOrderFacade {
 	 * @throws FacadeException
 	 */
 	public List<String> getGoodsOutLocations() throws FacadeException;
-	public List<BODTO<LOSStorageLocation>> getGoodsOutLocationsBO() throws FacadeException;
+	public List<BODTO<StorageLocation>> getGoodsOutLocationsBO() throws FacadeException;
 
 	public void changeOrderPrio( Long orderId, int prio ) throws FacadeException;
 

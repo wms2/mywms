@@ -96,7 +96,7 @@ public class BusinessObjectHelper {
   /**
    *Checks whether <code>T</code> of Type {@link BasicEntity} might be changed by
    * callers user.
-   * @return true if caller has role {@link org.mywms.globals.Role.ADMIN} or belongs to the same client than <code>T</code>
+   * @return true if caller has role {@link org.mywms.model.Role.ADMIN} or belongs to the same client than <code>T</code>
    */
   public boolean checkClient(BasicEntity bo) {
     

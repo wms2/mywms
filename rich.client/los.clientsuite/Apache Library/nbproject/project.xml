@@ -13,6 +13,19 @@
                 <package>org.apache.commons.digester.plugins.strategies</package>
                 <package>org.apache.commons.digester.substitution</package>
                 <package>org.apache.commons.digester.xmlrules</package>
+                <package>org.apache.commons.lang3</package>
+                <package>org.apache.commons.lang3.arch</package>
+                <package>org.apache.commons.lang3.builder</package>
+                <package>org.apache.commons.lang3.concurrent</package>
+                <package>org.apache.commons.lang3.event</package>
+                <package>org.apache.commons.lang3.exception</package>
+                <package>org.apache.commons.lang3.math</package>
+                <package>org.apache.commons.lang3.mutable</package>
+                <package>org.apache.commons.lang3.reflect</package>
+                <package>org.apache.commons.lang3.text</package>
+                <package>org.apache.commons.lang3.text.translate</package>
+                <package>org.apache.commons.lang3.time</package>
+                <package>org.apache.commons.lang3.tuple</package>
                 <package>org.apache.log4j</package>
                 <package>org.apache.log4j.chainsaw</package>
                 <package>org.apache.log4j.config</package>
@@ -39,6 +52,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/commons-digester-1.8.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/commons-digester-1.8.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-lang3.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-lang3.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

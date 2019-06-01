@@ -18,8 +18,8 @@ import de.linogistix.location.bobrowser.masternode.BOLOSTypeCapacityConstraintMa
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.LOSTypeCapacityConstraintCRUDRemote;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import java.util.ArrayList;
 import java.util.List;
 import org.mywms.globals.Role;
@@ -69,9 +69,9 @@ public class BOLOSTypeCapacityConstraint extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSTypeCapacityConstraint c;
+        TypeCapacityConstraint c;
 
-        c = new LOSTypeCapacityConstraint();
+        c = new TypeCapacityConstraint();
         
         return c;
 

@@ -14,11 +14,12 @@ import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BODTO;
-import de.linogistix.los.location.model.LOSArea;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.stocktaking.facade.LOSStocktakingFacade;
 import de.linogistix.stocktaking.res.StocktakingBundleResolver;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.Zone;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -31,8 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Zone;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
@@ -44,7 +43,7 @@ import org.openide.windows.TopComponent;
  * @author krane
  */
 public class StocktakingCreatePanel extends JPanel {
-    private BOAutoFilteringComboBox<LOSArea> areaComboBox;
+    private BOAutoFilteringComboBox<Area> areaComboBox;
     private JCheckBox areaEnable;
     private BOAutoFilteringComboBox<Zone> zoneComboBox;
     private JCheckBox zoneEnable;
@@ -52,9 +51,7 @@ public class StocktakingCreatePanel extends JPanel {
     private JCheckBox clientEnable;
     private JRadioButton clientModeLocation;
     private JRadioButton clientModeItemData;
-    private BOAutoFilteringComboBox<LOSRack> rackComboBox;
-    private JCheckBox rackEnable;
-    private BOAutoFilteringComboBox<LOSStorageLocation> locationComboBox;
+    private BOAutoFilteringComboBox<StorageLocation> locationComboBox;
     private JCheckBox locationEnable;
     private LOSTextField locationField;
     private BOAutoFilteringComboBox<ItemData> itemComboBox;
@@ -108,27 +105,7 @@ public class StocktakingCreatePanel extends JPanel {
         clientMode.add(clientModeItemData);
         clientMode.add(clientModeLocation);
 
-        rackComboBox = new BOAutoFilteringComboBox<LOSRack>(LOSRack.class);
-        rackComboBox.setEditorLabelTitle(NbBundle.getMessage(StocktakingBundleResolver.class, "LABEL_RACK"));
-        rackComboBox.setEnabled(false);
-
-        rackEnable = new JCheckBox();
-        rackEnable.setSelected(false);
-        rackEnable.addActionListener( new ActionListener() {
-
-            public void actionPerformed(ActionEvent arg0) {
-                if( rackEnable.isSelected() ) {
-                    rackComboBox.setEnabled(true);
-                    rackComboBox.requestFocus();
-                }
-                else {
-                    rackComboBox.setEnabled(false);
-                    rackComboBox.clear();
-                }
-            }
-        });
-
-        areaComboBox = new BOAutoFilteringComboBox<LOSArea>(LOSArea.class);
+        areaComboBox = new BOAutoFilteringComboBox<Area>(Area.class);
         areaComboBox.setEditorLabelTitle(NbBundle.getMessage(StocktakingBundleResolver.class, "LABEL_AREA"));
         areaComboBox.setEnabled(false);
 
@@ -174,7 +151,7 @@ public class StocktakingCreatePanel extends JPanel {
         locationField.getTextFieldLabel().setTitleText(NbBundle.getMessage(StocktakingBundleResolver.class, "LABEL_LOCATION_PATTERN"));
         locationField.setEnabled(false);
 
-        locationComboBox = new BOAutoFilteringComboBox<LOSStorageLocation>(LOSStorageLocation.class);
+        locationComboBox = new BOAutoFilteringComboBox<StorageLocation>(StorageLocation.class);
         locationComboBox.setEditorLabelTitle(NbBundle.getMessage(StocktakingBundleResolver.class, "LABEL_LOCATION"));
         locationComboBox.setEnabled(false);
 
@@ -298,14 +275,6 @@ public class StocktakingCreatePanel extends JPanel {
         centerPanel1.add(zoneComboBox, gridBagConstraints);
 
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        centerPanel1.add(rackEnable, gridBagConstraints);
-
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        centerPanel1.add(rackComboBox, gridBagConstraints);
-        
-        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         centerPanel1.add(locationEnable, gridBagConstraints);
         
@@ -392,7 +361,6 @@ public class StocktakingCreatePanel extends JPanel {
         Long clientId = null;
         Long areaId = null;
         Long zoneId = null;
-        Long rackId = null;
         Long locationId = null;
         Long itemId = null;
         Date invDate = null;
@@ -412,7 +380,7 @@ public class StocktakingCreatePanel extends JPanel {
             
         }
         if( areaEnable.isSelected() ) {
-            BODTO<LOSArea> areaTo = areaComboBox.getSelectedItem();
+            BODTO<Area> areaTo = areaComboBox.getSelectedItem();
             if( areaTo == null ) {
                 String msg = NbBundle.getMessage(StocktakingBundleResolver.class, "MSG_SELECT_AREA");
                 NotifyDescriptor nd = new NotifyDescriptor.Message(msg, NotifyDescriptor.PLAIN_MESSAGE);
@@ -433,19 +401,8 @@ public class StocktakingCreatePanel extends JPanel {
             }
             zoneId = zoneTo.getId();
         }
-        if( rackEnable.isSelected() ) {
-            BODTO<LOSRack> rackTo = rackComboBox.getSelectedItem();
-            if( rackTo == null ) {
-                String msg = NbBundle.getMessage(StocktakingBundleResolver.class, "MSG_SELECT_RACK");
-                NotifyDescriptor nd = new NotifyDescriptor.Message(msg, NotifyDescriptor.PLAIN_MESSAGE);
-                DialogDisplayer.getDefault().notify(nd);
-                rackComboBox.requestFocus();
-                return;
-            }
-            rackId = rackTo.getId();
-        }
         if( locationEnable.isSelected() ) {
-            BODTO<LOSStorageLocation> locationTo = locationComboBox.getSelectedItem();
+            BODTO<StorageLocation> locationTo = locationComboBox.getSelectedItem();
             locationName = locationField.getText();
             if( locationTo == null && ( locationName == null || locationName.length()==0 )) {
                 String msg = NbBundle.getMessage(StocktakingBundleResolver.class, "MSG_SELECT_LOCATION");
@@ -487,7 +444,7 @@ public class StocktakingCreatePanel extends JPanel {
             
             stFacade = loc.getStateless(LOSStocktakingFacade.class);
             int numOrders = 0;
-            numOrders = stFacade.generateOrders(false, clientId, areaId, zoneId, rackId, locationId, locationName, itemId, itemNo, invDate, enableEmptyLocations.isSelected(), enableFullLocations.isSelected(), clientModeLocation.isSelected(), clientModeItemData.isSelected());
+            numOrders = stFacade.generateOrders(false, clientId, areaId, zoneId, locationId, locationName, itemId, itemNo, invDate, enableEmptyLocations.isSelected(), enableFullLocations.isSelected(), clientModeLocation.isSelected(), clientModeItemData.isSelected());
   
             String msg;
             if( numOrders == 0 ) {
@@ -505,7 +462,7 @@ public class StocktakingCreatePanel extends JPanel {
             }
             
 
-            numOrders = stFacade.generateOrders(true, clientId, areaId, zoneId, rackId, locationId, locationName, itemId, itemNo, invDate, enableEmptyLocations.isSelected(), enableFullLocations.isSelected(), clientModeLocation.isSelected(), clientModeItemData.isSelected() );
+            numOrders = stFacade.generateOrders(true, clientId, areaId, zoneId, locationId, locationName, itemId, itemNo, invDate, enableEmptyLocations.isSelected(), enableFullLocations.isSelected(), clientModeLocation.isSelected(), clientModeItemData.isSelected() );
             
             msg = NbBundle.getMessage(StocktakingBundleResolver.class, "MSG_NUM_ORDER_CREATED", String.valueOf(numOrders) );
             NotifyDescriptor nd = new NotifyDescriptor.Message(msg, NotifyDescriptor.PLAIN_MESSAGE);

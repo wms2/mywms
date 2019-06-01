@@ -14,9 +14,8 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.Zone;
-
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.strategy.Zone;
 
 /**
  *

@@ -25,12 +25,7 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.BasicEntity;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemUnit;
 import org.mywms.model.ItemUnitType;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.service.ItemUnitService;
 
 import de.linogistix.los.crud.BusinessObjectCreationException;
 import de.linogistix.los.crud.BusinessObjectExistsException;
@@ -63,14 +58,12 @@ import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.inventory.query.LOSUnitLoadAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.location.query.RackQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.QueryDetail;
@@ -78,6 +71,11 @@ import de.linogistix.los.query.TemplateQuery;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
 
 /**
  * Creates an example topology
@@ -93,9 +91,9 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	protected Client TESTCLIENT;
 	protected Client TESTMANDANT;
 	
-	protected LOSRack TEST_RACK_1;
+	protected String TEST_RACK_1;
 	
-	protected LOSRack TEST_RACK_2;
+	protected String TEST_RACK_2;
 	
 	protected ItemData ITEM_A1;
 	protected ItemData ITEM_A2;
@@ -112,8 +110,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	private ClientQueryRemote clientQuery;
 	@EJB
 	private LOSStorageLocationQueryRemote slQuery;
-	@EJB
-	private RackQueryRemote rackQuery;
 	@EJB
 	private StockUnitQueryRemote suQuery;
 	@EJB
@@ -191,7 +187,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			ITEM_G = itemUnitQuery.queryByIdentity(ITEM_G_NAME);
 		} catch (BusinessObjectNotFoundException ex) {
 			ITEM_G = new ItemUnit();
-			ITEM_G.setUnitName(ITEM_G_NAME);
+			ITEM_G.setName(ITEM_G_NAME);
 			ITEM_G.setBaseFactor(1);
 			ITEM_G.setUnitType(ItemUnitType.WEIGHT);
 			ITEM_G.setBaseUnit(null);
@@ -202,7 +198,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			ITEM_KG = itemUnitQuery.queryByIdentity(ITEM_KG_NAME);
 		} catch (BusinessObjectNotFoundException ex) {
 			ITEM_KG = new ItemUnit();
-			ITEM_KG.setUnitName(ITEM_KG_NAME);
+			ITEM_KG.setName(ITEM_KG_NAME);
 			ITEM_KG.setBaseFactor(1000);
 			ITEM_KG.setUnitType(ItemUnitType.WEIGHT);			ITEM_KG.setBaseUnit(ITEM_G);
 			em.persist(ITEM_KG);
@@ -222,7 +218,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			ITEM_A1.setClient(TESTCLIENT);
 			ITEM_A1.setName(ITEM_A1_NUMBER);
 			ITEM_A1.setNumber(ITEM_A1_NUMBER);
-			ITEM_A1.setHandlingUnit(ITEM_STK);
+			ITEM_A1.setItemUnit(ITEM_STK);
 			em.persist(ITEM_A1);
 		}
 
@@ -233,7 +229,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			ITEM_A2.setClient(TESTCLIENT);
 			ITEM_A2.setName(ITEM_A2_NUMBER);
 			ITEM_A2.setNumber(ITEM_A2_NUMBER);
-			ITEM_A2.setHandlingUnit(ITEM_STK);
+			ITEM_A2.setItemUnit(ITEM_STK);
 			em.persist(ITEM_A2);
 		}
 	}
@@ -283,14 +279,14 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			BusinessObjectSecurityException, BusinessObjectNotFoundException,
 			BusinessObjectModifiedException, BusinessObjectMergeException {
 		
-		TEST_RACK_1 = rackQuery.queryByIdentity(LocationTestTopologyBean.TEST_RACK_1_NAME);
+		TEST_RACK_1 = LocationTestTopologyBean.TEST_RACK_1_NAME;
 		
-		TEST_RACK_2 = rackQuery.queryByIdentity(LocationTestTopologyBean.TEST_RACK_2_NAME);
+		TEST_RACK_2 = LocationTestTopologyBean.TEST_RACK_2_NAME;
 		
 		for (int x = 1; x < 5; x++) {
 			for (int y = 1; y < 4; y++) {
-				LOSStorageLocation rl;
-				String locName = TEST_RACK_1.getName() + "-1-" + y + "-" + x;
+				StorageLocation rl;
+				String locName = TEST_RACK_1 + "-1-" + y + "-" + x;
 				
 				rl = slQuery.queryByIdentity(locName);
 							
@@ -306,8 +302,8 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 		
 		for (int x = 1; x < 3; x++) {
 			for (int y = 1; y < 4; y++) {
-				LOSStorageLocation rl;
-				String locName = TEST_RACK_2.getName() + "-1-" + y + "-" + x;
+				StorageLocation rl;
+				String locName = TEST_RACK_2 + "-1-" + y + "-" + x;
 				
 				rl = slQuery.queryByIdentity(locName);
 				
@@ -715,12 +711,12 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 														BusinessObjectModifiedException, BusinessObjectMergeException {
 
 		try{
-			TEST_RACK_1 = rackQuery.queryByIdentity(LocationTestTopologyBean.TEST_RACK_1_NAME);
+			TEST_RACK_1 = LocationTestTopologyBean.TEST_RACK_1_NAME;
 		
 			for (int x = 1; x < 5; x++) {
 				for (int y = 1; y < 4; y++) {
-					LOSStorageLocation rl;
-					String locName = TEST_RACK_1.getName() + "-1-" + y + "-" + x;
+					StorageLocation rl;
+					String locName = TEST_RACK_1 + "-1-" + y + "-" + x;
 					
 					rl = slQuery.queryByIdentity(locName);
 								
@@ -740,14 +736,14 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 		
 		try{
 		
-			TEST_RACK_2 = rackQuery.queryByIdentity(LocationTestTopologyBean.TEST_RACK_2_NAME);
+			TEST_RACK_2 = LocationTestTopologyBean.TEST_RACK_2_NAME;
 			
 			
 			
 			for (int x = 1; x < 3; x++) {
 				for (int y = 1; y < 4; y++) {
-					LOSStorageLocation rl;
-					String locName = TEST_RACK_2.getName() + "-1-" + y + "-" + x;
+					StorageLocation rl;
+					String locName = TEST_RACK_2 + "-1-" + y + "-" + x;
 					
 					rl = slQuery.queryByIdentity(locName);
 					

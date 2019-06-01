@@ -8,8 +8,8 @@
 package de.linogistix.wmsprocesses.carriertransfer;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.UnitLoad;
 import org.openide.util.NbBundle;
 
 /**
@@ -23,14 +23,14 @@ public class CarrierTransferDataPanel extends javax.swing.JPanel {
         
         initComponents();
 
-        unitLoadAutoFilteringComboBox.setBoClass(LOSUnitLoad.class);
+        unitLoadAutoFilteringComboBox.setBoClass(UnitLoad.class);
         unitLoadAutoFilteringComboBox.initAutofiltering();
         unitLoadAutoFilteringComboBox.setEditorLabelTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class, "Carrier.Source"));
         unitLoadAutoFilteringComboBox.setEditorLabelText();
         unitLoadAutoFilteringComboBox.setEnabled(true);
 
 
-        destinationAutofilteringComboBox.setBoClass(LOSUnitLoad.class);
+        destinationAutofilteringComboBox.setBoClass(UnitLoad.class);
         destinationAutofilteringComboBox.initAutofiltering();
         destinationAutofilteringComboBox.setEditorLabelTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class, "Carrier.Destination"));
         destinationAutofilteringComboBox.setEditorLabelText();

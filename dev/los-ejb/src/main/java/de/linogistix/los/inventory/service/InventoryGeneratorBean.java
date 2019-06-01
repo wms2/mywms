@@ -11,7 +11,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import org.mywms.model.Client;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.inventory.facade.InventoryProcessFacade;
 import de.linogistix.los.inventory.model.LOSAdvice;
@@ -26,6 +25,7 @@ import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.LOSSequenceGeneratorService;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 /**
  * 

@@ -18,7 +18,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicEntity;
-import org.mywms.model.ItemData;
+
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Entity
 @Table(name="los_fixassgn")
@@ -32,22 +34,23 @@ public class LOSFixedLocationAssignment extends BasicEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	private LOSStorageLocation assignedLocation;
+	@OneToOne(optional=false)
+	private StorageLocation assignedLocation;
 	
+	@ManyToOne(optional=false)
 	private ItemData itemData;
 
+	@Column(nullable = false, precision=17, scale=4)
 	private BigDecimal desiredAmount = BigDecimal.ZERO;
 	
-	@OneToOne(optional=false)
-	public LOSStorageLocation getAssignedLocation() {
+	public StorageLocation getAssignedLocation() {
 		return assignedLocation;
 	}
 
-	public void setAssignedLocation(LOSStorageLocation assignedLocation) {
+	public void setAssignedLocation(StorageLocation assignedLocation) {
 		this.assignedLocation = assignedLocation;
 	}
 
-	@ManyToOne(optional=false)
 	public ItemData getItemData() {
 		return itemData;
 	}
@@ -56,7 +59,6 @@ public class LOSFixedLocationAssignment extends BasicEntity {
 		this.itemData = itemData;
 	}
 
-	@Column(nullable = false, precision=17, scale=4)
 	public BigDecimal getDesiredAmount() {
 		if (itemData != null){
 			try{

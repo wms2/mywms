@@ -17,18 +17,18 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.inventory.query.dto.StockUnitTO;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 /**
  *
@@ -38,7 +38,7 @@ import de.linogistix.los.query.exception.BusinessObjectQueryException;
 public interface StockUnitQueryRemote extends BusinessObjectQueryRemote<StockUnit>{ 
   
 	public List<StockUnitTO> queryByStorageLocation(
-			BODTO<LOSStorageLocation> sl,
+			BODTO<StorageLocation> sl,
 			QueryDetail detail) throws BusinessObjectQueryException;
 	
 	public List<StockUnitTO> queryByItemData(
@@ -53,7 +53,7 @@ public interface StockUnitQueryRemote extends BusinessObjectQueryRemote<StockUni
 			BODTO<Client> client, 
 			BODTO<Lot> lot,
 			BODTO<ItemData> itemData,
-			BODTO<LOSStorageLocation> storageLocation,
+			BODTO<StorageLocation> storageLocation,
 			QueryDetail detail) throws BusinessObjectNotFoundException, BusinessObjectQueryException;
 	
 	//dgrys portierung wildfly 8.2

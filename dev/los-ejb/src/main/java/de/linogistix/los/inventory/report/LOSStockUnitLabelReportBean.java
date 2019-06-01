@@ -22,7 +22,6 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.DocumentTypes;
-import org.mywms.model.StockUnit;
 import org.mywms.service.ConstraintViolatedException;
 
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
@@ -30,7 +29,8 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.StockUnitLabel;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.StockUnitLabelService;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  *
@@ -61,7 +61,7 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public StockUnitLabel generateStockUnitLabel(LOSUnitLoad unitLoad) throws FacadeException {
+	public StockUnitLabel generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException {
 		String logStr = "generateStockUnitLabel ";
 		StockUnitLabel label = null;
 		
@@ -87,7 +87,7 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 			labelPos = new LOSStockUnitReportTO();
 			labelPos.itemNumber = stock.getItemData().getNumber();
 			labelPos.itemName = stock.getItemData().getName();
-			labelPos.itemUnit = stock.getItemData().getHandlingUnit().getUnitName();
+			labelPos.itemUnit = stock.getItemData().getItemUnit().getName();
 			labelPos.itemScale = stock.getItemData().getScale();
 			labelPos.lotName = stock.getLot() == null ? "" : stock.getLot().getName();
 			labelPos.amount = stock.getAmount();
@@ -99,7 +99,7 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 			label.setAmount(stock.getAmount());
 			label.setItemdataRef(stock.getItemData().getNumber());
 			label.setItemNameRef(stock.getItemData().getName());
-			label.setItemUnit( stock.getItemData().getHandlingUnit().getUnitName() );
+			label.setItemUnit( stock.getItemData().getItemUnit().getName() );
 			label.setLotRef(stock.getLot() == null ? "" : stock.getLot().getName());
 			label.setScale(stock.getItemData().getScale());
 			

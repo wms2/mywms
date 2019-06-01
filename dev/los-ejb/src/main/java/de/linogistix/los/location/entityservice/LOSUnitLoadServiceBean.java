@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
@@ -31,17 +30,18 @@ import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
-import de.linogistix.los.location.model.LOSUnitLoadPackageType;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
 /**
  *
  * @author Jordan
  */
 @Stateless
 public class LOSUnitLoadServiceBean 
-        extends BasicServiceBean<LOSUnitLoad>
+        extends BasicServiceBean<UnitLoad>
         implements LOSUnitLoadService
 {
 
@@ -62,10 +62,10 @@ public class LOSUnitLoadServiceBean
 	private LocationReserver locationReserver;
 	@EJB
 	private CustomLocationService customLocationService;
-    public LOSUnitLoad createLOSUnitLoad(Client client, 
+    public UnitLoad createLOSUnitLoad(Client client, 
                                          String labelId, 
                                          UnitLoadType type,
-                                         LOSStorageLocation storageLocation) throws FacadeException 
+                                         StorageLocation storageLocation) throws FacadeException 
     {
         if (client == null 
             || labelId == null
@@ -76,7 +76,7 @@ public class LOSUnitLoadServiceBean
                     "createLOSUnitLoad: parameter == null");
         }
         
-        LOSUnitLoad ul = entityGenerator.generateEntity( LOSUnitLoad.class );
+        UnitLoad ul = entityGenerator.generateEntity( UnitLoad.class );
         ul.setClient(client);
         ul.setLabelId(labelId);
         ul.setType(type);
@@ -104,7 +104,7 @@ public class LOSUnitLoadServiceBean
     }
 
     //-----------------------------------------------------------------------
-	public boolean existsByStorageLocation(LOSStorageLocation location) {
+	public boolean existsByStorageLocation(StorageLocation location) {
 		Query query = manager.createNamedQuery("LOSUnitLoad.existsByLocation");
 		query.setParameter("location", location);
         query.setMaxResults(1);
@@ -120,24 +120,24 @@ public class LOSUnitLoadServiceBean
 
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-	public List<LOSUnitLoad> getListByStorageLocation(LOSStorageLocation sl) {
+	public List<UnitLoad> getListByStorageLocation(StorageLocation sl) {
 		Query query = manager.createNamedQuery("LOSUnitLoad.queryByLocation");
 		query.setParameter("location", sl);
                 
-        return (List<LOSUnitLoad>)query.getResultList();
+        return (List<UnitLoad>)query.getResultList();
     }
 
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-	public List<LOSUnitLoad> getListEmptyByStorageLocation(LOSStorageLocation sl) {
+	public List<UnitLoad> getListEmptyByStorageLocation(StorageLocation sl) {
         
         Query query = manager.createQuery(
-                            "SELECT ul FROM "+LOSUnitLoad.class.getSimpleName()+" ul "
+                            "SELECT ul FROM "+UnitLoad.class.getSimpleName()+" ul "
                             +"WHERE ul.storageLocation=:sl "
         					+" AND ul.stockUnitList IS EMPTY ");
         query.setParameter("sl", sl);
                 
-        return (List<LOSUnitLoad>)query.getResultList();
+        return (List<UnitLoad>)query.getResultList();
     }
 
     //-----------------------------------------------------------------------
@@ -145,13 +145,13 @@ public class LOSUnitLoadServiceBean
      * @see LOSUnitLoadService.getListByLabelStartsWith(Client, String)
      */
 	@SuppressWarnings("unchecked")
-	public List<LOSUnitLoad> getListByLabelStartsWith(Client client, String labelPart) 
+	public List<UnitLoad> getListByLabelStartsWith(Client client, String labelPart) 
 	{
 		String lowerPart = labelPart.toLowerCase();
         int partLength = lowerPart.length();
 
         StringBuffer qstr = new StringBuffer();
-        qstr.append("SELECT ul FROM " + LOSUnitLoad.class.getSimpleName() + " ul ")
+        qstr.append("SELECT ul FROM " + UnitLoad.class.getSimpleName() + " ul ")
             .append("WHERE SUBSTRING(ul.labelId, 1, :length) = :part ");
 
         if (!client.isSystemClient()) {
@@ -169,15 +169,15 @@ public class LOSUnitLoadServiceBean
             query.setParameter("client", client);
         }
         
-        return (List<LOSUnitLoad>) query.getResultList();
+        return (List<UnitLoad>) query.getResultList();
 	}
 
-	public LOSUnitLoad getByLabelId(Client client, String labelId) throws EntityNotFoundException {
+	public UnitLoad getByLabelId(Client client, String labelId) throws EntityNotFoundException {
 		Query query = manager.createNamedQuery("LOSUnitLoad.queryByLabel");
 		query = query.setParameter("label", labelId);
         
 		try {
-			LOSUnitLoad ul = (LOSUnitLoad)query.getSingleResult();
+			UnitLoad ul = (UnitLoad)query.getSingleResult();
 			return ul;
 		}
 		catch (NoResultException ex) {
@@ -187,13 +187,13 @@ public class LOSUnitLoadServiceBean
 	}
 
 
-	public LOSUnitLoad getNirwana() {
-		LOSUnitLoad ul;
-		LOSStorageLocation nirwana;
+	public UnitLoad getNirwana() {
+		UnitLoad ul;
+		StorageLocation nirwana;
 		nirwana = slService.getNirwana();
 		
 		try {
-			ul = (LOSUnitLoad) getByLabelId(clientService.getSystemClient(), nirwana.getName());
+			ul = getByLabelId(clientService.getSystemClient(), nirwana.getName());
 		} catch (EntityNotFoundException e) {
 			
 			UnitLoadType t;
@@ -202,10 +202,10 @@ public class LOSUnitLoadServiceBean
 				throw new RuntimeException("Nirwana does not exists. Neither does Default UnitLoadType");
 			}
 			
-			ul = entityGenerator.generateEntity( LOSUnitLoad.class );
+			ul = entityGenerator.generateEntity( UnitLoad.class );
 			ul.setClient(clientService.getSystemClient());
 			ul.setLabelId(nirwana.getName());
-			ul.setPackageType(LOSUnitLoadPackageType.CONTAINER);
+			ul.setPackageType(UnitLoadPackageType.CONTAINER);
 			ul.setStorageLocation(nirwana);
 			ul.setType(t);
 			manager.persist(ul);
@@ -215,11 +215,11 @@ public class LOSUnitLoadServiceBean
 		return ul;
 	}
 
-    public boolean hasChilds(LOSUnitLoad unitLoad) {
+    public boolean hasChilds(UnitLoad unitLoad) {
     	if( unitLoad==null ) {
     		return false;
     	}
-        String queryStr = "SELECT ul.id FROM " + LOSUnitLoad.class.getSimpleName() + " ul WHERE ul.carrierUnitLoadId = :id ";
+        String queryStr = "SELECT ul.id FROM " + UnitLoad.class.getSimpleName() + " ul WHERE ul.carrierUnitLoadId = :id ";
         Query query = manager.createQuery(queryStr);
         query.setParameter("id", unitLoad.getId());
 
@@ -233,11 +233,11 @@ public class LOSUnitLoadServiceBean
         }
         return true;
     }
-    public boolean hasOtherChilds(LOSUnitLoad unitLoad, LOSUnitLoad notOther) {
+    public boolean hasOtherChilds(UnitLoad unitLoad, UnitLoad notOther) {
     	if( unitLoad==null ) {
     		return false;
     	}
-        String queryStr = "SELECT ul.id FROM " + LOSUnitLoad.class.getSimpleName() + " ul WHERE ul.carrierUnitLoadId = :id AND ul!=:notOther";
+        String queryStr = "SELECT ul.id FROM " + UnitLoad.class.getSimpleName() + " ul WHERE ul.carrierUnitLoadId = :id AND ul!=:notOther";
         Query query = manager.createQuery(queryStr);
         query.setParameter("id", unitLoad.getId());
         query.setParameter("notOther", notOther);
@@ -254,14 +254,14 @@ public class LOSUnitLoadServiceBean
     }
 
     @SuppressWarnings("unchecked")
-	public List<LOSUnitLoad> getChilds(LOSUnitLoad unitLoad) {
+	public List<UnitLoad> getChilds(UnitLoad unitLoad) {
 		Query query = manager.createNamedQuery("LOSUnitLoad.queryByCarrierId");
 		query.setParameter("carrierId", unitLoad.getId());
 		
         return query.getResultList();
     }
 
-    public Long getNumChilds(LOSUnitLoad unitLoad) {
+    public Long getNumChilds(UnitLoad unitLoad) {
 		Query query = manager.createNamedQuery("LOSUnitLoad.countByCarrierId");
 		query.setParameter("carrierId", unitLoad.getId());
 
@@ -274,7 +274,7 @@ public class LOSUnitLoadServiceBean
         return (Long)query.getSingleResult();
     }
 
-    public LOSUnitLoad getParent(LOSUnitLoad unitLoad) {
+    public UnitLoad getParent(UnitLoad unitLoad) {
     	if( unitLoad.getCarrierUnitLoadId() == null ) {
     		return null;
     	}
@@ -287,10 +287,10 @@ public class LOSUnitLoadServiceBean
 		return null;
     }
     
-    public boolean hasParent(LOSUnitLoad unitLoad, LOSUnitLoad parentToCheck) throws FacadeException {
+    public boolean hasParent(UnitLoad unitLoad, UnitLoad parentToCheck) throws FacadeException {
     	return hasParent(unitLoad, parentToCheck, 0);
     }
-    public boolean hasParent(LOSUnitLoad unitLoad, LOSUnitLoad parentToCheck, int depth) throws FacadeException {
+    public boolean hasParent(UnitLoad unitLoad, UnitLoad parentToCheck, int depth) throws FacadeException {
     	String logStr="hasParent ";
     	
 		if( unitLoad.getCarrierUnitLoadId() == null ) {
@@ -311,7 +311,7 @@ public class LOSUnitLoadServiceBean
 			return true;
 		}
 		
-		LOSUnitLoad parentOfUnitLoad = getParent(unitLoad);
+		UnitLoad parentOfUnitLoad = getParent(unitLoad);
 		if( parentOfUnitLoad == null ) {
 			return false;
 		}

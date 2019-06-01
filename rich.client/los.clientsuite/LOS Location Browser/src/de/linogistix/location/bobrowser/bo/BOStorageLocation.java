@@ -24,8 +24,8 @@ import de.linogistix.los.location.crud.LOSStorageLocationCRUDRemote;
 import de.linogistix.los.location.entityservice.LOSAreaServiceRemote;
 import de.linogistix.los.location.entityservice.LOSLocationClusterServiceRemote;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeServiceRemote;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
+import de.wms2.mywms.location.StorageLocation;
 import java.util.ArrayList;
 import java.util.List;
 import org.mywms.globals.Role;
@@ -82,9 +82,9 @@ public class BOStorageLocation extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSStorageLocation o;
+        StorageLocation o;
 
-        o = new LOSStorageLocation();
+        o = new StorageLocation();
         o.setName("Template");
 
         LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);

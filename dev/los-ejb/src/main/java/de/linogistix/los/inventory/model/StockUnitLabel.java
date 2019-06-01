@@ -31,25 +31,32 @@ public class StockUnitLabel extends Document{
 
 	private static final long serialVersionUID = 1L;
 
+    @Column(nullable=false)
 	private String labelID;
     
+    @Column(nullable=false)
     private String clientRef;
     
+    @Column(nullable=false)
     private String dateRef;
     
+    @Column(nullable=false)
     private String itemdataRef;
     
+	@Transient
     private String itemNameRef;
     
     private String lotRef;
     
+	@Column(scale=4, nullable=false)
     private BigDecimal amount;
 
+	@Column(nullable=false)
     private int scale;
     
+	@Column(nullable=false)
     private String itemUnit;
     
-    @Column(nullable=false)
     public String getLabelID() {
         return labelID;
     }
@@ -58,7 +65,6 @@ public class StockUnitLabel extends Document{
         this.labelID = labelID;
     }
 
-    @Column(nullable=false)
     public String getClientRef() {
         return clientRef;
     }
@@ -67,7 +73,6 @@ public class StockUnitLabel extends Document{
         this.clientRef = clientRef;
     }
 
-    @Column(nullable=false)
     public String getDateRef() {
         return dateRef;
     }
@@ -76,7 +81,6 @@ public class StockUnitLabel extends Document{
         this.dateRef = dateRef;
     }
 
-    @Column(nullable=false)
     public String getItemdataRef() {
         return itemdataRef;
     }
@@ -97,12 +101,10 @@ public class StockUnitLabel extends Document{
 		this.amount = amount;
 	}
 
-	@Column(scale=4, nullable=false)
 	public BigDecimal getAmount() {
 		return (amount != null)? amount.setScale(scale):new BigDecimal(0);
 	}
 
-	@Column(nullable=false)
 	public int getScale() {
 		return scale;
 	}
@@ -111,7 +113,6 @@ public class StockUnitLabel extends Document{
 		this.scale = scale;
 	}
 
-	@Column(nullable=false)
 	public String getItemUnit() {
 		return itemUnit;
 	}
@@ -120,7 +121,6 @@ public class StockUnitLabel extends Document{
 		this.itemUnit = itemUnit;
 	}
 
-	@Transient
 	public String getItemNameRef() {
 		return itemNameRef;
 	}

@@ -24,18 +24,79 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.mywms.client</package>
-                <package>org.mywms.cmdtools</package>
-                <package>org.mywms.core.client</package>
+                <package>de.linogistix.annotation</package>
+                <package>de.linogistix.los.common.businessservice</package>
+                <package>de.linogistix.los.common.exception</package>
+                <package>de.linogistix.los.common.facade</package>
+                <package>de.linogistix.los.common.service</package>
+                <package>de.linogistix.los.crud</package>
+                <package>de.linogistix.los.customization</package>
+                <package>de.linogistix.los.entityservice</package>
+                <package>de.linogistix.los.inventory.businessservice</package>
+                <package>de.linogistix.los.inventory.crud</package>
+                <package>de.linogistix.los.inventory.customization</package>
+                <package>de.linogistix.los.inventory.exception</package>
+                <package>de.linogistix.los.inventory.facade</package>
+                <package>de.linogistix.los.inventory.model</package>
+                <package>de.linogistix.los.inventory.pick.crud</package>
+                <package>de.linogistix.los.inventory.pick.facade</package>
+                <package>de.linogistix.los.inventory.pick.model</package>
+                <package>de.linogistix.los.inventory.pick.query</package>
+                <package>de.linogistix.los.inventory.pick.query.dto</package>
+                <package>de.linogistix.los.inventory.pick.service</package>
+                <package>de.linogistix.los.inventory.query</package>
+                <package>de.linogistix.los.inventory.query.dto</package>
+                <package>de.linogistix.los.inventory.report</package>
+                <package>de.linogistix.los.inventory.res</package>
+                <package>de.linogistix.los.inventory.service</package>
+                <package>de.linogistix.los.inventory.service.dto</package>
+                <package>de.linogistix.los.location.businessservice</package>
+                <package>de.linogistix.los.location.constants</package>
+                <package>de.linogistix.los.location.crud</package>
+                <package>de.linogistix.los.location.customization</package>
+                <package>de.linogistix.los.location.entityservice</package>
+                <package>de.linogistix.los.location.exception</package>
+                <package>de.linogistix.los.location.facade</package>
+                <package>de.linogistix.los.location.model</package>
+                <package>de.linogistix.los.location.query</package>
+                <package>de.linogistix.los.location.query.dto</package>
+                <package>de.linogistix.los.location.report</package>
+                <package>de.linogistix.los.location.res</package>
+                <package>de.linogistix.los.location.service</package>
+                <package>de.linogistix.los.model</package>
+                <package>de.linogistix.los.module</package>
+                <package>de.linogistix.los.query</package>
+                <package>de.linogistix.los.query.dto</package>
+                <package>de.linogistix.los.query.exception</package>
+                <package>de.linogistix.los.report</package>
+                <package>de.linogistix.los.res</package>
+                <package>de.linogistix.los.runtime</package>
+                <package>de.linogistix.los.stocktaking.component</package>
+                <package>de.linogistix.los.stocktaking.crud</package>
+                <package>de.linogistix.los.stocktaking.customization</package>
+                <package>de.linogistix.los.stocktaking.exception</package>
+                <package>de.linogistix.los.stocktaking.facade</package>
+                <package>de.linogistix.los.stocktaking.model</package>
+                <package>de.linogistix.los.stocktaking.query</package>
+                <package>de.linogistix.los.stocktaking.query.dto</package>
+                <package>de.linogistix.los.stocktaking.service</package>
+                <package>de.linogistix.los.user</package>
+                <package>de.linogistix.los.user.crud</package>
+                <package>de.linogistix.los.user.query</package>
+                <package>de.linogistix.los.util</package>
+                <package>de.linogistix.los.util.businessservice</package>
+                <package>de.linogistix.los.util.entityservice</package>
+                <package>de.wms2.mywms.exception</package>
+                <package>de.wms2.mywms.inventory</package>
+                <package>de.wms2.mywms.location</package>
+                <package>de.wms2.mywms.module</package>
+                <package>de.wms2.mywms.product</package>
+                <package>de.wms2.mywms.strategy</package>
+                <package>de.wms2.mywms.util</package>
                 <package>org.mywms.ejb</package>
                 <package>org.mywms.facade</package>
                 <package>org.mywms.globals</package>
-                <package>org.mywms.mfc</package>
                 <package>org.mywms.model</package>
-                <package>org.mywms.plugin</package>
-                <package>org.mywms.plugin.bean</package>
-                <package>org.mywms.plugin.clearing</package>
-                <package>org.mywms.plugin.report</package>
                 <package>org.mywms.res</package>
                 <package>org.mywms.service</package>
                 <package>org.mywms.util</package>
@@ -43,6 +104,14 @@
             <class-path-extension>
                 <runtime-relative-path>ext/mywms.as-ejb.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/mywms.as-ejb.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/wms2-ejb.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/wms2-ejb.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/los-ejb.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/los-ejb.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

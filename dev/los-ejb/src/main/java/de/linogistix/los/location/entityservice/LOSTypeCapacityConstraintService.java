@@ -9,8 +9,9 @@ package de.linogistix.los.location.entityservice;
 
 import javax.ejb.Local;
 
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import org.mywms.service.BasicService;
+
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  *
@@ -18,7 +19,7 @@ import org.mywms.service.BasicService;
  */
 @Local
 public interface LOSTypeCapacityConstraintService 
-        extends BasicService<LOSTypeCapacityConstraint>
+        extends BasicService<TypeCapacityConstraint>
 {
     
 }

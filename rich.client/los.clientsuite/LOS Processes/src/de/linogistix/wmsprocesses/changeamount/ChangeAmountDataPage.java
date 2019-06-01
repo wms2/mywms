@@ -10,16 +10,16 @@
  */
 package de.linogistix.wmsprocesses.changeamount;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import javax.swing.event.ChangeListener;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.util.HelpCtx;
@@ -82,13 +82,13 @@ final public class ChangeAmountDataPage implements WizardDescriptor.ValidatingPa
                         ItemData idat = wizard.getStockUnit().getItemData();
                         if( idat != null ) {
                             getPanelUI().getItemDataField().setText( idat.getNumber() + " ("+idat.getName()+")");
-                            String amount = wizard.getStockUnit().getAmount()+" ("+wizard.getStockUnit().getReservedAmount()+") "+idat.getHandlingUnit().getUnitName();
+                            String amount = wizard.getStockUnit().getAmount()+" ("+wizard.getStockUnit().getReservedAmount()+") "+idat.getItemUnit().getName();
                             getPanelUI().getAmountField().setText(amount);
                         }
-                        LOSUnitLoad sul = (LOSUnitLoad)wizard.getStockUnit() .getUnitLoad();
+                        UnitLoad sul = wizard.getStockUnit() .getUnitLoad();
                         if( sul != null ) {
                             getPanelUI().getUnitLoadField().setText(sul.getLabelId());
-                            LOSStorageLocation loc = sul.getStorageLocation();
+                            StorageLocation loc = sul.getStorageLocation();
                             if( loc != null )
                                 getPanelUI().getLocationField().setText(loc.getName());
                         }

@@ -9,9 +9,8 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.util.Date;
 
-import org.mywms.model.Lot;
-
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.Lot;
 
 public class LotTO extends BODTO<Lot>{
 	

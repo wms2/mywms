@@ -24,6 +24,8 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.wmsprocesses.processes.order.gui.object.OrderItem;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -36,8 +38,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -110,7 +110,7 @@ public class CenterPanel extends AbstractCenterPanel {
 
                 if(selItemData != null){
 //                    getAmountTextField().setEnabled(true);
-                    getAmountTextField().setUnitName(selItemData.getHandlingUnit().getUnitName());
+                    getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
                     getAmountTextField().setScale(selItemData.getScale());
                 }
 //                else {
@@ -134,7 +134,7 @@ public class CenterPanel extends AbstractCenterPanel {
 
                 if(selItemData != null){
 //                    getAmountTextField().setEnabled(true);
-                    getAmountTextField().setUnitName(selItemData.getHandlingUnit().getUnitName());
+                    getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
                     getAmountTextField().setScale(selItemData.getScale());
                 }
 //                else {

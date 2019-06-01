@@ -12,11 +12,11 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.inventory.query.dto.LOSStorageStrategyTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.strategy.StorageStrategy;
 
 
 /**
@@ -24,7 +24,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
  *
  */
 @Stateless
-public class LOSStorageStrategyQueryBean extends BusinessObjectQueryBean<LOSStorageStrategy> implements LOSStorageStrategyQueryRemote{
+public class LOSStorageStrategyQueryBean extends BusinessObjectQueryBean<StorageStrategy> implements LOSStorageStrategyQueryRemote{
 	
 
 	@Override

@@ -9,13 +9,14 @@ package de.linogistix.los.inventory.businessservice;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSAdvice;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import javax.ejb.Local;
+
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 /**
  * Services for the goods advice process, i.e. goods where adviced from the supplier.

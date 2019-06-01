@@ -11,11 +11,11 @@ import javax.ejb.Local;
 
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.ItemUnit;
 
 import de.linogistix.los.inventory.exception.InventoryTransactionException;
 import de.linogistix.los.inventory.exception.StockExistException;
+import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
 
 @Local
 public interface ManageItemDataService {

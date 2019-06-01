@@ -13,13 +13,13 @@ import java.util.Date;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.common.exception.OutOfRangeException;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.StockExistException;
 import de.linogistix.los.inventory.model.LOSAdvice;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface ManageAdviceService {

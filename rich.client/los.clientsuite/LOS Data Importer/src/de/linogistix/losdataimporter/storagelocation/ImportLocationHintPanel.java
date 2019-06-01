@@ -14,11 +14,11 @@ import de.linogistix.common.exception.InternalErrorException;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.util.businessservice.ImportDataException;
 import de.linogistix.los.util.businessservice.ImportDataService;
 import de.linogistix.losdataimporter.res.BundleResolver;
 import de.linogistix.losdataimporter.storagelocation.component.HintPanel;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -193,7 +193,7 @@ final public class ImportLocationHintPanel implements WizardDescriptor.Validatin
 
                 log.info("Going to import Data...");
                 
-                List<Object> list = importDataService.importData(LOSStorageLocation.class.getSimpleName(), data);
+                List<Object> list = importDataService.importData(StorageLocation.class.getSimpleName(), data);
                 wizard.setImportedLocations(list);
                
 

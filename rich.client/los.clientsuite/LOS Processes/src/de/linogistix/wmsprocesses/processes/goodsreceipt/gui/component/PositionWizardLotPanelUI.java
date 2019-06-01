@@ -15,13 +15,13 @@ import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardLotPanelUI;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 import org.openide.util.Lookup;
 
 /**

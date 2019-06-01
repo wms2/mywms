@@ -10,11 +10,11 @@ package de.linogistix.los.location.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 @Remote
 public interface LOSUnitLoadCRUDRemote 
-		extends	BusinessObjectCRUDRemote<LOSUnitLoad> 
+		extends	BusinessObjectCRUDRemote<UnitLoad> 
 
 {
 

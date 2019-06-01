@@ -12,9 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mywms.model.StockUnit;
-
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * @author krane
@@ -46,14 +44,14 @@ public class InfoStockUnitTO implements Serializable{
 		}
 		this.clientName = su.getClient().getName();
 		this.clientNumber = su.getClient().getNumber();
-		this.locationName = ((LOSUnitLoad)su.getUnitLoad()).getStorageLocation().getName();
+		this.locationName = su.getUnitLoad().getStorageLocation().getName();
 		this.unitLoadLabel = su.getUnitLoad().getLabelId();
 		this.itemData = new InfoItemDataTO( su.getItemData() );
 		this.amount = su.getAmount().setScale(su.getItemData().getScale());
 		if( su.getReservedAmount() != null && su.getReservedAmount().compareTo(BigDecimal.ZERO) != 0 ) {
 			this.amountRes = su.getReservedAmount().setScale(su.getItemData().getScale());
 		}
-		this.unit = su.getItemData().getHandlingUnit().getUnitName();
+		this.unit = su.getItemData().getItemUnit().getName();
 		
 		this.lotName = (su.getLot() == null ? "" : su.getLot().getName());
 		this.serialNumber = su.getSerialNumber();

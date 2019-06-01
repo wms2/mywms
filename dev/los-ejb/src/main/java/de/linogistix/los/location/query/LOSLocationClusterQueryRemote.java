@@ -14,14 +14,14 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.location.model.LOSLocationCluster;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.location.LocationCluster;
 
 /**
  *
  * @author krane
  */
 @Remote
-public interface LOSLocationClusterQueryRemote extends BusinessObjectQueryRemote<LOSLocationCluster>{ 
+public interface LOSLocationClusterQueryRemote extends BusinessObjectQueryRemote<LocationCluster>{ 
   
 }

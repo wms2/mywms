@@ -14,9 +14,9 @@ import de.linogistix.inventory.browser.masternode.BOLOSStorageStrategyMasterNode
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSStorageStrategyCRUDRemote;
-import de.linogistix.los.inventory.model.LOSStorageStrategy;
 import de.linogistix.los.inventory.query.LOSStorageStrategyQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.strategy.StorageStrategy;
 import java.util.ArrayList;
 import java.util.List;
 import org.mywms.globals.Role;
@@ -68,9 +68,9 @@ public class BOLOSStorageStrategy extends BO {
   
     
   protected BasicEntity initEntityTemplate() {
-    LOSStorageStrategy o;
+      StorageStrategy o;
 
-    o = new LOSStorageStrategy();
+    o = new StorageStrategy();
     o.setName("Template");
 
     return o;

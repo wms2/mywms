@@ -11,10 +11,10 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.mywms.globals.SerialNoRecordType;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
@@ -55,7 +55,7 @@ public class InfoItemDataTO implements Serializable{
 		this.name = idat.getName();
 		this.desc = idat.getDescription();
 		this.isLotMandatory = idat.isLotMandatory();
-		this.unitName = idat.getHandlingUnit().getUnitName();
+		this.unitName = idat.getItemUnit().getName();
 		this.serialNoRecordType = idat.getSerialNoRecordType();
 		this.zoneName = idat.getZone() == null ? null : idat.getZone().getName();
 		this.numStock = stockList == null ? -1: stockList.size(); 

@@ -13,7 +13,6 @@ import java.util.List;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.StockUnit;
 import org.mywms.model.User;
 
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
@@ -21,7 +20,8 @@ import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * Business service to handle goods out order operations.
@@ -170,7 +170,7 @@ public interface LOSOrderBusiness {
 	 */
 	public LOSPickingPosition changePickFromStockUnit(LOSPickingPosition pick, StockUnit pickFromStockNew) throws FacadeException;
 
-	public LOSPickingUnitLoad confirmPickingUnitLoad( LOSPickingUnitLoad pickingUnitLoad, LOSStorageLocation destination, int state ) throws FacadeException;
+	public LOSPickingUnitLoad confirmPickingUnitLoad( LOSPickingUnitLoad pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException;
 
 	public LOSPickingOrder recalculatePickingOrderState( LOSPickingOrder pickingOrder ) throws FacadeException;
 

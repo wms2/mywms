@@ -11,11 +11,11 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.location.StorageLocation;
 
 public class StockUnitQueryBeanTest extends TestCase {
 	
@@ -35,8 +35,8 @@ public class StockUnitQueryBeanTest extends TestCase {
 		LOSStorageLocationQueryRemote slQuery = TestUtilities.beanLocator.getStateless(LOSStorageLocationQueryRemote.class);
 		try{
 			
-			LOSStorageLocation sl = slQuery.queryByIdentity("T1-1-1-1");
-			BODTO<LOSStorageLocation> slTo = new BODTO<LOSStorageLocation>(sl.getId(), sl.getVersion(), sl.getName());
+			StorageLocation sl = slQuery.queryByIdentity("T1-1-1-1");
+			BODTO<StorageLocation> slTo = new BODTO<StorageLocation>(sl.getId(), sl.getVersion(), sl.getName());
 			bean.queryByStorageLocation(slTo, new QueryDetail(0, Integer.MAX_VALUE));
 			
 		} catch (Throwable t){

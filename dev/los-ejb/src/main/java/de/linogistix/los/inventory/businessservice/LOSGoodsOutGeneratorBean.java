@@ -34,9 +34,9 @@ import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -133,7 +133,7 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 		return shipment;
 	}
 
-	public LOSGoodsOutRequest createOrder( Client client, LOSStorageLocation outLocation, String shipmentNumber, Date shippingDate, String courier, String additionalInfo) throws FacadeException {
+	public LOSGoodsOutRequest createOrder( Client client, StorageLocation outLocation, String shipmentNumber, Date shippingDate, String courier, String additionalInfo) throws FacadeException {
 		String logStr = "createOrder ";
 		log.debug(logStr+"Create shipment for shipment number="+shipmentNumber);
 
@@ -160,7 +160,7 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 	}
 
 	@Override
-	public LOSGoodsOutRequestPosition addPosition(LOSGoodsOutRequest out, LOSUnitLoad unitLoad) throws FacadeException{
+	public LOSGoodsOutRequestPosition addPosition(LOSGoodsOutRequest out, UnitLoad unitLoad) throws FacadeException{
 		String logStr = "addPosition ";
 		List<LOSGoodsOutRequest> reqList = outService.getByUnitLoad(unitLoad);
 
@@ -181,7 +181,7 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 	}
 	
 	@Override
-	public void removePosition(LOSGoodsOutRequest out, LOSUnitLoad unitLoad) throws InventoryException {
+	public void removePosition(LOSGoodsOutRequest out, UnitLoad unitLoad) throws InventoryException {
 		String logStr = "removePosition ";
 		LOSGoodsOutRequestPosition pos = null;
 		pos = posService.getByUnitLoad(out, unitLoad);

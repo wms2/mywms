@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  * @author krane
@@ -34,7 +34,7 @@ public class InfoUnitLoadTO implements Serializable{
 	public InfoUnitLoadTO() {
 	}
 	
-	public InfoUnitLoadTO( LOSUnitLoad ul ) {
+	public InfoUnitLoadTO( UnitLoad ul ) {
 		if( ul == null ) {
 			return;
 		}

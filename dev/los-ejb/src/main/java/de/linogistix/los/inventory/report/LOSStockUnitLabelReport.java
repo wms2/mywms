@@ -12,7 +12,7 @@ import javax.ejb.Local;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.model.StockUnitLabel;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  *
@@ -30,7 +30,7 @@ public interface LOSStockUnitLabelReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public StockUnitLabel generateStockUnitLabel(LOSUnitLoad unitLoad) throws FacadeException;
+	public StockUnitLabel generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException;
 	
 	/**
 	 * Persist a stock unit label

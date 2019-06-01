@@ -13,9 +13,8 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Stateless;
 
-import org.mywms.model.Zone;
-
 import de.linogistix.los.query.BusinessObjectQueryBean;
+import de.wms2.mywms.strategy.Zone;
 
 
 /**

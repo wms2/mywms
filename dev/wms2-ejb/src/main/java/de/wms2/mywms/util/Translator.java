@@ -25,8 +25,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 
-
-
 /**
  * Translation with ResourceBundle files
  * <p>

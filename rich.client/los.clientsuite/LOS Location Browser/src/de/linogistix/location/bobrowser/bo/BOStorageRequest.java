@@ -17,8 +17,8 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.LOSAreaCRUDRemote;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
+import de.wms2.mywms.location.Area;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.util.Lookup;
@@ -63,9 +63,9 @@ public class BOStorageRequest extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSArea o;
+        Area o;
 
-        o = new LOSArea();
+        o = new Area();
         o.setName("Template");
 
         return o;

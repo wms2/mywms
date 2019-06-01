@@ -20,10 +20,9 @@ import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
  * @author krane
@@ -35,42 +34,42 @@ public class CustomLocationServiceBean implements CustomLocationService {
     private EntityManager manager;
     
 	@Override
-	public void onLocationGetsEmpty(LOSStorageLocation location) throws FacadeException {
+	public void onLocationGetsEmpty(StorageLocation location) throws FacadeException {
 		onLocationGetsEmpty(location, true);
 	}
 	
 	@Override
-	public void onLocationGetsEmpty(LOSStorageLocation location, boolean checkEmptyLocation) throws FacadeException {
+	public void onLocationGetsEmpty(StorageLocation location, boolean checkEmptyLocation) throws FacadeException {
 		location.setAllocation(BigDecimal.ZERO);
 		location.setCurrentTypeCapacityConstraint(null);
 	}
 	
-	public void checkAllocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, LOSTypeCapacityConstraint constraint) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException {
+	public void checkAllocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException {
 	}
 	
-	public void allocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, LOSTypeCapacityConstraint constraint) throws FacadeException {
+	public void allocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint) throws FacadeException {
 	}
-	public void deallocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, LOSTypeCapacityConstraint constraint, boolean checkEmptyLocation) throws FacadeException {
+	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint, boolean checkEmptyLocation) throws FacadeException {
 	}
 
-	public void onUnitLoadRemoved(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException {
+	public void onUnitLoadRemoved(StorageLocation location, UnitLoad unitLoad) throws FacadeException {
 	}
-	public void onUnitLoadPlaced(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException {
+	public void onUnitLoadPlaced(StorageLocation location, UnitLoad unitLoad) throws FacadeException {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public int setLocationOrderIndex( LOSRack rack, int startValue, int diffValue ) {
+	public int setLocationOrderIndex( String rack, int startValue, int diffValue ) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT location FROM " + LOSStorageLocation.class.getSimpleName() + " location ");
+        sb.append("SELECT location FROM " + StorageLocation.class.getSimpleName() + " location ");
         sb.append(" WHERE rack=:rack ");
         sb.append(" ORDER BY location.XPos, location.YPos, location.name ");
         
         Query query = manager.createQuery(sb.toString());
         query.setParameter("rack", rack);
-        List<LOSStorageLocation> locations = query.getResultList();
+        List<StorageLocation> locations = query.getResultList();
         
         int orderIndex = startValue-diffValue;
-        for( LOSStorageLocation location : locations ) {
+        for( StorageLocation location : locations ) {
         	orderIndex += diffValue;
         	location.setOrderIndex(orderIndex);
         }

@@ -13,11 +13,10 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import org.mywms.model.ItemDataNumber;
-
 import de.linogistix.los.inventory.query.dto.ItemDataNumberTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  *

@@ -11,9 +11,8 @@ import java.util.List;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.UnitLoadType;
-
 import de.linogistix.los.common.exception.UnAuthorizedException;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 @Remote
 public interface QueryUnitLoadTypeServiceRemote {

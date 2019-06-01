@@ -11,12 +11,12 @@ import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.product.ItemData;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.UnitLoadType;
 
 /**
  *

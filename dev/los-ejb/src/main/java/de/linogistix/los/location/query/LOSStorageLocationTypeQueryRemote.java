@@ -7,8 +7,8 @@
  */
 package de.linogistix.los.location.query;
 
-import de.linogistix.los.location.model.LOSStorageLocationType;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.location.LocationType;
 
 import javax.ejb.Remote;
 
@@ -18,7 +18,7 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface LOSStorageLocationTypeQueryRemote 
-        extends BusinessObjectQueryRemote<LOSStorageLocationType>
+        extends BusinessObjectQueryRemote<LocationType>
 {
     
 }

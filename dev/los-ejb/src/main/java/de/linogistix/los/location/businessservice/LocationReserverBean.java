@@ -16,10 +16,10 @@ import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
 public class LocationReserverBean implements LocationReserver {
@@ -32,7 +32,7 @@ public class LocationReserverBean implements LocationReserver {
 
 	private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-	public LOSTypeCapacityConstraint checkAllocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, boolean ignoreLock) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException {
+	public TypeCapacityConstraint checkAllocateLocation(StorageLocation location, UnitLoad unitLoad, boolean ignoreLock) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException {
 		String logStr = "checkReserveLocation ";
 		
 		if( location == null ) {
@@ -56,7 +56,7 @@ public class LocationReserverBean implements LocationReserver {
 			throw new LOSLocationNotSuitableException(unitLoad.getLabelId(), location.getType().getName() );
 		}
 		
-		LOSTypeCapacityConstraint constraintLocation = location.getCurrentTypeCapacityConstraint();
+		TypeCapacityConstraint constraintLocation = location.getCurrentTypeCapacityConstraint();
 		BigDecimal allocationLocation = location.getAllocation();
 		if( constraintLocation == null ) {
 			allocationLocation = BigDecimal.ZERO;
@@ -66,7 +66,7 @@ public class LocationReserverBean implements LocationReserver {
 			throw new LOSLocationAlreadyFullException(location.getName());
 		}
 
-		LOSTypeCapacityConstraint constraintUnitLoad = capacityService.getByTypes(location.getType(), unitLoad.getType());
+		TypeCapacityConstraint constraintUnitLoad = capacityService.getByTypes(location.getType(), unitLoad.getType());
 		
 		if( constraintLocation == null && constraintUnitLoad == null ) {
 			if( capacityService.getListByLocationType(location.getType()).size() == 0 ) {
@@ -91,7 +91,7 @@ public class LocationReserverBean implements LocationReserver {
 			throw new LOSLocationNotSuitableException(unitLoad.getLabelId(), location.getType().getName() );
 		}
 		
-		if( constraintLocation.getAllocationType() == LOSTypeCapacityConstraint.ALLOCATE_UNIT_LOAD_TYPE ) {
+		if( constraintLocation.getAllocationType() == TypeCapacityConstraint.ALLOCATE_UNIT_LOAD_TYPE ) {
 			if( ! unitLoad.getType().equals(constraintLocation.getUnitLoadType()) ) {
 				log.info(logStr+"Wrong unit load type on location. Cannot reserve. location-type="+constraintLocation.getUnitLoadType().getName()+" unitload-type="+unitLoad.getType().getName());
 				throw new LOSLocationNotSuitableException(unitLoad.getLabelId(), location.getType().getName() );
@@ -102,7 +102,7 @@ public class LocationReserverBean implements LocationReserver {
 				throw new LOSLocationAlreadyFullException(location.getName());
 			}
 		}
-		if( constraintLocation.getAllocationType() == LOSTypeCapacityConstraint.ALLOCATE_PERCENTAGE ) {
+		if( constraintLocation.getAllocationType() == TypeCapacityConstraint.ALLOCATE_PERCENTAGE ) {
 			allocationLocation = allocationLocation.add(constraintLocation.getAllocation());
 			if( allocationLocation.compareTo(HUNDRED) > 0 ) {
 				log.info(logStr+"Not enough space on location. Cannot reserve. name="+location.getName());
@@ -115,7 +115,7 @@ public class LocationReserverBean implements LocationReserver {
 		return constraintLocation;
 	}
 
-	public LOSTypeCapacityConstraint allocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException {
+	public TypeCapacityConstraint allocateLocation(StorageLocation location, UnitLoad unitLoad) throws FacadeException {
 		String logStr = "allocateLocation ";
 
 		if( location == null ) {
@@ -127,12 +127,12 @@ public class LocationReserverBean implements LocationReserver {
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new Object[]{});
 		}
 		
-		LOSTypeCapacityConstraint constraintLocation = location.getCurrentTypeCapacityConstraint();
+		TypeCapacityConstraint constraintLocation = location.getCurrentTypeCapacityConstraint();
 		BigDecimal allocationLocation = location.getAllocation();
 		if( constraintLocation == null ) {
 			allocationLocation = BigDecimal.ZERO;
 		}
-		LOSTypeCapacityConstraint constraintUnitLoad = capacityService.getByTypes(location.getType(), unitLoad.getType());
+		TypeCapacityConstraint constraintUnitLoad = capacityService.getByTypes(location.getType(), unitLoad.getType());
 		if( constraintLocation == null ) {
 			constraintLocation = constraintUnitLoad;
 		}
@@ -150,11 +150,11 @@ public class LocationReserverBean implements LocationReserver {
 		return constraintLocation;
 	}
 
-	public void deallocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad) throws FacadeException {
+	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad) throws FacadeException {
 		deallocateLocation(location, unitLoad, true);
 	}
 	
-	public void deallocateLocation(LOSStorageLocation location, LOSUnitLoad unitLoad, boolean checkEmptyLocation) throws FacadeException {
+	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad, boolean checkEmptyLocation) throws FacadeException {
 		String logStr = "deallocateLocation ";
 
 		if( location == null ) {
@@ -166,7 +166,7 @@ public class LocationReserverBean implements LocationReserver {
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new Object[]{});
 		}
 
-		LOSTypeCapacityConstraint constraintLocation = location.getCurrentTypeCapacityConstraint();
+		TypeCapacityConstraint constraintLocation = location.getCurrentTypeCapacityConstraint();
 		BigDecimal allocationLocationStart = location.getAllocation();
 		
 		if( constraintLocation == null ) {
@@ -175,7 +175,7 @@ public class LocationReserverBean implements LocationReserver {
 			return;
 		}
 
-		LOSTypeCapacityConstraint constraintUnitLoad = capacityService.getByTypes(location.getType(), unitLoad.getType());
+		TypeCapacityConstraint constraintUnitLoad = capacityService.getByTypes(location.getType(), unitLoad.getType());
 		
 		if( constraintUnitLoad != null ) {
 			location.setAllocation(location.getAllocation().subtract(constraintUnitLoad.getAllocation()));
@@ -191,7 +191,7 @@ public class LocationReserverBean implements LocationReserver {
 			// Generally not allocated locations should not be checked
 			if( checkEmptyLocation ) {
 				if( allocationLocationStart.compareTo(BigDecimal.ZERO)!=0 ) {
-					for( LOSUnitLoad ul : location.getUnitLoads() ) {
+					for( UnitLoad ul : location.getUnitLoads() ) {
 						if( !ul.equals(unitLoad) ) {
 							log.warn(logStr+"Something went wrong with location allocation. allocation<=0, but still unitloads on location. Try to correct. location name="+location.getName());
 							recalculateAllocation(location, unitLoad);
@@ -210,7 +210,7 @@ public class LocationReserverBean implements LocationReserver {
 
 	}
 	
-	public void deallocateLocationComplete(LOSStorageLocation location) throws FacadeException {
+	public void deallocateLocationComplete(StorageLocation location) throws FacadeException {
 		String logStr = "releaseLocation ";
 
 		if( location == null ) {
@@ -222,14 +222,14 @@ public class LocationReserverBean implements LocationReserver {
 		location.setAllocation(BigDecimal.ZERO);
 	}
 	
-	public void recalculateAllocation(LOSStorageLocation location, LOSUnitLoad... knownAsRemoved) throws FacadeException {
+	public void recalculateAllocation(StorageLocation location, UnitLoad... knownAsRemoved) throws FacadeException {
 		String logStr = "recalculateAllocation ";
 
-		for( LOSUnitLoad unitLoad : location.getUnitLoads() ) {
+		for( UnitLoad unitLoad : location.getUnitLoads() ) {
 			boolean ignore = false;
 			
 			if( knownAsRemoved != null && knownAsRemoved.length>0 ) {
-				for( LOSUnitLoad ul : knownAsRemoved ) {
+				for( UnitLoad ul : knownAsRemoved ) {
 					if( ul.equals(unitLoad) ) {
 						ignore = true;
 						break;
@@ -240,7 +240,7 @@ public class LocationReserverBean implements LocationReserver {
 				}
 			}
 			
-			LOSTypeCapacityConstraint tcc = capacityService.getByTypes(location.getType(), unitLoad.getType());
+			TypeCapacityConstraint tcc = capacityService.getByTypes(location.getType(), unitLoad.getType());
 			if( tcc == null ) {
 				log.warn(logStr+"No capacity constraint, no recalculate. location="+location.getName()+", type="+location.getType().getName()+", unitLoadType="+unitLoad.getType().getName());
 				continue;

@@ -10,26 +10,27 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
-import org.mywms.service.AreaService;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.location.model.LOSArea;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaUsages;
 
 /**
- * @see de.linogistix.los.location.entityservice.LOSRackService
  *  
  * @author Markus Jordan
  * @version $Revision: 339 $ provided by $Author: trautmann $
  */
 @Stateless 
-public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOSAreaService, LOSAreaServiceRemote {	
+public class LOSAreaServiceBean extends BasicServiceBean<Area> implements LOSAreaService, LOSAreaServiceRemote {	
 	
 	
 	public final static String PROPERTY_KEY_AREA_DEFAULT = "AREA_DEFAULT";
@@ -41,12 +42,9 @@ public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOS
 	private ClientService clientService;
 	@EJB
 	private EntityGenerator entityGenerator;
-	@EJB
-	AreaService delegate;
 	
-    public LOSArea createLOSArea(Client c, String name) {
-        LOSArea a = entityGenerator.generateEntity(LOSArea.class);
-        a.setClient(c);
+    public Area createLOSArea(Client c, String name) {
+        Area a = entityGenerator.generateEntity(Area.class);
         a.setName(name);
                 
         manager.persist(a);
@@ -55,16 +53,25 @@ public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOS
         return a;
     }
 
-	public LOSArea getByName(Client c, String name) throws EntityNotFoundException {
-		return (LOSArea) delegate.getByName(c, name);
+	public Area getByName(Client client, String name) throws EntityNotFoundException {
+		String queryStr = "SELECT o FROM " + Area.class.getSimpleName() + " o " + "WHERE o.name=:name";
+		Query query = manager.createQuery(queryStr);
+
+		query.setParameter("name", name);
+
+		try {
+			Area area = (Area) query.getSingleResult();
+			return area;
+		} catch (NoResultException ex) {
+			throw new EntityNotFoundException(ServiceExceptionKey.NO_AREA_WITH_NAME);
+		}
 	}
 	
-	
     @SuppressWarnings("unchecked")
-	public List<LOSArea> getForGoodsIn( ) {
+	public List<Area> getForGoodsIn( ) {
 		String queryStr = 
-				"SELECT o FROM " + LOSArea.class.getSimpleName() + " o " +
-				"WHERE o.useForGoodsIn=true " +
+				"SELECT o FROM " + Area.class.getSimpleName() + " o " +
+                "WHERE o.usages like '%"+AreaUsages.GOODS_IN + "%'" +
 				"ORDER BY o.id ";
 		Query query = manager.createQuery(queryStr);
 		
@@ -72,10 +79,10 @@ public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOS
     }
     
     @SuppressWarnings("unchecked")
-    public List<LOSArea> getForGoodsOut( ) {
+    public List<Area> getForGoodsOut( ) {
 		String queryStr = 
-				"SELECT o FROM " + LOSArea.class.getSimpleName() + " o " +
-				"WHERE o.useForGoodsIn=true " +
+				"SELECT o FROM " + Area.class.getSimpleName() + " o " +
+                "WHERE o.usages like '%"+AreaUsages.GOODS_OUT + "%'" +
 				"ORDER BY o.id ";
 		Query query = manager.createQuery(queryStr);
 		
@@ -83,10 +90,10 @@ public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOS
     }
 
     @SuppressWarnings("unchecked")
-    public List<LOSArea> getForStorage( ) {
+    public List<Area> getForStorage( ) {
 		String queryStr = 
-				"SELECT o FROM " + LOSArea.class.getSimpleName() + " o " +
-				"WHERE o.useForStorage=true " +
+				"SELECT o FROM " + Area.class.getSimpleName() + " o " +
+                "WHERE o.usages like '%"+AreaUsages.STORAGE + "%'" +
 				"ORDER BY o.id ";
 		Query query = manager.createQuery(queryStr);
 		
@@ -94,10 +101,10 @@ public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOS
     }
 
     @SuppressWarnings("unchecked")
-    public List<LOSArea> getForPicking( ) {
+    public List<Area> getForPicking( ) {
 		String queryStr = 
-				"SELECT o FROM " + LOSArea.class.getSimpleName() + " o " +
-				"WHERE o.useForPicking=true " +
+				"SELECT o FROM " + Area.class.getSimpleName() + " o " +
+                "WHERE o.usages like '%"+AreaUsages.PICKING + "%'" +
 				"ORDER BY o.id ";
 		Query query = manager.createQuery(queryStr);
 		
@@ -105,29 +112,29 @@ public class LOSAreaServiceBean extends BasicServiceBean<LOSArea> implements LOS
     }
 
     @SuppressWarnings("unchecked")
-    public List<LOSArea> getForTransfer() {
+    public List<Area> getForTransfer() {
 		String queryStr = 
-				"SELECT o FROM " + LOSArea.class.getSimpleName() + " o " +
-				"WHERE o.useForTransfer=true " +
+				"SELECT o FROM " + Area.class.getSimpleName() + " o " +
+				"WHERE o.usages like '%" + AreaUsages.TRANSFER + "%'" +
 				"ORDER BY o.id ";
 		Query query = manager.createQuery(queryStr);
 		
 		return query.getResultList();
     }
 
-    public LOSArea getDefault() {
+    public Area getDefault() {
     	String name = propertyService.getStringDefault(PROPERTY_KEY_AREA_DEFAULT, "Default");
     	
     	Client client = clientService.getSystemClient();
-    	LOSArea area = null;
+    	Area area = null;
 		try {
 			area = getByName(client, name);
 		} catch (EntityNotFoundException e) {}
 		
     	if( area == null ) {
     	    area = createLOSArea(client, name);
-    	    area.setUseForPicking(true);
-    	    area.setUseForStorage(true);
+    	    area.setUseFor(AreaUsages.PICKING, true);
+    	    area.setUseFor(AreaUsages.STORAGE, true);
     	}
 		
     	return area;

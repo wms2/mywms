@@ -26,10 +26,12 @@ public class LOSWorkingArea extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
 
+	@Column(unique=true, nullable=false)
 	private String name;
+
+    @OneToMany(mappedBy="workingArea")
 	private List<LOSWorkingAreaPosition> positionList;
 
-	@Column(unique=true, nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -37,7 +39,6 @@ public class LOSWorkingArea extends BasicEntity {
 		this.name = name;
 	}
 	
-    @OneToMany(mappedBy="workingArea")
 	public List<LOSWorkingAreaPosition> getPositionList() {
 		return positionList;
 	}

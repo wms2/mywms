@@ -16,13 +16,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class QueryStockServiceBean 
@@ -35,12 +35,8 @@ public class QueryStockServiceBean
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
 	
-	/*
-	 * (non-Javadoc)
-	 * @see de.linogistix.los.inventory.service.QueryStockService#getListByUnitLoad(de.linogistix.los.location.model.LOSUnitLoad)
-	 */
 	@SuppressWarnings("unchecked")
-	public List<StockUnit> getListByUnitLoad(LOSUnitLoad ul) {
+	public List<StockUnit> getListByUnitLoad(UnitLoad ul) {
 		
 		Client callersClient = ctxService.getCallersClient();
 		
@@ -184,7 +180,7 @@ public class QueryStockServiceBean
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<StockUnit> getListByStorageLocation(LOSStorageLocation loc) {
+	public List<StockUnit> getListByStorageLocation(StorageLocation loc) {
 		
 		Client callersClient = ctxService.getCallersClient();
 		

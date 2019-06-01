@@ -7,10 +7,10 @@
  */
 package de.linogistix.los.location.query.dto;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 
-public class StorageLocationTO  extends BODTO<LOSStorageLocation>{
+public class StorageLocationTO  extends BODTO<StorageLocation>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -21,7 +21,7 @@ public class StorageLocationTO  extends BODTO<LOSStorageLocation>{
 	private String zone;
 	private int lock;
 	
-	public StorageLocationTO(LOSStorageLocation sl){
+	public StorageLocationTO(StorageLocation sl){
 		this(sl.getId(), sl.getVersion(), sl.getName(), sl.getClient().getNumber(), sl.getType().getName(), sl.getArea()==null?null:sl.getArea().getName(), sl.getZone()==null?null:sl.getZone().getName(), sl.getLock());
 	}
 	

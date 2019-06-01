@@ -18,17 +18,17 @@ import javax.ejb.Stateless;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemUnit;
 import org.mywms.service.ClientService;
-import org.mywms.service.ItemUnitService;
 
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
+import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.product.ItemUnit;
 
 
 /**
@@ -89,7 +89,7 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_LOCATION, null, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_LOCATION", locale), false, false);
 
 		ItemUnit pce = unitService.getDefault();
-		pce.setUnitName( resolve("BasicDataItemUnitPcs", locale) );
+		pce.setName( resolve("BasicDataItemUnitPcs", locale) );
 		
 		log.info("Create Inventory Basic Data. done.");
 	}

@@ -19,11 +19,11 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.UnitLoadCRUDRemote;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
+import de.wms2.mywms.inventory.UnitLoad;
 import java.util.ArrayList;
 import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.UnitLoad;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
 

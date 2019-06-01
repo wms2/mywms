@@ -21,13 +21,8 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
-import org.mywms.model.StockUnit;
-import org.mywms.model.UnitLoadType;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.ItemDataService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
@@ -36,6 +31,7 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
+import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.location.businessservice.LOSRackLocationNameUtil;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
@@ -46,17 +42,20 @@ import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.query.BODTO;
-import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class InventoryProcessFacadeBean implements InventoryProcessFacade {
@@ -119,12 +118,12 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			throws FacadeException{
 		
 		
-		LOSUnitLoad ul;
+		UnitLoad ul;
 		
 		if (ulName != null && ulName.length() > 0) {
 			try {
 				ul = ulQueryRemote.queryByIdentity(ulName);
-				ul = manager.find(LOSUnitLoad.class, ul.getId());
+				ul = manager.find(UnitLoad.class, ul.getId());
 				Vector<Long> sus = new Vector<Long>();
 				for (StockUnit su : ul.getStockUnitList()){
 					sus.add(su.getId());
@@ -164,8 +163,8 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			throws FacadeException{
 
 		
-		LOSStorageLocation sl = null;
-		LOSUnitLoad ul = null;
+		StorageLocation sl = null;
+		UnitLoad ul = null;
 		
 		StockUnit su;
 		
@@ -213,12 +212,12 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			sl = slQuery.queryByIdentity(slName);
 		}
 		
-		sl = manager.find(LOSStorageLocation.class, sl.getId());
+		sl = manager.find(StorageLocation.class, sl.getId());
 		
 		if (ulName != null && ulName.length() > 0) {
 			try {
 				ul = ulQueryRemote.queryByIdentity(ulName);
-				ul = manager.find(LOSUnitLoad.class, ul.getId());
+				ul = manager.find(UnitLoad.class, ul.getId());
 			} catch (BusinessObjectNotFoundException ex) {
 				log.error(ex.getMessage(), ex);
 				ul = null;
@@ -278,7 +277,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 	}
 
 	
-	private StockUnit correctStockUnit( StockUnit su, String labelId,LOSUnitLoad ul, ItemData idat, Lot l,
+	private StockUnit correctStockUnit( StockUnit su, String labelId,UnitLoad ul, ItemData idat, Lot l,
 			BigDecimal amount, boolean force) throws FacadeException, EntityNotFoundException{
 
 		switch (ul.getPackageType()) {
@@ -330,7 +329,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 		
 	}
 
-	private String getStockUnitListAsString(LOSUnitLoad ul) {
+	private String getStockUnitListAsString(UnitLoad ul) {
 		String s = "";
 		for (StockUnit exists : ul.getStockUnitList()){
 			//dgrys portierung wildfly 8.2
@@ -346,7 +345,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 		inventoryComponent.changeAmount(u, amount, false, genService.generateManageInventoryNumber(), null, null, true);
 
 	}
-	private void correctUnitLoad(LOSUnitLoad ul, LOSStorageLocation sl, int index, boolean forceFullStorageLocation) throws FacadeException {
+	private void correctUnitLoad(UnitLoad ul, StorageLocation sl, int index, boolean forceFullStorageLocation) throws FacadeException {
 		
 		if (sl.getUnitLoads().contains(ul)) {
 			log.info("OK: Unitload " + ul.getLabelId()
@@ -362,13 +361,13 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			} catch (LOSLocationAlreadyFullException ex){
 				if (forceFullStorageLocation){
 					Vector<Long> ids = new Vector<Long>();
-					for (LOSUnitLoad existing : sl.getUnitLoads()) {
+					for (UnitLoad existing : sl.getUnitLoads()) {
 						log.warn("WARN: send existing to clearing: "
 								+ existing.getLabelId());
 						ids.add(existing.getId());
 					}
 					for (Long id : ids){
-						LOSUnitLoad existing = manager.find(LOSUnitLoad.class, id);
+						UnitLoad existing = manager.find(UnitLoad.class, id);
 						storage.sendToClearing(contextService.getCallerUserName(), existing);
 					}
 				} else{

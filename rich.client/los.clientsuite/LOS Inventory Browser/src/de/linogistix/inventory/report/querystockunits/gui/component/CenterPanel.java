@@ -9,14 +9,14 @@ package de.linogistix.inventory.report.querystockunits.gui.component;
 
 import de.linogistix.common.gui.listener.TopComponentListener;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.location.model.LOSStorageLocation;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.inventory.report.querystockunits.gui.gui_builder.AbstractCenterPanel;
 import de.linogistix.inventory.report.querystockunits.gui.gui_builder.TopComponentPanel;
 import de.linogistix.reports.res.ReportsBundleResolver;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 /**
  *
@@ -51,10 +51,10 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 l.getName());
         }
         
-        LOSStorageLocation storloc = getStorageLocationComboBox().getSelectedAsEntity();
-        BODTO<LOSStorageLocation> sl = null;
+        StorageLocation storloc = getStorageLocationComboBox().getSelectedAsEntity();
+        BODTO<StorageLocation> sl = null;
         if (storloc != null){
-            sl = new BODTO<LOSStorageLocation>(
+            sl = new BODTO<StorageLocation>(
                 sl.getId(),
                 sl.getVersion(),
                 sl.getName());

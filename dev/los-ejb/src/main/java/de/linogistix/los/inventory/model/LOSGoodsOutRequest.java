@@ -25,7 +25,7 @@ import javax.persistence.TemporalType;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 @Entity
 @Table(name = "los_outreq")
@@ -33,27 +33,33 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 	
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable = false, unique = true)
 	private String number;
+
 	private String externalNumber;
 
+	@OneToMany(mappedBy = "goodsOutRequest")
 	private List<LOSGoodsOutRequestPosition> positions = new ArrayList<LOSGoodsOutRequestPosition>();
-	
+
+	@Enumerated(EnumType.STRING)
 	private LOSGoodsOutRequestState outState = LOSGoodsOutRequestState.RAW;
 
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private User operator;
-	
+
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private LOSCustomerOrder customerOrder;
 
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date shippingDate;
-	
+
 	private String courier;
-	
+
 	private String groupName;
 
-	private LOSStorageLocation outLocation;
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private StorageLocation outLocation;
 
-	
-    @Column(nullable=false, unique=true)
 	public String getNumber() {
 		return number;
 	}
@@ -72,7 +78,6 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 		this.positions = positions;
 	}
 	
-	@OneToMany(mappedBy="goodsOutRequest")
 	public List<LOSGoodsOutRequestPosition> getPositions() {
 		return positions;
 	}
@@ -81,7 +86,6 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 		this.outState = outState;
 	}
 	
-	@Enumerated(EnumType.STRING)
 	public LOSGoodsOutRequestState getOutState() {
 		return outState;
 	}
@@ -90,12 +94,10 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 		this.operator = operator;
 	}
 
-    @ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public User getOperator() {
 		return operator;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public LOSCustomerOrder getCustomerOrder() {
 		return customerOrder;
 	}
@@ -103,7 +105,6 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 		this.customerOrder = customerOrder;
 	}
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	public Date getShippingDate() {
 		return shippingDate;
 	}
@@ -120,12 +121,11 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 		this.courier = courier;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	public LOSStorageLocation getOutLocation() {
+	public StorageLocation getOutLocation() {
 		return outLocation;
 	}
 
-	public void setOutLocation(LOSStorageLocation outLocation) {
+	public void setOutLocation(StorageLocation outLocation) {
 		this.outLocation = outLocation;
 	}
 

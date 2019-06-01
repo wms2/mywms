@@ -27,6 +27,7 @@ import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.inventory.Lot;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.Lot;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.util.Lookup;
@@ -84,7 +84,7 @@ public class BOLot extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    Lot c;
+      Lot c;
     
     c = new Lot();
 //    c.setName("Template");

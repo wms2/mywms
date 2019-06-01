@@ -15,17 +15,17 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import javax.swing.event.ChangeListener;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.ItemData;
-import org.mywms.model.StockUnit;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.util.HelpCtx;
@@ -55,7 +55,7 @@ final public class StockUnitTransferDataPage implements WizardDescriptor.Validat
                     }
 
                     BODTO ulTo = getPanelUI().getUnitLoadAutofilteringComboBox().getSelectedItem();
-                    LOSUnitLoad ul = getPanelUI().getUnitLoadAutofilteringComboBox().getSelectedAsEntity();
+                    UnitLoad ul = getPanelUI().getUnitLoadAutofilteringComboBox().getSelectedAsEntity();
                     if( ul!=null && ulTo!=null ) {
                         wizard.setUl(ulTo);
                         wizard.setUnitLoad(ul);
@@ -63,7 +63,7 @@ final public class StockUnitTransferDataPage implements WizardDescriptor.Validat
 
                     ui.setLocationUlInfo("");
                     if( ul != null ) {
-                        LOSStorageLocation loc = ul.getStorageLocation();
+                        StorageLocation loc = ul.getStorageLocation();
                         ui.setLocationUlInfo(loc.getName());
                     }
 
@@ -104,11 +104,11 @@ final public class StockUnitTransferDataPage implements WizardDescriptor.Validat
                     if( su != null ) {
                         ItemData idat = su.getItemData();
                         ui.setItemDataInfo( idat.getNumber() + " ("+idat.getName()+")");
-                        String amount = su.getAmount()+" "+idat.getHandlingUnit().getUnitName();
+                        String amount = su.getAmount()+" "+idat.getItemUnit().getUnitName();
                         ui.setAmountInfo(amount);
-                        LOSUnitLoad sul = (LOSUnitLoad)su .getUnitLoad();
+                        UnitLoad sul = su .getUnitLoad();
                         ui.setUnitLoadInfo(sul.getLabelId());
-                        LOSStorageLocation loc = sul.getStorageLocation();
+                        StorageLocation loc = sul.getStorageLocation();
                         ui.setLocationInfo(loc.getName());
                     }
 

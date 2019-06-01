@@ -14,7 +14,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
@@ -24,13 +26,13 @@ import de.linogistix.los.location.customization.CustomLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSRack;
-import de.linogistix.los.location.model.LOSStorageLocation;
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
+import de.linogistix.los.location.query.dto.LOSRackTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
 @PermitAll
@@ -59,15 +61,15 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 
-	public void releaseReservations(List<BODTO<LOSStorageLocation>> locations)
+	public void releaseReservations(List<BODTO<StorageLocation>> locations)
 			throws FacadeException {
 
 		if (locations == null) {
 			return;
 		}
 
-		for (BODTO<LOSStorageLocation> storLoc : locations) {
-			LOSStorageLocation sl = manager.find(LOSStorageLocation.class,
+		for (BODTO<StorageLocation> storLoc : locations) {
+			StorageLocation sl = manager.find(StorageLocation.class,
 					storLoc.getId());
 			if (sl == null) {
 				log.warn("Not found: " + storLoc.getName());
@@ -79,36 +81,36 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 
 	public void sendUnitLoadToNirwana(String labelId) throws FacadeException {
 
-		LOSUnitLoad u = uLoadQueryRemote.queryByIdentity(labelId);
-		manager.find(LOSUnitLoad.class, u.getId());
-		LOSStorageLocation nirwana = slService.getNirwana();
+		UnitLoad u = uLoadQueryRemote.queryByIdentity(labelId);
+		manager.find(UnitLoad.class, u.getId());
+		StorageLocation nirwana = slService.getNirwana();
 		storage.transferUnitLoad(contextService.getCallerUserName(), nirwana, u);
 
 	}
 
-	public void sendUnitLoadToNirwana(List<BODTO<LOSUnitLoad>> list)
+	public void sendUnitLoadToNirwana(List<BODTO<UnitLoad>> list)
 			throws FacadeException {
 		if (list == null) {
 			return;
 		}
 
-		LOSStorageLocation nirwana = slService.getNirwana();
-		for (BODTO<LOSUnitLoad> ul : list) {
-			LOSUnitLoad u = manager.find(LOSUnitLoad.class, ul.getId());
+		StorageLocation nirwana = slService.getNirwana();
+		for (BODTO<UnitLoad> ul : list) {
+			UnitLoad u = manager.find(UnitLoad.class, ul.getId());
 			storage.transferUnitLoad(contextService.getCallerUserName(), nirwana, u);
 		}
 	}
 
 
-	public LOSTypeCapacityConstraint checkUnitLoadSuitable(
-			BODTO<LOSStorageLocation> dest, BODTO<LOSUnitLoad> ul, boolean ignoreLock)
+	public TypeCapacityConstraint checkUnitLoadSuitable(
+			BODTO<StorageLocation> dest, BODTO<UnitLoad> ul, boolean ignoreLock)
 			throws LOSLocationException {
 		
-		LOSStorageLocation storageLocation = manager.find(LOSStorageLocation.class, dest.getId());
+		StorageLocation storageLocation = manager.find(StorageLocation.class, dest.getId());
 		if (storageLocation == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_LOCATION, new String[]{dest.getName()});
 		
-		LOSUnitLoad unitLoad = manager.find(LOSUnitLoad.class, ul.getId());
+		UnitLoad unitLoad = manager.find(UnitLoad.class, ul.getId());
 		if (unitLoad == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{dest.getName()});
 
@@ -116,13 +118,13 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 		
 	}
 
-	public void transferUnitLoad(BODTO<LOSStorageLocation> dest,
-			BODTO<LOSUnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException {
-		LOSStorageLocation storageLocation = manager.find(LOSStorageLocation.class, dest.getId());
+	public void transferUnitLoad(BODTO<StorageLocation> dest,
+			BODTO<UnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException {
+		StorageLocation storageLocation = manager.find(StorageLocation.class, dest.getId());
 		if (storageLocation == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_LOCATION, new String[]{dest.getName()});
 		
-		LOSUnitLoad unitLoad = manager.find(LOSUnitLoad.class, ul.getId());
+		UnitLoad unitLoad = manager.find(UnitLoad.class, ul.getId());
 		if (unitLoad == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{dest.getName()});
 		
@@ -130,13 +132,13 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 		
 	}
 
-	public void transferToCarrier(BODTO<LOSUnitLoad> sourceTo, BODTO<LOSUnitLoad> destinationTo, String info) throws FacadeException {
+	public void transferToCarrier(BODTO<UnitLoad> sourceTo, BODTO<UnitLoad> destinationTo, String info) throws FacadeException {
 		
-		LOSUnitLoad source = manager.find(LOSUnitLoad.class, sourceTo.getId());
+		UnitLoad source = manager.find(UnitLoad.class, sourceTo.getId());
 		if (source == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{sourceTo.getName()});
 		
-		LOSUnitLoad destination = manager.find(LOSUnitLoad.class, destinationTo.getId());
+		UnitLoad destination = manager.find(UnitLoad.class, destinationTo.getId());
 		if (destination == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{destinationTo.getName()});
 		
@@ -145,16 +147,31 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 	}
 
 	@Override
-	public int setLocationOrderIndex(BODTO<LOSRack> rackTo, int startValue, int diffValue) throws FacadeException {
-		if (rackTo == null) {
+	public int setLocationOrderIndex(String rackTo, int startValue, int diffValue) throws FacadeException {
+		if (StringUtils.isBlank(rackTo)) {
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_LOCATION, new String[]{"NULL"});
 		}
-		LOSRack rack = manager.find(LOSRack.class, rackTo.getId());
-		if (rack == null) {
-			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_LOCATION, new String[]{rackTo.getName()});
-		}
-		
-		return customLocationService.setLocationOrderIndex(rack, startValue, diffValue);
+		return customLocationService.setLocationOrderIndex(rackTo, startValue, diffValue);
+	}
+
+	@Override
+	public LOSRackTO readRackInfo(String rack) {
+		LOSRackTO rackTO = new LOSRackTO();
+
+		String jpql = "select min(location.orderIndex), max(location.orderIndex), count(*) from ";
+		jpql += StorageLocation.class.getName() + " location ";
+		jpql += " where location.rack=:rack";
+		Query query = manager.createQuery(jpql);
+		query.setParameter("rack", rack);
+
+		Object result = query.getSingleResult();
+		Object[] results = (Object[]) result;
+
+		rackTO.setLocationIndexMin((Integer) results[0]);
+		rackTO.setLocationIndexMax((Integer) results[1]);
+		rackTO.setNumLocation(((Long) results[2]).intValue());
+
+		return rackTO;
 	}
 
 }

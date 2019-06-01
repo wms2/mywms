@@ -17,8 +17,8 @@ import de.linogistix.location.res.LocationBundleResolver;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.LOSLocationClusterCRUDRemote;
-import de.linogistix.los.location.model.LOSLocationCluster;
 import de.linogistix.los.location.query.LOSLocationClusterQueryRemote;
+import de.wms2.mywms.location.LocationCluster;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.util.Lookup;
@@ -67,9 +67,9 @@ public class BOLOSLocationCluster extends BO {
 
     @Override
     protected BasicEntity initEntityTemplate() {
-        LOSLocationCluster o;
+        LocationCluster o;
 
-        o = new LOSLocationCluster();
+        o = new LocationCluster();
         o.setName("Template");
 
         return o;

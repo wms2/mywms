@@ -12,10 +12,10 @@ import java.util.Map;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.ItemData;
-import org.mywms.model.Lot;
 
 import de.linogistix.los.inventory.exception.InventoryException;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * A component for managing {@link LOSInventory} entities and 

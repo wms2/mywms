@@ -18,7 +18,6 @@ import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.facade.StorageFacade;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
-import de.linogistix.los.location.model.LOSUnitLoad;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicBackingBean;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExt;
@@ -27,6 +26,7 @@ import de.linogistix.mobile.common.listener.ButtonListener;
 import de.linogistix.mobile.common.system.JSFHelper;
 import de.linogistix.mobile.processes.storage.StorageBackingBean;
 import de.linogistix.mobile.processes.storage.scan_unitload.NavigationEnum;
+import de.wms2.mywms.inventory.UnitLoad;
 
 /**
  * 
@@ -85,7 +85,7 @@ public class CenterBean extends BasicBackingBean {
 			return notifyMessage(resolve("Storage_ENTER_UNITLOAD"));
 		}
 
-		LOSUnitLoad ul = null;
+		UnitLoad ul = null;
 		try {
 			ul = ulQuery.getByLabelId(ulTextField);
 		} catch (UnAuthorizedException e) {

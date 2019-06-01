@@ -12,11 +12,11 @@ package de.linogistix.los.inventory.service;
 import javax.ejb.Local;
 
 import org.mywms.model.Client;
-import org.mywms.model.UnitLoadType;
 
 import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
+import de.wms2.mywms.inventory.UnitLoadType;
 
 /**
  *

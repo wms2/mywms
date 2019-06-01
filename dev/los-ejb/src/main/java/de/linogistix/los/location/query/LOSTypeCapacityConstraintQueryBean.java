@@ -17,10 +17,10 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.location.model.LOSTypeCapacityConstraint;
 import de.linogistix.los.location.query.dto.LOSTypeCapacityConstraintTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 
 /**
@@ -28,15 +28,15 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Stateless
-public class LOSTypeCapacityConstraintQueryBean extends BusinessObjectQueryBean<LOSTypeCapacityConstraint> implements LOSTypeCapacityConstraintQueryRemote{	
+public class LOSTypeCapacityConstraintQueryBean extends BusinessObjectQueryBean<TypeCapacityConstraint> implements LOSTypeCapacityConstraintQueryRemote{	
   
 	@Override
 	public String getOrderByProp() {
-		return "storageLocationType.name, o.unitLoadType.name";
+		return "locationType.name, o.unitLoadType.name";
 	}
 	
 	private static final String[] dtoProps = new String[] { "id", "version", 
-		"storageLocationType.name", 
+		"locationType.name", 
 		"unitLoadType.name",
 		"allocation"};
 
@@ -56,7 +56,7 @@ public class LOSTypeCapacityConstraintQueryBean extends BusinessObjectQueryBean<
 
 		TemplateQueryWhereToken token;
 
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "storageLocationType.name", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "locationType.name", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 

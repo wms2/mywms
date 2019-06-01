@@ -17,7 +17,7 @@ import org.mywms.facade.FacadeException;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.location.model.LOSStorageLocation;
+import de.wms2.mywms.location.StorageLocation;
 
 @Remote
 @WebService
@@ -28,7 +28,7 @@ public interface GoodsReceipt extends java.rmi.Remote{
 	 * Creates a {@link LOSGoodsReceipt}.
 	 * 
 	 * @param client The client for whom the process is done
-	 * @param storageLocation the place (i.e. a {@link LOSStorageLocation} for goods in where the process is done
+	 * @param storageLocation the place (i.e. a {@link StorageLocation} for goods in where the process is done
 	 * @param licencePlate the license plate of the delivery truck
 	 * @param driver The name of the driver
 	 * @param forwarder the forwarder company

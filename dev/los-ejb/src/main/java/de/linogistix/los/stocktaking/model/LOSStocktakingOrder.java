@@ -24,6 +24,7 @@ import org.mywms.model.BasicEntity;
 public class LOSStocktakingOrder extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	private LOSStockTaking stockTaking;
 	
 	private String locationName;
@@ -38,9 +39,9 @@ public class LOSStocktakingOrder extends BasicEntity {
 	
 	private LOSStocktakingState state;
 
+    @OneToMany(mappedBy="stocktakingOrder")
 	private List<LOSStocktakingRecord> records = new ArrayList<LOSStocktakingRecord>();
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	public LOSStockTaking getStockTaking() {
 		return stockTaking;
 	}
@@ -97,7 +98,6 @@ public class LOSStocktakingOrder extends BasicEntity {
 		this.state = state;
 	}
 
-    @OneToMany(mappedBy="stocktakingOrder")
 	public List<LOSStocktakingRecord> getRecords() {
 		return records;
 	}
