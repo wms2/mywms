@@ -26,6 +26,7 @@ import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
+import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -90,7 +91,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyDefaultName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_DEFAULT_STRATEGY, name, null, description, false, true);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description);
 		}
 		
 		LOSOrderStrategy strat = getByName(client, name);
@@ -127,7 +128,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyExtinguishName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyExtinguishDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_EXTINGUISH_STRATEGY, name, null, description, false, true);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_EXTINGUISH_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description);
 		}
 		
 		LOSOrderStrategy strat = getByName(client, name);

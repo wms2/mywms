@@ -15,21 +15,21 @@ import javax.ejb.Stateless;
 
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.model.LOSSystemProperty;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.property.SystemProperty;
 
 /**
  * @author trautm
  *
  */
 @Stateless
-public class LOSSystemPropertyCRUDBean extends BusinessObjectCRUDBean<LOSSystemProperty> implements LOSSystemPropertyCRUDRemote {
+public class LOSSystemPropertyCRUDBean extends BusinessObjectCRUDBean<SystemProperty> implements LOSSystemPropertyCRUDRemote {
 
     @EJB
     LOSSystemPropertyService service;
 
     @Override
-    protected BasicService<LOSSystemProperty> getBasicService() {
+    protected BasicService<SystemProperty> getBasicService() {
         return service;
     }
 

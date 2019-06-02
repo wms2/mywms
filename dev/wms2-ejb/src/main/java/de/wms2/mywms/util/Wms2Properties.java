@@ -24,14 +24,21 @@ package de.wms2.mywms.util;
  * @author krane
  *
  */
-public class Wms2Constants {
-	public final static int FIELDSIZE_DESCRIPTION = 2000;
-	public final static int FIELDSIZE_NOTE = 32000;
+public class Wms2Properties {
 
 	/**
-	 * Maximal number of layers of carriers
+	 * Keys of system properties
 	 */
-	public final static int MAX_CARRIER_DEPTH = 10;
+	public final static String KEY_PASSWORD_EXPRESSION = "PASSWORD_REGULAR_EXPRESSION";
 
+	/**
+	 * Names of system property groups
+	 */
+	public final static String GROUP_SETUP = "SETUP";
+	public final static String GROUP_UI = "UI";
+	public final static String GROUP_MOBILE = "MOBILE";
+	public final static String GROUP_SERVER = "SERVER";
+	public final static String GROUP_GENERAL = "GENERAL";
+	public final static String GROUP_WMS = "WMS";
 
 }

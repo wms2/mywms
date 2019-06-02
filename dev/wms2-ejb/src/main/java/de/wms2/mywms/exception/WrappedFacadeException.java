@@ -16,22 +16,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package de.wms2.mywms.util;
+package de.wms2.mywms.exception;
+
+import org.mywms.facade.FacadeException;
 
 /**
- * Constants for the wms2 module
+ * Wrapper for mywms FacadeException.
+ * <p>
+ * Used to propagate FacadeExceptions as BusinessException
  * 
  * @author krane
  *
  */
-public class Wms2Constants {
-	public final static int FIELDSIZE_DESCRIPTION = 2000;
-	public final static int FIELDSIZE_NOTE = 32000;
+public class WrappedFacadeException extends BusinessException {
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Maximal number of layers of carriers
-	 */
-	public final static int MAX_CARRIER_DEPTH = 10;
-
-
+	public WrappedFacadeException(FacadeException facadeException) {
+		super(facadeException.getBundleResolver(),
+				facadeException.getBundleResolver().getPackage().getName() + ".Bundle", facadeException.getKey(),
+				facadeException.getParameters());
+	}
 }

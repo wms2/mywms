@@ -20,8 +20,15 @@ package de.wms2.mywms.module;
 
 import java.util.Locale;
 
-import de.wms2.mywms.exception.BusinessException;
+import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
+
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.property.SystemProperty;
+import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.util.Translator;
+import de.wms2.mywms.util.Wms2Properties;
 
 /**
  * Setup of a module.
@@ -34,6 +41,9 @@ import de.wms2.mywms.exception.BusinessException;
  */
 public abstract class ModuleSetup {
 
+	@Inject
+	private SystemPropertyBusiness propertyBusiness;
+
 	public enum SetupLevel {
 		UNINITIALIZED, INITIALIZED, EXPIRED, DEMO_SMALL, DEMO_MEDIUM, DEMO_LARGE
 	}
@@ -45,9 +55,23 @@ public abstract class ModuleSetup {
 	 */
 	public abstract String getModulePackage();
 
+	/**
+	 * Get the name of the SystemProperty, which holds the modules status
+	 * information.
+	 */
+	public String getModulePropertyName() {
+		return Wms2Properties.GROUP_SETUP + ":" + getModulePackage();
+	}
 
 	public boolean isActive() {
-		return true;
+		String value = propertyBusiness.getString(getModulePropertyName(), null);
+		if (StringUtils.equals(value, SetupLevel.INITIALIZED.name())) {
+			return true;
+		}
+		if (StringUtils.startsWith(value, "DEMO")) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -82,4 +106,50 @@ public abstract class ModuleSetup {
 	public boolean runSelfTest() throws BusinessException {
 		return true;
 	}
+
+	/**
+	 * Create a system property with a localized description and note values queried
+	 * from bundle.
+	 * 
+	 * @param bundleResolver A class file which is located in the same package as
+	 *                       the bundle files
+	 * @param key            The property key
+	 * @param value          The property value
+	 * @param group          The property group
+	 * @param locale         The locale
+	 */
+	protected void createProperty(Class<?> bundleResolver, String key, String value, String group, Locale locale) {
+		createProperty(bundleResolver, key, value, group, key, key, locale);
+	}
+
+	/**
+	 * Create a system property with a localized description and note values queried
+	 * from bundle.
+	 * 
+	 * @param bundleResolver A class file which is located in the same package as
+	 *                       the bundle files
+	 * @param key            The property key
+	 * @param value          The property value
+	 * @param group          The property group
+	 * @param bundleKeyDesc  Optional, The bundle key to read the description from
+	 *                       bundle
+	 * @param bundleKeyNote  Optional, The bundle key to read the note from bundle
+	 * @param locale         The locale
+	 */
+	protected void createProperty(Class<?> bundleResolver, String key, String value, String group, String bundleKeyDesc,
+			String bundleKeyNote, Locale locale) {
+
+		String desc = null;
+		if (!StringUtils.isBlank(bundleKeyDesc)) {
+			String bundleKey = "property" + key;
+			desc = Translator.getString(bundleResolver, "BasicData", bundleKey, "desc", null, locale);
+		}
+		SystemProperty property = propertyBusiness.createOrUpdate(key, null, null, value, group, desc);
+		if (!StringUtils.isBlank(bundleKeyNote)) {
+			String bundleKey = "property" + key;
+			String note = Translator.getString(bundleResolver, "BasicData", bundleKey, "note", null, locale);
+			property.setAdditionalContent(note);
+		}
+	}
+
 }

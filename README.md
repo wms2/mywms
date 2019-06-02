@@ -49,8 +49,6 @@ This are only ideas of what could be done. There is no actual plan to do it at a
 Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
 
 - Advice as master/detail
-- Packaging units
-- Configurable zones and overflow zones
 - Only one journal for stock unit and unit load changes
 - Add images and attachments to master data objects
 - Change-history

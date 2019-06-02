@@ -22,6 +22,7 @@ import org.mywms.service.ClientService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
+import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -80,7 +81,7 @@ public class LOSStorageStrategyServiceBean extends BasicServiceBean<StorageStrat
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, null, description, false, true);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description);
 		}
 		
 		StorageStrategy strat = getByName(name);

@@ -55,7 +55,6 @@ import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.location.service.ZoneService;
-import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.reference.model.ProjectPropertyKey;
 import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
 import de.linogistix.los.util.StringTools;
@@ -73,6 +72,7 @@ import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
+import de.wms2.mywms.util.Wms2Properties;
 
 @Stateless
 public class RefTopologyFacadeBean implements RefTopologyFacade {
@@ -164,7 +164,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create Properties...");
 		Client sys = clientService.getSystemClient();
-		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"), true, true);
+		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", Wms2Properties.GROUP_SETUP, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"));
 	
 		log.info("Create Basic Data. done.");
 	}
