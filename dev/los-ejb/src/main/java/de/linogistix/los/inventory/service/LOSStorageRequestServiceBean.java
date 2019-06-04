@@ -10,12 +10,12 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.customization.EntityGenerator;
@@ -23,6 +23,7 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.location.service.UnitLoadService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 
@@ -39,8 +40,8 @@ public class LOSStorageRequestServiceBean
     private static final Logger log = Logger.getLogger(LOSStorageRequestServiceBean.class);
     @EJB
     UnitLoadService ulService;
-    @EJB
-    ClientService clService;
+    @Inject
+    ClientBusiness clService;
 	@EJB
 	private EntityGenerator entityGenerator;
     @SuppressWarnings("unchecked")

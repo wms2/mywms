@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -19,7 +20,6 @@ import org.mywms.facade.FacadeException;
 import org.mywms.globals.ServiceExceptionKey;
 import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.customization.EntityGenerator;
@@ -31,6 +31,7 @@ import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -48,8 +49,8 @@ public class LOSUnitLoadServiceBean
 	private static final Logger log = Logger.getLogger(LOSUnitLoadServiceBean.class);
 	private static int MAX_CARRIER_DEPTH = 10;
 	
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 
 	@EJB
 	private LOSStorageLocationService slService;

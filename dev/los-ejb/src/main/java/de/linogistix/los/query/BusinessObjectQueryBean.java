@@ -25,7 +25,7 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -37,9 +37,9 @@ import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.BasicEntity;
 import org.mywms.model.Client;
 import org.mywms.model.User;
-import org.mywms.service.ClientService;
 import org.mywms.service.UserService;
 
+import de.linogistix.los.inventory.query.StockUnitQueryBean;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectNotUniqueException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
@@ -49,6 +49,7 @@ import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.BusinessObjectHelper;
 import de.linogistix.los.util.GenericTypeResolver;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 
 /**
  * Queries BasicEntities / BusinessObejct
@@ -95,8 +96,8 @@ public abstract class BusinessObjectQueryBean<T extends BasicEntity> implements
 	UserService userService;
 	@EJB
 	protected ContextService contextService;
-	@EJB
-	protected ClientService clientService;
+	@Inject
+	protected ClientBusiness clientService;
 
 	@Resource
 	SessionContext ctx;

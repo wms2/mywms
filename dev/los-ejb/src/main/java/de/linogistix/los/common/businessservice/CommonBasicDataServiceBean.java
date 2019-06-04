@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -21,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.Role;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.RoleService;
 
@@ -30,6 +30,7 @@ import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.res.BundleResolver;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemUnit;
 
 /**
@@ -42,8 +43,8 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 	private static final Logger log = Logger.getLogger(CommonBasicDataServiceBean.class);
 
 
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private RoleService roleService;
 	@EJB

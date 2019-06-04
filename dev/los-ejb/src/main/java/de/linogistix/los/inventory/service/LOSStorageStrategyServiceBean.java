@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -18,7 +19,6 @@ import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
@@ -27,6 +27,7 @@ import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
@@ -43,8 +44,8 @@ public class LOSStorageStrategyServiceBean extends BasicServiceBean<StorageStrat
 	private ContextService contextService;
 	@EJB
 	private EntityGenerator entityGenerator;
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	
 	
 	public StorageStrategy getByName( String name ) {

@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -19,12 +20,12 @@ import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.location.res.BundleResolver;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.StorageLocation;
@@ -41,8 +42,8 @@ public class LOSStorageLocationServiceBean
         implements LOSStorageLocationService{
     
 	private static final Logger log = Logger.getLogger(LOSStorageLocationServiceBean.class);
-	@EJB
-	private ClientService clService;
+	@Inject
+	private ClientBusiness clService;
 	@EJB
 	private LOSStorageLocationTypeService slTypeService;
 	@EJB

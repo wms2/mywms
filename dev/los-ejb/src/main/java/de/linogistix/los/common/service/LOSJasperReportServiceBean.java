@@ -7,16 +7,16 @@
  */
 package de.linogistix.los.common.service;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.model.LOSJasperReport;
+import de.wms2.mywms.client.ClientBusiness;
 
 /**
  * @author krane
@@ -25,8 +25,8 @@ import de.linogistix.los.model.LOSJasperReport;
 @Stateless
 public class LOSJasperReportServiceBean extends BasicServiceBean<LOSJasperReport> implements LOSJasperReportService {
 
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 
 	public LOSJasperReport getByName( Client client, String name ) {
 		if( client == null ) {

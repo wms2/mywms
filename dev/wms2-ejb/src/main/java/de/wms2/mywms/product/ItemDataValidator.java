@@ -81,10 +81,24 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingNumber");
 		}
 
+		if (StringUtils.isEmpty(entity.getName())) {
+			logger.log(Level.INFO, logStr + "missing name. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingName");
+		}
+
 		if (entity.getItemUnit() == null) {
 			logger.log(Level.INFO, logStr + "missing productUnit. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingUnit");
 		}
+
+		String[] attributes = { "client", "number" };
+		Object[] values = { entity.getClient(), entity.getNumber() };
+		if (entitySerivce.exists(ItemData.class, attributes, values, entity.getId())) {
+			logger.log(Level.INFO, logStr + "not unique. entity=" + entity + ", client=" + entity.getClient()
+					+ ", number=" + entity.getNumber());
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
+		}
+
 	}
 
 	@Override

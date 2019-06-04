@@ -44,4 +44,7 @@ public class BusinessObjectCreationException extends FacadeException {
 		setBundleResolver(bundleResolver);
 	}
 
+	public BusinessObjectCreationException(String msg) {
+		super(msg, msg, new Object[0]);
+	}
 }

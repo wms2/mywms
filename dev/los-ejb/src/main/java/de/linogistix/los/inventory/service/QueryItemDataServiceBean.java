@@ -12,17 +12,18 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.util.BusinessObjectHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
 
@@ -31,8 +32,8 @@ public class QueryItemDataServiceBean
 	implements QueryItemDataService, QueryItemDataServiceRemote 
 {
 
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	
 	@EJB
 	private ContextService ctxService;

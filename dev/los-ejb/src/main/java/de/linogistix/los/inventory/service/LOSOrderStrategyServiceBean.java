@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -19,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
@@ -31,6 +31,7 @@ import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.location.StorageLocation;
 
 /**
@@ -43,8 +44,8 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private LOSSystemPropertyService propertyService;
 	@EJB

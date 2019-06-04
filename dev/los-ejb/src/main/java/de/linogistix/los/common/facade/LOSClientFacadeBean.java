@@ -11,16 +11,17 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 
 /**
  * @author krane
@@ -32,8 +33,8 @@ public class LOSClientFacadeBean implements LOSClientFacade  {
 
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
     @PersistenceContext(unitName = "myWMS")
     private EntityManager manager;
     

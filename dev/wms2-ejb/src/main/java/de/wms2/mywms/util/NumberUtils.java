@@ -18,26 +18,36 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.util;
 
+import java.math.BigDecimal;
+
 /**
- * Constants for the wms2 module
+ * Utilities for number handling
  * 
  * @author krane
  *
  */
-public class Wms2Properties {
+public class NumberUtils {
+
+	public static final BigDecimal THOUSAND = new BigDecimal("1000");
+	public static final BigDecimal HUNDRED = new BigDecimal("100");
 
 	/**
-	 * Keys of system properties
+	 * Convert a String into a BigDecimal
 	 */
+	public static BigDecimal parseBigDecimal(String code) {
+		try {
+			BigDecimal number = new BigDecimal(code);
+			return number;
+		} catch (NumberFormatException e) {
+		}
 
-	/**
-	 * Names of system property groups
-	 */
-	public final static String GROUP_SETUP = "SETUP";
-	public final static String GROUP_UI = "UI";
-	public final static String GROUP_MOBILE = "MOBILE";
-	public final static String GROUP_SERVER = "SERVER";
-	public final static String GROUP_GENERAL = "GENERAL";
-	public final static String GROUP_WMS = "WMS";
+		try {
+			// Formats where the decimal separator is a ','
+			BigDecimal number = new BigDecimal(code.replace(",", "."));
+			return number;
+		} catch (NumberFormatException e) {
+		}
 
+		return null;
+	}
 }

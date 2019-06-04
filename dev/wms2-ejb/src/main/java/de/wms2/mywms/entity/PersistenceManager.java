@@ -277,6 +277,9 @@ public class PersistenceManager {
 		if (entityNew == null) {
 			return;
 		}
+		if (entityOld == null) {
+			entityOld = entityNew;
+		}
 
 		for (EntityValidator validator : getValidators(entityNew.getClass())) {
 			validator.validateUpdate(entityOld, entityNew);
@@ -522,8 +525,8 @@ public class PersistenceManager {
 	/**
 	 * @see EntityManager#lock(Object, LockModeType)
 	 */
-	public void lock(Object arg0, LockModeType arg1) {
-		manager.lock(arg0, arg1);
+	public void lock(Object entity, LockModeType lockMode) {
+		manager.lock(entity, lockMode);
 	}
 
 	/**
@@ -546,4 +549,12 @@ public class PersistenceManager {
     public boolean contains(Object entity) {
 		return manager.contains(entity);
 	}
+
+	/**
+	 * @see EntityManager#contains(Object)
+	 */
+    public <T> T merge(T entity) {
+		return manager.merge(entity);
+	}
+
 }

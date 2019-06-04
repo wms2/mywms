@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.Role;
 import org.mywms.model.User;
+import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.RoleService;
 import org.mywms.service.UniqueConstraintViolatedException;
 import org.mywms.service.UserService;
@@ -96,12 +97,27 @@ public class Wms2SetupService extends ModuleSetup {
 				Wms2Properties.GROUP_SETUP, null, locale);
 
 		Client client = clientService.getSystemClient();
-		User admin = userService.create(client, "admin", "", "", "admin");
-		admin.setLocale("en");
-		User de = userService.create(client, "de", "", "", "de");
-		de.setLocale("de");
-		User en = userService.create(client, "en", "", "", "en");
-		en.setLocale("en");
+		User admin;
+		try {
+			admin = userService.getByUsername("admin");
+		} catch (EntityNotFoundException e1) {
+			admin = userService.create(client, "admin", "", "", "admin");
+			admin.setLocale("en");
+		} 
+		User de;
+		try {
+			de = userService.getByUsername("de");
+		} catch (EntityNotFoundException e1) {
+			de = userService.create(client, "de", "", "", "de");
+			de.setLocale("de");
+		} 
+		User en;
+		try {
+			en = userService.getByUsername("en");
+		} catch (EntityNotFoundException e1) {
+			en = userService.create(client, "en", "", "", "en");
+			en.setLocale("en");
+		} 
 
 		try {
 			Role role = roleService.create("Admin");

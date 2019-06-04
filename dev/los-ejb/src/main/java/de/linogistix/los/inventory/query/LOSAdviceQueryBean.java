@@ -252,9 +252,7 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<LOSAdvice>
 	}
 
 	public boolean hasSingleClient() {
-		Client systemClient = clientService.getSystemClient();
-		List<Client> clients = clientService.getList(systemClient);
-		return clients.size()<2;
+		return clientService.isSingleClient();
 	}
 	
 	

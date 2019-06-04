@@ -18,14 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.client;
 
-import javax.ejb.EJB;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.wms2.mywms.entity.PersistenceManager;
 
@@ -36,11 +37,10 @@ import de.wms2.mywms.entity.PersistenceManager;
  */
 @Stateless
 public class ClientBusiness {
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Inject
 	private PersistenceManager manager;
-	@EJB
-	private ClientService clientService;
 
 	/**
 	 * Read the special system client. Generate it, if not present.
@@ -87,6 +87,36 @@ public class ClientBusiness {
 		}
 
 		return system;
+	}
+
+	/**
+	 * Read the only one usable tenant.<br>
+	 * The system-tenant in single-tenant systems<br>
+	 * Otherwise null.
+	 */
+	public Client getSingleClient() {
+		String hql = "SELECT entity FROM " + Client.class.getName() + " entity ";
+		Query query = manager.createQuery(hql);
+		query.setMaxResults(2);
+		try {
+			return (Client) query.getSingleResult();
+		} catch (Throwable t) {
+		}
+
+		return null;
+	}
+
+	public boolean isSingleClient() {
+		String hql = "SELECT count(*) FROM " + Client.class.getName() + " entity ";
+		Query query = manager.createQuery(hql);
+		try {
+			Long num = (Long) query.getSingleResult();
+			return num.intValue() == 1;
+		} catch (Throwable t) {
+			logger.log(Level.SEVERE, "EX:", t);
+		}
+
+		return false;
 	}
 
 }

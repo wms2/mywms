@@ -18,19 +18,20 @@ import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.service.LOSJasperReportService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.model.LOSJasperReport;
 import de.linogistix.los.report.ReportException;
 import de.linogistix.los.report.ReportExceptionKey;
+import de.wms2.mywms.client.ClientBusiness;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporter;
 import net.sf.jasperreports.engine.JRExporterParameter;
@@ -54,8 +55,8 @@ public class LOSJasperReportGeneratorBean implements LOSJasperReportGenerator {
 
 	@EJB
 	private LOSJasperReportService jasperReportService;
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private EntityGenerator entityGenerator;
     @PersistenceContext(unitName = "myWMS")

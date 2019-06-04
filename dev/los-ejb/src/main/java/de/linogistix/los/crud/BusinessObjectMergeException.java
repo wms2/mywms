@@ -8,6 +8,7 @@
 package de.linogistix.los.crud;
 
 import javax.ejb.ApplicationException;
+
 import org.mywms.facade.FacadeException;
 import org.mywms.model.BasicEntity;
 
@@ -33,4 +34,7 @@ public class BusinessObjectMergeException extends FacadeException {
 				new Object[]{entity});
 	}
 
+	public BusinessObjectMergeException(String msg) {
+		super(msg, msg, new Object[0]);
+	}
 }

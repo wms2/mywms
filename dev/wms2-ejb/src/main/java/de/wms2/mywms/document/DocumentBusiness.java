@@ -31,8 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.Document;
 import org.mywms.res.BundleResolver;
-import org.mywms.service.ClientService;
 
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.util.ImageUtils;
@@ -50,7 +50,7 @@ public class DocumentBusiness {
 	@Inject
 	private PersistenceManager manager;
 	@Inject
-	private ClientService clientService;
+	private ClientBusiness clientService;
 
 	/**
 	 * Read the image assigned to an entity as Document
@@ -157,7 +157,7 @@ public class DocumentBusiness {
 		imageNew.setType(documentType);
 		imageNew.setName(imageName);
 
-		manager.persist(imageNew);
+		manager.persistValidated(imageNew);
 		return imageNew;
 	}
 
@@ -191,7 +191,7 @@ public class DocumentBusiness {
 		doc.setType(documentType);
 		doc.setName(imageName);
 
-		manager.persist(doc);
+		manager.persistValidated(doc);
 		return doc;
 	}
 
@@ -218,7 +218,7 @@ public class DocumentBusiness {
 		doc.setType(documentType);
 		doc.setName(documentName);
 
-		manager.persist(doc);
+		manager.persistValidated(doc);
 
 		return doc;
 

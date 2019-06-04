@@ -14,11 +14,11 @@ import java.util.ResourceBundle;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
@@ -28,6 +28,7 @@ import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemUnit;
 
 
@@ -40,8 +41,8 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 
 	private static final Logger log = Logger.getLogger(InventoryBasicDataServiceBean.class);
 
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private LOSOrderStrategyService orderStrategyService;
 	@EJB
