@@ -44,11 +44,12 @@ public class ChangeAmountWizard extends WizardDescriptor implements ActionListen
     private BigDecimal reserveAmount = new BigDecimal(0);
     private boolean releaseReservation = false;
     private String info = null;
+    private List<String> packagingUnits = new ArrayList<>();
+    private String packagingUnit;
 
     /**
      * Creates a new instance of OrderByWizard
      */
-    @SuppressWarnings("unchecked")
     public ChangeAmountWizard(BODTO suTO) throws InstantiationException {
         super(createPanels());
 
@@ -163,6 +164,19 @@ public class ChangeAmountWizard extends WizardDescriptor implements ActionListen
        };
     }
     
+    public void setPackagingUnits(List<String> packagingUnits) {
+        this.packagingUnits = packagingUnits;
+    }
+
+    public List<String> getPackagingUnits() {
+        return packagingUnits;
+    }
+
+    public String getPackagingUnit() {
+        return packagingUnit;
+    }
+
+    public void setPackagingUnit(String packagingUnit) {
+        this.packagingUnit = packagingUnit;
+    }
 }
-
-

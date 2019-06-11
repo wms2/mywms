@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -22,6 +23,7 @@ import org.mywms.service.EntityNotFoundException;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.product.ItemData;
 
@@ -33,6 +35,8 @@ public class LOSStorageReportFacadeBean implements LOSStorageReportFacade {
 	
 	@EJB
 	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientBusiness;
 	
 	
 	@PersistenceContext(unitName="myWMS")
@@ -64,7 +68,7 @@ public class LOSStorageReportFacadeBean implements LOSStorageReportFacade {
 			item = itemService.getByItemNumber(client, itemNumber);
 			
 			if(item == null){
-				item = itemService.getByItemNumber(clientService.getSystemClient(), itemNumber);
+				item = itemService.getByItemNumber(clientBusiness.getSystemClient(), itemNumber);
 			}
 			
 			if(item == null){

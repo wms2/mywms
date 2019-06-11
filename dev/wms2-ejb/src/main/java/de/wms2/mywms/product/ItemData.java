@@ -170,6 +170,14 @@ public class ItemData extends BasicClientAssignedEntity {
 	@Deprecated
 	private int safetyStock = 0;
 
+	/**
+	 * Default value for a packaging.<br>
+	 * The way how this is handled is depending on the used processes and
+	 * applications.
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private PackagingUnit defaultPackagingUnit;
+
 	@Override
 	public String toString() {
 		if (number != null) {
@@ -378,6 +386,14 @@ public class ItemData extends BasicClientAssignedEntity {
 
 	public void setDefaultStorageStrategy(StorageStrategy defaultStorageStrategy) {
 		this.defaultStorageStrategy = defaultStorageStrategy;
+	}
+
+	public PackagingUnit getDefaultPackagingUnit() {
+		return defaultPackagingUnit;
+	}
+
+	public void setDefaultPackagingUnit(PackagingUnit defaultPackagingUnit) {
+		this.defaultPackagingUnit = defaultPackagingUnit;
 	}
 
 }

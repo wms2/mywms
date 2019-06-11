@@ -8,14 +8,14 @@
 package de.linogistix.los.crud;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
@@ -31,6 +31,8 @@ import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.BusinessObjectHelper;
 import de.linogistix.los.util.GenericTypeResolver;
+import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.exception.BusinessException;
 
 /**
  * CRUD (basic) operations for BasicEntities.
@@ -66,10 +68,11 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 	@Resource
 	EJBContext context;
 
-	@PersistenceContext(unitName = "myWMS")
-	protected EntityManager manager;
 	@EJB
 	private EntityGenerator entityGenerator;
+
+	@Inject
+	protected PersistenceManager manager;
 	
 	private Class<BasicEntity> tClass;
 
@@ -100,7 +103,7 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 					}
 				}
 			}
-			manager.persist(entity);
+			manager.persistValidated(entity);
 			return entity;
 		} catch (Throwable t) {
 			throw new BusinessObjectCreationException();
@@ -129,19 +132,24 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 					this.ctx, this.userService, this.context).getCallersUser());
 		}
 
+		User user = getCallersUser();
+
 		try {
 //			newE = (T) entity.getClass().newInstance();
 			newE = (T) entityGenerator.generateEntity(entity.getClass());
 			mergeInto(entity, newE);
-			manager.persist(newE);
+			manager.persistValidated(newE);
 			// log.debug("result of merge: " + newE.toString());
 			// manager.flush();
-			User user = getCallersUser();
 			log
 					.info(user.getName() + " created: "
 							+ newE.toDescriptiveString());
 			return newE;
 
+		} catch (BusinessException e) {
+			Locale locale = ((user==null||user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale()));
+	        String msg = e.getLocalizedMessage(locale);
+			throw new BusinessObjectCreationException(msg);
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 			throw new BusinessObjectCreationException();
@@ -165,16 +173,21 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 			throw new BusinessObjectSecurityException(getCallersUser());
 		}
 
+		User user = getCallersUser();
+
 		try {
 			entity = (T) manager.find(getBasicService().getEntityClass(),
 					entity.getId());
-			User user = getCallersUser();
 			log.info(user.getName() + " deleted: "
 					+ entity.toDescriptiveString());
-			manager.remove(entity);
+			manager.removeValidated(entity);
 		} catch (IllegalArgumentException iaex) {
 			log.error(iaex.getMessage(), iaex);
 			throw new BusinessObjectNotFoundException();
+		} catch (BusinessException e) {
+			Locale locale = ((user==null||user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale()));
+	        String msg = e.getLocalizedMessage(locale);
+			throw new BusinessObjectDeleteException(msg);
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 			throw new BusinessObjectDeleteException();
@@ -194,6 +207,8 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 		int i = 0;
 		for (BODTO<T> to : list){
 
+			User user = getCallersUser();
+
 			try {
 				T entity = (T) manager.find(getBasicService().getEntityClass(),
 						to.getId());
@@ -202,10 +217,9 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 					throw new BusinessObjectSecurityException(getCallersUser());
 				}
 				
-				User user = getCallersUser();
 				log.info(user.getName() + " deleted: "
 						+ entity.toDescriptiveString());
-				manager.remove(entity);
+				manager.removeValidated(entity);
 				
 				if (i++ % 30 == 0){
 					manager.flush();
@@ -214,6 +228,10 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 			} catch (IllegalArgumentException iaex) {
 				log.error(iaex.getMessage(), iaex);
 				throw new BusinessObjectNotFoundException();
+			} catch (BusinessException e) {
+				Locale locale = ((user==null||user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale()));
+		        String msg = e.getLocalizedMessage(locale);
+				throw new BusinessObjectDeleteException(msg);
 			} catch (Throwable t) {
 				log.error(t.getMessage(), t);
 				throw new BusinessObjectDeleteException();
@@ -249,6 +267,14 @@ public abstract class BusinessObjectCRUDBean<T extends BasicEntity> implements
 		T old = (T) manager.find(entity.getClass(), entity.getId());
 		log.info(user.getName() + " updated: " + entity.toDescriptiveString()
 				+ " *** was: " + old.toDescriptiveString());
+
+		try {
+			manager.validateUpdate(old, entity);
+		} catch (BusinessException e) {
+			Locale locale = (user.getLocale()==null?Locale.getDefault():new Locale(user.getLocale()));
+	        String msg = e.getLocalizedMessage(locale);
+			throw new BusinessObjectMergeException(msg);
+		}
 
 		manager.merge(entity);
 

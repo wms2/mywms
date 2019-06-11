@@ -16,6 +16,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 //import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -60,6 +61,7 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.mobileserver.processes.controller.ManageMobile;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -76,6 +78,8 @@ import de.wms2.mywms.product.ItemDataNumber;
 public class PickingMobileFacadeBean implements PickingMobileFacade {
 	Logger log = Logger.getLogger(PickingMobileFacadeBean.class);
 	
+	@Inject
+	private ClientBusiness clientBusiness;
 	@EJB
 	private ClientService clientService;
 	@EJB
@@ -117,16 +121,14 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
     protected EntityManager manager;
     
 	public Client getDefaultClient() {
-		
-		// Only one client
-		Client systemClient;
-		systemClient = clientService.getSystemClient();
-		List<Client> clients = clientService.getList(systemClient);
-		if( clients.size() == 1 ) {
+		Client systemClient = clientBusiness.getSingleClient();
+		if (systemClient != null) {
 			log.info("Only one client in system");
 			return systemClient;
 		}
 		
+		systemClient = clientBusiness.getSystemClient();
+
 		// Callers client not system-client
 		Client callersClient = contextService.getCallersClient();
 		if( !systemClient.equals(callersClient) ) {

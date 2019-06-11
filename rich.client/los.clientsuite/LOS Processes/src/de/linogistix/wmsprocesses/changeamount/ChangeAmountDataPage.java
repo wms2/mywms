@@ -10,19 +10,26 @@
  */
 package de.linogistix.wmsprocesses.changeamount;
 
+import de.linogistix.common.services.J2EEServiceLocator;
+import de.linogistix.common.services.J2EEServiceLocatorException;
+import de.linogistix.common.util.ExceptionAnnotator;
+import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -50,15 +57,33 @@ final public class ChangeAmountDataPage implements WizardDescriptor.ValidatingPa
                     if (wizard == null ){
                         return;
                     }
+                    wizard.setPackagingUnits(null);
 
                     BODTO to = getPanelUI().getStockUnitAutoFilteringComboBox().getSelectedItem();
                     if (to != null) {
                         wizard.setSu(to);
                         StockUnit su = ((StockUnit) getPanelUI().getStockUnitAutoFilteringComboBox().getSelectedAsEntity());
                         if( su != null ) {
+
+                            try{
+                                J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
+                                ManageInventoryFacade m = loc.getStateless(ManageInventoryFacade.class);
+                                List<String> packagingUnits = m.readPackagingNames(su.getItemData());
+                                if(packagingUnits!=null&&packagingUnits.size()>0){
+                                    wizard.setPackagingUnits(packagingUnits);
+                                }
+                            } catch (J2EEServiceLocatorException ex) {
+                                ExceptionAnnotator.annotate(ex);
+                            }
+
                             wizard.setStockUnit(su);
                             wizard.setAmount(su.getAmount());
                             wizard.setReserveAmount(su.getReservedAmount());
+                            wizard.setPackagingUnit(null);
+                            PackagingUnit packagingUnit = su.getPackagingUnit();
+                            if( packagingUnit!=null ) {
+                                wizard.setPackagingUnit(packagingUnit.getName());
+                            }
                         }
                     }
 
@@ -68,6 +93,7 @@ final public class ChangeAmountDataPage implements WizardDescriptor.ValidatingPa
                     getPanelUI().getLocationField().setText("");
                     getPanelUI().setReserveAmount(null);
                     getPanelUI().setAmount(null);
+                    getPanelUI().getPackagingField().removeAllItems();
 
                     if (wizard.getStockUnit() != null ) {
                         String s = NbBundle.getMessage(WMSProcessesBundleResolver.class, "is");
@@ -92,6 +118,16 @@ final public class ChangeAmountDataPage implements WizardDescriptor.ValidatingPa
                             if( loc != null )
                                 getPanelUI().getLocationField().setText(loc.getName());
                         }
+
+                        getPanelUI().getPackagingField().setEnabled(false);
+                        if(wizard.getPackagingUnits()!=null && !wizard.getPackagingUnits().isEmpty()){
+                            getPanelUI().getPackagingField().setEnabled(true);
+                            getPanelUI().getPackagingField().addItem("");
+                            for(String item:wizard.getPackagingUnits()) {
+                                getPanelUI().getPackagingField().addItem(item);
+                            }
+                        }
+                        getPanelUI().setPackagingUnit(wizard.getPackagingUnit());
 
                     } else{
                        
@@ -198,7 +234,7 @@ final public class ChangeAmountDataPage implements WizardDescriptor.ValidatingPa
 
         this.wizard.setAmount(getPanelUI().getAmount()==null?new BigDecimal(0):getPanelUI().getAmount());
         this.wizard.setReserveAmount(getPanelUI().getReservedAmount()==null?new BigDecimal(0):getPanelUI().getReservedAmount());
-        
+        this.wizard.setPackagingUnit(getPanelUI().getPackagingUnit());
     }
 
     public boolean isFinishPanel() {

@@ -30,6 +30,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 
 @Local
 public interface LOSGoodsReceiptComponent {
@@ -132,7 +133,7 @@ public interface LOSGoodsReceiptComponent {
 	public StockUnit receiveStock(LOSGoodsReceiptPosition grPosition, 
 			  Lot batch,
 			  ItemData item,
-			  BigDecimal amount,
+			  BigDecimal amount, PackagingUnit packagingUnit,
 			  UnitLoad unitLoad, String serialNumber)
 		throws FacadeException;
     /**

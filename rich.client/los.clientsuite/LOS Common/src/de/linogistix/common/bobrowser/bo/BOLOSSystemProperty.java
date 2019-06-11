@@ -14,10 +14,10 @@ import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
-import de.linogistix.los.query.LOSSystemPropertyQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.crud.LOSSystemPropertyCRUDRemote;
-import de.linogistix.los.model.LOSSystemProperty;
+import de.linogistix.los.query.LOSSystemPropertyQueryRemote;
+import de.wms2.mywms.property.SystemProperty;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node;
@@ -56,11 +56,11 @@ public class BOLOSSystemProperty extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSSystemProperty c;
+        SystemProperty c;
 
-        c = new LOSSystemProperty();
-        c.setKey("Template");
-        c.setValue("Template");
+        c = new SystemProperty();
+        c.setPropertyKey("Template");
+        c.setPropertyValue("Template");
 
         LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
         c.setClient( login.getUsersClient() );

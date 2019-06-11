@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 import javax.ejb.EJB;
@@ -80,9 +81,10 @@ import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
-import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 
 @Stateless
 public class LOSInventoryComponentBean implements LOSInventoryComponent {
@@ -172,10 +174,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	@EJB
 	private ManageStockService manageStockService;
 	
-	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String activityCode, String serialNumber) throws FacadeException {
-		return createStock(client, batch, item, amount, unitLoad, activityCode, serialNumber, null, true);
+	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, PackagingUnit packagingUnit, UnitLoad unitLoad, String activityCode, String serialNumber) throws FacadeException {
+		return createStock(client, batch, item, amount, packagingUnit, unitLoad, activityCode, serialNumber, null, true);
 	}
-	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException {
+	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, PackagingUnit packagingUnit, UnitLoad unitLoad, String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException {
 
 		if (amount.compareTo(new BigDecimal(0)) < 0) {
 			throw new InventoryException(InventoryExceptionKey.AMOUNT_MUST_BE_GREATER_THAN_ZERO, "");
@@ -200,6 +202,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		su.setLot(batch);
 		su.setUnitLoad(unitLoad);
 		su.setSerialNumber(serialNumber);
+		su.setPackagingUnit(packagingUnit);
 		unitLoad.getStockUnitList().add(su);
 
 		if( batch != null && batch.getBestBeforeEnd()!=null ) {
@@ -355,11 +358,14 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 				log.warn("lot mismatch! Stockunit is of " + su.getLot().toUniqueString() + ", destination of " + dest.getLot().toUniqueString());
 				destAllowed = false;
 			}
-		} else if (su.getItemData().equals(dest.getItemData())) {
-			destAllowed = true;
-		} else {
+		} else if (!su.getItemData().equals(dest.getItemData())) {
 			log.warn("itemData mismatch! Stockunit is of " + su.getItemData().toUniqueString() + ", destination of " + dest.getItemData().toUniqueString());
 			destAllowed = false;
+		} else if (su.getPackagingUnit() != null && dest.getPackagingUnit() != null && !su.getPackagingUnit().equals(dest.getPackagingUnit())) {
+			log.warn("Packagin unit mismatch! Stockunit is of " + su.getPackagingUnit() + ", destination of " + dest.getPackagingUnit());
+			destAllowed = false;
+		} else {
+			destAllowed = true;
 		}
 
 		if (destAllowed) {
@@ -367,6 +373,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			dest.setAmount(dest.getAmount().add(amount));
 			su.setAmount(su.getAmount().subtract(amount));
 			su.releaseReservedAmount(amount);
+			if (dest.getPackagingUnit() == null) {
+				dest.setPackagingUnit(su.getPackagingUnit());
+			}
 			
 			su.getUnitLoad().setOpened(true);
 			dest.getUnitLoad().setOpened(true);
@@ -424,7 +433,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			// transfer amount
 			dest.setAmount(dest.getAmount().add(amount));
 			su.setAmount(su.getAmount().subtract(amount));
-			
+			if (dest.getPackagingUnit() == null) {
+				dest.setPackagingUnit(su.getPackagingUnit());
+			}
+
 			su.getUnitLoad().setOpened(true);
 			dest.getUnitLoad().setOpened(true);
 
@@ -466,7 +478,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			throw new InventoryException(InventoryExceptionKey.DESTINATION_UNITLOAD_LOCKED, destUl.getLabelId());
 		}
 
-		StockUnit newStock = createStock(stockToSplit.getClient(), stockToSplit.getLot(), stockToSplit.getItemData(), new BigDecimal(0), destUl, activityCode, null, null, true);
+		StockUnit newStock = createStock(stockToSplit.getClient(), stockToSplit.getLot(), stockToSplit.getItemData(), new BigDecimal(0), stockToSplit.getPackagingUnit(), destUl, activityCode, null, null, true);
 		transferStock(stockToSplit, newStock, takeAwayAmount, activityCode);
 		newStock.setLock(stockToSplit.getLock());
 
@@ -1313,7 +1325,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			// Fucking hibernate is not able to handle the stock unit list without accessing it in advance
 			ul.getStockUnitList().size();
 
-			su = createStock(c, lot, idat, amount, ul, activityCode, serialNumber);
+			su = createStock(c, lot, idat, amount, null, ul, activityCode, serialNumber);
 
 			consolidate( su.getUnitLoad(), activityCode);
 

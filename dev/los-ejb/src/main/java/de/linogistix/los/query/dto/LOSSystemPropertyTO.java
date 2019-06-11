@@ -7,10 +7,10 @@
  */
 package de.linogistix.los.query.dto;
 
-import de.linogistix.los.model.LOSSystemProperty;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.property.SystemProperty;
 
-public class LOSSystemPropertyTO extends BODTO<LOSSystemProperty> {
+public class LOSSystemPropertyTO extends BODTO<SystemProperty> {
 
 	private static final long serialVersionUID = 1L;
     
@@ -21,8 +21,8 @@ public class LOSSystemPropertyTO extends BODTO<LOSSystemProperty> {
 	private String value;
 	
 
-	public LOSSystemPropertyTO(LOSSystemProperty x){
-		this(x.getId(), x.getVersion(), x.getGroupName(), x.getKey(), x.getClient().getNumber(), x.getWorkstation(), x.getValue());
+	public LOSSystemPropertyTO(SystemProperty x){
+		this(x.getId(), x.getVersion(), x.getPropertyGroup(), x.getPropertyKey(), x.getClient().getNumber(), x.getPropertyContext(), x.getPropertyValue());
 	}
 	
 	public LOSSystemPropertyTO(Long id, int version, String groupName, String key, String clientNumber, String workstation, String value){

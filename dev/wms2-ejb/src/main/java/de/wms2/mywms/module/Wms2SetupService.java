@@ -28,17 +28,19 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.Role;
 import org.mywms.model.User;
-import org.mywms.service.ClientService;
 import org.mywms.service.RoleService;
 import org.mywms.service.UniqueConstraintViolatedException;
-import org.mywms.service.UserService;
 
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.user.UserBusiness;
+import de.wms2.mywms.util.Wms2Properties;
 
 /**
  * Setup of the wms2 base module
@@ -52,9 +54,11 @@ public class Wms2SetupService extends ModuleSetup {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Inject
-	private ClientService clientService;
+	private SystemPropertyBusiness propertyBusiness;
 	@Inject
-	private UserService userService;
+	private ClientBusiness clientService;
+	@Inject
+	private UserBusiness userBusiness;
 	@Inject
 	private RoleService roleService;
 
@@ -68,9 +72,12 @@ public class Wms2SetupService extends ModuleSetup {
 
 	@PostConstruct
 	public void checkSetup() {
-		Client client = manager.find(Client.class, 0L);
-		if (client != null) {
-			logger.log(Level.FINE, "Setup skipped");
+		// This call ensures availability of the system client prior to all other
+		// accesses
+		clientService.getSystemClient();
+
+		String value = propertyBusiness.getString(getModulePropertyName(), null);
+		if (!StringUtils.isBlank(value)) {
 			return;
 		}
 
@@ -86,25 +93,25 @@ public class Wms2SetupService extends ModuleSetup {
 	public void setup(SetupLevel level, Locale locale) throws BusinessException {
 		logger.log(Level.WARNING, "Start Setup");
 
-		Client client = manager.find(Client.class, 0L);
-		if (client != null) {
-			logger.log(Level.WARNING, "Setup already done");
-			return;
+		createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
+				Wms2Properties.GROUP_SETUP, null, locale);
+
+		Client client = clientService.getSystemClient();
+		User admin = userBusiness.readUser("admin");
+		if (admin == null) {
+			admin = userBusiness.createUser(client, "admin", "admin");
+			admin.setLocale("en");
 		}
-
-		client = clientService.create("System-Client", "System", "System-Client");
-		Query clientSetup = manager.createQuery("UPDATE Client set id=0");
-		clientSetup.executeUpdate();
-
-		manager.clear();
-		client = manager.find(Client.class, 0L);
-
-		User admin = userService.create(client, "admin", "", "", "admin");
-		admin.setLocale("en");
-		User de = userService.create(client, "de", "", "", "de");
-		de.setLocale("de");
-		User en = userService.create(client, "en", "", "", "en");
-		en.setLocale("en");
+		User de = userBusiness.readUser("de");
+		if (de == null) {
+			de = userBusiness.createUser(client, "de", "de");
+			de.setLocale("de");
+		}
+		User en = userBusiness.readUser("en");
+		if (en == null) {
+			en = userBusiness.createUser(client, "en", "en");
+			en.setLocale("en");
+		}
 
 		try {
 			Role role = roleService.create("Admin");
@@ -113,6 +120,8 @@ public class Wms2SetupService extends ModuleSetup {
 			en.getRoles().add(role);
 		} catch (UniqueConstraintViolatedException e) {
 		}
+
+		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
 
 		logger.log(Level.INFO, "Completed Setup");
 	}

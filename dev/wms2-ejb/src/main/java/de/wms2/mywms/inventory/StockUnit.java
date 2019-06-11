@@ -35,6 +35,7 @@ import org.mywms.model.BasicClientAssignedEntity;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.PackagingUnit;
 
 /**
  * This class replaces myWMS:StockUnit
@@ -58,6 +59,9 @@ public class StockUnit extends BasicClientAssignedEntity {
 	private Lot lot;
 
 	private String serialNumber;
+
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private PackagingUnit packagingUnit;
 
 	@Temporal(TemporalType.DATE)
 	@Column(nullable = false)
@@ -170,6 +174,14 @@ public class StockUnit extends BasicClientAssignedEntity {
 		this.serialNumber = serialNumber;
 	}
 
+	public PackagingUnit getPackagingUnit() {
+		return packagingUnit;
+	}
+
+	public void setPackagingUnit(PackagingUnit packagingUnit) {
+		this.packagingUnit = packagingUnit;
+	}
+
 	public Date getStrategyDate() {
 		return strategyDate;
 	}
@@ -186,10 +198,6 @@ public class StockUnit extends BasicClientAssignedEntity {
 		this.unitLoad = unitLoad;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
@@ -197,4 +205,5 @@ public class StockUnit extends BasicClientAssignedEntity {
 	public void setReservedAmount(BigDecimal reservedAmount) {
 		this.reservedAmount = reservedAmount;
 	}
+
 }

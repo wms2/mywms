@@ -158,6 +158,9 @@
                 <file name="de-linogistix-inventory-browser-bo-BOItemDataNumber.instance">
                         <attr name="position" intvalue="150"/>
                 </file>
+                <file name="de-linogistix-inventory-browser-bo-BOPackagingUnit.instance">
+                    <attr name="position" intvalue="200"/>
+                </file>
                 <file name="de-linogistix-inventory-browser-bo-BOBom.instance">
                         <attr name="position" intvalue="250"/>
                 </file>

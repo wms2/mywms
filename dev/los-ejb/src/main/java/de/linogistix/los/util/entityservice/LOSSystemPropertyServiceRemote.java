@@ -13,14 +13,14 @@ import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
-import de.linogistix.los.model.LOSSystemProperty;
+import de.wms2.mywms.property.SystemProperty;
 
 /**
  * @author krane
  *
  */
 @Remote
-public interface LOSSystemPropertyServiceRemote extends BasicService<LOSSystemProperty> {
+public interface LOSSystemPropertyServiceRemote extends BasicService<SystemProperty> {
 	
 	/**
 	 * Create a new SystemProperty for the given key.
@@ -30,7 +30,7 @@ public interface LOSSystemPropertyServiceRemote extends BasicService<LOSSystemPr
 	 * @param value
 	 * @return
 	 */
-	public LOSSystemProperty createSystemProperty(String key, String value);
+	public SystemProperty createSystemProperty(String key, String value);
 
 	/**
 	 * Create a new SystemProperty for the given key.
@@ -41,11 +41,9 @@ public interface LOSSystemPropertyServiceRemote extends BasicService<LOSSystemPr
 	 * @param value
 	 * @param groupName
 	 * @param description
-	 * @param hidden
-	 * @param reinitialize If false, an existing property will not be changed
 	 * @return
 	 */
-	public LOSSystemProperty createSystemProperty(Client client, String workstation, String key, String value, String groupName, String description, boolean hidden, boolean reinitialize);
+	public SystemProperty createSystemProperty(Client client, String workstation, String key, String value, String groupName, String description, boolean reinitialize);
 
 
 	
@@ -54,7 +52,7 @@ public interface LOSSystemPropertyServiceRemote extends BasicService<LOSSystemPr
 	/**
 	 * @see #getByKey(Client, String, String)
 	 */
-	public LOSSystemProperty getByKey(String key);
+	public SystemProperty getByKey(String key);
 	
 	/**
 	 * Read a SystemProperty for the given client, workstation and key.<br>
@@ -66,7 +64,7 @@ public interface LOSSystemPropertyServiceRemote extends BasicService<LOSSystemPr
 	 * @param key
 	 * @return
 	 */
-	public LOSSystemProperty getByKey(Client client, String workstation, String key);
+	public SystemProperty getByKey(Client client, String workstation, String key);
 	
 	
 	

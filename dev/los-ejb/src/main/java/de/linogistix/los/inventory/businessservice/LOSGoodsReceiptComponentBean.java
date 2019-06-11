@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -22,7 +23,6 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.UserService;
 
@@ -58,12 +58,14 @@ import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 
 @Stateless
 public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
@@ -76,8 +78,8 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	private LOSInventoryComponent inventoryComp;
 	@EJB
 	private LOSGoodsReceiptService grService;
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private ManageReceiptService manageGrService;
 	@EJB
@@ -167,7 +169,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	}
 
 	public LOSGoodsReceiptPosition createGoodsReceiptPosition(Client client,
-			LOSGoodsReceipt gr, String orderReference, BigDecimal amount,
+			LOSGoodsReceipt gr, String orderReference, BigDecimal amount, 
 			LOSGoodsReceiptType receiptType, String qaFault) throws FacadeException {
 		String logStr = "createGoodsReceiptPosition ";
 		
@@ -221,9 +223,8 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	}
 	
 	// --------------------------------------------------------------------------------------------
-	public StockUnit receiveStock(LOSGoodsReceiptPosition grPosition,
-			Lot batch, ItemData item, BigDecimal amount, UnitLoad unitLoad, String serialNumber)
-			throws FacadeException {
+	public StockUnit receiveStock(LOSGoodsReceiptPosition grPosition, Lot batch, ItemData item, BigDecimal amount,
+			PackagingUnit packagingUnit, UnitLoad unitLoad, String serialNumber) throws FacadeException {
 		StockUnit su;
 
 		if( batch == null ) {
@@ -264,7 +265,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 		String activityCode = grPosition.getPositionNumber();
 
 		su = inventoryComp.createStock(grPosition.getClient(), batch, item,
-				amount, unitLoad, activityCode, serialNumber, null, false);
+				amount, packagingUnit, unitLoad, activityCode, serialNumber, null, false);
 		manager.flush();
 
 		grPosition.setStockUnit(su);

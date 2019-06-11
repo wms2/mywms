@@ -49,8 +49,6 @@ This are only ideas of what could be done. There is no actual plan to do it at a
 Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
 
 - Advice as master/detail
-- Packaging units
-- Configurable zones and overflow zones
 - Only one journal for stock unit and unit load changes
 - Add images and attachments to master data objects
 - Change-history
@@ -72,7 +70,6 @@ Please contribute to the project. Bring your ideas, code and modules. Vote for n
 - Output Interfaces. Output of stock, goods-in and goods-out information. Connect to external web services or other interfaces.
 - Remote connector. Connect to and use the backend via remote interfaces or other interfaces. E.g. REST Services.
 - Easy to use capability to introduce individual add-ons
-- Switch mobile processes to android and iOS
 - Switch netbeans rich-client to a web-client
 - Switch customization beans to CDI events
 - Make a set of entity services with equal behavior

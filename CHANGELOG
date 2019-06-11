@@ -6,38 +6,164 @@ For prior changes have a look to the the documentation of the concerned releases
 
 
 
-Release 2.0.0
+Release 2.0
+-----------
 
-Based on myWMS-LOS 1.12.0
-
-Technical changes
--------------------------------------------------------------------------------
-- The build system is switched from ant to maven
-- Support for Java 11
-- Support for Wildfly 16
-- Added new module registration and setup functionality
+    Fork myWMS
 
 
-Removed
--------------------------------------------------------------------------------
-- Plugin management for rich client application
-- Clearing- and Log-items
-- Deprecated Methods and Classes
-- Unreferenced files
-- BasicFacade
-- mywms.as cactus
-- LOSServiceProperty (Replaced by LOSSystemProperty)
-- Separate database project (Replaced by hibernate automatic ddl update)
+    Based on myWMS-LOS 1.12.0
+
+    Technical changes
+    -------------------------------------------------------------------------------
+    - The build system is switched from ant to maven
+    - Support for Java 11
+    - Support for Wildfly 16
+    - Added new module registration and setup functionality
 
 
-Program changes to be done to convert your existing mywms application to the new environment
--------------------------------------------------------------------------------
-- Due to the changed build system, the project structure and build artifacts have changed. 
-    You will have to adjust the referenced jars or artifacts of your derivative application to the new structure.
-- Import statements
-    Some classes have been moved to new packages.
-    It will be necessary to reorganize the imports to access the new classes.
-- Removed items
-    If your derivative application uses some of the removed items, you will have to copy them from the old sources into your application.
+    Removed
+    -------------------------------------------------------------------------------
+    - Plugin management for rich client application
+    - Clearing- and Log-items
+    - Deprecated Methods and Classes
+    - Unreferenced files
+    - BasicFacade
+    - mywms.as cactus
+    - LOSServiceProperty (Replaced by SystemProperty)
+    - Separate database project (Replaced by hibernate automatic ddl update)
 
 
+    Program changes to be done to convert your existing mywms application to the new environment
+    -------------------------------------------------------------------------------
+    - Due to the changed build system, the project structure and build artifacts have changed. 
+        You will have to adjust the referenced jars or artifacts of your derivative application to the new structure.
+    - Import statements
+        Some classes have been moved to new packages.
+        It will be necessary to reorganize the imports to access the new classes.
+    - Removed items
+        If your derivative application uses some of the removed items, you will have to copy them from the old sources into your application.
+
+
+
+
+Release 2.1
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Reorganization of the entities
+    - Add packaging units
+    - Make zones configurable
+    - Add validation services for CRUD operations
+    - Enable handling of item images
+
+
+    Functional changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - The dedicated usage flags of the Area have been changed to a configurable collection. So it is possible to define project specific operations.
+    - Configurable zones and overflow zones. Overflow zones are used by the location finder, when there is no hit in the original zone.
+    - Racks are no more handled as the entity LOSRack. It is now just a String attribute of the StorageLocation.
+    - Packaging units have been added.
+    - Images for ItemData or other entities can be stored/accessed in database
+    - Password changes are validated by a regular expression
+
+    
+    Technical changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Internally extended entities are merged to only one new entity.
+        Referenced entities are moved to the new package too.
+
+        Affected entities
+        - de.linogistix.los.location.model.LOSArea to de.wms2.mywms.location.Area
+        - de.linogistix.los.location.model.LOSLocationCluster to de.wms2.mywms.location.LocationCluster
+        - de.linogistix.los.location.model.LOSStorageLocationType to to de.wms2.mywms.location.LocationType
+        - de.linogistix.los.location.model.LOSStorageLocation to to de.wms2.mywms.location.StorageLocation
+        - de.linogistix.los.location.model.LOSStorageStrategy to to de.wms2.mywms.strategy.StorageStrategy
+        - de.linogistix.los.location.model.LOSUnitLoad to to de.wms2.mywms.inventory.UnitLoad
+        - de.linogistix.los.location.model.LOSUnitLoadPackageType to de.wms2.mywms.inventory.UnitLoadPackageType
+        - de.linogistix.los.location.model.LOSTypeCapacityConstraint to de.wms2.mywms.strategy.TypeCapacityConstraint
+        - de.linogistix.los.model.LOSSystemProperty to de.wms2.mywms.property.SystemProperty
+        - org.mywms.model.ItemData to de.wms2.mywms.product.ItemData
+        - org.mywms.model.ItemDataNumber to de.wms2.mywms.product.ItemDataNumber
+        - org.mywms.model.ItemUnit to de.wms2.mywms.product.ItemUnit
+        - org.mywms.model.Lot to de.wms2.mywms.inventory.Lot
+        - org.mywms.model.StockUnit to de.wms2.mywms.inventory.StockUnit
+        - org.mywms.model.UnitLoad to de.wms2.mywms.inventory.UnitLoad
+        - org.mywms.model.UnitLoadType to de.wms2.mywms.inventory.UnitLoadType
+        - org.mywms.model.Area to de.wms2.mywms.location.Area
+        - org.mywms.model.Zone to de.wms2.mywms.strategy.Zone
+
+    - JPA annotations of the entity classes have been changed from getter methods to attributes
+
+    - The naming of the changed entity tables and attributes have been changed to JPA default values
+
+    - Changed database entities and attributes
+        - Area replaced the usage-flags by a extensionable list
+        - Area lost client assignment
+        - Zone lost client assignment
+        - Zone got new attribute 'nextZone'
+        - LOSRack entity is replaced by a String attribute of the StorageLocation
+        - ItemData.handlingUnit is renamed to ItemData.itemUnit
+        - ItemUnit.unitName is renamed to ItemUnit.name
+        - ItemData.residualTermOfUsageGI is renamed to ItemData.shelflife
+        - ItemData got new attribute 'defaultStorageStrategy'
+        - ReplenishOrder.requestedRack is changed from datatype LOSRack to String
+        - PackagingUnit as new entity
+        - StockUnit got new attribute 'packagingUnit'
+        - ItemData got new attribute 'defaultPackagingUnit'
+        - ItemDataNumber got new attribute 'packagingUnit'
+        - SystemProperty changed some attribute names and lost attribute 'hidden'
+
+    - Switched rich client to Netbeans 11
+
+
+    Bugfixes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    Fixed some LazyLoadingExceptions in the mobile application
+
+
+    Switch to Release 2.1
+    -------------------------------------------------------------------------------
+    - Rename tables
+        - LOSArea to Area
+        - LOSLocationCluster to LocationCluster
+        - LOSStorageLocationType to LocationType
+        - LOSStorageLocation to StorageLocation
+        - LOSUnitLoad to UnitLoad
+        - LOSUnitLoadPackageType to UnitLoadPackageType
+        - LOSTypeCapacityConstraint to TypeCapacityConstraint
+
+    - Organize imports
+
+    - Change JPA annotations of your entity classes from getter methods to the attributes
+
+    - Check your persistence.xml file
+
+    - Rename direct accesses to fields. In some JPQL statements or named queries, the tables and fields are addressed as string values.
+        - LOSTypeCapacityConstraint.storageLocationType to TypeCapacityConstraint.locationType
+        - LOSStorageLocation.storageLocationType to StorageLocation.locationType
+        - LOSStorageLocation.cluster to StorageLocation.locationCluster
+        - LOSArea.useFor... to Area.usages
+
+    - Check removed entities and attributes
+        - LOSArea.client
+        - Zone.client
+        - LOSRack
+
+    - Check changed attributes
+        - LOSArea.useFor...
+        - ItemData.itemUnit
+        - ItemUnit.name
+        - ItemData.shelflife
+        - ReplenishOrder.requestedRack
+
+    - Some services and methods have been moved or replaced. 
+        Especially many operations of user- and client-handling has been moved to UserBusiness and ClientBusiness component. So it might be necessary to adjust your source code to the new structure.
+    
+    - Replace the newly as deprecated marked accesses. The next version may not longer support them.
+
+    - Upgrade existing database structures
+        There is an upgrade script for postgres database structure
+        But have in mind: This script comes without any warranty!
+        We recommend to compare the automatically generated database structure with the existing database structure and manually adjust them.

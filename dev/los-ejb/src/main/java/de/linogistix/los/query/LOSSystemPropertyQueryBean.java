@@ -9,22 +9,19 @@
 package de.linogistix.los.query;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ejb.Stateless;
 
-import org.mywms.model.Client;
-
-import de.linogistix.los.model.LOSSystemProperty;
 import de.linogistix.los.query.dto.LOSSystemPropertyTO;
+import de.wms2.mywms.property.SystemProperty;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSSystemPropertyQueryBean extends BusinessObjectQueryBean<LOSSystemProperty> implements LOSSystemPropertyQueryRemote {
+public class LOSSystemPropertyQueryBean extends BusinessObjectQueryBean<SystemProperty> implements LOSSystemPropertyQueryRemote {
 
 	
 	static List<BODTOConstructorProperty> BODTOConstructorProperties = new ArrayList<BODTOConstructorProperty>();
@@ -32,11 +29,11 @@ public class LOSSystemPropertyQueryBean extends BusinessObjectQueryBean<LOSSyste
 	static{
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("id", false));
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("version", false));
-		BODTOConstructorProperties.add(new BODTOConstructorProperty("groupName", false));
-		BODTOConstructorProperties.add(new BODTOConstructorProperty("key", false));
+		BODTOConstructorProperties.add(new BODTOConstructorProperty("propertyGroup", false));
+		BODTOConstructorProperties.add(new BODTOConstructorProperty("propertyKey", false));
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("client.number", false));
-		BODTOConstructorProperties.add(new BODTOConstructorProperty("workstation", false));
-		BODTOConstructorProperties.add(new BODTOConstructorProperty("value", false));
+		BODTOConstructorProperties.add(new BODTOConstructorProperty("propertyContext", false));
+		BODTOConstructorProperties.add(new BODTOConstructorProperty("propertyValue", false));
 	}
 	
 	@Override
@@ -50,7 +47,7 @@ public class LOSSystemPropertyQueryBean extends BusinessObjectQueryBean<LOSSyste
 	}
 
 	public String getUniqueNameProp() {
-	    return "key";
+	    return "propertyKey";
 	}
 
 	
@@ -77,47 +74,29 @@ public class LOSSystemPropertyQueryBean extends BusinessObjectQueryBean<LOSSyste
 		ret.add(client);
 
 		TemplateQueryWhereToken key = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "key",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "propertyKey",
 				value);
 		key.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(key);
 		
 		TemplateQueryWhereToken workstation = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "workstation",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "propertyContext",
 				value);
 		workstation.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(workstation);
 
 		TemplateQueryWhereToken valuet = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "value",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "propertyValue",
 				value);
 		valuet.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(valuet);
 		
 		TemplateQueryWhereToken group = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "groupName",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "propertyGroup",
 				value);
 		group.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(group);
 
-		TemplateQueryWhereToken token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "hidden", false);
-		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
-		ret.add(token);
-
 		return ret;
 	}
-
-    
-    @Override
-	public  LOSResultList<BODTO<LOSSystemProperty>> autoCompletion(String typed, String[] filtered, Client client, TemplateQueryWhereToken[] tokens, QueryDetail det, boolean count) {
-    	List<TemplateQueryWhereToken>tokenList = new ArrayList<TemplateQueryWhereToken>(Arrays.asList(tokens));
-		
-		TemplateQueryWhereToken token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "hidden", false);
-		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
-		tokenList.add(token);
-		
-		return super.autoCompletion(typed, filtered, client, tokenList.toArray(tokens), det, count);
-
-	}
-
 }

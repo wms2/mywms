@@ -13,12 +13,12 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.model.LOSCustomerOrder;
@@ -36,6 +36,7 @@ import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -64,8 +65,8 @@ public class InfoFacadeBean implements InfoFacade {
 	@EJB
 	private QueryFixedAssignmentService fixService;
 	
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	
 	@EJB
 	private ContextService contextService;
@@ -80,17 +81,15 @@ public class InfoFacadeBean implements InfoFacade {
 	protected EntityManager manager;
 
 	public Client getDefaultClient() {
-		
-		// Only one client
-		Client systemClient;
-		systemClient = clientService.getSystemClient();
-		List<Client> clients = clientService.getList(systemClient);
-		if( clients.size() == 1 ) {
+
+		Client systemClient = clientService.getSingleClient();
+		if (systemClient != null) {
 			log.info("Only one client in system");
 			return systemClient;
 		}
 		
-		
+		systemClient = clientService.getSystemClient();
+
 		// Callers client not system-client
 		Client callersClient = contextService.getCallersClient();
 		if( !systemClient.equals(callersClient) ) {

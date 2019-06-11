@@ -38,6 +38,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.PackagingUnit;
 
 /**
  * 
@@ -71,10 +72,9 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 		
-	public StockUnit createStockUnitOnStorageLocation(String clientRef,
-			String slName, String articleRef, String lotRef, BigDecimal amount,
-			String unitLoadRef, String activityCode, String serialNumber) throws EntityNotFoundException,
-			InventoryException, FacadeException {
+	public StockUnit createStockUnitOnStorageLocation(String clientRef, String slName, String articleRef, String lotRef,
+			BigDecimal amount, PackagingUnit packagingUnit, String unitLoadRef, String activityCode,
+			String serialNumber) throws EntityNotFoundException, InventoryException, FacadeException {
 
 		Client c;
 		StorageLocation sl;
@@ -118,7 +118,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 						slName);
 			}
 						
-			su = invComp.createStock(c, lot, idat, amount, ul, activityCode, serialNumber);
+			su = invComp.createStock(c, lot, idat, amount, packagingUnit, ul, activityCode, serialNumber);
 						
 			invComp.consolidate( su.getUnitLoad(), activityCode);
 			

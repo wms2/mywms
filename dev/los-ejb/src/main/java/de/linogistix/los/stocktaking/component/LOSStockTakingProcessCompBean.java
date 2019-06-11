@@ -1066,7 +1066,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				}
 			} else{
 				// new stock unit
-				invComp.createStock(res.client, res.lot, res.item, res.countedQuantity, ul, "ST "+stOrder.getId().toString(), res.serialNumber, stOrder.getOperator(), true);
+				invComp.createStock(res.client, res.lot, res.item, res.countedQuantity, null, ul, "ST "+stOrder.getId().toString(), res.serialNumber, stOrder.getOperator(), true);
 			}
 
 		}

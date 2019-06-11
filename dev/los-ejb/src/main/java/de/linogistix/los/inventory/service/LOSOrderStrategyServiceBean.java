@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -19,17 +20,18 @@ import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
+import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.location.StorageLocation;
 
 /**
@@ -42,8 +44,8 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private LOSSystemPropertyService propertyService;
 	@EJB
@@ -90,7 +92,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyDefaultName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_DEFAULT_STRATEGY, name, null, description, false, true);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description, true);
 		}
 		
 		LOSOrderStrategy strat = getByName(client, name);
@@ -127,7 +129,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyExtinguishName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyExtinguishDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_EXTINGUISH_STRATEGY, name, null, description, false, true);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_EXTINGUISH_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description, true);
 		}
 		
 		LOSOrderStrategy strat = getByName(client, name);

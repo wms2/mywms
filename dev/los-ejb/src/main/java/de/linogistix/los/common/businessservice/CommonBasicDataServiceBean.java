@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -21,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.Role;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.RoleService;
 
@@ -30,6 +30,7 @@ import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.res.BundleResolver;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemUnit;
 
 /**
@@ -42,8 +43,8 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 	private static final Logger log = Logger.getLogger(CommonBasicDataServiceBean.class);
 
 
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private RoleService roleService;
 	@EJB
@@ -82,11 +83,11 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 		}
 		
 		log.info("Create Properties...");
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SHOW_DETAIL_PROPERTIES, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SHOW_DETAIL_PROPERTIES", locale), false, false);
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_RESTORE_TABS, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_RESTORE_TABS", locale), false, false);
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_UNLIMITED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_UNLIMITED", locale), false, false);
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_ON_START, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_ON_START", locale), false, false);
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_VERSION_MATCHER, ".*", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_VERSION_MATCHER", locale), false, false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SHOW_DETAIL_PROPERTIES, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SHOW_DETAIL_PROPERTIES", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_RESTORE_TABS, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_RESTORE_TABS", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_UNLIMITED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_UNLIMITED", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_ON_START, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_ON_START", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_VERSION_MATCHER, ".*", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_VERSION_MATCHER", locale), false);
 				
 		log.info("Create Common Basic Data. done.");
 	}

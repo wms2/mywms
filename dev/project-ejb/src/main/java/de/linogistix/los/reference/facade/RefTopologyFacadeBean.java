@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -27,7 +28,6 @@ import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
 import org.mywms.model.ItemUnitType;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.businessservice.CommonBasicDataService;
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
@@ -54,13 +54,12 @@ import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
-import de.linogistix.los.location.service.ZoneService;
-import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.reference.model.ProjectPropertyKey;
 import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -73,6 +72,8 @@ import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
+import de.wms2.mywms.strategy.ZoneEntityService;
+import de.wms2.mywms.util.Wms2Properties;
 
 @Stateless
 public class RefTopologyFacadeBean implements RefTopologyFacade {
@@ -80,14 +81,14 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	@EJB
 	private ItemUnitService unitService;
 	
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 
 	@EJB
 	private ItemUnitService itemUnitService;
 
-	@EJB
-	private ZoneService zoneService;
+	@Inject
+	private ZoneEntityService zoneService;
 	
 	@EJB
 	private LOSAreaService areaService;
@@ -164,7 +165,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create Properties...");
 		Client sys = clientService.getSystemClient();
-		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"), true, true);
+		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", Wms2Properties.GROUP_SETUP, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"), true);
 	
 		log.info("Create Basic Data. done.");
 	}
@@ -200,7 +201,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create Zones...");
 		
-		Zone zoneSysA = createZone(sys, "A");
+		Zone zoneSysA = createZone("A");
 
 		
 		log.info("Create LocationTypes...");
@@ -365,13 +366,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		return itemUnit;
 	}
 
-	private Zone createZone(Client client, String name) {
-		Zone zone = null;
-		try {
-			zone = zoneService.getByName(client, name);
-		} catch (Exception e) {
-			// ignore
-		}
+	private Zone createZone(String name) {
+		Zone zone = zoneService.read(name);
 		if( zone == null ) {
 			zone = entityGenerator.generateEntity( Zone.class );
 			zone.setName(name);

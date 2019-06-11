@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -19,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.ItemUnitType;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.UniqueConstraintViolatedException;
 
@@ -38,6 +38,7 @@ import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.LocationType;
@@ -56,8 +57,8 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	@EJB
 	private ItemUnitService itemUnitService;
 	
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	
 	@EJB
 	private QueryClientService clientQuery;

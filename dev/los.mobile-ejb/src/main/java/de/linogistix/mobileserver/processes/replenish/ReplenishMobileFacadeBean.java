@@ -8,6 +8,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -37,6 +38,7 @@ import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -47,6 +49,8 @@ import de.wms2.mywms.product.ItemData;
 public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	Logger log = Logger.getLogger(ReplenishMobileFacadeBean.class);
 	
+	@Inject
+	private ClientBusiness clientBusiness;
 	@EJB
 	private ClientService clientService;
 	@EJB
@@ -78,17 +82,14 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
     protected EntityManager manager;
     
 	public Client getDefaultClient() {
-		
-		// Only one client
-		Client systemClient;
-		systemClient = clientService.getSystemClient();
-		List<Client> clients = clientService.getList(systemClient);
-		if( clients.size() == 1 ) {
+		Client systemClient = clientBusiness.getSingleClient();
+		if (systemClient != null) {
 			log.info("Only one client in system");
 			return systemClient;
 		}
 		
-		
+		systemClient = clientBusiness.getSystemClient();
+
 		// Callers client not system-client
 		Client callersClient = contextService.getCallersClient();
 		if( !systemClient.equals(callersClient) ) {

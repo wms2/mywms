@@ -33,6 +33,5 @@ public class Wms2Constants {
 	 */
 	public final static int MAX_CARRIER_DEPTH = 10;
 
-	public final static String KEY_PASSWORD_EXPRESSION = "PASSWORD_REGULAR_EXPRESSION";
 
 }

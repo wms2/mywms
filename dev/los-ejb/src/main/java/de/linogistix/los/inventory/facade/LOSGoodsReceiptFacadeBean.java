@@ -440,7 +440,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         
         pos = receiptComponent.createGoodsReceiptPosition(c, goodsReceipt, "", amount, receiptType, lockCause);
-        StockUnit su = receiptComponent.receiveStock(pos, lot, idat, amount, ul, serialNumber);
+        StockUnit su = receiptComponent.receiveStock(pos, lot, idat, amount, null, ul, serialNumber);
         
         if (!pos.getItemData().equals(idat.getNumber())){
         	throw new IllegalArgumentException("Item Data has not been set");
@@ -926,7 +926,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         
 		StockUnit su = inventoryComponent.createStock(client, lot, idat,
-				amount, ul, "IMAN", serialNumber, null, true);
+				amount, null, ul, "IMAN", serialNumber, null, true);
 
         if(lock > 0){
 	        try {

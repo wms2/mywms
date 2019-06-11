@@ -87,7 +87,7 @@ public class BOItemUnit extends BO {
   }
   
    protected String[] initIdentifiableProperties() {
-    return new String[]{"unitName"};
+    return new String[]{"name"};
   }
    
   

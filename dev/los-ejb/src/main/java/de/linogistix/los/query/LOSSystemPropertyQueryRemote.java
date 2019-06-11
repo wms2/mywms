@@ -12,7 +12,7 @@ package de.linogistix.los.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.model.LOSSystemProperty;
+import de.wms2.mywms.property.SystemProperty;
 
 
 /**
@@ -20,5 +20,5 @@ import de.linogistix.los.model.LOSSystemProperty;
  *
  */
 @Remote
-public interface LOSSystemPropertyQueryRemote extends BusinessObjectQueryRemote<LOSSystemProperty>{ 
+public interface LOSSystemPropertyQueryRemote extends BusinessObjectQueryRemote<SystemProperty>{ 
 }

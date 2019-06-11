@@ -14,11 +14,11 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.location.exception.LOSLocationException;
@@ -34,6 +34,7 @@ import de.linogistix.los.stocktaking.model.LOSStocktakingRecord;
 import de.linogistix.los.stocktaking.model.LOSStocktakingState;
 import de.linogistix.los.stocktaking.service.QueryStockTakingOrderService;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -61,8 +62,8 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 	@EJB
 	private ContextService contextService;
 	
-	@EJB
-	private ClientService clientService;
+	@Inject
+	private ClientBusiness clientService;
 	@EJB
 	private LOSManageStocktakingService manageService;
 
@@ -212,15 +213,14 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 	public Client getDefaultClient() {
 		
 		// Only one client
-		Client systemClient;
-		systemClient = clientService.getSystemClient();
-		List<Client> clients = clientService.getList(systemClient);
-		if( clients.size() == 1 ) {
+		Client systemClient = clientService.getSingleClient();
+		if (systemClient != null) {
 			log.info("Only one client in system");
 			return systemClient;
 		}
 		
-		
+		systemClient = clientService.getSystemClient();
+
 		// Callers client not system-client
 		Client callersClient = contextService.getCallersClient();
 		if( !systemClient.equals(callersClient) ) {
