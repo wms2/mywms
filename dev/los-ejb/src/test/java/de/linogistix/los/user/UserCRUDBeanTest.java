@@ -9,8 +9,8 @@ package de.linogistix.los.user;
 
 import java.util.List;
 
+import org.mywms.facade.FacadeException;
 import org.mywms.model.User;
-import org.mywms.service.UserServiceException;
 
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.QueryDetail;
@@ -146,35 +146,35 @@ public class UserCRUDBeanTest extends TestCase {
 				retrieved.setPassword(""); // too short
 				crud.update(retrieved);
 				fail("too weak");
-			} catch (UserServiceException ex){
+			} catch (FacadeException ex){
 				//OK
 			}
 			try{
 				retrieved.setPassword("ANDREAS"); // no digit
 				crud.update(retrieved);
 				fail("too weak");
-			} catch (UserServiceException ex){
+			} catch (FacadeException ex){
 				//OK
 			}
 			try{
 				retrieved.setPassword("11111"); // no character
 				crud.update(retrieved);
 				fail("too weak");
-			} catch (UserServiceException ex){
+			} catch (FacadeException ex){
 				//OK
 			}
 			try{
 				retrieved.setPassword("tooooooooooooo long"); // no character
 				crud.update(retrieved);
 				fail("too weak");
-			} catch (UserServiceException ex){
+			} catch (FacadeException ex){
 				//OK
 			}
 			
 			try{
 				retrieved.setPassword("123456AZ"); // not so weak
 				crud.update(retrieved);
-			} catch (UserServiceException ex){
+			} catch (FacadeException ex){
 				//
 				fail(ex.getMessage());
 			}

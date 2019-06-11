@@ -11,8 +11,11 @@
 
 package de.linogistix.los.user.crud;
 
+import java.util.Locale;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
@@ -29,6 +32,9 @@ import de.linogistix.los.crud.BusinessObjectModifiedException;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.user.UserBusiness;
 
 
 /**
@@ -43,6 +49,11 @@ public class UserCRUDBean extends BusinessObjectCRUDBean<User> implements UserCR
 	@EJB 
 	UserService userService;
 	
+	@Inject
+	private UserBusiness userBusiness;
+	@Inject
+	private PersistenceManager manager;
+
 	@EJB
 	LOSSystemPropertyService serviceConfig;
 	
@@ -54,20 +65,28 @@ public class UserCRUDBean extends BusinessObjectCRUDBean<User> implements UserCR
 
     @Override
     public User create(User entity) throws BusinessObjectExistsException, BusinessObjectCreationException, BusinessObjectSecurityException {
-        User u = userService.create(entity.getClient(), entity.getName(), entity.getFirstname(), entity.getLastname(), entity.getPassword());
+		Locale locale = userBusiness.getCurrentUsersLocale();
+    	User user;
+		try {
+			user = userBusiness.createUser(entity.getClient(), entity.getName(), entity.getPassword());
+		} catch (BusinessException e) {
+			log.error("Cannot create user. " + e.getMessage());
+			throw new BusinessObjectCreationException(e.getLocalizedMessage(locale), null, new String[] {}, null);
+		}
+    	user.setFirstname(entity.getFirstname());
+    	user.setLastname(entity.getLastname());
+    	user.setLocale(entity.getLocale());
+    	user.setPhone(entity.getPhone());
+    	user.setEmail(entity.getEmail());
         
-        u.setLocale(entity.getLocale());
-        u.setPhone(entity.getPhone());
-        u.setEmail(entity.getEmail());
+    	user.setAdditionalContent(entity.getAdditionalContent());
         
-        u.setAdditionalContent(entity.getAdditionalContent());
-        
-        u.setLock(entity.getLock());
+    	user.setLock(entity.getLock());
         
         for(Role r : entity.getRoles()){
-        	u.getRoles().add(r);
+        	user.getRoles().add(r);
     	}
-        return u;
+        return user;
     }
     
     @Override
@@ -76,20 +95,15 @@ public class UserCRUDBean extends BusinessObjectCRUDBean<User> implements UserCR
     		BusinessObjectSecurityException, FacadeException {
 
     	String password = entity.getPassword();
-    	User u = manager.find(User.class, entity.getId());
-    	if (!u.getPassword().equals(entity.getPassword())){
-    		Boolean checkWeak = Boolean.FALSE;
-    		try{
-    			checkWeak = serviceConfig.getBoolean(UserCRUDRemote.CONFKEY_WEAKPASS);
-    		} catch (Throwable t){
-    			log.warn("Could not resolve CONFKEY_WEAKPASS: "  + t.getMessage());
-    			checkWeak = Boolean.FALSE;
-    		}
-    		entity = userService.changePasswd(entity, password, checkWeak.booleanValue());
+    	User user = manager.find(User.class, entity.getId());
+    	if (!user.getPassword().equals(entity.getPassword())){
+    		Locale locale = userBusiness.getCurrentUsersLocale();
+    		try {
+				userBusiness.changePassword(entity, password, true);
+			} catch (BusinessException e) {
+				throw new FacadeException(e.getLocalizedMessage(locale), null, new Object[] {});
+			}
     	}
     	super.update(entity);
     }
-
-    
-    
 }

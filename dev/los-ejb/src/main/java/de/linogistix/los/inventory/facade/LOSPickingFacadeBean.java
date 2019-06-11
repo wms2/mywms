@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -19,8 +20,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.User;
-import org.mywms.service.EntityNotFoundException;
-import org.mywms.service.UserService;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
@@ -49,6 +48,7 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.user.UserBusiness;
 
 // TODO krane: I18N
 /**
@@ -64,8 +64,8 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	
 	@EJB
 	private ManageOrderService manageOrderService;
-	@EJB
-	private UserService userService;
+	@Inject
+	private UserBusiness userService;
 	@EJB
 	private LOSStorageLocationService locationService;
 	@EJB
@@ -136,15 +136,12 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		}
 		
 		if( !StringTools.isEmpty(userName) ) {
-			User user = null;
-			try {
-				user = userService.getByUsername(userName);
+			User user = userService.readUser(userName);
+			if(user!=null) {
 				order.setOperator(user);
 				if( order.getState()<State.RESERVED ) {
 					order.setState(State.RESERVED);
 				}
-			} catch (EntityNotFoundException e) {
-				log.warn(logStr+"User not found. name="+userName);
 			}
 		}
 		else {
@@ -203,10 +200,9 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 		User user = null;
 		if( userName != null && userName.length()>0 ) {
-			try {
-				user = userService.getByUsername(userName);
-			} catch (EntityNotFoundException e) {
-				log.info(logStr+"User not found. name="+userName);
+			user = userService.readUser(userName);
+			if (user == null) {
+				log.info(logStr + "User not found. name=" + userName);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "User not found");
 			}
 		}
@@ -277,10 +273,9 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		
 		User user = null;
 		if( userName != null && userName.length()>0 ) {
-			try {
-				user = userService.getByUsername(userName);
-			} catch (EntityNotFoundException e) {
-				log.info(logStr+"User not found. name="+userName);
+			user = userService.readUser(userName);
+			if (user == null) {
+				log.info(logStr + "User not found. name=" + userName);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "User not found");
 			}
 		}
@@ -346,10 +341,9 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 		User user = null;
 		if( userName != null && userName.length()>0 ) {
-			try {
-				user = userService.getByUsername(userName);
-			} catch (EntityNotFoundException e) {
-				log.info(logStr+"User not found. name="+userName);
+			user = userService.readUser(userName);
+			if (user == null) {
+				log.info(logStr + "User not found. name=" + userName);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "User not found");
 			}
 		}

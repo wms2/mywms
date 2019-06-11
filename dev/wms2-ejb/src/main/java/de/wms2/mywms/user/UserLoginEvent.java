@@ -16,29 +16,30 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package de.wms2.mywms.util;
+package de.wms2.mywms.user;
+
+import org.mywms.model.User;
 
 /**
- * Constants for the wms2 module
+ * This event fired on user login
  * 
  * @author krane
  *
  */
-public class Wms2Properties {
+public class UserLoginEvent {
+	private User user;
+	private String agent;
 
-	/**
-	 * Keys of system properties
-	 */
-	public final static String KEY_PASSWORD_EXPRESSION = "PASSWORD_REGULAR_EXPRESSION";
+	public UserLoginEvent(User user, String agent) {
+		this.user = user;
+		this.agent = agent;
+	}
 
-	/**
-	 * Names of system property groups
-	 */
-	public final static String GROUP_SETUP = "SETUP";
-	public final static String GROUP_UI = "UI";
-	public final static String GROUP_MOBILE = "MOBILE";
-	public final static String GROUP_SERVER = "SERVER";
-	public final static String GROUP_GENERAL = "GENERAL";
-	public final static String GROUP_WMS = "WMS";
+	public User getUser() {
+		return user;
+	}
 
+	public String getAgent() {
+		return agent;
+	}
 }

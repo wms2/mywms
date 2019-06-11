@@ -16,29 +16,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package de.wms2.mywms.util;
+package de.wms2.mywms.user;
+
+import org.mywms.model.User;
+
+import de.wms2.mywms.exception.BusinessException;
 
 /**
- * Constants for the wms2 module
+ * The password policy. Make your own implementation if you have special
+ * requirements
  * 
  * @author krane
  *
  */
-public class Wms2Properties {
+public interface PasswordValidator {
 
 	/**
-	 * Keys of system properties
+	 * Check all the rules of the password policy
 	 */
-	public final static String KEY_PASSWORD_EXPRESSION = "PASSWORD_REGULAR_EXPRESSION";
-
-	/**
-	 * Names of system property groups
-	 */
-	public final static String GROUP_SETUP = "SETUP";
-	public final static String GROUP_UI = "UI";
-	public final static String GROUP_MOBILE = "MOBILE";
-	public final static String GROUP_SERVER = "SERVER";
-	public final static String GROUP_GENERAL = "GENERAL";
-	public final static String GROUP_WMS = "WMS";
+	public void validate(User user, String password, String encryptedPassword) throws BusinessException;
 
 }

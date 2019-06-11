@@ -33,14 +33,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.Role;
 import org.mywms.model.User;
-import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.RoleService;
 import org.mywms.service.UniqueConstraintViolatedException;
-import org.mywms.service.UserService;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2Properties;
 
 /**
@@ -59,7 +58,7 @@ public class Wms2SetupService extends ModuleSetup {
 	@Inject
 	private ClientBusiness clientService;
 	@Inject
-	private UserService userService;
+	private UserBusiness userBusiness;
 	@Inject
 	private RoleService roleService;
 
@@ -73,7 +72,8 @@ public class Wms2SetupService extends ModuleSetup {
 
 	@PostConstruct
 	public void checkSetup() {
-		// This call ensures availability of the system client prior to all other accesses
+		// This call ensures availability of the system client prior to all other
+		// accesses
 		clientService.getSystemClient();
 
 		String value = propertyBusiness.getString(getModulePropertyName(), null);
@@ -97,27 +97,21 @@ public class Wms2SetupService extends ModuleSetup {
 				Wms2Properties.GROUP_SETUP, null, locale);
 
 		Client client = clientService.getSystemClient();
-		User admin;
-		try {
-			admin = userService.getByUsername("admin");
-		} catch (EntityNotFoundException e1) {
-			admin = userService.create(client, "admin", "", "", "admin");
+		User admin = userBusiness.readUser("admin");
+		if (admin == null) {
+			admin = userBusiness.createUser(client, "admin", "admin");
 			admin.setLocale("en");
-		} 
-		User de;
-		try {
-			de = userService.getByUsername("de");
-		} catch (EntityNotFoundException e1) {
-			de = userService.create(client, "de", "", "", "de");
+		}
+		User de = userBusiness.readUser("de");
+		if (de == null) {
+			de = userBusiness.createUser(client, "de", "de");
 			de.setLocale("de");
-		} 
-		User en;
-		try {
-			en = userService.getByUsername("en");
-		} catch (EntityNotFoundException e1) {
-			en = userService.create(client, "en", "", "", "en");
+		}
+		User en = userBusiness.readUser("en");
+		if (en == null) {
+			en = userBusiness.createUser(client, "en", "en");
 			en.setLocale("en");
-		} 
+		}
 
 		try {
 			Role role = roleService.create("Admin");
@@ -126,6 +120,8 @@ public class Wms2SetupService extends ModuleSetup {
 			en.getRoles().add(role);
 		} catch (UniqueConstraintViolatedException e) {
 		}
+
+		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
 
 		logger.log(Level.INFO, "Completed Setup");
 	}

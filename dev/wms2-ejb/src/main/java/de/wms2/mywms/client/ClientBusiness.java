@@ -18,17 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.client;
 
+import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
+import org.mywms.model.User;
 
 import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.user.UserEntityService;
 
 /**
  * Business service to handle clients
@@ -41,6 +47,10 @@ public class ClientBusiness {
 
 	@Inject
 	private PersistenceManager manager;
+	@Resource
+	private EJBContext context;
+	@Inject
+	private UserEntityService userService;
 
 	/**
 	 * Read the special system client. Generate it, if not present.
@@ -117,6 +127,21 @@ public class ClientBusiness {
 		}
 
 		return false;
+	}
+
+	public Client getCurrentUsersClient() {
+		Principal principal = context.getCallerPrincipal();
+		String userName = principal.getName();
+		if (StringUtils.isEmpty(userName)) {
+			return null;
+		}
+
+		User user = userService.read(userName);
+		if (user == null) {
+			return null;
+		}
+
+		return user.getClient();
 	}
 
 }
