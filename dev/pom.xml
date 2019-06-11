@@ -36,6 +36,7 @@
 		<version.maven-surefire-plugin>2.22.1</version.maven-surefire-plugin>
 		<version.maven-javadoc-plugin>3.1.0</version.maven-javadoc-plugin>
 		<version.maven-ear-plugin>3.0.1</version.maven-ear-plugin>
+		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
         
 		<version.jasperreports>6.8.0</version.jasperreports>
         <version.jboss-ejb3-ext-api>2.2.0.Final</version.jboss-ejb3-ext-api>
