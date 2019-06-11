@@ -83,11 +83,11 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 		}
 		
 		log.info("Create Properties...");
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SHOW_DETAIL_PROPERTIES, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SHOW_DETAIL_PROPERTIES", locale));
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_RESTORE_TABS, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_RESTORE_TABS", locale));
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_UNLIMITED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_UNLIMITED", locale));
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_ON_START, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_ON_START", locale));
-		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_VERSION_MATCHER, ".*", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_VERSION_MATCHER", locale));
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SHOW_DETAIL_PROPERTIES, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SHOW_DETAIL_PROPERTIES", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_RESTORE_TABS, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_RESTORE_TABS", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_UNLIMITED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_UNLIMITED", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_SELECTION_ON_START, "true", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_SELECTION_ON_START", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSCommonPropertyKey.NBCLIENT_VERSION_MATCHER, ".*", LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescNBCLIENT_VERSION_MATCHER", locale), false);
 				
 		log.info("Create Common Basic Data. done.");
 	}

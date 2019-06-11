@@ -72,7 +72,7 @@ public class StorageStrategyValidator implements EntityValidator<StorageStrategy
 	public void validateDelete(StorageStrategy entity) throws BusinessException {
 		String logStr = "validateDelete ";
 
-		if (entitySerivce.exists(ItemData.class, "storageStrategy", entity)) {
+		if (entitySerivce.exists(ItemData.class, "defaultStorageStrategy", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to ItemData. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByItemData");
 		}

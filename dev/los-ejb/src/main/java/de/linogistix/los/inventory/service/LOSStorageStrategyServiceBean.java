@@ -82,7 +82,7 @@ public class LOSStorageStrategyServiceBean extends BasicServiceBean<StorageStrat
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description, true);
 		}
 		
 		StorageStrategy strat = getByName(name);

@@ -79,15 +79,15 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 		storageStrategyService.getDefault();
 		
 		log.info("Create Properties...");
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.PRINT_GOODS_RECEIPT_LABEL, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPRINT_GOODS_RECEIPT_LABEL", locale));
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSTORE_GOODS_RECEIPT_LABEL", locale));
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.GOODS_IN_DEFAULT_LOCK, "0", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGOODS_IN_DEFAULT_LOCK", locale));
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_RECEIPT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescDEFAULT_GOODS_RECEIPT_LOCATION_NAME", locale));
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.PRINT_GOODS_RECEIPT_LABEL, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPRINT_GOODS_RECEIPT_LABEL", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSTORE_GOODS_RECEIPT_LABEL", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.GOODS_IN_DEFAULT_LOCK, "0", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGOODS_IN_DEFAULT_LOCK", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_RECEIPT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescDEFAULT_GOODS_RECEIPT_LOCATION_NAME", locale), false);
 //		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_OUT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescPDEFAULT_GOODS_OUT_LOCATION_NAME", locale), false, false);
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescGOODS_RECEIPT_PRINTER", locale));
-		propertyService.createSystemProperty(sys, null, LOSGoodsReceiptComponent.GR_LIMIT_AMOUNT_TO_NOTIFIED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGR_LIMIT_AMOUNT_TO_NOTIFIED", locale));
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_RENAME_UNITLOAD, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_RENAME_UNITLOAD", locale));
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_LOCATION, null, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_LOCATION", locale));
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescGOODS_RECEIPT_PRINTER", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSGoodsReceiptComponent.GR_LIMIT_AMOUNT_TO_NOTIFIED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGR_LIMIT_AMOUNT_TO_NOTIFIED", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_RENAME_UNITLOAD, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_RENAME_UNITLOAD", locale), false);
+		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_LOCATION, null, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_LOCATION", locale), false);
 
 		ItemUnit pce = unitService.getDefault();
 		pce.setName( resolve("BasicDataItemUnitPcs", locale) );

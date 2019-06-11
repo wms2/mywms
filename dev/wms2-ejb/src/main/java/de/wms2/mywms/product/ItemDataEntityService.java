@@ -39,10 +39,11 @@ public class ItemDataEntityService {
 	@Inject
 	private PersistenceManager manager;
 
-	public ItemData create(Client client, String number, ItemUnit unit) throws BusinessException {
+	public ItemData create(Client client, String number, String name, ItemUnit unit) throws BusinessException {
 		ItemData itemData = manager.createInstance(ItemData.class);
 		itemData.setClient(client);
 		itemData.setNumber(number);
+		itemData.setName(name);
 		itemData.setItemUnit(unit);
 
 		manager.persistValidated(itemData);

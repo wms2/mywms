@@ -108,7 +108,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		log.info("Create Areas...");
 
 		String name = resolve("BasicDataAreaDefault", locale);
-		propertyService.createSystemProperty(sys, null, LOSAreaServiceBean.PROPERTY_KEY_AREA_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_AREA_DEFAULT", locale));
+		propertyService.createSystemProperty(sys, null, LOSAreaServiceBean.PROPERTY_KEY_AREA_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_AREA_DEFAULT", locale), false);
 		Area storeArea = areaService.getDefault();
 		storeArea.setName(name);
 		storeArea.setUseFor(AreaUsages.STORAGE, true);
@@ -129,7 +129,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		log.info("Create Cluster...");
 
 		name = resolve("BasicDataClusterDefault", locale);
-		propertyService.createSystemProperty(sys, null, LOSLocationClusterServiceBean.PROPERTY_KEY_CLUSTER_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_CLUSTER_DEFAULT", locale));
+		propertyService.createSystemProperty(sys, null, LOSLocationClusterServiceBean.PROPERTY_KEY_CLUSTER_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_CLUSTER_DEFAULT", locale), false);
 		LocationCluster clusterDefault = lcService.getDefault();
 		clusterDefault.setName(name);
 		prop = propertyService.getByKey(LOSLocationClusterServiceBean.PROPERTY_KEY_CLUSTER_DEFAULT);

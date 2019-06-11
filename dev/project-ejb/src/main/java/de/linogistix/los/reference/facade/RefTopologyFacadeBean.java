@@ -165,7 +165,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create Properties...");
 		Client sys = clientService.getSystemClient();
-		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", Wms2Properties.GROUP_SETUP, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"));
+		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", Wms2Properties.GROUP_SETUP, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"), true);
 	
 		log.info("Create Basic Data. done.");
 	}

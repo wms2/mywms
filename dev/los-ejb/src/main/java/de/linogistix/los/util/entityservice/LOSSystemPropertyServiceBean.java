@@ -40,11 +40,11 @@ public class LOSSystemPropertyServiceBean extends BasicServiceBean<SystemPropert
 	private SystemPropertyBusiness propertyBusiness;
 
 	public SystemProperty createSystemProperty(String key, String value) {
-		return createSystemProperty(null, null, key, value, null, null);
+		return createSystemProperty(null, null, key, value, null, null, false);
 	}
 
 	public SystemProperty createSystemProperty(Client client, String workstation, String key, String value,
-			String groupName, String description) {
+			String groupName, String description, boolean reinitialize) {
 
 		if (client == null) {
 			client = ctxService.getCallersClient();
@@ -52,8 +52,20 @@ public class LOSSystemPropertyServiceBean extends BasicServiceBean<SystemPropert
 		if (value == null) {
 			value = "";
 		}
-		SystemProperty sysProp = propertyBusiness.createOrUpdate(key, client, workstation, value, groupName,
-				description);
+
+		if (reinitialize) {
+			SystemProperty sysProp = propertyBusiness.createOrUpdate(key, client, workstation, value, groupName,
+					description);
+			return sysProp;
+		}
+
+		SystemProperty sysProp = propertyBusiness.read(key, client, workstation);
+		if (sysProp == null) {
+			sysProp = propertyBusiness.createOrUpdate(key, client, workstation, value, groupName, description);
+		}
+		sysProp.setPropertyGroup(groupName);
+		sysProp.setDescription(description);
+
 		return sysProp;
 	}
 

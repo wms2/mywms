@@ -92,7 +92,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyDefaultName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description, true);
 		}
 		
 		LOSOrderStrategy strat = getByName(client, name);
@@ -129,7 +129,7 @@ public class LOSOrderStrategyServiceBean extends BasicServiceBean<LOSOrderStrate
 			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
 	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyExtinguishName", locale);
 			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyExtinguishDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_EXTINGUISH_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description);
+			propertyService.createSystemProperty(clientService.getSystemClient(), null, LOSOrderStrategy.KEY_EXTINGUISH_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description, true);
 		}
 		
 		LOSOrderStrategy strat = getByName(client, name);

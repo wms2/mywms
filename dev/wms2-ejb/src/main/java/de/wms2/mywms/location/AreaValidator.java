@@ -60,7 +60,7 @@ public class AreaValidator implements EntityValidator<Area> {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingName");
 		}
 
-		if (entity.getUsages().contains(AreaUsages.TRANSFER)) {
+		if (StringUtils.contains(entity.getUsages(), AreaUsages.TRANSFER)) {
 			if (entity.getUsages().contains(AreaUsages.PICKING) || entity.getUsages().contains(AreaUsages.STORAGE)) {
 				logger.log(Level.INFO, logStr
 						+ "invalid usage options. TRANSFER cannot be combined with one of PICKING, STORAGE. entity="

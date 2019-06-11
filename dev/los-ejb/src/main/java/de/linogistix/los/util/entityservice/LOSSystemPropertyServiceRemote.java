@@ -43,7 +43,7 @@ public interface LOSSystemPropertyServiceRemote extends BasicService<SystemPrope
 	 * @param description
 	 * @return
 	 */
-	public SystemProperty createSystemProperty(Client client, String workstation, String key, String value, String groupName, String description);
+	public SystemProperty createSystemProperty(Client client, String workstation, String key, String value, String groupName, String description, boolean reinitialize);
 
 
 	
