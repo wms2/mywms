@@ -58,7 +58,7 @@ public class J2EEServiceLocatorImpl implements J2EEServiceLocator {
 //               log.warning("login without authentification");
 //               jndi = new AppPreferencesController("jndi-noauth");
 //           } else{
-      jndi = new AppPreferencesController("wf10-context");
+      jndi = new AppPreferencesController("context");
 
       // }
       AppPreferencesController appServer = new AppPreferencesController("appserver");
