@@ -16,13 +16,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package de.wms2.mywms.module;
+package de.wms2.mywms.project.module;
 
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
@@ -30,16 +32,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mywms.model.Client;
-import org.mywms.model.Role;
-import org.mywms.model.User;
-import org.mywms.service.RoleService;
-import org.mywms.service.UniqueConstraintViolatedException;
+import org.mywms.facade.FacadeException;
 
-import de.wms2.mywms.client.ClientBusiness;
+import de.linogistix.los.reference.facade.RefTopologyFacade;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.exception.WrappedFacadeException;
+import de.wms2.mywms.module.ModuleSetup;
 import de.wms2.mywms.property.SystemPropertyBusiness;
-import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2Properties;
 
 /**
@@ -49,40 +48,33 @@ import de.wms2.mywms.util.Wms2Properties;
  *
  */
 @Singleton
+@DependsOn("Wms2SetupService")
 @Startup
-public class Wms2SetupService extends ModuleSetup {
+public class ProjectSetupService extends ModuleSetup {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Inject
 	private SystemPropertyBusiness propertyBusiness;
-	@Inject
-	private ClientBusiness clientService;
-	@Inject
-	private UserBusiness userBusiness;
-	@Inject
-	private RoleService roleService;
+	@EJB
+	private RefTopologyFacade topologyFacade;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
 
 	@Override
 	public String getModulePackage() {
-		return "de.wms2.mywms";
+		return "de.linogistix.los.reference";
 	}
 
 	@PostConstruct
 	public void checkSetup() {
-		// This call ensures availability of the system client prior to all other
-		// accesses
-		clientService.getSystemClient();
-
 		String value = propertyBusiness.getString(getModulePropertyName(), null);
 		if (!StringUtils.isBlank(value)) {
 			return;
 		}
 
 		try {
-			setup(SetupLevel.INITIALIZED, null);
+			setup(SetupLevel.UNINITIALIZED, null);
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Setup failed", t);
 			return;
@@ -91,15 +83,20 @@ public class Wms2SetupService extends ModuleSetup {
 
 	@Override
 	public void setup(SetupLevel level, Locale locale) throws BusinessException {
-
+		
 		String value = propertyBusiness.getString(getModulePropertyName(), null);
 		if (StringUtils.equals(value, level.name())) {
 			return;
 		}
 
 		switch (level) {
+		case UNINITIALIZED:
 		case INITIALIZED:
-			setupBasicData(locale);
+			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
+					Wms2Properties.GROUP_SETUP, null, locale);
+			break;
+		case DEMO_SMALL:
+			setupDemoData(locale);
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
 					Wms2Properties.GROUP_SETUP, null, locale);
 			break;
@@ -109,38 +106,11 @@ public class Wms2SetupService extends ModuleSetup {
 		}
 	}
 
-	public void setupBasicData(Locale locale) throws BusinessException {
-		logger.log(Level.WARNING, "setupBasicData");
-
-		Client client = clientService.getSystemClient();
-		User admin = userBusiness.readUser("admin");
-		if (admin == null) {
-			admin = userBusiness.createUser(client, "admin", "admin");
-			admin.setLocale("en");
-		}
-		User de = userBusiness.readUser("de");
-		if (de == null) {
-			de = userBusiness.createUser(client, "de", "de");
-			de.setLocale("de");
-		}
-		User en = userBusiness.readUser("en");
-		if (en == null) {
-			en = userBusiness.createUser(client, "en", "en");
-			en.setLocale("en");
-		}
-
+	public void setupDemoData(Locale locale) throws BusinessException {
 		try {
-			Role adminRole = roleService.create("Admin");
-			admin.getRoles().add(adminRole);
-			de.getRoles().add(adminRole);
-			en.getRoles().add(adminRole);
-			Role serviceRole = roleService.create("Service");
-			admin.getRoles().add(serviceRole);
-		} catch (UniqueConstraintViolatedException e) {
+			topologyFacade.createDemoTopology();
+		} catch (FacadeException e) {
+			throw new WrappedFacadeException(e);
 		}
-
-		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
-
-		logger.log(Level.INFO, "Completed Setup");
 	}
 }

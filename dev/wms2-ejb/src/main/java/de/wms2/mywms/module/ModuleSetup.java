@@ -93,12 +93,6 @@ public abstract class ModuleSetup {
 	public abstract void setup(SetupLevel level, Locale locale) throws BusinessException;
 
 	/**
-	 * Remove all data of the module
-	 */
-	public void removeData() throws BusinessException {
-	}
-
-	/**
 	 * Start the selftest of the module.
 	 * <p>
 	 * Check whether all setup or other logical requirements are working

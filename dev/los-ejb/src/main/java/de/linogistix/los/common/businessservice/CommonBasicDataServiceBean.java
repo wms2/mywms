@@ -71,6 +71,7 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 		createRole(org.mywms.globals.Role.OPERATOR_STR);
 		createRole(org.mywms.globals.Role.FOREMAN_STR);
 		createRole(org.mywms.globals.Role.INVENTORY_STR);
+		createRole("Service");
 	
 		log.info("Create ItemUnits...");
 		ItemUnit pce = null;
