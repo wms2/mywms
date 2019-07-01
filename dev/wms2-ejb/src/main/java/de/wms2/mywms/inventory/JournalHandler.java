@@ -56,7 +56,7 @@ public class JournalHandler {
 		rec.setToUnitLoad(unitLoad.getLabelId());
 		rec.setToStorageLocation(unitLoad.getStorageLocation().getName());
 
-		rec.setRecordType(InventoryJournalRecordType.CREATE);
+		rec.setRecordType(InventoryJournalRecordType.CREATED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -97,7 +97,7 @@ public class JournalHandler {
 		rec.setUnitName(stock.getItemData().getItemUnit().getName());
 		rec.setLotNumber(stock.getLot() == null ? null : stock.getLot().getName());
 		rec.setBestBefore(stock.getLot() == null ? null : stock.getLot().getBestBeforeEnd());
-		rec.setRecordType(InventoryJournalRecordType.CREATE);
+		rec.setRecordType(InventoryJournalRecordType.CREATED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -139,7 +139,7 @@ public class JournalHandler {
 		rec.setUnitName(stock.getItemData().getItemUnit().getName());
 		rec.setLotNumber(stock.getLot() == null ? null : stock.getLot().getName());
 		rec.setBestBefore(stock.getLot() == null ? null : stock.getLot().getBestBeforeEnd());
-		rec.setRecordType(InventoryJournalRecordType.ALTER);
+		rec.setRecordType(InventoryJournalRecordType.CHANGED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -180,7 +180,7 @@ public class JournalHandler {
 		rec.setUnitName(stock.getItemData().getItemUnit().getName());
 		rec.setLotNumber(stock.getLot() == null ? null : stock.getLot().getName());
 		rec.setBestBefore(stock.getLot() == null ? null : stock.getLot().getBestBeforeEnd());
-		rec.setRecordType(InventoryJournalRecordType.TRANSFER);
+		rec.setRecordType(InventoryJournalRecordType.TRANSFERED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -224,7 +224,7 @@ public class JournalHandler {
 		rec.setUnitName(stock.getItemData().getItemUnit().getName());
 		rec.setLotNumber(stock.getLot() == null ? null : stock.getLot().getName());
 		rec.setBestBefore(stock.getLot() == null ? null : stock.getLot().getBestBeforeEnd());
-		rec.setRecordType(InventoryJournalRecordType.REMOVE);
+		rec.setRecordType(InventoryJournalRecordType.REMOVED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -253,7 +253,7 @@ public class JournalHandler {
 		rec.setUnitName(stock.getItemData().getItemUnit().getName());
 		rec.setLotNumber(stock.getLot() == null ? null : stock.getLot().getName());
 		rec.setBestBefore(stock.getLot() == null ? null : stock.getLot().getBestBeforeEnd());
-		rec.setRecordType(InventoryJournalRecordType.CREATE);
+		rec.setRecordType(InventoryJournalRecordType.CREATED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -279,7 +279,7 @@ public class JournalHandler {
 		rec.setToUnitLoad(toUnitLoad.getLabelId());
 		rec.setToStorageLocation(toLocation.getName());
 
-		rec.setRecordType(InventoryJournalRecordType.TRANSFER);
+		rec.setRecordType(InventoryJournalRecordType.TRANSFERED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 
@@ -306,7 +306,7 @@ public class JournalHandler {
 		}
 
 		rec.setOperator(operator);
-		rec.setRecordType(InventoryJournalRecordType.COUNT);
+		rec.setRecordType(InventoryJournalRecordType.COUNTED);
 		rec.setActivityCode(activityCode);
 		rec.setAdditionalContent(note);
 		rec.setScale(0);

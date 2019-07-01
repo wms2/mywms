@@ -33,7 +33,6 @@ import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
-import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
@@ -73,8 +72,6 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 	@EJB
 	private LOSStorageLocationService locationService;
-	@EJB
-	private LOSStockUnitRecordService recordService;
 	@EJB
 	private LOSInventoryComponent invComponent;
 	@EJB
@@ -692,7 +689,6 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				}
 				String operator = contextService.getCallerUserName();
 				journalHandler.recordCounting(pickFromStock, pickFromUnitLoad, pickFromLocation, activityCode, operator, null);
-				recordService.recordCounting(pickFromStock, pickFromUnitLoad, pickFromLocation, activityCode, null,null);
 			}
 		}
 

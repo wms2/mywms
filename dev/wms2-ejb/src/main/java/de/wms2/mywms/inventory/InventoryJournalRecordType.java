@@ -26,10 +26,10 @@ package de.wms2.mywms.inventory;
  */
 public class InventoryJournalRecordType {
 
-	public static final String CREATE = "CREATED";
-	public static final String ALTER = "CHANGED";
-	public static final String REMOVE = "REMOVED";
-	public static final String TRANSFER = "TRANSFERED";
-	public static final String COUNT = "COUNTED";
+	public static final String CREATED = "CREATED";
+	public static final String CHANGED = "CHANGED";
+	public static final String REMOVED = "REMOVED";
+	public static final String TRANSFERED = "TRANSFERED";
+	public static final String COUNTED = "COUNTED";
 
 }

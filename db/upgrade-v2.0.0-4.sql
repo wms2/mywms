@@ -66,6 +66,8 @@ update inventoryjournal set recordtype = 'REMOVED' where recordtype = 'STOCK_REM
 update inventoryjournal set recordtype = 'TRANSFERED' where recordtype = 'STOCK_TRANSFERRED';
 update inventoryjournal set recordtype = 'COUNTED' where recordtype = 'STOCK_COUNTED';
 
+--drop table los_ul_record ;
+--drop table los_stockrecord ;
 
 	
 	

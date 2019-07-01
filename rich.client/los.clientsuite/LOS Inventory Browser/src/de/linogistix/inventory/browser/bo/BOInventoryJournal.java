@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.linogistix.inventory.browser.bo;
 
 import de.linogistix.common.bobrowser.bo.BO;
-import de.linogistix.inventory.browser.masternode.BOStockUnitRecordMasterNode;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.browser.masternode.BOInventoryJournalMasterNode;

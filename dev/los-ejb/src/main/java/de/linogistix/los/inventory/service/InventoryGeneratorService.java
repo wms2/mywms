@@ -15,7 +15,6 @@ import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
 import de.wms2.mywms.inventory.UnitLoadType;
 
 /**
@@ -49,8 +48,6 @@ public interface InventoryGeneratorService {
     public String generateOrderNumber(Client c, String prefix);
     
     public String generateStorageRequestNumber(Client c);
-    
-    public String generateRecordNumber(Client c, String prefix, LOSStockUnitRecordType type);
     
     public String generateGoodsOutNumber(Client c) ;
 

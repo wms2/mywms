@@ -18,7 +18,6 @@ import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
@@ -92,14 +91,6 @@ public class InventoryGeneratorBean implements InventoryGeneratorService {
         }
         long n = seqService.getNextSequenceNumber(LOSCustomerOrder.class);
         ret = String.format(prefix  + " %1$06d", n);
-        return ret;
-    }
-
-    public String generateRecordNumber(Client c, String prefix, LOSStockUnitRecordType type) {
-        String ret;
-        String NUMBER_PREFIX = "R";
-        long n = seqService.getNextSequenceNumber("de.linogistix.los.inventory.model.LOSStockUnitRecord");
-        ret = String.format(NUMBER_PREFIX  + "-%2$s-%3$s %1$06d", n, prefix, type.toString());
         return ret;
     }
 

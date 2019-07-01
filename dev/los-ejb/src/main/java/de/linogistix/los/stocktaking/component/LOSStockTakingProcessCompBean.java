@@ -32,7 +32,6 @@ import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.location.businessservice.LOSStorage;
@@ -113,9 +112,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	@EJB
 	private LOSUnitLoadService ulService;
 	
-	@EJB
-	private LOSStockUnitRecordService recordService;
-
 	@EJB
 	private EntityGenerator entityGenerator;
 	
@@ -253,7 +249,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				sl.setStockTakingDate(Calendar.getInstance().getTime());
 				sl.setLock(0);
 				journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), so.getOperator(), null);
-				recordService.recordCounting(null, null, sl, "ST "+so.getId().toString(), null, so.getOperator());
 
 			}
 		} else {
@@ -733,18 +728,15 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			for (UnitLoad ul : ulList) {
 				ul.setStockTakingDate(Calendar.getInstance().getTime());
 				journalHandler.recordCounting(null, ul, sl, "ST "+so.getId().toString(), so.getOperator(), null);
-				recordService.recordCounting(null, ul, sl, "ST "+so.getId().toString(), null, so.getOperator());
 				
 				for( StockUnit su : ul.getStockUnitList() ) {
 					journalHandler.recordCounting(su, ul, sl, "ST "+so.getId().toString(), so.getOperator(), null);
-					recordService.recordCounting(su, ul, sl, "ST "+so.getId().toString(), null, so.getOperator());
 				}
 			}
 
 			sl.setStockTakingDate(Calendar.getInstance().getTime());
 			sl.setLock(0);
 			journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), so.getOperator(), null);
-			recordService.recordCounting(null, null, sl, "ST "+so.getId().toString(), null, so.getOperator());
 
 			for (LOSStocktakingOrder sot : soList) {
 
@@ -980,21 +972,18 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			sl.setLock(0);
 			stOrder.getStockTaking();
 			journalHandler.recordCounting(null, null, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
-			recordService.recordCounting(null, null, sl, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
 
 			for( UnitLoad ul : sl.getUnitLoads() ) {
 				if( !ul.getStorageLocation().equals(sl) ) {
 					continue;
 				}
 				journalHandler.recordCounting(null, ul, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
-				recordService.recordCounting(null, ul, sl, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
 				
 				for( StockUnit su : ul.getStockUnitList() ) {
 					if( !su.getUnitLoad().equals(ul) ) {
 						continue;
 					}
 					journalHandler.recordCounting(su, ul, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
-					recordService.recordCounting(su, ul, sl, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
 				}
 			}
 		}

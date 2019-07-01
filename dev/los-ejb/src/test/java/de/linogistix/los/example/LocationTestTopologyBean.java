@@ -41,13 +41,11 @@ import de.linogistix.los.location.crud.UnitLoadTypeCRUDRemote;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.model.LOSUnitLoadRecord;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSFixedLocationAssignmentQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationTypeQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
-import de.linogistix.los.location.query.LOSUnitLoadRecordQueryRemote;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
@@ -163,9 +161,6 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 	
 	@EJB
 	LOSFixedLocationAssignmentQueryRemote assQuery;
-	
-	@EJB
-	LOSUnitLoadRecordQueryRemote ulRecordQuery;
 	
 	@EJB
 	ItemUnitService itemUnitService;
@@ -611,7 +606,6 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 
 			clearUnitLoads();
 			clearStorageLocations();
-			clearLOSUnitLoadRecords();
 			
 		} catch (LocationTopologyException ex) {
 			throw ex;
@@ -620,38 +614,7 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			throw new LocationTopologyException();
 		}
 	}
-
 	
-	private void clearLOSUnitLoadRecords() throws LocationTopologyException {
-		// Delete LogItems
-		initClient();
-		try {
-			QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-			TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			TemplateQueryWhereToken t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			TemplateQuery q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(LOSUnitLoadRecord.class);
-
-			List<LOSUnitLoadRecord> l = ulRecordQuery.queryByTemplate(d, q);
-			for (LOSUnitLoadRecord u : l) {
-				u = em.find(LOSUnitLoadRecord.class, u.getId());
-				em.remove(u);
-			}
-			em.flush();
-		} catch (Throwable e) {
-			log.error(e, e);
-			throw new LocationTopologyException();
-		}
-
-	}
-
 	public void clearStorageLocations() throws LocationTopologyException {
 		// Delete StorageLocations
 

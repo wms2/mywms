@@ -38,7 +38,6 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.HostMsgStock;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptPositionQueryRemote;
 import de.linogistix.los.inventory.query.LOSPickingPositionQueryRemote;
@@ -47,7 +46,6 @@ import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.inventory.service.StockUnitService;
@@ -68,6 +66,7 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.InventoryJournalRecordType;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
@@ -89,9 +88,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	@EJB
 	private StockUnitService stockUnitService;
-
-	@EJB
-	private LOSStockUnitRecordService recordService;
 
 	@EJB
 	private LOSUnitLoadService ulService;
@@ -217,11 +213,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			
 			journalHandler.recordCreation(su, amount, activityCode, operator, null);
 
-			recordService.recordCreation(amount, su, activityCode, null, operator);
 			manageStockService.onStockAmountChange(su, BigDecimal.ZERO);
 			if( sendNotify ) {
 				try {
-					hostService.sendMsg( new HostMsgStock( su, amount, operator, LOSStockUnitRecordType.STOCK_CREATED, activityCode) );
+					hostService.sendMsg( new HostMsgStock( su, amount, operator, InventoryJournalRecordType.CREATED, activityCode) );
 				} catch (FacadeException e) {
 					// TODO Do not declare so special throws declarations. A throws FacadeException would be enough.
 					throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, e.getLocalizedMessage());
@@ -389,9 +384,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			journalHandler.recordChangeAmount(su.getClient(), su, amount.negate(), activityCode, operator, null);
 			journalHandler.recordCreation(dest, amount, activityCode, operator, null);
 
-			recordService.recordRemoval(amount.negate(), su, activityCode);
-			recordService.recordCreation(amount, dest, activityCode);
-
 			manageStockService.onStockAmountChange(su, amountSourceOld);
 			manageStockService.onStockAmountChange(dest, amountDestOld);
 
@@ -453,9 +445,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 			journalHandler.recordChangeAmount(su.getClient(), su, amount.negate(), activityCode, operator, null);
 			journalHandler.recordCreation(dest, amount, activityCode, operator, null);
-
-			recordService.recordRemoval(amount.negate(), su, activityCode, null, null);
-			recordService.recordCreation(amount, dest, activityCode);
 
 			manageStockService.onStockAmountChange(su, amountSourceOld);
 			manageStockService.onStockAmountChange(dest, amountDestOld);
@@ -571,9 +560,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			journalHandler.recordChangeAmount(su.getClient(), su, amount.negate(), activityCode, operator, null);
 			journalHandler.recordCreation(dest, amount, activityCode, operator, null);
 
-			recordService.recordRemoval(amount.negate(), su, activityCode);
-			recordService.recordCreation(amount, dest, activityCode);
-
 			manageStockService.onStockAmountChange(su, amountSourceOld);
 			manageStockService.onStockAmountChange(dest, amountDestOld);
 
@@ -671,13 +657,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), diffAmount);
 
 			journalHandler.recordChangeAmount(su.getClient(), su, diffAmount, activityCode, operator, comment);
-
-			recordService.recordChange(diffAmount, su, activityCode, comment, operator);
 			manageStockService.onStockAmountChange(su, amountOld);
 			
 			if( sendNotify ) {
 				try{
-					hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, LOSStockUnitRecordType.STOCK_ALTERED, activityCode));
+					hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, InventoryJournalRecordType.CHANGED, activityCode));
 				}
 				catch( FacadeException e ) {
 					throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, e.getLocalizedMessage());
@@ -698,19 +682,15 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			try{
 				if (BigDecimal.ZERO.compareTo(amount) < 0) {
 					journalHandler.recordChangeAmount(su.getClient(), su, diffAmount, activityCode, operator, comment);
-
-					recordService.recordChange(diffAmount, su, activityCode, comment, operator);
 					manageStockService.onStockAmountChange(su, amountOld);
 					if( sendNotify ) {
-						hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, LOSStockUnitRecordType.STOCK_ALTERED, activityCode));
+						hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, InventoryJournalRecordType.CHANGED, activityCode));
 					}
 				} else {
 					journalHandler.recordChangeAmount(su.getClient(), su, diffAmount, activityCode, operator, comment);
-
-					recordService.recordRemoval(diffAmount, su, activityCode, comment, operator);
 					manageStockService.onStockAmountChange(su, amountOld);
 					if( sendNotify ) {
-						hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, LOSStockUnitRecordType.STOCK_REMOVED, activityCode));
+						hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, InventoryJournalRecordType.REMOVED, activityCode));
 					}
 				}
 			}
@@ -787,8 +767,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 		journalHandler.recordTransferStock(su, old, old.getStorageLocation(), activityCode, operator, null);
 		
-		recordService.recordTransfer(su, old, dest, activityCode, comment, operator);
-
 		switch (dest.getPackageType()) {
 		case MIXED_CONSOLIDATE:
 		case OF_SAME_ITEMDATA_CONSOLIDATE:
@@ -1258,13 +1236,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 			String operator = contextService.getCallerUserName();
 			journalHandler.recordChangeAmount(su.getClient(), su, amountOld.negate(), activityCode, operator, null);
-
-			recordService.recordRemoval(amountOld.negate(), su, activityCode);
 			manageStockService.onStockAmountChange(su, amountOld);
 
 			if( sendNotify ) {
 				try{
-					hostService.sendMsg( new HostMsgStock(su, amountOld.negate(), null, LOSStockUnitRecordType.STOCK_REMOVED, activityCode) );
+					hostService.sendMsg( new HostMsgStock(su, amountOld.negate(), null, InventoryJournalRecordType.REMOVED, activityCode) );
 				}
 				catch( FacadeException e ) {
 					throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, e.getLocalizedMessage());

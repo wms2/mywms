@@ -17,9 +17,9 @@ public class HostMsgStock extends HostMsg{
 	private String unitLoadLabel;
 	private String operator;
 	private String activityCode;
-	private LOSStockUnitRecordType recordType;
+	private String recordType;
 
-	public HostMsgStock( StockUnit su, BigDecimal amount, String operator, LOSStockUnitRecordType recordType, String activityCode ) {
+	public HostMsgStock( StockUnit su, BigDecimal amount, String operator, String recordType, String activityCode ) {
 		this.itemData = su.getItemData();
 		this.amount = amount;
 		this.lot = su.getLot();
@@ -95,11 +95,11 @@ public class HostMsgStock extends HostMsg{
 		this.activityCode = activityCode;
 	}
 
-	public LOSStockUnitRecordType getRecordType() {
+	public String getRecordType() {
 		return recordType;
 	}
 
-	public void setRecordType(LOSStockUnitRecordType recordType) {
+	public void setRecordType(String recordType) {
 		this.recordType = recordType;
 	}
 
