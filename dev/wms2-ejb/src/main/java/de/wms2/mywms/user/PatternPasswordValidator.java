@@ -27,10 +27,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.User;
-import org.mywms.res.BundleResolver;
 
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.util.Wms2BundleResolver;
 import de.wms2.mywms.util.Wms2Properties;
 
 /**
@@ -60,7 +60,7 @@ public class PatternPasswordValidator implements PasswordValidator {
 			Matcher matcher = pattern.matcher(password);
 			if (!matcher.matches()) {
 				logger.log(Level.INFO, logStr + "Password does not match the policy expression. user=" + user);
-				throw new BusinessException(BundleResolver.class, "Validator.invalidPassword");
+				throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidPassword");
 			}
 		}
 

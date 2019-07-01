@@ -97,11 +97,10 @@ public class UserCRUDBean extends BusinessObjectCRUDBean<User> implements UserCR
     	String password = entity.getPassword();
     	User user = manager.find(User.class, entity.getId());
     	if (!user.getPassword().equals(entity.getPassword())){
-    		Locale locale = userBusiness.getCurrentUsersLocale();
     		try {
 				userBusiness.changePassword(entity, password, true);
 			} catch (BusinessException e) {
-				throw new FacadeException(e.getLocalizedMessage(locale), null, new Object[] {});
+				throw e.toFacadeException();
 			}
     	}
     	super.update(entity);

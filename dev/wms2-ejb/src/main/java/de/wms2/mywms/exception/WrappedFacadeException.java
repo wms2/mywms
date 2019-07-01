@@ -32,8 +32,7 @@ public class WrappedFacadeException extends BusinessException {
 	private static final long serialVersionUID = 1L;
 
 	public WrappedFacadeException(FacadeException facadeException) {
-		super(facadeException.getBundleResolver(),
-				facadeException.getBundleResolver().getPackage().getName() + ".Bundle", facadeException.getKey(),
+		super(facadeException.getBundleResolver(), facadeException.getBundleName(), facadeException.getKey(),
 				facadeException.getParameters());
 	}
 }
