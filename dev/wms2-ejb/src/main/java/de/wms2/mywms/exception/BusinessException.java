@@ -22,6 +22,8 @@ import java.util.Locale;
 
 import javax.ejb.ApplicationException;
 
+import org.mywms.facade.FacadeException;
+
 import de.wms2.mywms.util.Translator;
 
 
@@ -121,4 +123,11 @@ public class BusinessException extends java.lang.Exception {
 	public Class<?> getBundleResolver() {
 		return this.bundleResolver;
 	}
+
+	public FacadeException toFacadeException() {
+		FacadeException facadeException = new FacadeException(getMessage(), getMessage(), new Object[] {}, getBundleResolver());
+		facadeException.setBundleName("translation.Bundle");
+		return facadeException;
+	}
+
 }

@@ -190,8 +190,8 @@
             </file>
         </folder>
         <folder name="TransactionData">
-            <file name="de-linogistix-inventory-browser-bo-BOLOSStockUnitRecord.instance">
-                <attr name="position" intvalue="900"/>
+            <file name="de-linogistix-inventory-browser-bo-BOInventoryJournal.instance">
+                <attr name="position" intvalue="100"/>
             </file>
         </folder>
         

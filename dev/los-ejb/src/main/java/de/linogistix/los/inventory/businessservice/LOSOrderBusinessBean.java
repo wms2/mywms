@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
@@ -32,12 +33,12 @@ import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
-import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
@@ -72,12 +73,12 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	@EJB
 	private LOSStorageLocationService locationService;
 	@EJB
-	private LOSStockUnitRecordService recordService;
-	@EJB
 	private LOSInventoryComponent invComponent;
 	@EJB
 	private ManageOrderService manageOrderService;
-	
+	@Inject
+	private JournalHandler journalHandler;
+
     public LOSCustomerOrder finishCustomerOrder(LOSCustomerOrder customerOrder) throws FacadeException {
 		String logStr = "finishCustomerOrder ";
 		log.debug(logStr+"orderNumber="+customerOrder.getNumber());
@@ -686,7 +687,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				if( pickFromLocation.getUnitLoads().size()<2 ) {
 					pickFromLocation.setStockTakingDate(new Date());
 				}
-				recordService.recordCounting(pickFromStock, pickFromUnitLoad, pickFromLocation, activityCode, null,null);
+				String operator = contextService.getCallerUserName();
+				journalHandler.recordCounting(pickFromStock, pickFromUnitLoad, pickFromLocation, activityCode, operator, null);
 			}
 		}
 

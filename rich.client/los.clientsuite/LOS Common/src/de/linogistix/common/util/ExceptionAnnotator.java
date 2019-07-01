@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import javax.persistence.OptimisticLockException;
 import org.hibernate.StaleObjectStateException;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.BusinessException;
 import org.mywms.service.ServiceException;
 import org.openide.ErrorManager;
 
@@ -84,7 +83,6 @@ public final class ExceptionAnnotator {
     while ((cause=ret.getCause()) != null){
       ret = cause;
       if (ret instanceof FacadeException) break;
-      if (ret instanceof BusinessException) break;
       if (ret instanceof ServiceException) break;
 //      if (ret instanceof EJBAccessException) break;
     }
@@ -116,9 +114,6 @@ public final class ExceptionAnnotator {
         bex = (FacadeException)x;
 //    } else if (x instanceof EJBAccessException){
 //      bex = new AuthentificationException();
-    } else if (x instanceof BusinessException){
-        BusinessException b = (BusinessException)x;
-        bex = new InternalErrorException(resolveBusinessException(b));
     } else if (x instanceof StaleObjectStateException){
         Class[] bundleResolvers;
         bundleResolvers = new Class[]{CommonBundleResolver.class};
@@ -132,20 +127,5 @@ public final class ExceptionAnnotator {
     }
     return bex;
   }
-  
-  public static String resolveBusinessException(BusinessException ex){
-    String ret = ex.getMessage();
-    
-    for (Object elem : businessExProps.keySet()) {
-      String s = (String)elem;
-      s = s.trim();
-      Pattern p = Pattern.compile(s);
-      Matcher m = p.matcher(ex.getMessage());
-      if (m.matches()){
-        ret = BundleResolve.resolve(new Class[]{CommonBundleResolver.class},
-                businessExProps.getProperty(s), null);
-      }
-    }
-    return ret;
-  }
+
 }

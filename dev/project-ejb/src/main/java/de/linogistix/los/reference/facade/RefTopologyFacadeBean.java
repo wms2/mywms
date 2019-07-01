@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
@@ -37,7 +38,6 @@ import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemDataService;
@@ -54,6 +54,7 @@ import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
+import de.linogistix.los.model.Prio;
 import de.linogistix.los.reference.model.ProjectPropertyKey;
 import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
 import de.linogistix.los.util.StringTools;
@@ -68,9 +69,11 @@ import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.module.ModuleSetup.SetupLevel;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.property.SystemProperty;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
 import de.wms2.mywms.strategy.ZoneEntityService;
@@ -167,7 +170,16 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		log.info("Create Properties...");
 		Client sys = clientService.getSystemClient();
 		propertyService.createSystemProperty(sys, null, ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, "true", Wms2Properties.GROUP_SETUP, resolve("PropertyDescCREATE_DEMO_TOPOLOGY"), true);
-	
+		String setupPropertyKey = "SETUP:de.linogistix.los.reference";
+		SystemProperty setupProperty = propertyService.getByKey(setupPropertyKey);
+		if (setupProperty != null
+				&& StringUtils.equals(setupProperty.getPropertyValue(), SetupLevel.UNINITIALIZED.name())) {
+			try {
+				propertyService.setValue(setupPropertyKey, SetupLevel.INITIALIZED.name());
+			} catch (UnAuthorizedException e) {
+			}
+		}
+
 		log.info("Create Basic Data. done.");
 	}
 	
@@ -276,16 +288,16 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 
 		log.info("Create ItemData...");
 		
-		ItemData printer1 = createItemData(sys, resolve("CustomerItemData1Number"), resolve("CustomerItemData1Name"), resolve("CustomerItemData1Desc"), pce, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140);
-		ItemData printer2 = createItemData(sys, resolve("CustomerItemData2Number"), resolve("CustomerItemData2Name"), resolve("CustomerItemData2Desc"), pce, false, SerialNoRecordType.GOODS_OUT_RECORD, zoneSysA, euro140);
-		ItemData paper1 = createItemData(sys, resolve("CustomerItemData3Number"), resolve("CustomerItemData3Name"), resolve("CustomerItemData3Desc"), pack, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140);
+		ItemData printer1 = createItemData(sys, resolve("CustomerItemData1Number"), resolve("CustomerItemData1Name"), resolve("CustomerItemData1Desc"), pce, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140, new BigDecimal("0.35"), new BigDecimal("0.4"), new BigDecimal("0.5"), new BigDecimal("4.3") );
+		ItemData printer2 = createItemData(sys, resolve("CustomerItemData2Number"), resolve("CustomerItemData2Name"), resolve("CustomerItemData2Desc"), pce, false, SerialNoRecordType.GOODS_OUT_RECORD, zoneSysA, euro140, new BigDecimal("0.5"), new BigDecimal("0.4"), new BigDecimal("0.5"), new BigDecimal("5.6"));
+		ItemData paper1 = createItemData(sys, resolve("CustomerItemData3Number"), resolve("CustomerItemData3Name"), resolve("CustomerItemData3Desc"), pack, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140, new BigDecimal("0.05"), new BigDecimal("0.22"), new BigDecimal("0.3"), new BigDecimal("2.7"));
 		createEAN(paper1, "12345678");
-		ItemData paper2 = createItemData(sys, resolve("CustomerItemData4Number"), resolve("CustomerItemData4Name"), resolve("CustomerItemData4Desc"), pack, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140);
-		ItemData toner1 = createItemData(sys, resolve("CustomerItemData5Number"), resolve("CustomerItemData5Name"), resolve("CustomerItemData5Desc"), pce, true, SerialNoRecordType.NO_RECORD, zoneSysA, euro140);
+		ItemData paper2 = createItemData(sys, resolve("CustomerItemData4Number"), resolve("CustomerItemData4Name"), resolve("CustomerItemData4Desc"), pack, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140, new BigDecimal("0.06"), new BigDecimal("0.22"), new BigDecimal("0.3"), new BigDecimal("3.5"));
+		ItemData toner1 = createItemData(sys, resolve("CustomerItemData5Number"), resolve("CustomerItemData5Name"), resolve("CustomerItemData5Desc"), pce, true, SerialNoRecordType.NO_RECORD, zoneSysA, euro140, new BigDecimal("0.12"), new BigDecimal("0.30"), new BigDecimal("0.08"), new BigDecimal("0.4"));
 		createEAN(toner1, "12312312");
-		ItemData toner2 = createItemData(sys, resolve("CustomerItemData6Number"), resolve("CustomerItemData6Name"), resolve("CustomerItemData6Desc"), pce, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140);
-		ItemData screw1 = createItemData(sys, resolve("CustomerItemData7Number"), resolve("CustomerItemData7Name"), resolve("CustomerItemData7Desc"), gramm, false, SerialNoRecordType.NO_RECORD, zoneSysA, kltType60);
-		createItemData(sys, resolve("CustomerItemData8Number"), resolve("CustomerItemData8Name"), resolve("CustomerItemData8Desc"), gramm, false, SerialNoRecordType.NO_RECORD, zoneSysA, kltType60);
+		ItemData toner2 = createItemData(sys, resolve("CustomerItemData6Number"), resolve("CustomerItemData6Name"), resolve("CustomerItemData6Desc"), pce, false, SerialNoRecordType.NO_RECORD, zoneSysA, euro140, new BigDecimal("0.12"), new BigDecimal("0.30"), new BigDecimal("0.20"), new BigDecimal("0.6"));
+		ItemData screw1 = createItemData(sys, resolve("CustomerItemData7Number"), resolve("CustomerItemData7Name"), resolve("CustomerItemData7Desc"), gramm, false, SerialNoRecordType.NO_RECORD, zoneSysA, kltType60, new BigDecimal("0.02"), new BigDecimal("0.01"), new BigDecimal("0.01"), new BigDecimal("0.001"));
+		createItemData(sys, resolve("CustomerItemData8Number"), resolve("CustomerItemData8Name"), resolve("CustomerItemData8Desc"), gramm, false, SerialNoRecordType.NO_RECORD, zoneSysA, kltType60, new BigDecimal("0.02"), new BigDecimal("0.01"), new BigDecimal("0.01"), new BigDecimal("0.001"));
 		
 		
 		
@@ -325,8 +337,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		createOrder( sys, printer1, new BigDecimal(1), null, null );
 		createOrder( sys, printer1, new BigDecimal(1), paper1, new BigDecimal(1) );
 		createOrder( sys, printer2, new BigDecimal(1), paper1, new BigDecimal(1) );
-		createOrder( sys, paper1, new BigDecimal(10), toner1, new BigDecimal(1) );
-		createOrder( sys, paper1, new BigDecimal(10), toner1, new BigDecimal(1) );
+		createOrder( sys, paper1, new BigDecimal(5), toner1, new BigDecimal(1) );
+		createOrder( sys, paper1, new BigDecimal(5), toner2, new BigDecimal(2) );
 		
 		log.info("Create Stocktaking...");
 		createStocktaking( sys, "A1-01%1");
@@ -457,7 +469,9 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		}
 	}
 
-	private ItemData createItemData(Client client, String number, String name, String descr, ItemUnit unit, boolean lotMandatory, SerialNoRecordType serialType, Zone zone, UnitLoadType type) {
+	private ItemData createItemData(Client client, String number, String name, String descr, ItemUnit unit,
+			boolean lotMandatory, SerialNoRecordType serialType, Zone zone, UnitLoadType type, BigDecimal height,
+			BigDecimal width, BigDecimal depth, BigDecimal weight) {
 		ItemData itemData = null;
 		itemData = itemDataService.getByItemNumber(client, number);
 		if( itemData == null ) {
@@ -476,6 +490,10 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		itemData.setZone(zone);
 		itemData.setTradeGroup( resolve("ItemDataTradeGroup"));
 		itemData.setDefaultUnitLoadType(type);
+		itemData.setHeight(height);
+		itemData.setWidth(width);
+		itemData.setDepth(depth);
+		itemData.setWeight(weight);
 		return itemData;
 	}
 	
@@ -584,7 +602,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 				StorageLocation loc = locList.get(0);
 				locName = loc.getName();
 			}
-			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null, null, locName, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, false, null );
+			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null, null, locName, null, new Date(), Prio.NORMAL, true, false, null );
 
 		} catch (Exception e) {
 			log.error("Error creating Order: "+e.getMessage(), e);

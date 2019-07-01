@@ -99,9 +99,6 @@
             <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.location.res.Bundle"/>
             <attr name="position" intvalue="500"/>
             
-            <file name="de-linogistix-location-bobrowser-bo-BOLOSUnitLoadRecord.instance">
-                <attr name="position" intvalue="1000"/>
-            </file>
         </folder>
     </folder>
 </filesystem>

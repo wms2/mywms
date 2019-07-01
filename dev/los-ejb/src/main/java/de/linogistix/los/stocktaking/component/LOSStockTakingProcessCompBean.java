@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -31,7 +32,6 @@ import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.location.businessservice.LOSStorage;
@@ -51,6 +51,7 @@ import de.linogistix.los.stocktaking.model.LOSStocktakingRecord;
 import de.linogistix.los.stocktaking.model.LOSStocktakingState;
 import de.linogistix.los.stocktaking.service.QueryStockTakingOrderService;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
@@ -112,14 +113,14 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	private LOSUnitLoadService ulService;
 	
 	@EJB
-	private LOSStockUnitRecordService recordService;
-
-	@EJB
 	private EntityGenerator entityGenerator;
 	
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
-	
+
+	@Inject
+	private JournalHandler journalHandler;
+
 	
 	/*
 	 * (non-Javadoc)
@@ -247,7 +248,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 				sl.setStockTakingDate(Calendar.getInstance().getTime());
 				sl.setLock(0);
-				recordService.recordCounting(null, null, sl, "ST "+so.getId().toString(), null, so.getOperator());
+				journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), so.getOperator(), null);
 
 			}
 		} else {
@@ -726,16 +727,16 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 			for (UnitLoad ul : ulList) {
 				ul.setStockTakingDate(Calendar.getInstance().getTime());
-				recordService.recordCounting(null, ul, sl, "ST "+so.getId().toString(), null, so.getOperator());
+				journalHandler.recordCounting(null, ul, sl, "ST "+so.getId().toString(), so.getOperator(), null);
 				
 				for( StockUnit su : ul.getStockUnitList() ) {
-					recordService.recordCounting(su, ul, sl, "ST "+so.getId().toString(), null, so.getOperator());
+					journalHandler.recordCounting(su, ul, sl, "ST "+so.getId().toString(), so.getOperator(), null);
 				}
 			}
 
 			sl.setStockTakingDate(Calendar.getInstance().getTime());
 			sl.setLock(0);
-			recordService.recordCounting(null, null, sl, "ST "+so.getId().toString(), null, so.getOperator());
+			journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), so.getOperator(), null);
 
 			for (LOSStocktakingOrder sot : soList) {
 
@@ -970,19 +971,19 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			sl.setStockTakingDate( new Date() );
 			sl.setLock(0);
 			stOrder.getStockTaking();
-			recordService.recordCounting(null, null, sl, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
+			journalHandler.recordCounting(null, null, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
 
 			for( UnitLoad ul : sl.getUnitLoads() ) {
 				if( !ul.getStorageLocation().equals(sl) ) {
 					continue;
 				}
-				recordService.recordCounting(null, ul, sl, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
+				journalHandler.recordCounting(null, ul, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
 				
 				for( StockUnit su : ul.getStockUnitList() ) {
 					if( !su.getUnitLoad().equals(ul) ) {
 						continue;
 					}
-					recordService.recordCounting(su, ul, sl, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
+					journalHandler.recordCounting(su, ul, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
 				}
 			}
 		}

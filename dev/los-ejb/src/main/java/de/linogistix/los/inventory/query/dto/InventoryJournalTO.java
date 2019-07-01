@@ -1,81 +1,75 @@
-/*
- * Copyright (c) 2006 - 2012 LinogistiX GmbH
- * 
- *  www.linogistix.com
- *  
- *  Project myWMS-LOS
- */
+/* 
+Copyright 2019 Matthias Krane
+
+This file is part of the Warehouse Management System mywms
+
+mywms is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+ 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-import de.linogistix.los.inventory.model.LOSStockUnitRecord;
-import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.inventory.InventoryJournal;
 
-public class LOSStockUnitRecordTO extends BODTO<LOSStockUnitRecord> {
+public class InventoryJournalTO extends BODTO<InventoryJournal> {
 
 	private static final long serialVersionUID = 1L;
 
 	public String itemData;
-	
+
 	public String lot;
-	
-	public String fromSu;
+
 	public String fromSl;
 	public String fromUl;
-	
-	public String toSu;
+
 	public String toSl;
 	public String toUl;
-	
+
 	public BigDecimal amount;
 	public BigDecimal amountStock;
-	
+
 	public String activityCode;
 	public String type;
 	private String unitLoadType;
 	private Date recordDate;
 
-	public LOSStockUnitRecordTO(LOSStockUnitRecord rec) {
-		this(rec.getId(), rec.getVersion(), rec.getId(), rec.getItemData(), rec.getLot(), rec.getAmount(), rec.getAmountStock(), rec.getFromStockUnitIdentity(), rec.getFromStorageLocation(), rec.getFromUnitLoad(), rec.getToStockUnitIdentity(), rec.getToStorageLocation(), rec.getToUnitLoad(), rec.getActivityCode(), rec.getType(), rec.getCreated(), rec.getUnitLoadType());
+	public InventoryJournalTO(InventoryJournal rec) {
+		this(rec.getId(), rec.getVersion(), rec.getId(), rec.getProductNumber(), rec.getLotNumber(), rec.getAmount(),
+				rec.getStockUnitAmount(), rec.getFromStorageLocation(), rec.getFromUnitLoad(),
+				rec.getToStorageLocation(), rec.getToUnitLoad(), rec.getActivityCode(), rec.getRecordType(),
+				rec.getCreated(), rec.getUnitLoadType());
 	}
-	
-	public LOSStockUnitRecordTO(Long id, int version, Long name, String itemData, String lot,BigDecimal amount, BigDecimal amountStock, String fromSu, String fromSl, String fromUl, String toSu, String toSl, String toUl, String activityCode, LOSStockUnitRecordType type){
+
+	public InventoryJournalTO(Long id, int version, Long name, String itemData, String lot, BigDecimal amount,
+			BigDecimal amountStock, String fromSl, String fromUl, String toSl, String toUl, String activityCode,
+			String type, Date recordDate, String unitLoadType) {
 		super(id, version, name);
 		this.itemData = itemData;
 		this.lot = lot;
-		this.fromSu = fromSu;
 		this.fromSl = fromSl;
 		this.fromUl = fromUl;
-		this.toSu = toSu;
 		this.toSl = toSl;
 		this.toUl = toUl;
 		this.amount = amount;
 		this.amountStock = amountStock;
 		this.activityCode = activityCode;
-		this.type = type.name();
-		setClassName(LOSStockUnitRecord.class.getName());
-	}
-	
-	public LOSStockUnitRecordTO(Long id, int version, Long name, String itemData, String lot,BigDecimal amount, BigDecimal amountStock, String fromSu, String fromSl, String fromUl, String toSu, String toSl, String toUl, String activityCode, LOSStockUnitRecordType type, Date recordDate, String unitLoadType){
-		super(id, version, name);
-		this.itemData = itemData;
-		this.lot = lot;
-		this.fromSu = fromSu;
-		this.fromSl = fromSl;
-		this.fromUl = fromUl;
-		this.toSu = toSu;
-		this.toSl = toSl;
-		this.toUl = toUl;
-		this.amount = amount;
-		this.amountStock = amountStock;
-		this.activityCode = activityCode;
-		this.type = type.name();
+		this.type = type;
 		this.unitLoadType = unitLoadType;
-		this.recordDate=recordDate;
-		setClassName(LOSStockUnitRecord.class.getName());
+		this.recordDate = recordDate;
+		setClassName(InventoryJournal.class.getName());
 	}
 
 	public String getItemData() {
@@ -94,15 +88,6 @@ public class LOSStockUnitRecordTO extends BODTO<LOSStockUnitRecord> {
 		this.lot = lot;
 	}
 
-	
-	public String getFromSu() {
-		return fromSu;
-	}
-
-	public void setFromSu(String fromSu) {
-		this.fromSu = fromSu;
-	}
-
 	public String getFromSl() {
 		return fromSl;
 	}
@@ -117,14 +102,6 @@ public class LOSStockUnitRecordTO extends BODTO<LOSStockUnitRecord> {
 
 	public void setFromUl(String fromUl) {
 		this.fromUl = fromUl;
-	}
-
-	public String getToSu() {
-		return toSu;
-	}
-
-	public void setToSu(String toSu) {
-		this.toSu = toSu;
 	}
 
 	public String getToSl() {
@@ -191,6 +168,4 @@ public class LOSStockUnitRecordTO extends BODTO<LOSStockUnitRecord> {
 		this.recordDate = recordDate;
 	}
 
-
-	
 }

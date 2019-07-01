@@ -1,9 +1,21 @@
-/*
- * Copyright (c) 2006 LinogistiX GmbH. All rights reserved.
- *
- *<a href="http://www.linogistix.com/">browse for licence information</a>
- *
- */
+/* 
+Copyright 2019 Matthias Krane
+
+This file is part of the Warehouse Management System mywms
+
+mywms is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+ 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 package de.linogistix.inventory.browser.masternode;
 
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
@@ -12,7 +24,7 @@ import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.res.CommonBundleResolver;
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
-import de.linogistix.los.inventory.query.dto.LOSStockUnitRecordTO;
+import de.linogistix.los.inventory.query.dto.InventoryJournalTO;
 import de.linogistix.los.query.BODTO;
 import java.beans.IntrospectionException;
 import java.math.BigDecimal;
@@ -21,18 +33,17 @@ import org.openide.nodes.Node.PropertySet;
 import org.openide.nodes.Sheet;
 
 /**
- * A {@link BOMasterDevice} for BasicEnity {@link Device}.
  *
- * @author trautm
+ * @author krane
  */
-public class BOStockUnitRecordMasterNode extends BOMasterNode {
+public class BOInventoryJournalMasterNode extends BOMasterNode {
 
-    LOSStockUnitRecordTO recordTo;
+    InventoryJournalTO recordTo;
 
     /** Creates a new instance of BODeviceNode */
-    public BOStockUnitRecordMasterNode(BODTO d, BO bo) throws IntrospectionException {
+    public BOInventoryJournalMasterNode(BODTO d, BO bo) throws IntrospectionException {
         super(d, bo);
-        recordTo = (LOSStockUnitRecordTO) d;
+        recordTo = (InventoryJournalTO) d;
   
     }
 
@@ -47,23 +58,12 @@ public class BOStockUnitRecordMasterNode extends BOMasterNode {
         return recordTo.getName();
     }
 
-    
-    //    @Override
-//    public Image getIcon(int arg0) {
-//        if (to.lock > 0){
-//            ImageIcon img = new ImageIcon(super.getIcon(arg0));
-//            LockedIcon decorated = new LockedIcon(img);
-//            return decorated.getImage();
-//        } else {
-//            return super.getIcon(arg0);
-//        }
-//    }
     @Override
     public PropertySet[] getPropertySets() {
 
         if (sheet == null) {
             sheet = new Sheet.Set();
-            BOMasterNodeProperty<String> type = new BOMasterNodeProperty<String>("type", String.class, "LOSStockUnitRecordType."+recordTo.getType(), InventoryBundleResolver.class, true);
+            BOMasterNodeProperty<String> type = new BOMasterNodeProperty<String>("type", String.class, recordTo.getType(), InventoryBundleResolver.class);
             sheet.put(type);
             BOMasterNodeProperty<String> activityCode = new BOMasterNodeProperty<String>("activityCode", String.class, recordTo.getActivityCode(), InventoryBundleResolver.class);
             sheet.put(activityCode);

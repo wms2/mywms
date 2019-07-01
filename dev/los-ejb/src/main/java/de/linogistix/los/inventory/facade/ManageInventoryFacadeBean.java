@@ -474,8 +474,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		try {
 			inventoryBusiness.changePackagingUnit(stockUnit, packagingUnit);
 		} catch (BusinessException e) {
-			// TODO krane Factory bauen und testen
-			throw new FacadeException(e.getMessage(), e.getMessage(), new Object[] {}, e.getBundleResolver());
+			throw e.toFacadeException();
 		}
 
 		inventoryComponent.changeReservedAmount(stockUnit, reserved, s);

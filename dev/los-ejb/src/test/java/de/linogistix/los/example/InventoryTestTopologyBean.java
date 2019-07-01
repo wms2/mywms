@@ -42,7 +42,6 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSStockUnitRecord;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
@@ -53,7 +52,6 @@ import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptPositionQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
 import de.linogistix.los.inventory.query.LOSPickingOrderQueryRemote;
-import de.linogistix.los.inventory.query.LOSStockUnitRecordQueryRemote;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.inventory.query.LOSUnitLoadAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LotQueryRemote;
@@ -120,8 +118,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	private ItemUnitQueryRemote itemUnitQuery;
 	@EJB
 	private LotQueryRemote lotQuery;
-	@EJB
-	private LOSStockUnitRecordQueryRemote suRecordQuery;
 	@EJB
 	private LOSPickingOrderQueryRemote pickQuery;
 	@EJB
@@ -367,8 +363,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			clearAdvices();
 			
 			clearStockUnits();
-			
-			clearStockUnitRecords();
 			
 			clearLots();
 			clearFixedLocationAssignments();
@@ -640,36 +634,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 
 	}
 
-	private void clearStockUnitRecords() throws InventoryTopologyException {
-		// Delete LogItems
-		initClient();
-		try {
-			QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-			TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			TemplateQueryWhereToken t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			TemplateQuery q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(LOSStockUnitRecord.class);
-
-			List<LOSStockUnitRecord> l = suRecordQuery.queryByTemplate(d, q);
-			for (LOSStockUnitRecord u : l) {
-				u = em.find(LOSStockUnitRecord.class, u.getId());
-				em.remove(u);
-			}
-			em.flush();
-		} catch (Throwable e) {
-			log.error(e, e);
-			throw new InventoryTopologyException();
-		}
-
-	}
-	
 	private void clearStockUnits() throws InventoryTopologyException {
 
 		initClient();

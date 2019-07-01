@@ -12,7 +12,7 @@
             </value>
         </entry>
         <entry>
-            <key>type</key>
+            <key>recordType</key>
             <value>
                 <group>
                     <name>main</name>
@@ -32,7 +32,7 @@
             </value>
         </entry>
         <entry>
-            <key>itemData</key>
+            <key>productNumber</key>
             <value>
                 <group>
                     <name>main</name>
@@ -52,7 +52,7 @@
             </value>
         </entry>
         <entry>
-            <key>lot</key>
+            <key>lotNumber</key>
             <value>
                 <group>
                     <name>main</name>
@@ -82,23 +82,13 @@
             </value>
         </entry>
         <entry>
-            <key>amountStock</key>
+            <key>stockUnitAmount</key>
             <value>
                 <group>
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
                 <position>9</position>
-            </value>
-        </entry>
-        <entry>
-            <key>fromStockUnitIdentity</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>20</position>
             </value>
         </entry>
         <entry>
@@ -119,16 +109,6 @@
                 </group>
                 <hidden>false</hidden>
                 <position>22</position>
-            </value>
-        </entry>
-        <entry>
-            <key>toStockUnitIdentity</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>23</position>
             </value>
         </entry>
         <entry>
@@ -158,7 +138,37 @@
                     <name>main</name>
                 </group>
                 <hidden>true</hidden>
-                <position>30</position>
+                <position>99</position>
+            </value>
+        </entry>
+        <entry>
+            <key>bestBefore</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+        <entry>
+            <key>productName</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+        <entry>
+            <key>unitName</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
             </value>
         </entry>
 
