@@ -33,13 +33,13 @@ import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
-import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -1032,7 +1032,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			storage.transferUnitLoad(contextService.getCallerUserName(), destination, pickingUnitLoad.getUnitLoad(), 0, true, null, null);
 		}
 		
-		pickingUnitLoad.getUnitLoad().setLock(StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());
+		pickingUnitLoad.getUnitLoad().setState(StockState.PICKED);
 		int stateOld = pickingUnitLoad.getState();
 		if( state>0 && stateOld<state ) {
 			pickingUnitLoad.setState(state);
@@ -1141,7 +1141,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		else {
 			pickToStock = invComponent.splitStock(pickFromStock, pickToUnitLoad, amountPicked, activityCode);
 		}
-		pickToStock.setLock(StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());
+		pickToStock.setState(StockState.PICKED);
 		
 		return pickToStock;
 	}

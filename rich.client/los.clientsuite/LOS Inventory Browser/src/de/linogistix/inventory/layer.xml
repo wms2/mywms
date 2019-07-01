@@ -35,6 +35,11 @@
                     <file name="de-linogistix-inventory-browser-action-BOAdviceRemoveAction.instance"/>
                 </folder>
             </folder>
+            <folder name="LOSGoodsReceipts">
+                <folder name="MasterActions">
+                    <file name="de-linogistix-inventory-browser-action-BOGoodsReceiptFinishAction.instance"/>
+                </folder>
+            </folder>
 
             <folder name="CustomerOrders">
                 <folder name="MasterActions">

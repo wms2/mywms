@@ -28,6 +28,7 @@ import de.linogistix.los.entityservice.BusinessObjectLock;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.linogistix.los.location.crud.LOSUnitLoadCRUDRemote;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -179,4 +180,24 @@ public class BOLOSUnitLoad extends BO {
 
         return ret;
     }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(StockState.INCOMING);
+            entryList.add(StockState.ON_STOCK);
+            entryList.add(StockState.PICKED);
+            entryList.add(StockState.SHIPPED);
+            entryList.add(StockState.DELETABLE);
+            return entryList;
+        }
+        return super.getValueList(fieldName);
+    }
+
+    @Override
+    public String getBundlePrefix() {
+        return this.getClass().getSimpleName();
+    }
+
 }
