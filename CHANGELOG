@@ -167,3 +167,48 @@ Release 2.1
         There is an upgrade script for postgres database structure
         But have in mind: This script comes without any warranty!
         We recommend to compare the automatically generated database structure with the existing database structure and manually adjust them.
+
+
+
+
+Release 2.2
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    StockUnit and UnitLoad got a state
+        - The state differs between incoming- ,outgoing and on-stock material.
+        - Only on-stock material is available for picking.
+        - After finishing the goods receipt process, the material will get the on-stock state.
+        - After picking the material will get the outgoing state.
+    Do not lock picked material
+        - The state differs between incoming- ,on-stock and outgoing material.
+        - Normal operations are possible for outgoing material. For example store pre-picked material until delivery on regular storage-locations.
+    Only one journal for stock unit and unit load changes
+
+    Functional changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - The state of UnitLoad and StockUnit is maintained by the existing processes.
+    - Material is only available for replenish and picking processes after finishing the goods receipt processes.
+    - After picking the material it is excluded from normal 'on-stock' operations.
+
+
+    Technical changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Changed database entities and attributes
+        - StockUnit got new attribute 'state'
+        - UnitLoad got new attribute 'state'
+    - The setup of the modules starts automatically on the first deployment
+
+    Bugfixes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Switch to Release 2.2
+    -------------------------------------------------------------------------------
+    - Some business-services and -facades got new state-parameters. Add suitable values from StockState...
+
+    - Upgrade existing database structures
+        There is an upgrade script for postgres database structure
+        But have in mind: This script comes without any warranty!
+        We recommend to compare the automatically generated database structure with the existing database structure and manually adjust them.
