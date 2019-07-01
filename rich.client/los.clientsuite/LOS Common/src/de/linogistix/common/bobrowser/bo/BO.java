@@ -146,6 +146,11 @@ public abstract class BO implements Serializable, FileChangeListener {
         }
         return null;
     }
+
+    public String getBundlePrefix() {
+        return null;
+    }
+
     //-------------------------------------------------------------
 
     protected abstract BusinessObjectQueryRemote initQueryService();

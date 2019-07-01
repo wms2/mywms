@@ -52,6 +52,9 @@ public class BOEntityQueryNode extends BOEntityNodeReadOnly{
       return BOLockEditorI18N.class;
     } else if (p.getPropertyType().isPrimitive() && this.bo.getValueList(p.getName())!=null){
       support.setValue("valueList", this.bo.getValueList(p.getName()));
+      if(this.bo.getBundlePrefix()!=null) {
+        support.setValue("bundlePrefix", this.bo.getBundlePrefix());
+      }
       support.setValue("bundleResolver", this.bo.getBundleResolver());
       return ComboPropertyEditor.class;
     }  else{

@@ -25,7 +25,6 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.mywms.facade.FacadeException;
 import org.mywms.model.BasicClientAssignedEntity;
 
 /**
@@ -67,8 +66,16 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 	private PackagingUnit packagingUnit;
 
 	@PreUpdate
+	public void preUpdate() {
+		super.preUpdate();
+		if (itemData != null && !itemData.getClient().equals(getClient())) {
+			setClient(itemData.getClient());
+		}
+	}
+
 	@PrePersist
-	public void preUpdate() throws FacadeException {
+	public void prePersist() {
+		super.prePersist();
 		if (itemData != null && !itemData.getClient().equals(getClient())) {
 			setClient(itemData.getClient());
 		}

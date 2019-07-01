@@ -41,6 +41,8 @@ import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.inventory.StockState;
+import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 
@@ -188,9 +190,26 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		List<UnitLoad> childList = unitLoadService.getChilds(ul); //ul.getUnitLoadList();
 		for( UnitLoad child : childList ) {
 			child.setLock(LOSUnitLoadLockState.SHIPPED.getLock());
+			child.setState(StockState.SHIPPED);
+			for(StockUnit stock:child.getStockUnitList()) {
+				stock.setLock(LOSUnitLoadLockState.SHIPPED.getLock());
+				int stockState = stock.getState();
+				if (stockState < StockState.SHIPPED) {
+					stock.setState(StockState.SHIPPED);
+				}
+			}
 		}
 
 		ul.setLock(LOSUnitLoadLockState.SHIPPED.getLock());
+		ul.setState(StockState.SHIPPED);
+		for(StockUnit stock:ul.getStockUnitList()) {
+			stock.setLock(LOSUnitLoadLockState.SHIPPED.getLock());
+			int stockState = stock.getState();
+			if (stockState < StockState.SHIPPED) {
+				stock.setState(StockState.SHIPPED);
+			}
+		}
+
 		boolean rename = propertyService.getBooleanDefault(out.getClient(), null, LOSInventoryPropertyKey.SHIPPING_RENAME_UNITLOAD, false);
 		if( rename ) {
 			String addOn = "-X-"+ul.getId();

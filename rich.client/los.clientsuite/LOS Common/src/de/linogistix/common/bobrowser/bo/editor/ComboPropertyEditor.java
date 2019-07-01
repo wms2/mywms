@@ -120,6 +120,7 @@ public class ComboPropertyEditor extends PropertyEditorSupport implements ExProp
         env.getFeatureDescriptor().setValue( "canEditAsText", Boolean.TRUE );
         
         Class bundleResolver = (Class) p.getValue("bundleResolver");
+        String bundlePrefix = (String) p.getValue("bundlePrefix");
 
         if( valueList == null ) {
             try {
@@ -128,7 +129,11 @@ public class ComboPropertyEditor extends PropertyEditorSupport implements ExProp
                 List<Object> entries = (List<Object>)p.getValue("valueList");
                 for( Object entry : entries ) {
                     String text = null;
-                    text = BundleResolve.resolve(new Class[]{bundleResolver,CommonBundleResolver.class},p.getName()+"."+entry.toString(), new Object[0], false);
+                    if(bundlePrefix!=null && bundlePrefix.length()>0) {
+                        text = BundleResolve.resolve(new Class[]{bundleResolver,CommonBundleResolver.class},bundlePrefix+"."+p.getName()+"."+entry.toString(), new Object[0], false);
+                    } else {
+                        text = BundleResolve.resolve(new Class[]{bundleResolver,CommonBundleResolver.class},p.getName()+"."+entry.toString(), new Object[0], false);
+                    }
                     if( text == null || text.length()==0 ) {
                         text = entry.toString();
                     }

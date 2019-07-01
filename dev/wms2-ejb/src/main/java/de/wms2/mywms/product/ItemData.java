@@ -33,7 +33,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.LotSubstitutionType;
@@ -192,8 +191,16 @@ public class ItemData extends BasicClientAssignedEntity {
 	}
 
 	@PreUpdate
+	public void preUpdate() {
+		super.preUpdate();
+		if (getAdditionalContent() != null && getAdditionalContent().length() > 255) {
+			setAdditionalContent(getAdditionalContent().substring(0, 255));
+		}
+	}
+
 	@PrePersist
-	public void preUpdate() throws FacadeException {
+	public void prePersist() {
+		super.prePersist();
 		if (getAdditionalContent() != null && getAdditionalContent().length() > 255) {
 			setAdditionalContent(getAdditionalContent().substring(0, 255));
 		}

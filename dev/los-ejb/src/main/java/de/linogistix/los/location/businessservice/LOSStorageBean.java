@@ -28,6 +28,7 @@ import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.model.LOSUnitLoadRecord;
 import de.linogistix.los.location.model.LOSUnitLoadRecordType;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -265,7 +266,13 @@ public class LOSStorageBean implements LOSStorage {
 		StorageLocation sl = slService.getNirwana();
 		transferUnitLoad(username, sl, u, -1, false, true, "", "");
 		u.setLock(BusinessObjectLockState.GOING_TO_DELETE.getLock());
+		u.setState(StockState.DELETABLE);
 		u.setLabelId(u.getLabelId() + "-X-" + u.getId());
+		for(StockUnit stockUnit:u.getStockUnitList()) {
+			int oldState = stockUnit.getState();
+			stockUnit.setLock(BusinessObjectLockState.GOING_TO_DELETE.getLock());
+			stockUnit.setState(StockState.DELETABLE);
+		}
 	}
 
 	public void sendToClearing(String username, UnitLoad existing)

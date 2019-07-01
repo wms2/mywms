@@ -24,13 +24,13 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.entityservice.BusinessObjectLock;
-import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.crud.StockUnitCRUDRemote;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -189,9 +189,23 @@ public class BOStockUnit extends BO {
 //        return super.getDefaultBOQueryProvider();
 //    }
     
-    
-    
-    
-    
-    
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(StockState.INCOMING);
+            entryList.add(StockState.ON_STOCK);
+            entryList.add(StockState.PICKED);
+            entryList.add(StockState.SHIPPED);
+            entryList.add(StockState.DELETABLE);
+            return entryList;
+        }
+        return super.getValueList(fieldName);
+    }
+
+    @Override
+    public String getBundlePrefix() {
+        return this.getClass().getSimpleName();
+    }
+
 }

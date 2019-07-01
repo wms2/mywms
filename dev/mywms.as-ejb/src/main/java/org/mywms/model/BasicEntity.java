@@ -163,9 +163,17 @@ public class BasicEntity
      * A callback method, used to update the modified date during update
      * operations regarding this entity.
      */
-    @PrePersist
     @PreUpdate
-    protected void updateModifiedDate() {
+    protected void preUpdate() {
+        modified = new Date();
+    }
+
+    /**
+     * A callback method, used to update the modified date during update
+     * operations regarding this entity.
+     */
+    @PrePersist
+    protected void prePersist() {
         modified = new Date();
     }
 
