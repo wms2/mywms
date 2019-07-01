@@ -14,7 +14,7 @@ Features:
 * Barcode/RFID identification, mobile terminals for paperless processes
 * Modular/ SOA architecture
 * Supported technologies: JEE7, Wildfly, Netbeans RCP, iReport, SOAP
-* Supports Wildfly 16 and Java 11
+* Supports Wildfly-17 and Java-11
 
 
 ## Sources
@@ -32,7 +32,7 @@ The first action is to set the project to an actual environment (2019)
 
 - Support of Java 11 runtime
 - Support of wildfly 16 version
-- Support of netbeans 10 rich client
+- Support of netbeans 11 rich client
 - Support of JasperReports 6
 - Change build system from ant to maven
 - Change version control from svn to git
@@ -49,7 +49,6 @@ This are only ideas of what could be done. There is no actual plan to do it at a
 Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
 
 - Advice as master/detail
-- Only one journal for stock unit and unit load changes
 - Add images and attachments to master data objects
 - Change-history
 - Configurable sequence numbers

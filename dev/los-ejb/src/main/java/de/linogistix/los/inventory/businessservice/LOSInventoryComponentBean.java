@@ -17,6 +17,7 @@ import java.util.Vector;
 import javax.ejb.EJB;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -67,6 +68,7 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
@@ -165,11 +167,16 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	private LocationReserver locationReserver;
 	@EJB
 	private ManageStockService manageStockService;
+	@Inject 
+	private JournalHandler journalHandler;
 	
 	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, PackagingUnit packagingUnit, UnitLoad unitLoad, String activityCode, String serialNumber) throws FacadeException {
 		return createStock(client, batch, item, amount, packagingUnit, unitLoad, activityCode, serialNumber, null, true);
 	}
 	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, PackagingUnit packagingUnit, UnitLoad unitLoad, String activityCode, String serialNumber, String operator, boolean sendNotify) throws FacadeException {
+		if( operator == null ) {
+			operator = contextService.getCallerUserName();
+		}
 
 		if (amount.compareTo(new BigDecimal(0)) < 0) {
 			throw new InventoryException(InventoryExceptionKey.AMOUNT_MUST_BE_GREATER_THAN_ZERO, "");
@@ -208,9 +215,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 			recalculateWeightDiff(unitLoad, item, amount);
 			
+			journalHandler.recordCreation(su, amount, activityCode, operator, null);
+
 			recordService.recordCreation(amount, su, activityCode, null, operator);
 			manageStockService.onStockAmountChange(su, BigDecimal.ZERO);
-
 			if( sendNotify ) {
 				try {
 					hostService.sendMsg( new HostMsgStock( su, amount, operator, LOSStockUnitRecordType.STOCK_CREATED, activityCode) );
@@ -376,6 +384,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amount.negate());
 			recalculateWeightDiff(dest.getUnitLoad(), dest.getItemData(), amount);
 
+			String operator = contextService.getCallerUserName();
+
+			journalHandler.recordChangeAmount(su.getClient(), su, amount.negate(), activityCode, operator, null);
+			journalHandler.recordCreation(dest, amount, activityCode, operator, null);
+
 			recordService.recordRemoval(amount.negate(), su, activityCode);
 			recordService.recordCreation(amount, dest, activityCode);
 
@@ -435,6 +448,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amount.negate());
 			recalculateWeightDiff(dest.getUnitLoad(), dest.getItemData(), amount);
+
+			String operator = contextService.getCallerUserName();
+
+			journalHandler.recordChangeAmount(su.getClient(), su, amount.negate(), activityCode, operator, null);
+			journalHandler.recordCreation(dest, amount, activityCode, operator, null);
 
 			recordService.recordRemoval(amount.negate(), su, activityCode, null, null);
 			recordService.recordCreation(amount, dest, activityCode);
@@ -548,6 +566,11 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amount.negate());
 			recalculateWeightDiff(dest.getUnitLoad(), dest.getItemData(), amount);
 
+			String operator = contextService.getCallerUserName();
+
+			journalHandler.recordChangeAmount(su.getClient(), su, amount.negate(), activityCode, operator, null);
+			journalHandler.recordCreation(dest, amount, activityCode, operator, null);
+
 			recordService.recordRemoval(amount.negate(), su, activityCode);
 			recordService.recordCreation(amount, dest, activityCode);
 
@@ -647,6 +670,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			
 			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), diffAmount);
 
+			journalHandler.recordChangeAmount(su.getClient(), su, diffAmount, activityCode, operator, comment);
+
 			recordService.recordChange(diffAmount, su, activityCode, comment, operator);
 			manageStockService.onStockAmountChange(su, amountOld);
 			
@@ -672,12 +697,16 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 			try{
 				if (BigDecimal.ZERO.compareTo(amount) < 0) {
+					journalHandler.recordChangeAmount(su.getClient(), su, diffAmount, activityCode, operator, comment);
+
 					recordService.recordChange(diffAmount, su, activityCode, comment, operator);
 					manageStockService.onStockAmountChange(su, amountOld);
 					if( sendNotify ) {
 						hostService.sendMsg( new HostMsgStock(su, diffAmount, operator, LOSStockUnitRecordType.STOCK_ALTERED, activityCode));
 					}
 				} else {
+					journalHandler.recordChangeAmount(su.getClient(), su, diffAmount, activityCode, operator, comment);
+
 					recordService.recordRemoval(diffAmount, su, activityCode, comment, operator);
 					manageStockService.onStockAmountChange(su, amountOld);
 					if( sendNotify ) {
@@ -717,7 +746,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		transferStockUnit(su, dest, activityCode, comment, operator, false);
 	}
 	public void transferStockUnit(StockUnit su, UnitLoad dest, String activityCode, String comment, String operator, boolean yesReallyDoIt) throws FacadeException {
-		
+		if( operator == null ) {
+			operator = contextService.getCallerUserName();
+		}
+
 		if( !yesReallyDoIt ) {
 			boolean destAllowed = false;
 			Vector<Long> suIds = new Vector<Long>();
@@ -752,6 +784,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		
 		recalculateWeightDiff(old, su.getItemData(), su.getAmount().negate());
 		recalculateWeightDiff(dest, su.getItemData(), su.getAmount());
+
+		journalHandler.recordTransferStock(su, old, old.getStorageLocation(), activityCode, operator, null);
 		
 		recordService.recordTransfer(su, old, dest, activityCode, comment, operator);
 
@@ -1221,6 +1255,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			su.getUnitLoad().setOpened(true);
 
 			recalculateWeightDiff(su.getUnitLoad(), su.getItemData(), amountOld.negate());
+
+			String operator = contextService.getCallerUserName();
+			journalHandler.recordChangeAmount(su.getClient(), su, amountOld.negate(), activityCode, operator, null);
 
 			recordService.recordRemoval(amountOld.negate(), su, activityCode);
 			manageStockService.onStockAmountChange(su, amountOld);

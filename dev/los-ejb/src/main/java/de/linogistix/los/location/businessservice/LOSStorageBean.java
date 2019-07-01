@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -28,6 +29,7 @@ import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.model.LOSUnitLoadRecord;
 import de.linogistix.los.location.model.LOSUnitLoadRecordType;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
+import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -57,7 +59,9 @@ public class LOSStorageBean implements LOSStorage {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 
-	
+	@Inject 
+	private JournalHandler journalHandler;
+
 	
 	public void transferUnitLoad(String userName, StorageLocation dest, UnitLoad ul) 
 		throws FacadeException 
@@ -173,6 +177,8 @@ public class LOSStorageBean implements LOSStorage {
 		
 		manager.persist(rec);
 		
+		journalHandler.recordTransferUnitLoad(unitLoad, unitLoad, source, dest, activityCode, userName, comment);
+
 		List<UnitLoad> childs = unitLoadService.getChilds(unitLoad);
 		for( UnitLoad child : childs ) {
 			if( child.equals(unitLoad) ) {
@@ -250,6 +256,8 @@ public class LOSStorageBean implements LOSStorage {
 
 		manager.persist(rec);
 		
+		journalHandler.recordTransferUnitLoad(unitLoad, unitLoad, unitLoad.getStorageLocation(), destination.getStorageLocation(), activityCode, userName, comment);
+
 		List<UnitLoad> childs = unitLoadService.getChilds(unitLoad);
 		for( UnitLoad child : childs ) {
 			if( child.equals(unitLoad) ) {
