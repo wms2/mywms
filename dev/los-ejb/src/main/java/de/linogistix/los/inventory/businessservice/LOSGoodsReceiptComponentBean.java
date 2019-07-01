@@ -60,6 +60,7 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -665,7 +666,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 //				}
 			} catch (EntityNotFoundException ex) {
 				logger.info("CREATE UnitLoad: " + ex.getMessage());
-				ul = ulService.createLOSUnitLoad(cl, ref, type, sl);
+				ul = ulService.createLOSUnitLoad(cl, ref, type, sl, StockState.INCOMING);
 				locationReserver.allocateLocation(sl, ul);
 
 // use the default value
@@ -694,6 +695,17 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 		for (LOSGoodsReceiptPosition pos : foundGr.getPositionList()) {
 			pos = manager.find(LOSGoodsReceiptPosition.class, pos.getId());
+			StockUnit stockUnit = pos.getStockUnit();
+			if (stockUnit != null) {
+				int stockState = stockUnit.getState();
+				if (stockState < StockState.ON_STOCK) {
+					stockUnit.setState(StockState.ON_STOCK);
+					UnitLoad unitLoad = stockUnit.getUnitLoad();
+					if (unitLoad.getState() < StockState.ON_STOCK) {
+						unitLoad.setState(StockState.ON_STOCK);
+					}
+				}
+			}
 			pos.setStockUnit(null);
 		}
 		

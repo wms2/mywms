@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 
 import javax.ejb.EJB;
@@ -37,12 +36,8 @@ import de.linogistix.los.inventory.customization.ManageStockService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.HostMsgStock;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.model.LOSStockUnitRecordType;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptPositionQueryRemote;
 import de.linogistix.los.inventory.query.LOSPickingPositionQueryRemote;
@@ -69,14 +64,11 @@ import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
-import de.linogistix.los.query.BODTO;
-import de.linogistix.los.query.QueryDetail;
-import de.linogistix.los.query.TemplateQuery;
-import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
@@ -203,6 +195,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		su.setUnitLoad(unitLoad);
 		su.setSerialNumber(serialNumber);
 		su.setPackagingUnit(packagingUnit);
+		su.setState(unitLoad.getState());
 		unitLoad.getStockUnitList().add(su);
 
 		if( batch != null && batch.getBestBeforeEnd()!=null ) {
@@ -518,6 +511,9 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		} else {
 			destAllowed = false;
 		}
+		if( su.getState() != dest.getState() ) {
+			destAllowed = false;
+		}
 
 		if (destAllowed) {
 			// check reservations
@@ -579,6 +575,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		changeAmount(su, new BigDecimal(0), true, activityCode);
 		transferStockUnit(su, ul, activityCode, operator, null, false);
 		su.setLock(BusinessObjectLockState.GOING_TO_DELETE.getLock());
+		su.setState(StockState.DELETABLE);
 	}
 
 	public void sendStockUnitsToNirwana(StorageLocation sl, String activityCode) throws FacadeException {
@@ -743,6 +740,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 		// add to destination
 		su.setUnitLoad(dest);
+		su.setState(dest.getState());
+
 		// Do not actualize stock unit list of container unit loads. This will cause problems in parallel access (Nirwana) 
 		if( dest.getPackageType() != UnitLoadPackageType.CONTAINER ) {
 			dest.getStockUnitList().add(su);
@@ -1048,224 +1047,6 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	// Sanity Checks
 	// -------------------------------------------------------------------------
 
-	public void cleanup() throws FacadeException {
-		try {
-			cleanupUnitLoads();
-//			cleanUpOrderRequest();
-			cleanupStockUnitsOnNirwana();
-		} catch (RuntimeException ex) {
-			log.error(ex.getMessage(), ex);
-			return;
-		}
-	}
-
-	public void cleanupUnitLoads() throws FacadeException {
-
-		List<StorageLocation> sls = slService2.getListForGoodsOut();
-
-		int i = 1;
-		for (StorageLocation sl : sls) {
-			manager.flush();
-			manager.clear();
-			sl = manager.find(StorageLocation.class, sl.getId());
-			for (UnitLoad ul : sl.getUnitLoads()) {
-				if (i % 30 == 0) {
-					manager.flush();
-					manager.clear();
-				}
-				if (ulService.getNirwana().equals(ul))
-					continue;
-				ul = manager.find(UnitLoad.class, ul.getId());
-				List<Long> susIds = new ArrayList<Long>();
-				for (StockUnit su : ul.getStockUnitList()) {
-					su = manager.find(StockUnit.class, su.getId());
-					if (!checkStockUnitDelete(su)) {
-						log.warn("skip: " + su.toShortString());
-						continue;
-					}
-					// delete Order
-					// ... Later
-					// delete PickRequests
-					// ... Later
-					// delete StockUnit
-					// removeStockUnit(su, "CLS");
-					susIds.add(su.getId());
-				}
-
-				for (Long id : susIds) {
-					StockUnit su = manager.find(StockUnit.class, id);
-					sendStockUnitsToNirwana(su, "CLS");
-					manager.flush();
-				}
-
-				// delete UnitLoad
-				if (ul.getStockUnitList().size() == 0) {
-					TemplateQueryWhereToken t = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "unitLoad", ul);
-					TemplateQuery q = new TemplateQuery();
-					q.addWhereToken(t);
-					q.setBoClass(LOSStorageRequest.class);
-					QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-					List<BODTO<LOSStorageRequest>> stors;
-					stors = storageQuery.queryByTemplateHandles(d, q);
-					for (BODTO<LOSStorageRequest> dto : stors) {
-						LOSStorageRequest sr = manager.find(LOSStorageRequest.class, dto.getId());
-						storageCrud.delete(sr);
-						manager.flush();
-					}
-
-					List<LOSGoodsOutRequestPosition> gOutPosList = outPosService.getByUnitLoad(ul);
-					for( LOSGoodsOutRequestPosition gOutPos : gOutPosList ) {
-						LOSGoodsOutRequest oreq = gOutPos.getGoodsOutRequest();
-						oreq = manager.find(LOSGoodsOutRequest.class, oreq.getId());
-						oreq.getPositions().remove(oreq);
-						outPosCRUD.delete(gOutPos);
-						if (oreq.getPositions().isEmpty()) {
-							outCRUD.delete(oreq);
-						}
-						manager.flush();
-					}
-
-					ulCrud.delete(ul);
-					manager.flush();
-					i++;
-				}
-				if (i > 250) {
-					log.warn("******* STOP *** REACHED LIMIT OF 250 ************ ");
-					throw new RuntimeException("******* STOP *** REACHED LIMIT OF 250 ************ ");
-				}
-			}
-		}
-	}
-//
-//	public void cleanUpOrderRequest() throws FacadeException {
-//
-//		TemplateQueryWhereToken t = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "state", LOSOrderRequestState.FINISHED);
-//		TemplateQuery q = new TemplateQuery();
-//		q.addWhereToken(t);
-//		q.setBoClass(LOSOrderRequest.class);
-//		QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-//		List<BODTO<LOSOrderRequest>> reqs;
-//
-//		reqs = orderQuery.queryByTemplateHandles(d, q);
-//		int i = 0;
-//		for (BODTO<LOSOrderRequest> to : reqs) {
-//
-//			LOSOrderRequest req = manager.find(LOSOrderRequest.class, to.getId());
-//			if (!req.getOrderState().equals(LOSOrderRequestState.FINISHED)) {
-//				log.warn("wrong state: " + req.getOrderState());
-//			}
-//
-//			List<Long> posIds = new ArrayList<Long>();
-//
-//			for (LOSOrderRequestPosition p : req.getPositions()) {
-//
-//				List<LOSPickRequestPosition> picks = pickPosService.getByOrderPosition(p);
-//				for (LOSPickRequestPosition pickPos : picks) {
-//					pickPos = manager.find(LOSPickRequestPosition.class, pickPos.getId());
-//					if (pickPos.isCanceled() || pickPos.isSolved()) {
-//						pickPosCrud.delete(pickPos);
-//						LOSPickRequest pickReq = pickPos.getPickRequest();
-//						pickReq = manager.find(LOSPickRequest.class, pickReq.getId());
-//						pickReq.getPositions().remove(pickPos);
-//						if (pickReq.getPositions().isEmpty()) {
-//							pickCrud.delete(pickReq);
-//						}
-//					} else {
-//						log.error("wrong state: " + pickPos.toShortString());
-//						break;
-//					}
-//				}
-//				posIds.add(p.getId());
-//			}
-//
-//			for (Long id : posIds) {
-//				LOSOrderRequestPosition pos = manager.find(LOSOrderRequestPosition.class, id);
-//				orderReqPosCrud.delete(pos);
-//				req.getPositions().remove(pos);
-//			}
-//
-//			orderReqCrud.delete(req);
-//			manager.flush();
-//			manager.clear();
-//			if (i++ > 250) {
-//				log.warn("******* STOP *** REACHED LIMIT OF 250 ************ ");
-//				throw new RuntimeException("******* STOP *** REACHED LIMIT OF 250 ************ ");
-//			}
-//
-//		}
-//	}
-
-	public void cleanupStockUnitsOnNirwana() throws FacadeException {
-
-		UnitLoad ul = ulService.getNirwana();
-		ul = manager.find(UnitLoad.class, ul.getId());
-		List<Long> susIds = new ArrayList<Long>();
-		for (StockUnit su : ul.getStockUnitList()) {
-			if (!checkStockUnitDelete(su)) {
-				log.warn("skip: " + su.toShortString());
-				continue;
-			}
-			susIds.add(su.getId());
-		}
-
-		int i = 1;
-		for (Long id : susIds) {
-			StockUnit su = manager.find(StockUnit.class, id);
-			removeStockUnit(su, "CLS", true);
-			if (i % 30 == 0) {
-				manager.flush();
-				manager.clear();
-			}
-
-		}
-	}
-
-	private boolean checkStockUnitDelete(StockUnit su) {
-
-		if (su.getAmount().compareTo(new BigDecimal(0)) != 0) {
-			log.error("pickrequest has amount - skip: " + su.toShortString());
-			return false;
-		} else if (su.getLock() != BusinessObjectLockState.GOING_TO_DELETE.getLock() && su.getLock() != StockUnitLockState.PICKED_FOR_GOODSOUT.getLock()) {
-			log.error("pickrequest has wrong lock - skip: " + su.toShortString());
-			return false;
-		}
-
-		TemplateQueryWhereToken bySu = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "pickFromStockUnit", su);
-		TemplateQuery q = new TemplateQuery();
-		q.addWhereToken(bySu);
-		q.setBoClass(LOSPickingPosition.class);
-		QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-
-		List<BODTO<LOSPickingPosition>> picks;
-		try {
-			picks = pickPosQuery.queryByTemplateHandles(d, q);
-		} catch (Throwable e) {
-			log.error(e.getMessage(), e);
-			return false;
-		}
-
-		for (BODTO<LOSPickingPosition> dto : picks) {
-			LOSPickingPosition pos = manager.find(LOSPickingPosition.class, dto.getId());
-			if (pos == null)
-				continue;
-			if ( pos.getState() < State.FINISHED ) {
-				log.error("StockUnit has unsolved pick request position: " + pos.toShortString());
-				return false;
-			}
-			LOSCustomerOrderPosition orderPos = pos.getCustomerOrderPosition();
-			if( orderPos != null ) {
-				if( orderPos.getOrder().getState() < State.FINISHED ) {
-					log.error("StockUnit has unfinished order: " + orderPos.getOrder().toShortString());
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	// ---------------------------------------------------------------------------------------
-
 	public StockUnit createStockUnitOnStorageLocation(String clientRef, String slName, String articleRef, String lotRef, BigDecimal amount, String unitLoadRef, String activityCode, String serialNumber)
 			throws EntityNotFoundException, InventoryException, FacadeException {
 
@@ -1309,14 +1090,14 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			if ((lotRef != null && lotRef.length() > 0) || idat.isLotMandatory()) {
 				try {
 					lot = getOrCreateLot(c, lotRef, idat);
-					ul = getOrCreateUnitLoad(c, idat, sl, unitLoadRef);
+					ul = getOrCreateUnitLoad(c, idat, sl, unitLoadRef, StockState.ON_STOCK);
 				} catch (Throwable ex) {
 					log.error(ex.getMessage(), ex);
 					throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED, slName);
 				}
 			}
 			try {
-				ul = getOrCreateUnitLoad(c, idat, sl, unitLoadRef);
+				ul = getOrCreateUnitLoad(c, idat, sl, unitLoadRef, StockState.ON_STOCK);
 			} catch (Throwable ex) {
 				log.error(ex.getMessage(), ex);
 				throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED, slName);
@@ -1357,7 +1138,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		return lot;
 	}
 
-	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref) throws FacadeException {
+	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref, int state) throws FacadeException {
 		UnitLoad ul;
 		UnitLoadType type;
 
@@ -1383,7 +1164,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 					if (type == null) {
 						throw new RuntimeException("Cannot retrieve default UnitLoadType");
 					}
-					ul = ulService.createLOSUnitLoad(c, ref, type, sl);
+					ul = ulService.createLOSUnitLoad(c, ref, type, sl, state);
 					locationReserver.allocateLocation(sl, ul);
 				} catch (LOSLocationException lex) {
 					throw lex;

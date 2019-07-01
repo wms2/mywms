@@ -30,7 +30,7 @@ public interface LOSUnitLoadService extends BasicService<UnitLoad>{
     public UnitLoad createLOSUnitLoad(Client client,
                                          String labelId,
                                          UnitLoadType type,
-                                         StorageLocation storageLocation) throws FacadeException;
+                                         StorageLocation storageLocation, int state) throws FacadeException;
     
     public List<UnitLoad> getListByStorageLocation(StorageLocation sl);
     

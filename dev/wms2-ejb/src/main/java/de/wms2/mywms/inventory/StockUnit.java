@@ -63,6 +63,9 @@ public class StockUnit extends BasicClientAssignedEntity {
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private PackagingUnit packagingUnit;
 
+	@Column(nullable = false)
+	private int state = StockState.ON_STOCK;
+
 	@Temporal(TemporalType.DATE)
 	@Column(nullable = false)
 	private Date strategyDate = new Date();
@@ -204,6 +207,14 @@ public class StockUnit extends BasicClientAssignedEntity {
 
 	public void setReservedAmount(BigDecimal reservedAmount) {
 		this.reservedAmount = reservedAmount;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
 	}
 
 }

@@ -21,6 +21,7 @@ import de.linogistix.los.location.query.dto.UnitLoadTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 
 /**
@@ -111,9 +112,12 @@ public class LOSUnitLoadQueryBean
   			token.setParameterName("availableLock");
   			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
   			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "state", StockState.ON_STOCK);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
   		}
   		if( "CARRIER".equals(filterString) ) {
-  			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_TRUE, "carrier", 0);
+  			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_TRUE, "isCarrier", 0);
   			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
   			ret.add(token);
   			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "lock", 9);
@@ -124,7 +128,7 @@ public class LOSUnitLoadQueryBean
   			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_ISEMPTY, "stockUnitList", "");
   			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
   			ret.add(token);
-  			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_FALSE, "carrier", 0);
+  			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_FALSE, "isCarrier", 0);
   			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
   			ret.add(token);
   			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "lock", 9);
@@ -132,13 +136,13 @@ public class LOSUnitLoadQueryBean
   			ret.add(token);
   		}
 		if( "OUT".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", 100); // StockUnitLockState.PICKED_FOR_GOODSOUT.getLock()
-  			token.setParameterName("outLock1");
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_GREATER, "state", StockState.PICKED-1);
+  			token.setParameterName("state1");
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", LOSUnitLoadLockState.SHIPPED.getLock());
-  			token.setParameterName("outLock2");
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.SHIPPED+1);
+  			token.setParameterName("state2");
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
 		}
 

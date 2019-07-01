@@ -41,7 +41,7 @@ public interface ManageInventoryBusiness {
      * @throws org.mywms.facade.FacadeException
      */
 	StockUnit createStockUnitOnStorageLocation(String clientRef, String slName, String articleRef, String lotRef,
-			BigDecimal amount, PackagingUnit packagingUnit, String unitLoadRef, String activityCode,
+			BigDecimal amount, PackagingUnit packagingUnit, int state, String unitLoadRef, String activityCode,
 			String serialNumber) throws EntityNotFoundException, InventoryException, FacadeException;
     
     void deleteStockUnitsFromStorageLocation(StorageLocation sl, String activityCode) throws FacadeException;

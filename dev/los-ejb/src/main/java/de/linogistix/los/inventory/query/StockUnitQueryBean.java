@@ -39,6 +39,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -464,6 +465,9 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", 0);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "state", StockState.ON_STOCK);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
 			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "unitLoad.lock", 0);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
@@ -472,7 +476,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			ret.add(token);
 		}
 		if( "OUT".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", StockState.PICKED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
 		}

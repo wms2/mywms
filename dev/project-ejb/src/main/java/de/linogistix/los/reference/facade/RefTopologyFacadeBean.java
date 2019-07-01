@@ -60,6 +60,7 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -526,7 +527,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 			// Do nothing
 		}
 		if( ul == null ) {
-			ul = ulService.createLOSUnitLoad(client, locationName, pickUlType, sl);
+			ul = ulService.createLOSUnitLoad(client, locationName, pickUlType, sl, StockState.ON_STOCK);
 		}
 		else {
 			ul.setClient(client);

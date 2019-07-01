@@ -66,7 +66,7 @@ public class LOSUnitLoadServiceBean
     public UnitLoad createLOSUnitLoad(Client client, 
                                          String labelId, 
                                          UnitLoadType type,
-                                         StorageLocation storageLocation) throws FacadeException 
+                                         StorageLocation storageLocation, int state) throws FacadeException
     {
         if (client == null 
             || labelId == null
@@ -82,6 +82,7 @@ public class LOSUnitLoadServiceBean
         ul.setLabelId(labelId);
         ul.setType(type);
         ul.setWeightCalculated(type.getWeight());
+        ul.setState(state);
         
         try {
         	locationReserver.checkAllocateLocation(storageLocation, ul, false);
@@ -106,7 +107,7 @@ public class LOSUnitLoadServiceBean
 
     //-----------------------------------------------------------------------
 	public boolean existsByStorageLocation(StorageLocation location) {
-		Query query = manager.createNamedQuery("LOSUnitLoad.existsByLocation");
+		Query query = manager.createQuery("SELECT ul.id FROM UnitLoad ul WHERE ul.storageLocation=:location");
 		query.setParameter("location", location);
         query.setMaxResults(1);
         
@@ -122,7 +123,7 @@ public class LOSUnitLoadServiceBean
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
 	public List<UnitLoad> getListByStorageLocation(StorageLocation sl) {
-		Query query = manager.createNamedQuery("LOSUnitLoad.queryByLocation");
+		Query query = manager.createQuery("SELECT ul FROM UnitLoad ul WHERE ul.storageLocation=:location");
 		query.setParameter("location", sl);
                 
         return (List<UnitLoad>)query.getResultList();
@@ -174,7 +175,7 @@ public class LOSUnitLoadServiceBean
 	}
 
 	public UnitLoad getByLabelId(Client client, String labelId) throws EntityNotFoundException {
-		Query query = manager.createNamedQuery("LOSUnitLoad.queryByLabel");
+		Query query = manager.createQuery("SELECT ul FROM UnitLoad ul WHERE ul.labelId=:label");
 		query = query.setParameter("label", labelId);
         
 		try {
@@ -256,20 +257,20 @@ public class LOSUnitLoadServiceBean
 
     @SuppressWarnings("unchecked")
 	public List<UnitLoad> getChilds(UnitLoad unitLoad) {
-		Query query = manager.createNamedQuery("LOSUnitLoad.queryByCarrierId");
+		Query query = manager.createQuery("SELECT ul FROM UnitLoad ul WHERE ul.carrierUnitLoadId = :carrierId");
 		query.setParameter("carrierId", unitLoad.getId());
 		
         return query.getResultList();
     }
 
     public Long getNumChilds(UnitLoad unitLoad) {
-		Query query = manager.createNamedQuery("LOSUnitLoad.countByCarrierId");
+		Query query = manager.createQuery("SELECT count(*) FROM UnitLoad ul WHERE ul.carrierUnitLoadId = :carrierId");
 		query.setParameter("carrierId", unitLoad.getId());
 
         return (Long)query.getSingleResult();
     }
     public Long getNumChilds(Long unitLoadId) {
-		Query query = manager.createNamedQuery("LOSUnitLoad.countByCarrierId");
+		Query query = manager.createQuery("SELECT count(*) FROM UnitLoad ul WHERE ul.carrierUnitLoadId = :carrierId");
 		query.setParameter("carrierId", unitLoadId);
 
         return (Long)query.getSingleResult();

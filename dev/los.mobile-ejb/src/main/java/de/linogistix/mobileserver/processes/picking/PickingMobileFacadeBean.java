@@ -62,6 +62,7 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.mobileserver.processes.controller.ManageMobile;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -223,7 +224,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 					Client client = contextService.getCallersClient();
 					StorageLocation storageLocation = locService.getCurrentUsersLocation();
 					
-					unitLoad = ulService.createLOSUnitLoad(client, pickTo.label, type, storageLocation);
+					unitLoad = ulService.createLOSUnitLoad(client, pickTo.label, type, storageLocation, StockState.PICKED);
 				}
 				pickingUnitLoad = pickingUnitLoadService.create(pick.getPickingOrder(), unitLoad, pickTo.index);
 			}
@@ -342,7 +343,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB( "CannotReadCurrentOrder", this.getClass() );
 		}
 		
-		unitLoad = ulService.createLOSUnitLoad(client, label, type, storageLocation);
+		unitLoad = ulService.createLOSUnitLoad(client, label, type, storageLocation, StockState.PICKED);
 		LOSPickingUnitLoad pul = pickingUnitLoadService.create(pickingOrder, unitLoad, index);
 		
 		return new PickingMobileUnitLoad(pul);

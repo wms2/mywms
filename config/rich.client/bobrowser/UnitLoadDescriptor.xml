@@ -52,13 +52,23 @@
             </value>
         </entry>
         <entry>
-            <key>stockUnitList</key>
+            <key>state</key>
             <value>
                 <group>
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
                 <position>7</position>
+            </value>
+        </entry>
+        <entry>
+            <key>stockUnitList</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>8</position>
                 <typeHint>org.mywms.model.StockUnit</typeHint>
             </value>
         </entry>
@@ -69,7 +79,7 @@
 					<name>main</name>
 				</group>
 				<hidden>true</hidden>
-				<position>8</position>
+				<position>9</position>
 			</value>
 		</entry>
 		<entry>
@@ -79,7 +89,7 @@
 					<name>main</name>
 				</group>
 				<hidden>true</hidden>
-				<position>9</position>
+				<position>10</position>
 			</value>
 		</entry>
 		<entry>
@@ -89,7 +99,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>10</position>
+				<position>11</position>
 			</value>
 		</entry>
 		<entry>
@@ -99,7 +109,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>11</position>
+				<position>12</position>
 			</value>
 		</entry>
 		<entry>
@@ -109,7 +119,7 @@
 					<name>main</name>
 				</group>
 				<hidden>true</hidden>
-				<position>12</position>
+				<position>13</position>
 			</value>
 		</entry>
 		<entry>

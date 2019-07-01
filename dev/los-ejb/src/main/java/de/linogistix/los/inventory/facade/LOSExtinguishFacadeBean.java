@@ -41,6 +41,7 @@ import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -163,7 +164,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 			if( stock.getLock() == BusinessObjectLockState.GOING_TO_DELETE.getLock() ) {
 				continue;
 			}
-			if( stock.getLock() == StockUnitLockState.PICKED_FOR_GOODSOUT.getLock() ) {
+			if( stock.getState() >= StockState.PICKED ) {
 				continue;
 			}
 			LOSPickingPosition pick = pickPosGenerator.generatePick( stock.getAvailableAmount(), stock, strat, null);
@@ -231,7 +232,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
         qstr.append("SELECT su FROM " + StockUnit.class.getSimpleName()+ " su, ");
         qstr.append(UnitLoad.class.getSimpleName()+ " ul ");
 		qstr.append("WHERE su.unitLoad = ul AND su.lot = :lot ");
-    	qstr.append(" AND su.lock != "+StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());;
+    	qstr.append(" AND su.state < "+StockState.PICKED);;
     	qstr.append(" AND su.lock != "+BusinessObjectLockState.GOING_TO_DELETE.getLock());;
     	qstr.append(" AND (su.amount-su.reservedAmount) > 0");
     	qstr.append(" AND ul.storageLocation != :nirwana");

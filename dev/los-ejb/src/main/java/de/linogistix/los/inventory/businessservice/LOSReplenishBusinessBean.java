@@ -32,6 +32,7 @@ import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -231,7 +232,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 	        		log.info("UnitLoadLabel " + label + " already exists. Try the next");
 	        	}
 				
-				destinationUnitLoad = unitLoadService.createLOSUnitLoad(sourceStock.getClient(), label, virtual, destinationLocation);
+				destinationUnitLoad = unitLoadService.createLOSUnitLoad(sourceStock.getClient(), label, virtual, destinationLocation, StockState.ON_STOCK);
 			}
 			if( amount == null ) {
 				amount = sourceStock.getAmount();

@@ -49,7 +49,7 @@ public class QueryUnitLoadServiceBean
     		throw new UnAuthorizedException();
     	}
 		
-		Query query = manager.createNamedQuery("LOSUnitLoad.queryByLabel");
+		Query query = manager.createQuery("SELECT ul FROM UnitLoad ul WHERE ul.labelId=:label");
 		query = query.setParameter("label", label);
 
 		try {
