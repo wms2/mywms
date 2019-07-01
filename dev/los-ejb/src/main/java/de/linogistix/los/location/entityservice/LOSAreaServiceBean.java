@@ -69,23 +69,23 @@ public class LOSAreaServiceBean extends BasicServiceBean<Area> implements LOSAre
 	}
 
 	public List<Area> getForGoodsIn() {
-		return areaEntityService.getForGoodsIn();
+		return areaEntityService.getFor(AreaUsages.GOODS_IN);
 	}
 
 	public List<Area> getForGoodsOut() {
-		return areaEntityService.getForGoodsOut();
+		return areaEntityService.getFor(AreaUsages.GOODS_OUT);
 	}
 
 	public List<Area> getForStorage() {
-		return areaEntityService.getForStorage();
+		return areaEntityService.getFor(AreaUsages.STORAGE);
 	}
 
 	public List<Area> getForPicking() {
-		return areaEntityService.getForPicking();
+		return areaEntityService.getFor(AreaUsages.PICKING);
 	}
 
 	public List<Area> getForTransfer() {
-		return areaEntityService.getForTransfer();
+		return areaEntityService.getFor(AreaUsages.TRANSFER);
 	}
 
 	public Area getDefault() {

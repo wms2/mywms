@@ -61,80 +61,15 @@ public class AreaEntityService {
 	}
 
 	/**
-	 * Read list of Areas used for goods in.
+	 * Read list of Areas used for the given usage
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Area> getForGoodsIn() {
+	public List<Area> getFor(String usage) {
 		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
-		jpql += " WHERE entity.usages like '%" + AreaUsages.GOODS_IN + "%' ";
+		jpql += " WHERE entity.usages like :usage";
 		jpql += " ORDER BY entity.name ";
 		Query query = manager.createQuery(jpql);
-
-		return query.getResultList();
-	}
-
-	/**
-	 * Read list of Areas used for goods out.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Area> getForGoodsOut() {
-		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
-		jpql += " WHERE entity.usages like '%" + AreaUsages.GOODS_OUT + "%' ";
-		jpql += " ORDER BY entity.name ";
-		Query query = manager.createQuery(jpql);
-
-		return query.getResultList();
-	}
-
-	/**
-	 * Read list of Areas used for storage.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Area> getForStorage() {
-		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
-		jpql += " WHERE entity.usages like '%" + AreaUsages.STORAGE + "%' ";
-		jpql += " ORDER BY entity.name ";
-		Query query = manager.createQuery(jpql);
-
-		return query.getResultList();
-	}
-
-	/**
-	 * Read list of Areas used for picking.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Area> getForPicking() {
-		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
-		jpql += " WHERE entity.usages like '%" + AreaUsages.PICKING + "%' ";
-		jpql += " ORDER BY entity.name ";
-		Query query = manager.createQuery(jpql);
-
-		return query.getResultList();
-	}
-
-	/**
-	 * Read list of Areas used as buffer.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Area> getForBuffer() {
-		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
-		jpql += " WHERE entity.usages like '%" + AreaUsages.BUFFER + "%' ";
-		jpql += " ORDER BY entity.name ";
-		Query query = manager.createQuery(jpql);
-
-		return query.getResultList();
-	}
-
-	/**
-	 * Read list of Areas used for transfer.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Area> getForTransfer() {
-		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
-		jpql += " WHERE entity.usages like '%" + AreaUsages.TRANSFER + "%' ";
-		jpql += " ORDER BY entity.name ";
-		Query query = manager.createQuery(jpql);
-
+		query.setParameter("usage", "%" + usage + "%");
 		return query.getResultList();
 	}
 }
