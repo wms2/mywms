@@ -17,7 +17,6 @@ import org.mywms.model.Client;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.model.LOSStockUnitRecord;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -359,7 +358,7 @@ public interface LOSInventoryComponent {
      * Removes {@link StockUnit} from system
      * 
      * @param su the stock unit to remove
-     * @param activityCode for history {@link LOSStockUnitRecord}
+     * @param activityCode for history
      */
     void removeStockUnit(StockUnit su, String activityCode, boolean sendNotify) throws FacadeException;
     
@@ -384,7 +383,7 @@ public interface LOSInventoryComponent {
      * Deletes all StockUnits that are on the given {@link StorageLocation}
      * 
      * @param sl
-     * @param activityCode for history {@link LOSStockUnitRecord}
+     * @param activityCode for history
      * @throws FacadeException
      */
     void deleteStockUnitsFromStorageLocation(StorageLocation sl, String activityCode) throws FacadeException;
@@ -393,8 +392,6 @@ public interface LOSInventoryComponent {
 	//--------------------------------------------------------------------------------------
 	// Some Sanity Checks
 	//--------------------------------------------------------------------------------------
-	
-	void cleanup() throws FacadeException;
 
 	/**
 	 * Recalculate the weight of a unit load.
@@ -403,6 +400,6 @@ public interface LOSInventoryComponent {
 	 */
 	public BigDecimal recalculateWeight( UnitLoad unitLoad );
 
-	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref) throws FacadeException;
+	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref, int state) throws FacadeException;
 
 }

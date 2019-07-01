@@ -27,8 +27,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -49,11 +47,6 @@ import de.wms2.mywms.location.StorageLocation;
  */
 @Entity
 @Table
-@NamedQueries({ @NamedQuery(name = "LOSUnitLoad.queryByLabel", query = "FROM UnitLoad ul WHERE ul.labelId=:label"),
-		@NamedQuery(name = "LOSUnitLoad.queryByLocation", query = "FROM UnitLoad ul WHERE ul.storageLocation=:location"),
-		@NamedQuery(name = "LOSUnitLoad.existsByLocation", query = "SELECT ul.id FROM UnitLoad ul WHERE ul.storageLocation=:location"),
-		@NamedQuery(name = "LOSUnitLoad.queryByCarrierId", query = "FROM UnitLoad ul WHERE ul.carrierUnitLoadId = :carrierId"),
-		@NamedQuery(name = "LOSUnitLoad.countByCarrierId", query = "SELECT count(*) FROM UnitLoad ul WHERE ul.carrierUnitLoadId = :carrierId") })
 public class UnitLoad extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 
@@ -115,6 +108,9 @@ public class UnitLoad extends BasicClientAssignedEntity {
 	@ManyToOne(optional = true)
 	private UnitLoad carrierUnitLoad;
 
+	@Column(nullable = false)
+	private int state = StockState.ON_STOCK;
+
 	@Override
 	public String toString() {
 		if (labelId != null) {
@@ -134,13 +130,13 @@ public class UnitLoad extends BasicClientAssignedEntity {
 
 	@PrePersist
 	public void prePersist() {
-		super.updateModifiedDate();
+		super.prePersist();
 		weight = (weightMeasure == null ? weightCalculated : weightMeasure);
 	}
 
 	@PreUpdate
 	public void preUpdate() {
-		super.updateModifiedDate();
+		super.preUpdate();
 		weight = (weightMeasure == null ? weightCalculated : weightMeasure);
 	}
 
@@ -264,6 +260,14 @@ public class UnitLoad extends BasicClientAssignedEntity {
 
 	public BigDecimal getWeight() {
 		return weight;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
 	}
 
 }

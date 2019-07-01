@@ -27,6 +27,7 @@ import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
 import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.Area;
@@ -128,6 +129,7 @@ public class LOSReplenishStockServiceBean implements LOSReplenishStockService {
 		sb.append(" AND su.itemData =:item ");
 		sb.append(" AND not exists( select 1 from "+LOSFixedLocationAssignment.class.getSimpleName()+" fix ");
 		sb.append(                " where fix.assignedLocation = loc )");
+		sb.append(" and su.state="+StockState.ON_STOCK);
 		if( lot != null ) {
 			sb.append(" AND su.lot =:lot ");
 		}

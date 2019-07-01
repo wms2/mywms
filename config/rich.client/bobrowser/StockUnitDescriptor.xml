@@ -12,6 +12,16 @@
                 <typeHint>de.linogistix.los.location.model.LOSUnitLoad</typeHint>
             </value>
         </entry>
+        <entry>
+            <key>state</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
 
         <entry>
             <key>name</key>

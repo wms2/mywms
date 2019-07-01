@@ -31,6 +31,7 @@ import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.Area;
@@ -271,6 +272,7 @@ public class LOSPickingStockServiceBean implements LOSPickingStockService {
 		sb.append(Area.class.getSimpleName()+" area ");
 		sb.append("WHERE ul = su.unitLoad AND loc = ul.storageLocation AND loc.area=area ");
 		sb.append(" AND ul.lock=0 AND loc.lock in (0,:lockStorage) and su.lock!=2 and area.lock=0 ");
+		sb.append(" and su.state="+StockState.ON_STOCK);
 		
 		if( !strategy.isUseLockedStock() ) {
 			sb.append(" AND su.lock=0 ");

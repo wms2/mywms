@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.BusinessException;
 import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 import org.mywms.service.EntityNotFoundException;
@@ -49,8 +48,6 @@ public interface StockUnitService
      * @param itemData the ItemData the new StockUnit contains.
      * @param amount 
      * @throws NullPointerException if any of the parameters is null.
-     * @throws BusinessException if unitLoad or itemData are not
-     *             assigned to Client client.
      */
 	public StockUnit create(Client client, UnitLoad unitLoad, ItemData itemData, BigDecimal amount);
 

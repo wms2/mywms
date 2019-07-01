@@ -28,9 +28,9 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSAdviceState;
-import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.product.ItemData;
@@ -277,7 +277,8 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 			b.append(" AND lot = :lot ");
 		} 
 
-		b.append(" and su.lock!="+BusinessObjectLockState.GOING_TO_DELETE.getLock()+" and su.lock!="+StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());
+		b.append(" and su.state<"+StockState.PICKED);
+		b.append(" and su.lock!="+BusinessObjectLockState.GOING_TO_DELETE.getLock());
 		b.append(" AND su.amount > 0 ");
 		b.append(" and ul.lock!="+LOSUnitLoadLockState.SHIPPED.getLock());
 		

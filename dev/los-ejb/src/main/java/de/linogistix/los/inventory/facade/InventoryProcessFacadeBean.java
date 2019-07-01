@@ -51,6 +51,7 @@ import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -234,7 +235,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			log.info("WARN: no Unitload " + ulName
 					+ ". Create on StrageLocaton " + sl.getName());
 			
-			ul = ulService.createLOSUnitLoad(idat.getClient(), ulName, t, slService.getClearing());
+			ul = ulService.createLOSUnitLoad(idat.getClient(), ulName, t, slService.getClearing(), StockState.ON_STOCK);
 			manager.flush();
 
 		} else{

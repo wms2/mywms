@@ -29,15 +29,12 @@ import org.mywms.model.Client;
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSStockUnitRecordService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
-import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
@@ -55,6 +52,7 @@ import de.linogistix.los.stocktaking.model.LOSStocktakingState;
 import de.linogistix.los.stocktaking.service.QueryStockTakingOrderService;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -1218,6 +1216,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			sb.append( ", " + UnitLoad.class.getSimpleName() + " ul ");
 			sb.append( "  where su.unitLoad = ul and ul.storageLocation = sl " );
 			sb.append(" and su.client.id=" + clientId );
+			sb.append(" and su.state="+StockState.ON_STOCK);
+			sb.append(" and ul.state="+StockState.ON_STOCK);
 			sb.append( ")" );
 		}
 		
@@ -1225,8 +1225,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			sb.append( " and exists( select 1 from " + StockUnit.class.getSimpleName() + " su ");
 			sb.append( ", " + UnitLoad.class.getSimpleName() + " ul ");
 			sb.append( "  where su.unitLoad = ul and ul.storageLocation = sl and su.amount>0 " );
-			sb.append( "    and not su.lock in (:lockPicked,:lockDeleted,:lockShipped) ");
-			sb.append( "    and not ul.lock in (:lockPicked,:lockDeleted,:lockShipped) ");
+			sb.append( "    and su.state="+StockState.ON_STOCK);
+			sb.append( "    and ul.state="+StockState.ON_STOCK);
 			if( itemId != null ) {
 				sb.append(" and su.itemData.id=" + itemId );
 			}
@@ -1241,7 +1241,10 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		if( !enableEmptyLocations ) {
 			sb.append( " and exists( select 1 from " + StockUnit.class.getSimpleName() + " su ");
 			sb.append( ", " + UnitLoad.class.getSimpleName() + " ul ");
-			sb.append( "  where ul.storageLocation = sl and su.unitLoad = ul ) " );
+			sb.append( "  where ul.storageLocation = sl and su.unitLoad = ul" );
+			sb.append( "  and ul.state="+StockState.ON_STOCK);
+			sb.append( "  and su.state="+StockState.ON_STOCK);
+			sb.append( ")" );
 		}
 		if( !enableFullLocations ) {
 			sb.append( " and not exists( select 1 from " + StockUnit.class.getSimpleName() + " su ");
@@ -1262,11 +1265,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		}
 		if( itemNo != null ) {
 			query.setParameter("itemNo", itemNo);
-		}
-		if( itemId != null || itemNo != null ) {
-			query.setParameter("lockPicked", StockUnitLockState.PICKED_FOR_GOODSOUT.getLock());
-			query.setParameter("lockDeleted", BusinessObjectLockState.GOING_TO_DELETE.getLock());
-			query.setParameter("lockShipped", LOSUnitLoadLockState.SHIPPED.getLock());
 		}
 		if( invDate != null ) {
 			query.setParameter("date", invDate);

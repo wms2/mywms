@@ -45,6 +45,7 @@ import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
@@ -483,7 +484,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			destination = slList.get(0);
 		}
 		
-		ul = ulService1.createLOSUnitLoad(client, label, type, destination);
+		ul = ulService1.createLOSUnitLoad(client, label, type, destination, StockState.PICKED);
 		LOSPickingUnitLoad pul = pickingUnitLoadService.create(order, ul, -1);
 		
 		

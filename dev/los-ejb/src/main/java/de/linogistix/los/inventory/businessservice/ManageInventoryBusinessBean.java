@@ -73,7 +73,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 	private EntityManager manager;
 		
 	public StockUnit createStockUnitOnStorageLocation(String clientRef, String slName, String articleRef, String lotRef,
-			BigDecimal amount, PackagingUnit packagingUnit, String unitLoadRef, String activityCode,
+			BigDecimal amount, PackagingUnit packagingUnit, int state, String unitLoadRef, String activityCode,
 			String serialNumber) throws EntityNotFoundException, InventoryException, FacadeException {
 
 		Client c;
@@ -109,7 +109,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 			
 			try {
 				lot = getOrCreateLot(c, lotRef, idat);
-				ul = invComp.getOrCreateUnitLoad(c, idat, sl, unitLoadRef);
+				ul = invComp.getOrCreateUnitLoad(c, idat, sl, unitLoadRef, state);
 			} 
 			catch (Throwable ex) {
 				log.error(ex.getMessage(), ex);
