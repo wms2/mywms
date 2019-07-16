@@ -12,12 +12,12 @@ import de.linogistix.common.services.J2EEServiceLocatorException;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.pick.facade.CreatePickRequestPositionTO;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class TreatOrderDialogModel {
 
     private BigDecimal amountToPick;
     
-    private BODTO<LOSCustomerOrderPosition> actuOrderPos;
+    private BODTO<DeliveryOrderLine> actuOrderPos;
     
     //Long: id of Orderposition, 
     private HashMap<Long, List<CreatePickRequestPositionTO>> orderPosMap;
@@ -54,7 +54,7 @@ public class TreatOrderDialogModel {
         }
     }
     
-    public void setActuOrderPosition(BODTO<LOSCustomerOrderPosition> orderPos, BigDecimal amountToPick){
+    public void setActuOrderPosition(BODTO<DeliveryOrderLine> orderPos, BigDecimal amountToPick){
     
 //        if(!orderPosMap.containsKey(orderPos.getId())){
 //            orderPosMap.put(orderPos.getId(), new ArrayList<CreatePickRequestPositionTO>());
@@ -220,12 +220,12 @@ public class TreatOrderDialogModel {
         }
     }
     
-    public List<BODTO<LOSCustomerOrderPosition>> getHandledPositions(){
+    public List<BODTO<DeliveryOrderLine>> getHandledPositions(){
         
         Set<Long> orderPosIdSet = orderPosMap.keySet();
                
-        List<BODTO<LOSCustomerOrderPosition>> handledPosList;
-        handledPosList = new ArrayList<BODTO<LOSCustomerOrderPosition>>(orderPosIdSet.size());
+        List<BODTO<DeliveryOrderLine>> handledPosList;
+        handledPosList = new ArrayList<BODTO<DeliveryOrderLine>>(orderPosIdSet.size());
         
         for(Long id : orderPosIdSet){
             

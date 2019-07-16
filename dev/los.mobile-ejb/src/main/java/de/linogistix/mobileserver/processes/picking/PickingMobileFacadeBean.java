@@ -34,11 +34,6 @@ import de.linogistix.los.common.exception.LOSExceptionRB;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
@@ -55,21 +50,27 @@ import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.model.LOSWorkingArea;
 import de.linogistix.los.location.model.LOSWorkingAreaPosition;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.mobileserver.processes.controller.ManageMobile;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingType;
+import de.wms2.mywms.picking.PickingUnitLoad;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 /**
  * @author krane
@@ -116,7 +117,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	@EJB
 	private ItemDataNumberService eanService;
 	@EJB
-	private QueryFixedAssignmentService fixService;
+	private FixAssignmentEntityService fixService;
 
     @PersistenceContext(unitName = "myWMS")
     protected EntityManager manager;
@@ -143,7 +144,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 	public PickingMobileOrder readOrder(long orderId) {
 		String logStr = "readOrder ";
-		LOSPickingOrder order = getPickingOrder(orderId);
+		PickingOrder order = getPickingOrder(orderId);
 		if( order == null ) {
 			log.warn(logStr+"Cannot read order. id="+orderId);
 			return null;
@@ -151,9 +152,9 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		PickingMobileOrder mOrder = new PickingMobileOrder(order);
 		
 		if( !StringTools.isEmpty(mOrder.customerOrderNumber) ) {
-			LOSCustomerOrder customerOrder = customerOrderService.getByNumber(mOrder.customerOrderNumber);
-			if( customerOrder != null ) {
-				mOrder.setCustomerOrder(customerOrder);
+			DeliveryOrder deliveryOrder = customerOrderService.getByNumber(mOrder.customerOrderNumber);
+			if( deliveryOrder != null ) {
+				mOrder.setCustomerOrder(deliveryOrder);
 			}
 		}
 		
@@ -161,7 +162,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	}
 	
 	public void reserveOrder(long orderId) throws FacadeException {
-		LOSPickingOrder order = getPickingOrder(orderId);
+		PickingOrder order = getPickingOrder(orderId);
 		if( order != null && order.getState() < State.STARTED ) {
 			User user = contextService.getCallersUser();
 			pickingBusiness.reservePickingOrder(order, user, false);
@@ -169,21 +170,21 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	}
 	
 	public void startOrder( long orderId ) throws FacadeException {
-		LOSPickingOrder order = getPickingOrder(orderId);
+		PickingOrder order = getPickingOrder(orderId);
 		if( order != null && order.getState() < State.PICKED ) {
 			pickingBusiness.startPickingOrder(order, true);
 		}
 	}
 	
 	public void releaseOrder(long orderId) throws FacadeException {
-		LOSPickingOrder order = getPickingOrder(orderId);
+		PickingOrder order = getPickingOrder(orderId);
 		if( order != null ) {
 			pickingBusiness.resetPickingOrder(order);
 		}
 	}
 
 	public void finishOrder(long orderId) throws FacadeException {
-		LOSPickingOrder order = getPickingOrder(orderId);
+		PickingOrder order = getPickingOrder(orderId);
 		
 		if( order != null ) {
 			if( order.getState() >= State.PICKED && order.getState() < State.FINISHED ) {
@@ -193,7 +194,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 				pickingBusiness.resetPickingOrder(order);
 			}
 			else {
-				log.warn("Cannot finish order twice. number="+order.getNumber());
+				log.warn("Cannot finish order twice. number="+order.getOrderNumber());
 			}
 		}
 		else {
@@ -205,13 +206,13 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 	public void confirmPick(PickingMobilePos pickTO, PickingMobileUnitLoad pickTo, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted ) throws FacadeException {
 		String logStr = "confirmPick ";
-		LOSPickingPosition pick = getPickingPosition(pickTO.id);
+		PickingOrderLine pick = getPickingPosition(pickTO.id);
 		if( pick == null ) {
 			log.warn(logStr+"Pick not found. id="+pickTO.id);
 			throw new LOSExceptionRB("CannotReadCurrentPick", this.getClass());
 		}
 		
-		LOSPickingUnitLoad pickingUnitLoad = null;
+		PickingUnitLoad pickingUnitLoad = null;
 		if( pickTo != null ) {
 			pickingUnitLoad = pickingUnitLoadService.getByLabel(pickTo.label);
 			
@@ -237,7 +238,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public void transferUnitLoad(String label, String targetLocName, int state) throws FacadeException {
 		String logStr = "transferUnitLoad ";
 		
-		LOSPickingUnitLoad pickingUnitLoad = null;
+		PickingUnitLoad pickingUnitLoad = null;
 		pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.info(logStr+"unit load not found. Cannot transfer. label="+label);
@@ -334,7 +335,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		Client client = contextService.getCallersClient();
 		StorageLocation storageLocation = locService.getCurrentUsersLocation();
 
-		LOSPickingOrder pickingOrder = null;
+		PickingOrder pickingOrder = null;
 		try {
 			pickingOrder = pickingOrderService.get(pickingOrderId);
 		}
@@ -344,7 +345,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		}
 		
 		unitLoad = ulService.createLOSUnitLoad(client, label, type, storageLocation, StockState.PICKED);
-		LOSPickingUnitLoad pul = pickingUnitLoadService.create(pickingOrder, unitLoad, index);
+		PickingUnitLoad pul = pickingUnitLoadService.create(pickingOrder, unitLoad, index);
 		
 		return new PickingMobileUnitLoad(pul);
 	}
@@ -353,7 +354,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		String logStr = "removeUnitLoadIfEmpty ";
 		
 		
-		LOSPickingUnitLoad pickingUnitLoad = null;
+		PickingUnitLoad pickingUnitLoad = null;
 		UnitLoad unitLoad = null;
 		pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
 		if( pickingUnitLoad == null ) {
@@ -374,7 +375,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		}
 		
 		
-		List<LOSPickingPosition> pickList = pickingPositionService.getByPickToUnitLoad(pickingUnitLoad);
+		List<PickingOrderLine> pickList = pickingPositionService.getByPickToUnitLoad(pickingUnitLoad);
 		if( pickList != null && pickList.size()>0 ) {
 			log.info(logStr+"Some picks are referencing the picking unit load. Cannot remove. label="+label);
 			return false;
@@ -409,7 +410,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("SELECT po FROM ");
-		sb.append(LOSPickingOrder.class.getSimpleName()+" po");
+		sb.append(PickingOrder.class.getSimpleName()+" po");
 		sb.append(" WHERE po.state>="+State.PROCESSABLE+" and po.state<"+State.FINISHED);
 		sb.append(" AND ( ");
 		sb.append("     ( po.state="+State.PROCESSABLE+" )");
@@ -424,15 +425,15 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		if( !StringTools.isEmpty(code) ) {
 //			sb.append(" and lower(po.number) like :code");
 			sb.append(" and (");
-			sb.append("     lower(po.number) like :code");
-			sb.append("  or exists(select 1 from "+LOSCustomerOrder.class.getSimpleName()+" co, "+LOSCustomerOrderPosition.class.getSimpleName()+" cp, "+LOSPickingPosition.class.getSimpleName()+" pp ");
-			sb.append("     where pp.pickingOrder=po and pp.customerOrderPosition=cp and cp.order=co ");
+			sb.append("     lower(po.orderNumber) like :code");
+			sb.append("  or exists(select 1 from "+DeliveryOrder.class.getSimpleName()+" co, "+DeliveryOrderLine.class.getSimpleName()+" cp, "+PickingOrderLine.class.getSimpleName()+" pp ");
+			sb.append("     where pp.pickingOrder=po and pp.deliveryOrderLine=cp and cp.deliveryOrder=co ");
 			sb.append("       and co.state<"+State.PICKED+" and cp.state<"+State.PICKED);
-			sb.append("       and (lower(co.number) like :code or lower(co.externalNumber) like :code) )");
+			sb.append("       and (lower(co.orderNumber) like :code or lower(co.externalNumber) like :code) )");
 			sb.append(" )");
 		}
 
-		sb.append(" and exists( select 1 from "+LOSPickingPosition.class.getSimpleName()+" pp ");
+		sb.append(" and exists( select 1 from "+PickingOrderLine.class.getSimpleName()+" pp ");
 		if( workingAreaId != null ) {
 			sb.append(", ");
 			sb.append(StockUnit.class.getSimpleName()+" su, ");
@@ -459,12 +460,12 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		Query query = manager.createQuery(sb.toString());
 		
 		List<Integer> typeList = new ArrayList<Integer>();
-		typeList.add(Integer.valueOf(LOSPickingPosition.PICKING_TYPE_DEFAULT));
+		typeList.add(Integer.valueOf(PickingType.DEFAULT));
 		if( usePick ) {
-			typeList.add(Integer.valueOf(LOSPickingPosition.PICKING_TYPE_PICK));
+			typeList.add(Integer.valueOf(PickingType.PICK));
 		}
 		if( useTransport ) {
-			typeList.add(Integer.valueOf(LOSPickingPosition.PICKING_TYPE_COMPLETE));
+			typeList.add(Integer.valueOf(PickingType.COMPLETE));
 		}
 		query.setParameter("typeList", typeList);
 		query.setParameter("user", user);
@@ -487,10 +488,10 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			query.setMaxResults(limit);
 		}
 		
-		List<LOSPickingOrder> res = query.getResultList();
+		List<PickingOrder> res = query.getResultList();
 		
 		ArrayList<SelectItem> orderSelectList = new ArrayList<SelectItem>();
-		for( LOSPickingOrder o : res ) {
+		for( PickingOrder o : res ) {
 			String label = manageMobile.getPickingSelectionText(o);
 			orderSelectList.add(new SelectItem(o.getId(), label));
 		}
@@ -502,7 +503,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSPickingOrder> getStartedOrders(boolean useTransport) {
+	public List<PickingOrder> getStartedOrders(boolean useTransport) {
 		String logStr = "getStartedOrders ";
 		Date dateStart = new Date();
 		
@@ -511,20 +512,20 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		User user = contextService.getCallersUser();
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT po FROM "+LOSPickingOrder.class.getSimpleName()+" po ");
+		sb.append("SELECT po FROM "+PickingOrder.class.getSimpleName()+" po ");
 		sb.append(" WHERE po.operator=:user AND po.state >="+State.STARTED+" AND po.state<"+State.FINISHED);
 		if( !useTransport ) {
-			sb.append(" and not exists (select 1 from "+LOSPickingPosition.class.getSimpleName()+" pos where pos.pickingOrder=po and pos.pickingType="+LOSPickingPosition.PICKING_TYPE_COMPLETE+")");
+			sb.append(" and not exists (select 1 from "+PickingOrderLine.class.getSimpleName()+" pos where pos.pickingOrder=po and pos.pickingType="+PickingType.COMPLETE+")");
 		}
 		sb.append(" ORDER BY po.state DESC, po.prio, po.created ASC");
 		log.debug(logStr+"query = "+sb.toString());
 		Query query = manager.createQuery(sb.toString());
 		query.setParameter("user", user);
-		List<LOSPickingOrder> res = query.getResultList();
+		List<PickingOrder> res = query.getResultList();
 		
 		// initialize positions
-		for( LOSPickingOrder order : res ) {
-			for( LOSPickingPosition pick : order.getPositions() ) {
+		for( PickingOrder order : res ) {
+			for( PickingOrderLine pick : order.getLines() ) {
 				pick.getId();
 			}
 		}
@@ -536,12 +537,12 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public PickingMobileUnitLoad readUnitLoad( long orderId ) {
 		String logStr = "readUnitLoad ";
-		LOSPickingUnitLoad unitLoadUsable = null;
-		LOSPickingOrder order = null;
+		PickingUnitLoad unitLoadUsable = null;
+		PickingOrder order = null;
 		try {
 			order = pickingOrderService.get(orderId);
-			List<LOSPickingUnitLoad> unitLoadList = pickingUnitLoadService.getByPickingOrder(order);
-			for( LOSPickingUnitLoad unitLoad : unitLoadList ) {
+			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByPickingOrder(order);
+			for( PickingUnitLoad unitLoad : unitLoadList ) {
 				if( unitLoad.getState() < State.FINISHED ) {
 					unitLoadUsable = unitLoad;
 					break;
@@ -560,12 +561,12 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public List<PickingMobileUnitLoad> readUnitLoadList( long orderId ) {
 		String logStr = "readUnitLoadList ";
-		LOSPickingOrder order = null;
+		PickingOrder order = null;
 		List<PickingMobileUnitLoad> unitLoadUsableList = new ArrayList<PickingMobileUnitLoad>();
 		try {
 			order = pickingOrderService.get(orderId);
-			List<LOSPickingUnitLoad> unitLoadList = pickingUnitLoadService.getByPickingOrder(order);
-			for( LOSPickingUnitLoad unitLoad : unitLoadList ) {
+			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByPickingOrder(order);
+			for( PickingUnitLoad unitLoad : unitLoadList ) {
 				log.debug(logStr+"Found unit load for order. unitload="+unitLoad+", state="+unitLoad.getState()+", order="+order);
 				if( unitLoad.getState() < State.FINISHED ) {
 					unitLoadUsableList.add(new PickingMobileUnitLoad(unitLoad));
@@ -578,7 +579,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	}	
 	public List<PickingMobilePos> readPickList( long orderId ) {
 		String logStr = "readPickList ";
-		LOSPickingOrder order = null;
+		PickingOrder order = null;
 		try {
 			order = pickingOrderService.get(orderId);
 		} catch (EntityNotFoundException e) {}
@@ -587,10 +588,10 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			return null;
 		}
 		
-		List<LOSPickingPosition> pickList = order.getPositions();
+		List<PickingOrderLine> pickList = order.getLines();
 		List<PickingMobilePos> pickListMobile = new ArrayList<PickingMobilePos>();
 		
-		for( LOSPickingPosition pick : pickList ) {
+		for( PickingOrderLine pick : pickList ) {
 			List<ItemDataNumber> numberList = eanService.getListByItemData(pick.getItemData());
 			List<String> eanList = null;
 			if( numberList != null && numberList.size()>0 ) {
@@ -603,7 +604,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			StockUnit su = pick.getPickFromStockUnit();
 			if( su != null ) {
 				UnitLoad ul = su.getUnitLoad();
-				isFixedLocation = fixService.existsByLocation( ul.getStorageLocation() );
+				isFixedLocation = fixService.exists(null, ul.getStorageLocation() );
 			}
 			PickingMobilePos pickMobile = new PickingMobilePos();
 			pickMobile.init(pick, eanList, isFixedLocation);
@@ -615,7 +616,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public PickingMobilePos reloadPick(PickingMobilePos to) {
 		String logStr = "reloadPick ";
 		
-		LOSPickingPosition pick = getPickingPosition(to.id);
+		PickingOrderLine pick = getPickingPosition(to.id);
 		if( pick == null ) {
 			log.warn(logStr+"Failed to reload pick. id="+to.id);
 			return to;
@@ -665,7 +666,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, label);
 		}
 		
-		LOSPickingPosition pick = getPickingPosition(to.id);
+		PickingOrderLine pick = getPickingPosition(to.id);
 		if( pick == null ) {
 			log.info(logStr+"The current picking position cannot be read");
 			throw new LOSExceptionRB("CannotReadCurrentPick", this.getClass());
@@ -688,9 +689,9 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB("SwitchWrongItemData", this.getClass());
 		}
 		
-		if( pick.getCustomerOrderPosition() != null ) {
-			if( pick.getCustomerOrderPosition().getLot() != null ) {
-				if( !pick.getCustomerOrderPosition().getLot().equals(stockNew.getLot()) ) {
+		if( pick.getDeliveryOrderLine() != null ) {
+			if( pick.getDeliveryOrderLine().getLot() != null ) {
+				if( !pick.getDeliveryOrderLine().getLot().equals(stockNew.getLot()) ) {
 					log.info(logStr+"Wrong lot on unit load. label="+label);
 					throw new LOSExceptionRB("SwitchWrongItemLot", this.getClass());
 				}
@@ -765,16 +766,16 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	}
 
 	
-	private LOSPickingOrder getPickingOrder(long orderId) {
-		LOSPickingOrder order = null;
+	private PickingOrder getPickingOrder(long orderId) {
+		PickingOrder order = null;
 		try {
 			order = pickingOrderService.get(orderId);
 		} catch (EntityNotFoundException e) {}
 		return order;
 	}
 	
-	private LOSPickingPosition getPickingPosition(long id) {
-		LOSPickingPosition pick = null;
+	private PickingOrderLine getPickingPosition(long id) {
+		PickingOrderLine pick = null;
 		try {
 			pick = pickingPositionService.get(id);
 		} catch (EntityNotFoundException e) {}

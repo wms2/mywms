@@ -9,12 +9,14 @@ package de.linogistix.los.inventory.facade;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -22,40 +24,41 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
-import de.linogistix.los.inventory.businessservice.LOSPickingOrderGenerator;
-import de.linogistix.los.inventory.businessservice.LOSPickingPosGenerator;
-import de.linogistix.los.inventory.businessservice.LOSPickingStockService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.pick.facade.CreatePickRequestPositionTO;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderEntityService;
+import de.wms2.mywms.picking.PickingOrderGenerator;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingStockFinder;
 
 @Stateless
 public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 	Logger log = Logger.getLogger(LOSCompatibilityFacadeBean.class);
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
-	@EJB
-	private LOSPickingOrderService pickingOrderService;
-	@EJB
-	private LOSPickingPosGenerator pickingPosGenerator;
-	@EJB
-	private LOSPickingOrderGenerator pickingOrderGenerator;
-	@EJB
-	private LOSPickingStockService pickingStockService;
+	@Inject
+	private PickingOrderEntityService pickingOrderService;
+	@Inject
+	private PickingOrderLineGenerator pickingPosGenerator;
+	@Inject
+	private PickingOrderGenerator pickingOrderGenerator;
+	@Inject
+	private PickingStockFinder pickingStockService;
 	
 	@EJB
 	private LOSStorageLocationService locationService;
@@ -68,7 +71,7 @@ public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 		String logStr = "createPickRequests ";
 		log.debug(logStr);
 		
-		Map<String,List<LOSPickingPosition>> pickingOrderMap = new HashMap<String, List<LOSPickingPosition>>();
+		Map<String,List<PickingOrderLine>> pickingOrderMap = new HashMap<String, List<PickingOrderLine>>();
 		
 		StorageLocation target = null;
 		
@@ -79,12 +82,12 @@ public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 				target = locationService.getByName( posTO.targetPlace.getName() );
 			}
 			
-			LOSCustomerOrderPosition orderPos = manager.find(LOSCustomerOrderPosition.class, posTO.orderPosition.getId());
-			LOSCustomerOrder order = orderPos.getOrder();
+			DeliveryOrderLine orderPos = manager.find(DeliveryOrderLine.class, posTO.orderPosition.getId());
+			DeliveryOrder order = orderPos.getDeliveryOrder();
 
-			LOSPickingOrder req;
+			PickingOrder req;
 
-			req = pickingOrderService.getByNumber(posTO.pickRequestNumber);
+			req = pickingOrderService.read(posTO.pickRequestNumber);
 			if( req != null && req.getState() < State.FINISHED ) {
 				throw new InventoryException(InventoryExceptionKey.WRONG_STATE, ""+req.getState());
 			}
@@ -102,12 +105,17 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			// The GUI has already reserved the amount. Kill this here to avoid duplicate reservation
 			su.releaseReservedAmount(amount);
 
-			LOSPickingPosition pick = pickingPosGenerator.generatePick(amount, su, order.getStrategy(), orderPos);
+			PickingOrderLine pick;
+			try {
+				pick = pickingPosGenerator.generatePick(orderPos, order.getOrderStrategy(), su, amount, su.getClient(), null, null);
+			} catch (BusinessException e) {
+				throw e.toFacadeException();
+			}
 			
 			String pickingOrderNumber = posTO.pickRequestNumber;
-			List<LOSPickingPosition> pickList = pickingOrderMap.get(pickingOrderNumber);
+			List<PickingOrderLine> pickList = pickingOrderMap.get(pickingOrderNumber);
 			if( pickList == null ) {
-				pickList = new ArrayList<LOSPickingPosition>();
+				pickList = new ArrayList<PickingOrderLine>();
 				pickingOrderMap.put(pickingOrderNumber, pickList);
 			}
 			pickList.add(pick);
@@ -116,12 +124,21 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 		
 		if( pickingOrderMap.size()>0 ) {
 			for( String key : pickingOrderMap.keySet() ) {
-				List<LOSPickingPosition> pickList = pickingOrderMap.get(key);
+				List<PickingOrderLine> pickList = pickingOrderMap.get(key);
 				if( pickList.size()>0 ) {
-					LOSPickingOrder pickingOrder = pickingOrderGenerator.createSingleOrder(pickList);
-					if( pickingOrder != null ) {
-						pickingOrder.setNumber(key);
-						pickingOrder.setManualCreation(true);
+					Collection<PickingOrder> pickingOrders;
+					try {
+						pickingOrders = pickingOrderGenerator.generatePickingOrders(pickList);
+					} catch (BusinessException e) {
+						throw e.toFacadeException();
+					}
+					int i=1;
+					for(PickingOrder pickingOrder:pickingOrders) {
+						pickingOrder.setOrderNumber(key);
+						if (pickingOrders.size() > 1) {
+							pickingOrder.setOrderNumber(key + ":" + i++);
+						}
+						pickingOrder.setCreateFollowUpPicks(false);
 						
 						if( target != null ) {
 							pickingOrder.setDestination(target);
@@ -137,7 +154,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 
 	
 	
-	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(BODTO<LOSCustomerOrderPosition> orderPosTO,
+	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(BODTO<DeliveryOrderLine> orderPosTO,
 			  																	 BODTO<Lot> lotTO,
 			  																	 BODTO<StorageLocation> locationTO) 
 		throws InventoryException
@@ -147,7 +164,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			return new LOSResultList<LOSOrderStockUnitTO>();
 		}
 		
-		LOSCustomerOrderPosition orderPos = manager.find(LOSCustomerOrderPosition.class, orderPosTO.getId());
+		DeliveryOrderLine orderPos = manager.find(DeliveryOrderLine.class, orderPosTO.getId());
 		if(orderPos == null){
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_ORDERPOSITION, new Object[0]);
 		}
@@ -157,8 +174,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			lot = manager.find(Lot.class, lotTO.getId());
 		}
 		
-		List<StockUnit> stockList = pickingStockService.getPickFromStockList( orderPos.getClient(), orderPos.getItemData(), lot, null, null, orderPos.getOrder().getStrategy(), true );
-
+		List<StockUnit> stockList = pickingStockService.findSourceStockList( orderPos.getItemData(), orderPos.getClient(), lot, orderPos.getDeliveryOrder().getOrderStrategy());
 		List<LOSOrderStockUnitTO> toList = new ArrayList<LOSOrderStockUnitTO>();
 		
 		for( StockUnit su : stockList ) {

@@ -9,6 +9,7 @@ package de.linogistix.los.inventory.facade;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -29,20 +31,12 @@ import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.businessservice.LOSOrderGenerator;
-import de.linogistix.los.inventory.businessservice.LOSPickingOrderGenerator;
-import de.linogistix.los.inventory.businessservice.LOSPickingPosGenerator;
 import de.linogistix.los.inventory.businessservice.StorageBusiness;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.OrderReceipt;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
@@ -52,8 +46,6 @@ import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
-import de.linogistix.los.inventory.service.LOSOrderStrategyService;
-import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
@@ -67,11 +59,22 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderEntityService;
+import de.wms2.mywms.picking.PickingOrderGenerator;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingUnitLoad;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyEntityService;
 
 
 // TODO i18n
@@ -95,8 +98,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@EJB
 	private LOSPickingPositionService pickingPositionService;
 	@EJB
-	private LOSPickingOrderService pickingOrderService;
-	@EJB
 	private LOSPickingUnitLoadService pickingUnitLoadService;
 	@EJB
 	private LOSOrderBusiness orderBusiness;
@@ -106,14 +107,14 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private ItemDataService itemService;
 	@EJB
 	private QueryLotService lotService;
-	@EJB
-	private LOSPickingPosGenerator pickingPosGenerator;
-	@EJB
-	private LOSPickingOrderGenerator pickingOrderGenerator;
+	@Inject
+	private PickingOrderLineGenerator pickingPosGenerator;
+	@Inject
+	private PickingOrderGenerator pickingOrderGenerator;
 	@EJB
 	private ContextService contextService;
 	@EJB
-	private LOSOrderStrategyService orderStratService;
+	private OrderStrategyEntityService orderStratService;
 	@EJB
 	private ManageOrderService manageOrderService;
 	@EJB
@@ -135,7 +136,10 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
     @PersistenceContext(unitName = "myWMS")
     private  EntityManager manager;
 
-	public LOSCustomerOrder order(
+    @Inject
+    private PickingOrderEntityService pickingOrderEntityService;
+    
+	public DeliveryOrder order(
 			String clientNumber,
 			String externalNumber,
 			OrderPositionTO[] positions,
@@ -150,7 +154,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		String logStr = "order ";
 		log.debug(logStr);
 		
-		LOSCustomerOrder order;
+		DeliveryOrder order;
 
 		Client client = null;
 		if( StringTools.isEmpty(clientNumber) ) {
@@ -169,12 +173,12 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			deliveryDate = new Date(System.currentTimeMillis() + (24 * 3600 * 1000));
 		}
 
-		LOSOrderStrategy strat = null;
+		OrderStrategy strat = null;
 		if( StringTools.isEmpty(orderStrategyName) ) {
 			strat = orderStratService.getDefault(client);
 		}
 		else {
-			strat = orderStratService.getByName(client, orderStrategyName);
+			strat = orderStratService.read(client, orderStrategyName);
 		}
 		if( strat == null ){
 			String msg = "OrderStrategy does not exist. name="+orderStrategyName;
@@ -192,14 +196,14 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			}
 		}
 		
-		order = orderGenerator.createCustomerOrder(client, strat);
+		order = orderGenerator.createDeliveryOrder(client, strat);
 		order.setPrio(prio);
 		order.setAdditionalContent(comment);
 		order.setExternalNumber(externalNumber);
 		order.setDocumentUrl(documentUrl);
 		order.setLabelUrl(labelUrl);
 		order.setDestination(destination);
-		order.setDelivery(deliveryDate);
+		order.setDeliveryDate(deliveryDate);
 
 		for( OrderPositionTO posTO : positions ) {
 			ItemData item = itemService.getByItemNumber(client, posTO.articleRef);
@@ -224,19 +228,23 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 			}
 			
-			orderGenerator.addCustomerOrderPos(order, item, lot, null, amount);
+			orderGenerator.addDeliveryOrderLine(order, item, lot, null, amount);
 		}
 
 		if( startPicking ) {
-			List<LOSPickingPosition> pickList;
-			pickList = pickingPosGenerator.generatePicks(order, completeOnly);
-			if( pickList != null && pickList.size()>0 ) {
-				List<LOSPickingOrder> pickingOrders = pickingOrderGenerator.createOrders(pickList);
-				for( LOSPickingOrder pickingOrder : pickingOrders ) {
-					pickingOrder.setDestination(destination);
-					pickingOrder.setPrio(prio);
-					orderBusiness.releasePickingOrder(pickingOrder);
+			try {
+				List<PickingOrderLine> pickList;
+				pickList = pickingPosGenerator.generatePicks(order, completeOnly);
+				if (pickList != null && pickList.size() > 0) {
+					Collection<PickingOrder> pickingOrders = pickingOrderGenerator.generatePickingOrders(pickList);
+					for (PickingOrder pickingOrder : pickingOrders) {
+						pickingOrder.setDestination(destination);
+						pickingOrder.setPrio(prio);
+						orderBusiness.releasePickingOrder(pickingOrder);
+					}
 				}
+			} catch (BusinessException e) {
+				throw e.toFacadeException();
 			}
 		}
 		
@@ -244,30 +252,30 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	}
 
 
-	public LOSCustomerOrder finishOrder(Long orderId) throws FacadeException {
+	public DeliveryOrder finishOrder(Long orderId) throws FacadeException {
 		String logStr = "finishOrder ";
 		
-		LOSCustomerOrder order = manager.find(LOSCustomerOrder.class, orderId);
+		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
 		if( order == null ) {
 			String msg = "Customer order does not exist. id="+orderId;
 			log.error(logStr+msg);
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
-		log.debug(logStr+"order number="+order.getNumber());
+		log.debug(logStr+"order number="+order.getOrderNumber());
 
-		List<LOSPickingPosition> pickList = pickingPositionService.getByCustomerOrder(order);
-		Set<LOSPickingOrder> pickingOrderSet = new HashSet<LOSPickingOrder>();
-		for( LOSPickingPosition pick : pickList ) {
-			LOSPickingOrder po = pick.getPickingOrder();
+		List<PickingOrderLine> pickList = pickingPositionService.getByDeliveryOrder(order);
+		Set<PickingOrder> pickingOrderSet = new HashSet<PickingOrder>();
+		for( PickingOrderLine pick : pickList ) {
+			PickingOrder po = pick.getPickingOrder();
 			if( po != null ) {
 				pickingOrderSet.add(po);
 			}
 			orderBusiness.cancelPick(pick);
 		}
-		for( LOSPickingOrder po : pickingOrderSet ) {
+		for( PickingOrder po : pickingOrderSet ) {
 			orderBusiness.recalculatePickingOrderState(po);
 		}
-		orderBusiness.finishCustomerOrder(order);
+		orderBusiness.finishDeliveryOrder(order);
 		
 		return order;
 	}
@@ -275,20 +283,20 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	public void removeOrder(Long orderId) throws FacadeException {
 		String logStr = "removeOrder ";
 		
-		LOSCustomerOrder order = manager.find(LOSCustomerOrder.class, orderId);
+		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
 		if( order == null ) {
 			String msg = "Customer order does not exist. id="+orderId;
 			log.error(logStr+msg);
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
-		log.debug(logStr+"order number="+order.getNumber());
+		log.debug(logStr+"order number="+order.getOrderNumber());
 		
-		List<LOSPickingPosition> pickList = pickingPositionService.getByCustomerOrder(order);
+		List<PickingOrderLine> pickList = pickingPositionService.getByDeliveryOrder(order);
 		Set<Long> pickingOrderSet1 = new HashSet<Long>();
 		
 		// 1. Remove all picks
-		for( LOSPickingPosition pick : pickList ) {
-			LOSPickingOrder po = pick.getPickingOrder();
+		for( PickingOrderLine pick : pickList ) {
+			PickingOrder po = pick.getPickingOrder();
 			if( po != null ) {
 				pickingOrderSet1.add(po.getId());
 			}
@@ -299,20 +307,20 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		
 		// 2. remove all customer order positions
-		for( LOSCustomerOrderPosition pos : order.getPositions() ) {
+		for( DeliveryOrderLine pos : order.getLines() ) {
 			manager.remove(pos);
 		}
 
 		manager.flush();
 		
 		// 3. Find all LOSPickingOrder without position 
-		Set<LOSPickingOrder> pickingOrderSetRemovable = new HashSet<LOSPickingOrder>();
-		Set<LOSPickingUnitLoad> pickingUnitLoadSetRemovable = new HashSet<LOSPickingUnitLoad>();
+		Set<PickingOrder> pickingOrderSetRemovable = new HashSet<PickingOrder>();
+		Set<PickingUnitLoad> pickingUnitLoadSetRemovable = new HashSet<PickingUnitLoad>();
 		Set<LOSGoodsOutRequest> goodsOutRequestSetRemovable = new HashSet<LOSGoodsOutRequest>();
 
 		for( Long poId : pickingOrderSet1 ) {
-			LOSPickingOrder po = manager.find(LOSPickingOrder.class, poId);
-			if( po != null && po.getPositions().size()==0 ) {
+			PickingOrder po = manager.find(PickingOrder.class, poId);
+			if( po != null && po.getLines().size()==0 ) {
 				pickingOrderSetRemovable.add(po);
 				pickingUnitLoadSetRemovable.addAll( pickingUnitLoadService.getByPickingOrder(po) );
 			}
@@ -320,7 +328,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 
 		// 4. Remove all LOSPickingUnitLoad and LOSGoodsOutRequestPosition with removable LOSPickingOrder
-		for( LOSPickingUnitLoad pul : pickingUnitLoadSetRemovable ) {
+		for( PickingUnitLoad pul : pickingUnitLoadSetRemovable ) {
 			UnitLoad ul = pul.getUnitLoad();
 			
 
@@ -343,7 +351,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 
 		// 5. Remove empty picking orders
-		for( LOSPickingOrder po : pickingOrderSetRemovable ) {
+		for( PickingOrder po : pickingOrderSetRemovable ) {
 			manager.remove(po);
 		}
 		
@@ -357,7 +365,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		
 		// 7. Remove directly addressed shipping orders
-		List<LOSGoodsOutRequest> outList = outService.getByCustomerOrder(order);
+		List<LOSGoodsOutRequest> outList = outService.getByDeliveryOrder(order);
 		for( LOSGoodsOutRequest outReq : outList ) {
 			if( outReq == null ) {
 				continue;
@@ -426,18 +434,18 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 	public void changeOrderPrio( Long orderId, int prio ) throws FacadeException {
 		String logStr = "changeOrderPrio ";
-		LOSCustomerOrder order = manager.find(LOSCustomerOrder.class, orderId);
+		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
 		if( order == null ) {
 			String msg = "Customer order does not exist. id="+orderId;
 			log.error(logStr+msg);
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
-		log.debug(logStr+"order number="+order.getNumber());
+		log.debug(logStr+"order number="+order.getOrderNumber());
 
 		order.setPrio(prio);
 		
-		List<LOSPickingOrder> poList = pickingOrderService.getByCustomerOrder(order);
-		for( LOSPickingOrder po : poList ) {
+		List<PickingOrder> poList = pickingOrderEntityService.readAllByDeliveryOrder(order);
+		for( PickingOrder po : poList ) {
 			int prioOld = po.getPrio();
 			if( prio != prioOld ) {
 				po.setPrio(prio);
@@ -449,13 +457,13 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	
 	public Document generateReceipt( Long orderId, boolean save ) throws FacadeException {
 		String logStr = "generateReceipt ";
-		LOSCustomerOrder order = manager.find(LOSCustomerOrder.class, orderId);
+		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
 		if( order == null ) {
 			String msg = "Customer order does not exist. id="+orderId;
 			log.error(logStr+msg);
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
-		log.debug(logStr+"order number="+order.getNumber());
+		log.debug(logStr+"order number="+order.getOrderNumber());
 
 		OrderReceipt receipt = null;
 		receipt = receiptService.generateOrderReceipt(order);
@@ -490,48 +498,48 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		return doc;
 	}
 	
-	public void processOrderPickedFinish(List<BODTO<LOSCustomerOrder>> orders) throws FacadeException {
+	public void processOrderPickedFinish(List<BODTO<DeliveryOrder>> orders) throws FacadeException {
 		String logStr = "processOrderPickedFinish ";
 		if (orders == null) {
 			return;
 		}
 	
-		for (BODTO<LOSCustomerOrder> order : orders) {
-			LOSCustomerOrder customerOrder = manager.find(LOSCustomerOrder.class, order.getId());
-			if( customerOrder==null ) {
+		for (BODTO<DeliveryOrder> order : orders) {
+			DeliveryOrder deliveryOrder = manager.find(DeliveryOrder.class, order.getId());
+			if( deliveryOrder==null ) {
 				continue;
 			}
-			log.debug(logStr+"Order="+customerOrder.getNumber());
+			log.debug(logStr+"Order="+deliveryOrder.getOrderNumber());
 				
-			List<LOSPickingOrder> pickOrderList = pickingOrderService.getByCustomerOrder(customerOrder);
-			for( LOSPickingOrder pickingOrder : pickOrderList ) {
+			List<PickingOrder> pickOrderList = pickingOrderEntityService.readAllByDeliveryOrder(deliveryOrder);
+			for( PickingOrder pickingOrder : pickOrderList ) {
 				if( pickingOrder.getState() >= State.FINISHED  ) {
 					continue;
 				}
 				orderBusiness.finishPickingOrder(pickingOrder);
 			}
 				
-			for (LOSCustomerOrderPosition pos : customerOrder.getPositions()) {
-				pos = manager.find(LOSCustomerOrderPosition.class, pos.getId());
-				log.debug(logStr+"Check pos="+pos.getNumber()+", state="+pos.getState());
+			for (DeliveryOrderLine pos : deliveryOrder.getLines()) {
+				pos = manager.find(DeliveryOrderLine.class, pos.getId());
+				log.debug(logStr+"Check pos="+pos.getLineNumber()+", state="+pos.getState());
 			
 				if( pos.getState() == State.PENDING ) {
-					log.info("processOrderPicked: force closing pending position. pos=" + pos.getNumber());
+					log.info("processOrderPicked: force closing pending position. pos=" + pos.getLineNumber());
 					pos.setState(State.PICKED);
 				}
 			}
 
-			int stateOld = customerOrder.getState();
-			LOSOrderStrategy strat = customerOrder.getStrategy();
-			if( strat != null && strat.isCreateGoodsOutOrder() ) {
-				goodsOutGenerator.createOrder(customerOrder);
-				customerOrder.setState(State.PICKED);
+			int stateOld = deliveryOrder.getState();
+			OrderStrategy strat = deliveryOrder.getOrderStrategy();
+			if( strat != null && strat.isCreateShippingOrder() ) {
+				goodsOutGenerator.createOrder(deliveryOrder);
+				deliveryOrder.setState(State.PICKED);
 			}
 			else {
-				customerOrder.setState(State.FINISHED);
+				deliveryOrder.setState(State.FINISHED);
 			}
-			if( customerOrder.getState() != stateOld ) {
-				manageOrderService.onCustomerOrderStateChange(customerOrder, stateOld);
+			if( deliveryOrder.getState() != stateOld ) {
+				manageOrderService.onDeliveryOrderStateChange(deliveryOrder, stateOld);
 			}
 		}
 	}

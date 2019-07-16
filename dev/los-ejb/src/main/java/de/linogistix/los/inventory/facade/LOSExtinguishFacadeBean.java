@@ -9,10 +9,12 @@ package de.linogistix.los.inventory.facade;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -25,26 +27,26 @@ import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
-import de.linogistix.los.inventory.businessservice.LOSPickingOrderGenerator;
-import de.linogistix.los.inventory.businessservice.LOSPickingPosGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSLotService;
-import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LotLockState;
-import de.linogistix.los.inventory.service.StockUnitLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderGenerator;
+import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.picking.PickingOrderLine;
 
 /**
  * @author krane
@@ -62,12 +64,12 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	private ClientService clientService;
 	@EJB
 	private LOSStorageLocationService locationService;
+	@Inject
+	private PickingOrderLineGenerator pickPosGenerator;
+	@Inject
+	private PickingOrderGenerator pickOrderGenerator;
 	@EJB
-	private LOSPickingPosGenerator pickPosGenerator;
-	@EJB
-	private LOSPickingOrderGenerator pickOrderGenerator;
-	@EJB
-	private LOSOrderStrategyService strategyService;
+	private OrderStrategyEntityService strategyService;
 	@EJB
 	private LOSOrderBusiness orderBusiness;
 	@EJB
@@ -150,8 +152,8 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	public void generateOrder( Client client, List<StockUnit> stockList ) throws FacadeException {
 		String logStr = "generateOrder ";
 		StorageLocation nirwana = locationService.getNirwana();
-		List<LOSPickingPosition> pickList = new ArrayList<LOSPickingPosition>();
-		LOSOrderStrategy strat = strategyService.getExtinguish(client);
+		List<PickingOrderLine> pickList = new ArrayList<PickingOrderLine>();
+		OrderStrategy strat = strategyService.getExtinguish(client);
 		
 		for( StockUnit stock : stockList ) {
 			UnitLoad ul = stock.getUnitLoad();
@@ -167,17 +169,27 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 			if( stock.getState() >= StockState.PICKED ) {
 				continue;
 			}
-			LOSPickingPosition pick = pickPosGenerator.generatePick( stock.getAvailableAmount(), stock, strat, null);
+			PickingOrderLine pick;
+			try {
+				pick = pickPosGenerator.generatePick( null, strat, stock, stock.getAvailableAmount(), stock.getClient(), null, null);
+			} catch (BusinessException e) {
+				throw e.toFacadeException();
+			}
+
 			pickList.add(pick);
 		}
-		List<LOSPickingOrder> pickingOrderList = null;
+		Collection<PickingOrder> pickingOrderList = null;
 		if( pickList.size()>0 ) {
-			pickingOrderList = pickOrderGenerator.createOrders(pickList, "EX");
+			try {
+				pickingOrderList = pickOrderGenerator.generatePickingOrders(pickList);
+			} catch (BusinessException e) {
+				throw e.toFacadeException();
+			}
 		}
 		
 		if( pickingOrderList != null && pickingOrderList.size()>0 ) {
-			for( LOSPickingOrder pickingOrder : pickingOrderList ) {
-				pickingOrder.setManualCreation(false);
+			for( PickingOrder pickingOrder : pickingOrderList ) {
+				pickingOrder.setCreateFollowUpPicks(false);
 				orderBusiness.releasePickingOrder(pickingOrder);
 			}
 		}

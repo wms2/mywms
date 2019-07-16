@@ -10,8 +10,8 @@ package de.linogistix.mobileserver.processes.info;
 import java.io.Serializable;
 import java.util.List;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.FixAssignment;
 
 /**
  * @author krane
@@ -32,7 +32,7 @@ public class InfoLocationTO implements Serializable{
 
 	public InfoLocationTO() {
 	}
-	public InfoLocationTO( StorageLocation loc, List<LOSFixedLocationAssignment> fixList ) {
+	public InfoLocationTO( StorageLocation loc, List<FixAssignment> fixList ) {
 		if( loc == null ) {
 			return;
 		}
@@ -48,7 +48,7 @@ public class InfoLocationTO implements Serializable{
 		}
 		
 		if( fixList != null ) {
-			for( LOSFixedLocationAssignment ass : fixList ) {
+			for( FixAssignment ass : fixList ) {
 				if( fixedItemDataNumber.length() > 0 ) {
 					fixedItemDataNumber += ", ";
 				}

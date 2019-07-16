@@ -7,15 +7,15 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * @author krane
  *
  */
-public class LOSPickingUnitLoadTO extends BODTO<LOSPickingPosition>{
+public class LOSPickingUnitLoadTO extends BODTO<PickingOrderLine>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,15 +26,15 @@ public class LOSPickingUnitLoadTO extends BODTO<LOSPickingPosition>{
 	private String pickingOrderNumber;
 	private String customerOrderNumber;
 
-	public LOSPickingUnitLoadTO( LOSPickingUnitLoad pickingUnitLoad ) {
+	public LOSPickingUnitLoadTO( PickingUnitLoad pickingUnitLoad ) {
 		super(pickingUnitLoad.getId(), pickingUnitLoad.getVersion(), pickingUnitLoad.getUnitLoad().getLabelId());
 
 		this.clientNumber = pickingUnitLoad.getClient().getNumber();
 		this.state = pickingUnitLoad.getState();
 		this.label = pickingUnitLoad.getUnitLoad().getLabelId();
 		this.locationName = pickingUnitLoad.getUnitLoad().getStorageLocation().getName();
-		this.pickingOrderNumber = pickingUnitLoad.getPickingOrder().getNumber();
-		this.customerOrderNumber = pickingUnitLoad.getCustomerOrderNumber();
+		this.pickingOrderNumber = pickingUnitLoad.getPickingOrder().getOrderNumber();
+		this.customerOrderNumber = pickingUnitLoad.getDeliveryOrderNumber();
 	}
 	
 	public LOSPickingUnitLoadTO(

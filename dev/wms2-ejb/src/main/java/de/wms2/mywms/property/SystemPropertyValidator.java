@@ -66,7 +66,7 @@ public class SystemPropertyValidator implements EntityValidator<SystemProperty> 
 		SystemProperty property = propertyBusiness.read(entity.getPropertyKey(), entity.getClient(),
 				entity.getPropertyContext());
 		if (property != null && !property.equals(entity)) {
-			logger.log(Level.INFO, logStr + "not unique, tenant/key. key=" + entity.getPropertyKey() + ", tenant="
+			logger.log(Level.INFO, logStr + "not unique, client/key. key=" + entity.getPropertyKey() + ", client="
 					+ entity.getClient());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
 		}

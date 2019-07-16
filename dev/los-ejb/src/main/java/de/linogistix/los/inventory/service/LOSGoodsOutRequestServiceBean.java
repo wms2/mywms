@@ -18,9 +18,9 @@ import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
 import org.mywms.service.ConstraintViolatedException;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 
 
@@ -68,7 +68,7 @@ public class LOSGoodsOutRequestServiceBean extends
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSGoodsOutRequest> getByCustomerOrder(LOSCustomerOrder order) {
+	public List<LOSGoodsOutRequest> getByDeliveryOrder(DeliveryOrder order) {
 		StringBuffer b = new StringBuffer();
 		Query q;
 

@@ -14,24 +14,24 @@ import javax.ejb.Local;
 import org.mywms.facade.FacadeException;
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSPickingUnitLoadService extends BasicService<LOSPickingUnitLoad>{
+public interface LOSPickingUnitLoadService extends BasicService<PickingUnitLoad>{
 	
-	public LOSPickingUnitLoad create(LOSPickingOrder pickingOrder, UnitLoad unitLoad, int index) throws FacadeException;
-	public LOSPickingUnitLoad getByLabel(String label);
-	public LOSPickingUnitLoad getByUnitLoad(UnitLoad unitLoad);
-	public List<LOSPickingUnitLoad> getByPickingOrder(LOSPickingOrder pickingOrder);
-	public List<LOSPickingUnitLoad> getByCustomerOrderNumber(String customerOrderNumber);
-	public List<LOSPickingUnitLoad> getByCustomerOrder(LOSCustomerOrder customerOrder);
-	public LOSCustomerOrder getCustomerOrder(LOSPickingUnitLoad pickingUnitLoad);
+	public PickingUnitLoad create(PickingOrder pickingOrder, UnitLoad unitLoad, int index) throws FacadeException;
+	public PickingUnitLoad getByLabel(String label);
+	public PickingUnitLoad getByUnitLoad(UnitLoad unitLoad);
+	public List<PickingUnitLoad> getByPickingOrder(PickingOrder pickingOrder);
+	public List<PickingUnitLoad> getByDeliveryOrderNumber(String orderNumber);
+	public List<PickingUnitLoad> getByDeliveryOrder(DeliveryOrder order);
+	public DeliveryOrder getDeliveryOrder(PickingUnitLoad pickingUnitLoad);
 
 }

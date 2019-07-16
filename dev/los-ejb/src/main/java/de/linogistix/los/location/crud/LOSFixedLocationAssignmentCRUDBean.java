@@ -18,7 +18,7 @@ import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
 import de.linogistix.los.location.entityservice.LOSFixedLocationAssignmentService;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
+import de.wms2.mywms.strategy.FixAssignment;
 
 
 /**
@@ -26,13 +26,13 @@ import de.linogistix.los.location.model.LOSFixedLocationAssignment;
  *
  */
 @Stateless
-public class LOSFixedLocationAssignmentCRUDBean extends BusinessObjectCRUDBean<LOSFixedLocationAssignment> implements LOSFixedLocationAssignmentCRUDRemote {
+public class LOSFixedLocationAssignmentCRUDBean extends BusinessObjectCRUDBean<FixAssignment> implements LOSFixedLocationAssignmentCRUDRemote {
 
 	@EJB 
 	LOSFixedLocationAssignmentService service;
 	
 	@Override
-	protected BasicService<LOSFixedLocationAssignment> getBasicService() {
+	protected BasicService<FixAssignment> getBasicService() {
 		
 		return service;
 	}

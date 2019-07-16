@@ -15,9 +15,9 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 
@@ -29,7 +29,7 @@ import de.wms2.mywms.location.StorageLocation;
 @Local
 public interface LOSGoodsOutGenerator {
 
-	public LOSGoodsOutRequest createOrder( LOSCustomerOrder customerOrder ) throws FacadeException;
+	public LOSGoodsOutRequest createOrder( DeliveryOrder customerOrder ) throws FacadeException;
 	
 	public LOSGoodsOutRequest createOrder( Client client, StorageLocation outLocation, String shipmentNumber, Date shippingDate, String courier, String additionalInfo) throws FacadeException;
 

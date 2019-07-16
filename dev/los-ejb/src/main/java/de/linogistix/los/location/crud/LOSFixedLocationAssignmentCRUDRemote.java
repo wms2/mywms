@@ -14,7 +14,7 @@ package de.linogistix.los.location.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
+import de.wms2.mywms.strategy.FixAssignment;
 
 
 /**
@@ -25,6 +25,6 @@ import de.linogistix.los.location.model.LOSFixedLocationAssignment;
  *
  */
 @Remote
-public interface LOSFixedLocationAssignmentCRUDRemote extends BusinessObjectCRUDRemote<LOSFixedLocationAssignment>{
+public interface LOSFixedLocationAssignmentCRUDRemote extends BusinessObjectCRUDRemote<FixAssignment>{
 
 }

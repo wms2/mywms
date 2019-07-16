@@ -55,8 +55,6 @@ public interface InventoryGeneratorService {
     
 	public String generateManageInventoryNumber();
 	
-	public String generateInventoryProcessNumber();
-	
 	public String generateStocktakingNumber();
 
 }

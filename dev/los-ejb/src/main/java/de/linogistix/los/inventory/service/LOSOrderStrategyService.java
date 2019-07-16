@@ -9,21 +9,14 @@ package de.linogistix.los.inventory.service;
 
 import javax.ejb.Local;
 
-import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSOrderStrategyService extends BasicService<LOSOrderStrategy> {
-
-	public LOSOrderStrategy getByName(Client client, String name);
-	
-	public LOSOrderStrategy getDefault(Client client);
-
-	public LOSOrderStrategy getExtinguish(Client client);
+public interface LOSOrderStrategyService extends BasicService<OrderStrategy> {
 }

@@ -6,14 +6,14 @@
  *  Project myWMS-LOS
  */package de.linogistix.los.inventory.query.dto;
 
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
  * @author krane
  *
  */
-public class LOSOrderStrategyTO extends BODTO<LOSOrderStrategy>{
+public class LOSOrderStrategyTO extends BODTO<OrderStrategy>{
 
 	private static final long serialVersionUID = 1L;
 

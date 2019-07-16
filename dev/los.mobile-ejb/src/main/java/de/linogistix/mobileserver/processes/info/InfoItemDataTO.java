@@ -12,9 +12,9 @@ import java.util.List;
 
 import org.mywms.globals.SerialNoRecordType;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
 
 /**
  * @author krane
@@ -44,7 +44,7 @@ public class InfoItemDataTO implements Serializable{
 	public InfoItemDataTO( ItemData idat ) {
 		this(idat, null, null);
 	}
-	public InfoItemDataTO( ItemData idat, List<LOSFixedLocationAssignment> fixList, List<StockUnit> stockList ) {
+	public InfoItemDataTO( ItemData idat, List<FixAssignment> fixList, List<StockUnit> stockList ) {
 		if( idat == null ) {
 			return;
 		}
@@ -61,11 +61,11 @@ public class InfoItemDataTO implements Serializable{
 		this.numStock = stockList == null ? -1: stockList.size(); 
 
 		if( fixList != null ) {
-			for( LOSFixedLocationAssignment ass : fixList ) {
+			for( FixAssignment ass : fixList ) {
 				if( fixedLocationName.length() > 0 ) {
 					fixedLocationName += ", ";
 				}
-				fixedLocationName += ass.getAssignedLocation().getName();
+				fixedLocationName += ass.getStorageLocation().getName();
 			}
 		}
 

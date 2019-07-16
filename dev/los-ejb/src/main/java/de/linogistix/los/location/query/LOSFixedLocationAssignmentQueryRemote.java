@@ -14,14 +14,14 @@ package de.linogistix.los.location.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.strategy.FixAssignment;
 
 /**
  *
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Remote
-public interface LOSFixedLocationAssignmentQueryRemote extends BusinessObjectQueryRemote<LOSFixedLocationAssignment>{ 
+public interface LOSFixedLocationAssignmentQueryRemote extends BusinessObjectQueryRemote<FixAssignment>{ 
   
 }

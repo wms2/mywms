@@ -15,8 +15,6 @@ import javax.ejb.Stateless;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderPositionTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
@@ -25,6 +23,8 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 
 
 /**
@@ -32,7 +32,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
  *
  */
 @Stateless
-public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<LOSCustomerOrderPosition> implements LOSCustomerOrderPositionQueryRemote{
+public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<DeliveryOrderLine> implements LOSCustomerOrderPositionQueryRemote{
 	
 
 	@Override
@@ -47,7 +47,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<L
 	
 	@Override
 	public String getOrderByProp() {
-		return "order.number, o.index";
+		return "deliveryOrder.orderNumber, o.lineNumber";
 	}
 	
 	@Override
@@ -61,16 +61,16 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<L
 		
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("number", false));
+		propList.add(new BODTOConstructorProperty("lineNumber", false));
 		propList.add(new BODTOConstructorProperty("itemData.number", null, BODTOConstructorProperty.JoinType.JOIN, "itemData"));
 //		propList.add(new BODTOConstructorProperty("itemData.number", false));
 		propList.add(new BODTOConstructorProperty("itemData.name", false));
 		propList.add(new BODTOConstructorProperty("itemData.scale", false));
 		propList.add(new BODTOConstructorProperty("lot.name", null, BODTOConstructorProperty.JoinType.LEFT, "lot"));
 		propList.add(new BODTOConstructorProperty("amount", false));
-		propList.add(new BODTOConstructorProperty("amountPicked", false));
+		propList.add(new BODTOConstructorProperty("pickedAmount", false));
 		propList.add(new BODTOConstructorProperty("state", false));
-		propList.add(new BODTOConstructorProperty("order.number", false));
+		propList.add(new BODTOConstructorProperty("deliveryOrder.orderNumber", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
 		propList.add(new BODTOConstructorProperty("externalId", false));
 		
@@ -83,7 +83,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<L
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
 		
 		TemplateQueryWhereToken number = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "number",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lineNumber",
 				value);
 		number.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(number);
@@ -114,8 +114,8 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<L
 	}
 
 	
-	public LOSResultList<BODTO<LOSCustomerOrderPosition>> autoCompletionByOrderRequest(
-			String typed, BODTO<LOSCustomerOrder> orderTO, QueryDetail detail) {
+	public LOSResultList<BODTO<DeliveryOrderLine>> autoCompletionByOrderRequest(
+			String typed, BODTO<DeliveryOrder> orderTO, QueryDetail detail) {
 		String typedToUpper = typed.toUpperCase();
 		
 		List<TemplateQueryWhereToken> tokenList = new ArrayList<TemplateQueryWhereToken>();
@@ -123,7 +123,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<L
 		Client client = null;
 		
 		if(orderTO != null){
-			LOSCustomerOrder order = manager.find(LOSCustomerOrder.class, orderTO.getId());
+			DeliveryOrder order = manager.find(DeliveryOrder.class, orderTO.getId());
 			client = order.getClient();
 			tokenList.add(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "order", order));
 		}
@@ -148,7 +148,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<L
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			token.setParameterName("finishedState");
 			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "amountPicked", null);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "pickedAmount", null);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			token.setParameterName("o.amount");
 			ret.add(token);

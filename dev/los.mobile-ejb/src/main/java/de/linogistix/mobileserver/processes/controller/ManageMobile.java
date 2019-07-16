@@ -12,8 +12,8 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.mobileserver.processes.picking.PickingMobilePos;
+import de.wms2.mywms.picking.PickingOrder;
 
 @Local
 public interface ManageMobile {
@@ -23,5 +23,5 @@ public interface ManageMobile {
 	public int getMenuPageSize();
 
 	public Comparator<PickingMobilePos> getPickingComparator();
-	public String getPickingSelectionText(LOSPickingOrder pickingOrder);
+	public String getPickingSelectionText(PickingOrder pickingOrder);
 }

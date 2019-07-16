@@ -10,17 +10,15 @@ package de.linogistix.los.inventory.facade;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.example.CommonTestTopologyRemote;
 import de.linogistix.los.example.InventoryTestTopologyRemote;
 import de.linogistix.los.example.LocationTestTopologyRemote;
-import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.test.TestUtilities;
+import de.wms2.mywms.strategy.OrderPrio;
+import junit.framework.TestCase;
 
 /**
  *
@@ -73,7 +71,7 @@ public class OrderFacadeBeanTest extends TestCase {
          };
          
          try {
-			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, false, null);
+			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), OrderPrio.NORMAL, true, false, null);
 			
 		} catch (FacadeException e) {
 			// TODO Auto-generated catch block
@@ -105,7 +103,7 @@ public class OrderFacadeBeanTest extends TestCase {
         };
         
         try {
-			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, false, null);
+			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), OrderPrio.NORMAL, true, false, null);
 			
 		} catch (FacadeException e) {
 			// TODO Auto-generated catch block
@@ -140,7 +138,7 @@ public class OrderFacadeBeanTest extends TestCase {
         };
         
         try {
-			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, false, null);
+			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), OrderPrio.NORMAL, true, false, null);
 			
 		} catch (FacadeException e) {
 			// TODO Auto-generated catch block
@@ -172,7 +170,7 @@ public class OrderFacadeBeanTest extends TestCase {
        };
        
        try {
-			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, false, null);
+			bean.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), OrderPrio.NORMAL, true, false, null);
 			
 		} catch (FacadeException e) {
 			logger.error(e,e);

@@ -39,6 +39,7 @@ import org.mywms.service.UniqueConstraintViolatedException;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2Properties;
 
@@ -61,6 +62,8 @@ public class Wms2SetupService extends ModuleSetup {
 	private UserBusiness userBusiness;
 	@Inject
 	private RoleService roleService;
+	@Inject
+	private SequenceBusiness sequeceBusiness;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
@@ -112,7 +115,10 @@ public class Wms2SetupService extends ModuleSetup {
 	public void setupBasicData(Locale locale) throws BusinessException {
 		logger.log(Level.WARNING, "setupBasicData");
 
+		logger.info("Create Users...");
 		Client client = clientService.getSystemClient();
+
+		logger.info("Create Users...");
 		User admin = userBusiness.readUser("admin");
 		if (admin == null) {
 			admin = userBusiness.createUser(client, "admin", "admin");
@@ -138,6 +144,19 @@ public class Wms2SetupService extends ModuleSetup {
 			admin.getRoles().add(serviceRole);
 		} catch (UniqueConstraintViolatedException e) {
 		}
+
+		logger.info("Create Sequences...");
+		sequeceBusiness.createNotExisting("GoodsReceipt", "WE-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("Advice", "AVIS-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("UnitLoadAdvice", "UAV-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("UnitLoad", "%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("PickingOrder", "PICK-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("DeliveryOrder", "ORDER-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("Storage", "STORE-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("Shipment", "GOUT-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("ReplenishOrder", "REPL-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("Inventory", "IMAN-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("Stocktaking", "IV-%1$06d", 1L, 999999L);
 
 		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
 

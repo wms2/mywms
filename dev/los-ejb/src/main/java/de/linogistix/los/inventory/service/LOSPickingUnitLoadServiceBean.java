@@ -19,18 +19,18 @@ import org.mywms.facade.FacadeException;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<LOSPickingUnitLoad> implements LOSPickingUnitLoadService{
+public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<PickingUnitLoad> implements LOSPickingUnitLoadService{
 	Logger log = Logger.getLogger(LOSPickingUnitLoadServiceBean.class);
 
 	@EJB
@@ -38,9 +38,9 @@ public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<LOSPickingUn
 	@EJB
 	private LOSCustomerOrderService customerOrderService;
 	
-	public LOSPickingUnitLoad create(LOSPickingOrder pickingOrder, UnitLoad unitLoad, int index) throws FacadeException {
+	public PickingUnitLoad create(PickingOrder pickingOrder, UnitLoad unitLoad, int index) throws FacadeException {
 		
-		LOSPickingUnitLoad pickingUnitLoad = entityGenerator.generateEntity(LOSPickingUnitLoad.class);
+		PickingUnitLoad pickingUnitLoad = entityGenerator.generateEntity(PickingUnitLoad.class);
 
 		pickingUnitLoad.setClient(pickingOrder.getClient());
 		pickingUnitLoad.setPickingOrder(pickingOrder);
@@ -55,57 +55,62 @@ public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<LOSPickingUn
 		return pickingUnitLoad;
 	}
 
-	public LOSPickingUnitLoad getByLabel(String label) {
-		Query query = manager.createNamedQuery("LOSPickingUnitLoad.queryByLabel");
+	public PickingUnitLoad getByLabel(String label) {
+		Query query = manager.createQuery(
+				"SELECT ul FROM " + PickingUnitLoad.class.getSimpleName() + " ul WHERE ul.unitLoad.labelId=:label");
 		query.setParameter("label", label);
 		
 		try {
-			return (LOSPickingUnitLoad)query.getSingleResult();
+			return (PickingUnitLoad)query.getSingleResult();
 		}
 		catch (NoResultException ex) {}
 		return null;
 	}
 	
-	public LOSPickingUnitLoad getByUnitLoad(UnitLoad unitLoad) {
-		Query query = manager.createNamedQuery("LOSPickingUnitLoad.queryByUnitLoad");
+	public PickingUnitLoad getByUnitLoad(UnitLoad unitLoad) {
+		Query query = manager.createQuery(
+				"SELECT ul FROM " + PickingUnitLoad.class.getSimpleName() + " ul WHERE ul.unitLoad=:unitLoad");
 		query.setParameter("unitLoad", unitLoad);
 		
 		try {
-			return (LOSPickingUnitLoad)query.getSingleResult();
+			return (PickingUnitLoad)query.getSingleResult();
 		}
 		catch (NoResultException ex) {}
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<LOSPickingUnitLoad> getByPickingOrder(LOSPickingOrder pickingOrder) {
-		Query query = manager.createNamedQuery("LOSPickingUnitLoad.queryByPickingOrder");
+	public List<PickingUnitLoad> getByPickingOrder(PickingOrder pickingOrder) {
+		Query query = manager.createQuery(
+				"SELECT ul FROM " + PickingUnitLoad.class.getSimpleName() + " ul WHERE ul.pickingOrder=:pickingOrder");
 		query.setParameter("pickingOrder", pickingOrder);
 		
 		return query.getResultList();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSPickingUnitLoad> getByCustomerOrderNumber(String customerOrderNumber) {
-		Query query = manager.createNamedQuery("LOSPickingUnitLoad.queryByCustomerOrderNumber");
-		query.setParameter("customerOrderNumber", customerOrderNumber);
+	public List<PickingUnitLoad> getByDeliveryOrderNumber(String orderNumber) {
+		Query query = manager.createQuery("SELECT ul FROM " + PickingUnitLoad.class.getSimpleName()
+				+ " ul WHERE ul.deliveryOrderNumber=:deliveryOrderNumber");
+		query.setParameter("deliveryOrderNumber", orderNumber);
 
 		return query.getResultList();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSPickingUnitLoad> getByCustomerOrder(LOSCustomerOrder customerOrder) {
-		Query query = manager.createNamedQuery("LOSPickingUnitLoad.queryByCustomerOrderNumber");
-		query.setParameter("customerOrderNumber", customerOrder.getNumber());
+	public List<PickingUnitLoad> getByDeliveryOrder(DeliveryOrder order) {
+		Query query = manager.createQuery("SELECT ul FROM " + PickingUnitLoad.class.getSimpleName()
+				+ " ul WHERE ul.deliveryOrderNumber=:deliveryOrderNumber");
+		query.setParameter("deliveryOrderNumber", order.getOrderNumber());
 
 		return query.getResultList();
 	}
-	public LOSCustomerOrder getCustomerOrder(LOSPickingUnitLoad pickingUnitLoad) {
-		if( pickingUnitLoad == null || pickingUnitLoad.getCustomerOrderNumber() == null || pickingUnitLoad.getCustomerOrderNumber().equals("-") ) {
+	public DeliveryOrder getDeliveryOrder(PickingUnitLoad pickingUnitLoad) {
+		if( pickingUnitLoad == null || pickingUnitLoad.getDeliveryOrderNumber() == null || pickingUnitLoad.getDeliveryOrderNumber().equals("-") ) {
 			return null;
 		}
 		
-		return customerOrderService.getByNumber(pickingUnitLoad.getCustomerOrderNumber());
+		return customerOrderService.getByNumber(pickingUnitLoad.getDeliveryOrderNumber());
 	}
 
 }

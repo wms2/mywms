@@ -9,15 +9,15 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.product.ItemData;
 
 /**
  * @author krane
  *
  */
-public class LOSPickingPositionTO extends BODTO<LOSPickingPosition>{
+public class LOSPickingPositionTO extends BODTO<PickingOrderLine>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,11 +33,12 @@ public class LOSPickingPositionTO extends BODTO<LOSPickingPosition>{
 	private int pickingType = 0;
 	
 	
-	public LOSPickingPositionTO( LOSPickingPosition pos ) {
-		this(pos.getId(), pos.getVersion(), pos.getId(), pos.getState(), pos.getPickingType(),
-				pos.getAmount(), pos.getAmountPicked(),
-				pos.getPickFromUnitLoadLabel(), pos.getPickFromLocationName(), 
-				pos.getPickingOrderNumber(), pos.getItemData(), pos.getClient().getNumber());
+	public LOSPickingPositionTO(PickingOrderLine pos) {
+		this(pos.getId(), pos.getVersion(), pos.getId(), pos.getState(), pos.getPickingType(), pos.getAmount(),
+				pos.getPickedAmount(), pos.getPickFromUnitLoadLabel(),
+				pos.getPickFromLocationName(),
+				(pos.getPickingOrder() == null ? null : pos.getPickingOrder().getOrderNumber()), pos.getItemData(),
+				pos.getClient().getNumber());
 	}
 
 	public LOSPickingPositionTO(
@@ -63,7 +64,7 @@ public class LOSPickingPositionTO extends BODTO<LOSPickingPosition>{
 		this.itemDataName = itemData.getName();
 		this.pickingType = pickingType;
 		this.pickingOrderNumber = pickingOrderNumber;
-		setClassName(LOSPickingPosition.class.getName());
+		setClassName(PickingOrderLine.class.getName());
 	}
 
 	public LOSPickingPositionTO(
@@ -153,9 +154,4 @@ public class LOSPickingPositionTO extends BODTO<LOSPickingPosition>{
 	public void setPickingType(int pickingType) {
 		this.pickingType = pickingType;
 	}
-
-
-	
-	
-	
 }

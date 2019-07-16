@@ -17,8 +17,8 @@ import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.location.crud.LOSFixedLocationAssignmentCRUDRemote;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.LOSFixedLocationAssignmentQueryRemote;
+import de.wms2.mywms.strategy.FixAssignment;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node.Property;
@@ -65,9 +65,9 @@ public class BOLOSFixedAssignment extends BO {
     }
 
     public BasicEntity initEntityTemplate() {
-        LOSFixedLocationAssignment c;
+        FixAssignment c;
 
-        c = new LOSFixedLocationAssignment();
+        c = new FixAssignment();
         return c;
 
     }

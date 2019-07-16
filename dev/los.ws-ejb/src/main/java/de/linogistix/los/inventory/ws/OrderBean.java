@@ -28,7 +28,8 @@ import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.strategy.OrderPrio;
 
 /**
  * A Webservice for ordering items from stock
@@ -69,7 +70,7 @@ public class OrderBean implements Order {
             @WebParam(name = "destination") String destination) 
     throws FacadeException {
     	log.info("order");
-    	LOSCustomerOrder order = delegate.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), LOSCustomerOrder.PRIO_DEFAULT, true, true, null);
+    	DeliveryOrder order = delegate.order(clientRef, orderRef, positions, documentUrl, labelUrl, destination, null, new Date(), OrderPrio.NORMAL, true, true, null);
     	return order != null;
     }
 

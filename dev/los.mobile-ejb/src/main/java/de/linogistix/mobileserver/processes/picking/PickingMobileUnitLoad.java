@@ -9,8 +9,8 @@ package de.linogistix.mobileserver.processes.picking;
 
 import java.io.Serializable;
 
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 
 /**
@@ -40,7 +40,7 @@ public class PickingMobileUnitLoad implements Serializable {
 		this.targetName = order.targetName;
 	}
 	
-	public PickingMobileUnitLoad(LOSPickingUnitLoad unitLoad) {
+	public PickingMobileUnitLoad(PickingUnitLoad unitLoad) {
 		this.state = State.RAW;
 		if( unitLoad.getState() >= State.STARTED ) {
 			this.state = State.STARTED;
@@ -52,9 +52,9 @@ public class PickingMobileUnitLoad implements Serializable {
 		this.label = unitLoad.getUnitLoad().getLabelId();
 		this.index = unitLoad.getPositionIndex();
 		this.pickingOrderId = unitLoad.getPickingOrder().getId();
-		this.customerOrderNumber = unitLoad.getCustomerOrderNumber();
+		this.customerOrderNumber = unitLoad.getDeliveryOrderNumber();
 		this.clientNumber = unitLoad.getClient().getNumber();
-		this.pickingOrderNumber = unitLoad.getPickingOrder().getNumber();
+		this.pickingOrderNumber = unitLoad.getPickingOrder().getOrderNumber();
 		// 01.08.2013, krane, avoid null pointer
 		//		this.targetName = unitLoad.getPickingOrder() ==null?"":unitLoad.getPickingOrder().getDestination().getName();
 		this.targetName = "";

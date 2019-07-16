@@ -19,13 +19,13 @@ import de.linogistix.inventory.browser.masternode.BOPickingOrderMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSPickingOrderCRUDRemote;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.inventory.query.LOSPickingOrderQueryRemote;
 import de.linogistix.los.model.Prio;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.picking.PickingOrder;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +74,9 @@ public class BOPickingOrder extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSPickingOrder c;
+        PickingOrder c;
 
-        c = new LOSPickingOrder();
+        c = new PickingOrder();
 
         return c;
 

@@ -13,28 +13,30 @@ import javax.persistence.Query;
 
 import org.mywms.service.BasicServiceBean;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSCustomerOrderPositionServiceBean extends BasicServiceBean<LOSCustomerOrderPosition> implements LOSCustomerOrderPositionService {
+public class LOSCustomerOrderPositionServiceBean extends BasicServiceBean<DeliveryOrderLine> implements LOSCustomerOrderPositionService {
 
 	
-	public LOSCustomerOrderPosition getByNumber(String number) {
-		Query q = manager.createNamedQuery("LOSCustomerOrderPosition.queryByNumber");
+	public DeliveryOrderLine getByNumber(String number) {
+		Query q = manager.createQuery(
+				"SELECT pos FROM " + DeliveryOrderLine.class.getSimpleName() + " pos WHERE pos.lineNumber=:number");
 		q = q.setParameter("number", number);
         try {
-            return (LOSCustomerOrderPosition) q.getSingleResult();
+            return (DeliveryOrderLine) q.getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
     }
 
 	public boolean existsByNumber(String number) {
-		Query q = manager.createNamedQuery("LOSCustomerOrderPosition.idByNumber");
+		Query q = manager.createQuery(
+				"SELECT pos.id FROM " + DeliveryOrderLine.class.getSimpleName() + " pos WHERE pos.lineNumber=:number");
 		q = q.setParameter("number", number);
         try {
             q.getSingleResult();

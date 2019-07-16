@@ -10,7 +10,6 @@ package de.linogistix.inventory.browser.bo;
 
 import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.bobrowser.query.gui.component.AutoCompletionQueryFilterProvider;
-import de.linogistix.common.bobrowser.query.gui.component.AutoCompletionQueryProvider;
 import de.linogistix.common.bobrowser.query.gui.component.BOQueryComponentProvider;
 import de.linogistix.common.bobrowser.query.gui.component.DefaultBOQueryComponentProvider;
 import de.linogistix.common.bobrowser.query.gui.component.TemplateQueryWizardProvider;
@@ -20,12 +19,12 @@ import de.linogistix.inventory.browser.masternode.BOPickingUnitLoadMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSPickingUnitLoadCRUDRemote;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.query.LOSPickingUnitLoadQueryRemote;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.picking.PickingUnitLoad;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,9 +75,9 @@ public class BOPickingUnitLoad extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSPickingUnitLoad c;
+      PickingUnitLoad c;
     
-    c = new LOSPickingUnitLoad();
+    c = new PickingUnitLoad();
     
     return c;
     

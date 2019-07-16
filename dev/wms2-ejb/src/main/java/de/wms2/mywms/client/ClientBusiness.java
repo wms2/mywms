@@ -100,8 +100,8 @@ public class ClientBusiness {
 	}
 
 	/**
-	 * Read the only one usable tenant.<br>
-	 * The system-tenant in single-tenant systems<br>
+	 * Read the only one usable client.<br>
+	 * The system-client in single-client systems<br>
 	 * Otherwise null.
 	 */
 	public Client getSingleClient() {

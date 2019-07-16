@@ -16,24 +16,14 @@ CREATE TABLE packagingunit (
 );
 
 
-ALTER TABLE los_sysprop
-	ADD COLUMN propertycontext character varying(255),
-	ADD COLUMN propertygroup character varying(255),
-	ADD COLUMN propertykey character varying(255),
-	ADD COLUMN propertyvalue character varying(255),
-    ALTER COLUMN description type varchar(2000);
-update los_sysprop set propertycontext = workstation;
-update los_sysprop set propertygroup = groupname;
-update los_sysprop set propertygroup = null where propertygroup='DEFAULT';
-update los_sysprop set propertykey = syskey;
-update los_sysprop set propertyvalue = sysvalue;
-ALTER TABLE los_sysprop
-	DROP COLUMN workstation,
-	DROP COLUMN groupname,
-	DROP COLUMN syskey,
-	DROP COLUMN sysvalue,
-	DROP COLUMN hidden,
-	ALTER COLUMN propertykey set not null ;
+ALTER TABLE los_sysprop RENAME workstation TO propertycontext;
+ALTER TABLE los_sysprop ALTER COLUMN propertycontext DROP NOT NULL;
+ALTER TABLE los_sysprop RENAME groupname TO propertygroup;
+ALTER TABLE los_sysprop RENAME syskey TO propertykey;
+ALTER TABLE los_sysprop RENAME sysvalue TO propertyvalue;
+ALTER TABLE los_sysprop ALTER COLUMN description type varchar(2000);
+update los_sysprop set propertycontext = null where propertycontext='DEFAULT';
+ALTER TABLE los_sysprop DROP COLUMN hidden;
 
 ALTER TABLE los_sysprop rename TO systemproperty;
 

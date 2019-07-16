@@ -37,7 +37,6 @@ import de.linogistix.los.inventory.customization.ManageStockService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.HostMsgStock;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptPositionQueryRemote;
 import de.linogistix.los.inventory.query.LOSPickingPositionQueryRemote;
@@ -53,13 +52,10 @@ import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.crud.LOSUnitLoadCRUDRemote;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
@@ -75,9 +71,13 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 @Stateless
 public class LOSInventoryComponentBean implements LOSInventoryComponent {
@@ -105,7 +105,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	private ContextService contextService;
 
 	@EJB
-	private QueryFixedAssignmentService fixAssService;
+	private FixAssignmentEntityService fixAssService;
 
 	@EJB
 	private LOSPickingPositionService pickPosService;
@@ -131,7 +131,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	private QueryStorageLocationService slService2;
 
 	@EJB
-	private LOSStorageLocationTypeService slTypeService;
+	private LocationTypeEntityService slTypeService;
 
 	@EJB
 	private LOSLotService lotService;
@@ -527,16 +527,17 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			if (BigDecimal.ZERO.compareTo(su.getReservedAmount()) < 0) {
 				// there seems to a reservation
 				// Try all picks to switch them to the new stock unit
-				List<LOSPickingPosition> pickList = null;
+				List<PickingOrderLine> pickList = null;
 				try {
 					pickList = pickPosService.getByPickFromStockUnit(su);
 				} catch (Throwable t) {
 					// ignore
 				}
 				if (pickList != null) {
-					for (LOSPickingPosition pick : pickList) {
+					for (PickingOrderLine pick : pickList) {
 						if ( pick.getState() < State.PICKED ) {
 							pick.setPickFromStockUnit(dest);
+							pick.setPickFromUnitLoadLabel(dest.getUnitLoad().getLabelId());
 						}
 					}
 				}
@@ -858,7 +859,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			ret = true;
 		}
 
-		LOSFixedLocationAssignment ass = fixAssService.getByLocation(ul.getStorageLocation());
+		FixAssignment ass = fixAssService.readFirst(null, ul.getStorageLocation());
 		if (ass != null && !ass.getItemData().equals(su.getItemData())) {
 			log.warn("ItemData has fixed location assignment but itemdata of stockunit " + su.getItemData().getNumber() + " doesn't match: " + ass.getItemData().getNumber());
 			return false;
@@ -1082,7 +1083,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 				LocationType type;
 				try {
-					type = slTypeService.getDefaultStorageLocationType();
+					type = slTypeService.getDefault();
 					if (type == null)
 						throw new NullPointerException("No default location type found.");
 				} catch (Throwable e) {

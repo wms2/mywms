@@ -13,16 +13,16 @@ import javax.ejb.Remote;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.picking.PickingOrder;
 
 /**
  * @author krane
  *
  */
 @Remote
-public interface LOSPickingOrderQueryRemote extends BusinessObjectQueryRemote<LOSPickingOrder> {
+public interface LOSPickingOrderQueryRemote extends BusinessObjectQueryRemote<PickingOrder> {
 
-	public List<LOSPickingOrder> queryAll( Client client );
+	public List<PickingOrder> queryAll( Client client );
 
 }

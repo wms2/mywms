@@ -25,6 +25,7 @@ import javax.persistence.TemporalType;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.location.StorageLocation;
 
 @Entity
@@ -48,7 +49,7 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 	private User operator;
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
-	private LOSCustomerOrder customerOrder;
+	private DeliveryOrder customerOrder;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date shippingDate;
@@ -98,10 +99,10 @@ public class LOSGoodsOutRequest extends BasicClientAssignedEntity{
 		return operator;
 	}
 
-	public LOSCustomerOrder getCustomerOrder() {
+	public DeliveryOrder getCustomerOrder() {
 		return customerOrder;
 	}
-	public void setCustomerOrder(LOSCustomerOrder customerOrder) {
+	public void setCustomerOrder(DeliveryOrder customerOrder) {
 		this.customerOrder = customerOrder;
 	}
 	

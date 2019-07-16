@@ -41,7 +41,6 @@ import de.linogistix.los.inventory.service.QueryItemDataServiceRemote;
 import de.linogistix.los.inventory.service.QueryLotServiceRemote;
 import de.linogistix.los.inventory.service.QueryStockServiceRemote;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryFixedAssignmentServiceRemote;
@@ -61,6 +60,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
 /*
  * TODO krane
  * Storage on fixed location. Do not suggest it, when receiving a different lot
@@ -305,11 +305,11 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 
 		currentAmount.setScale(currentItemData.getScale());
-		List<LOSFixedLocationAssignment> fixList = fixService.getByItemData(currentItemData);
+		List<FixAssignment> fixList = fixService.getByItemData(currentItemData);
 		if( fixList != null && fixList.size()>0 ) {
 			log.debug("Check fixed location...");
-			LOSFixedLocationAssignment fix = fixList.get(0);
-			currentFixTarget = fix.getAssignedLocation();
+			FixAssignment fix = fixList.get(0);
+			currentFixTarget = fix.getStorageLocation();
 			
 			// Check the location
 			List<StockUnit> stockList = queryStockService.getListByStorageLocation(currentFixTarget);

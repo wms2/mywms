@@ -7,16 +7,16 @@
  */
 package de.linogistix.wmsprocesses.processes.treat_order.gui.model;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
 import java.io.Serializable;
 
 /**
  *
  * @author Jordan
  */
-public class TreatOrderPickRequestTO extends BODTO<LOSPickingOrder>
+public class TreatOrderPickRequestTO extends BODTO<PickingOrder>
                                  implements Serializable
                                  
 {

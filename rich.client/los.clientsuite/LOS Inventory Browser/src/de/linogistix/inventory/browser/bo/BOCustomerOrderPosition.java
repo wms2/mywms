@@ -19,12 +19,12 @@ import de.linogistix.inventory.browser.masternode.BOCustomerOrderPositionMasterN
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSCustomerOrderPositionCRUDRemote;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.query.LOSCustomerOrderPositionQueryRemote;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +75,9 @@ public class BOCustomerOrderPosition extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSCustomerOrderPosition c;
+      DeliveryOrderLine c;
     
-    c = new LOSCustomerOrderPosition();
+    c = new DeliveryOrderLine();
     
     return c;
     

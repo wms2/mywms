@@ -15,11 +15,11 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
 import org.openide.DialogDisplayer;
@@ -80,7 +80,7 @@ public final class BOCustomerOrderFinishAction extends NodeAction {
             else {
                 J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
                 LOSCustomerOrderQueryRemote orderQuery;
-                LOSCustomerOrder r;
+                DeliveryOrder r;
                 try {
                     orderQuery = loc.getStateless(LOSCustomerOrderQueryRemote.class);
                     r = orderQuery.queryById(((BOMasterNode)n).getEntity().getId());

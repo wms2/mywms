@@ -15,32 +15,32 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.dto.LOSFixedLocationAssignmentTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.strategy.FixAssignment;
 
 /**
  *
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Stateless
-public class LOSFixedLocationAssignmentQueryBean extends BusinessObjectQueryBean<LOSFixedLocationAssignment> implements LOSFixedLocationAssignmentQueryRemote {
+public class LOSFixedLocationAssignmentQueryBean extends BusinessObjectQueryBean<FixAssignment> implements LOSFixedLocationAssignmentQueryRemote {
 
 	private static final String[] dtoProps = new String[]{
 		"id",
 		"version",
 		"id",
-		"assignedLocation.name",
+		"storageLocation.name",
 		"itemData.number",
 		"itemData.name",
 		"itemData.scale",
-		"desiredAmount"
+		"maxAmount"
 	};
 
 	@Override
 	public String getOrderByProp() {
-		return "itemData.number, o.assignedLocation.name";
+		return "itemData.number, o.storageLocation.name";
 	}
 	
     @Override
@@ -66,7 +66,7 @@ public class LOSFixedLocationAssignmentQueryBean extends BusinessObjectQueryBean
 		itemName.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 
 		TemplateQueryWhereToken loc = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "assignedLocation.name", value);		
+				TemplateQueryWhereToken.OPERATOR_LIKE, "storageLocation.name", value);
 		loc.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
 		ret.add(item);

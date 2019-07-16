@@ -22,17 +22,17 @@ import org.mywms.model.Client;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderPositionService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyEntityService;
 
 /**
  *
@@ -48,7 +48,7 @@ public class LOSOrderGeneratorBean implements LOSOrderGenerator {
 	@EJB
 	private LOSCustomerOrderPositionService positionService;
 	@EJB
-	private LOSOrderStrategyService orderStratService;
+	private OrderStrategyEntityService orderStratService;
 	@EJB
 	private ContextService contextService;
 	@EJB
@@ -56,8 +56,8 @@ public class LOSOrderGeneratorBean implements LOSOrderGenerator {
     @PersistenceContext(unitName = "myWMS")
     private  EntityManager manager;
     
-	public LOSCustomerOrder createCustomerOrder(Client client, LOSOrderStrategy strat) throws FacadeException {
-		String logStr = "createCustomerOrder ";
+	public DeliveryOrder createDeliveryOrder(Client client, OrderStrategy strat) throws FacadeException {
+		String logStr = "createDeliveryOrder ";
 		log.debug(logStr);
 		
 		if( client == null ) {
@@ -67,7 +67,7 @@ public class LOSOrderGeneratorBean implements LOSOrderGenerator {
 			strat = orderStratService.getDefault(client);
 		}
 		// Check order number
-		LOSCustomerOrder order = null;
+		DeliveryOrder order = null;
 		String number = null; 
 		int i = 0;
 		while( i++ < 10000 ) {
@@ -79,30 +79,30 @@ public class LOSOrderGeneratorBean implements LOSOrderGenerator {
 			break;
 		}		
 		
-		order = entityGenerator.generateEntity(LOSCustomerOrder.class);
+		order = entityGenerator.generateEntity(DeliveryOrder.class);
 		
-		order.setNumber(number);
+		order.setOrderNumber(number);
 		order.setClient(client);
-		order.setStrategy(strat);
+		order.setOrderStrategy(strat);
 		
 		manager.persist(order);
 		manager.flush();
 
 		
-		order.setPositions(new ArrayList<LOSCustomerOrderPosition>());
+		order.setLines(new ArrayList<DeliveryOrderLine>());
 		
 		log.debug(logStr+"New order created. number="+number);
 
 		return order;
 	}
 
-	public LOSCustomerOrder addCustomerOrderPos(LOSCustomerOrder order, ItemData item, Lot lot, String serialNumber, BigDecimal amount) throws FacadeException {
-		String logStr = "addCustomerOrderPos ";
-		log.debug(logStr+" order="+order.getNumber()+", item="+item.getNumber());
+	public DeliveryOrder addDeliveryOrderLine(DeliveryOrder order, ItemData item, Lot lot, String serialNumber, BigDecimal amount) throws FacadeException {
+		String logStr = "addDeliveryOrderLine ";
+		log.debug(logStr+" order="+order.getOrderNumber()+", item="+item.getNumber());
 		
-		String numberOrder = order.getNumber();
+		String numberOrder = order.getOrderNumber();
 		String number = null;
-		int idx = order.getPositions().size();
+		int idx = order.getLines().size();
 		int i = 0;
 		while( true ) {
 			i++;
@@ -119,21 +119,20 @@ public class LOSOrderGeneratorBean implements LOSOrderGenerator {
 			log.warn(logStr+"Position already exists. try next");
 		}
 
-		LOSCustomerOrderPosition pos = null;
-		pos = entityGenerator.generateEntity(LOSCustomerOrderPosition.class);
-		pos.setIndex(idx);
+		DeliveryOrderLine pos = null;
+		pos = entityGenerator.generateEntity(DeliveryOrderLine.class);
 		pos.setItemData(item);
 		pos.setLot(lot);
 		pos.setSerialNumber(serialNumber);
 		pos.setAmount(amount);
 		pos.setClient(order.getClient());
-		pos.setNumber(number);
-		pos.setOrder(order);
+		pos.setLineNumber(number);
+		pos.setDeliveryOrder(order);
 		pos.setState(State.RAW);
 		
 		manager.persist(pos);
 
-		order.getPositions().add(pos);
+		order.getLines().add(pos);
 
 		return order;
 	}

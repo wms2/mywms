@@ -23,14 +23,11 @@ import org.mywms.model.User;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
@@ -41,10 +38,13 @@ import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * 
@@ -103,19 +103,19 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		}
 
 		out.setOutState(LOSGoodsOutRequestState.FINISHED);
-		LOSCustomerOrder customerOrder = out.getCustomerOrder();
-		if( customerOrder != null ) {
-			int orderStateOld = customerOrder.getState();
+		DeliveryOrder deliveryOrder = out.getCustomerOrder();
+		if( deliveryOrder != null ) {
+			int orderStateOld = deliveryOrder.getState();
 			if( orderStateOld >= State.PICKED && orderStateOld < State.FINISHED ) {
-				for( LOSCustomerOrderPosition customerOrderPos : customerOrder.getPositions() ) {
+				for( DeliveryOrderLine customerOrderPos : deliveryOrder.getLines() ) {
 					if( customerOrderPos.getState() == State.PICKED ) {
 						customerOrderPos.setState(State.FINISHED);
-						manageOrderService.onCustomerOrderPositionStateChange(customerOrderPos, State.PICKED);
+						manageOrderService.onDeliveryOrderLineStateChange(customerOrderPos, State.PICKED);
 						
 					}
 				}
-				customerOrder.setState(State.FINISHED);
-				manageOrderService.onCustomerOrderStateChange(customerOrder, orderStateOld);
+				deliveryOrder.setState(State.FINISHED);
+				manageOrderService.onDeliveryOrderStateChange(deliveryOrder, orderStateOld);
 			}
 		}
 
@@ -147,12 +147,12 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		out.setOutState(LOSGoodsOutRequestState.FINISHED);
 		
 		
-		LOSCustomerOrder customerOrder = out.getCustomerOrder();
-		if( customerOrder != null && !hasCanceled ) {
-			int orderStateOld = customerOrder.getState();
+		DeliveryOrder deliveryOrder = out.getCustomerOrder();
+		if( deliveryOrder != null && !hasCanceled ) {
+			int orderStateOld = deliveryOrder.getState();
 			if( orderStateOld >= State.PICKED && orderStateOld < State.FINISHED ) {
-				customerOrder.setState(State.FINISHED);
-				manageOrderService.onCustomerOrderStateChange(customerOrder, orderStateOld);
+				deliveryOrder.setState(State.FINISHED);
+				manageOrderService.onDeliveryOrderStateChange(deliveryOrder, orderStateOld);
 			}
 		}
 
@@ -178,7 +178,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 
 		pos.setOutState(LOSGoodsOutRequestPositionState.FINISHED);
 		
-		LOSPickingUnitLoad pickingUnitLoad = pickingUnitLoadService.getByLabel(ul.getLabelId());
+		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.getByLabel(ul.getLabelId());
 		if( pickingUnitLoad != null ) {
 			int unitLoadStateOld = pickingUnitLoad.getState();
 			if( pickingUnitLoad.getState()<State.FINISHED ) {
@@ -244,7 +244,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		StringBuffer b = new StringBuffer();
 		Query query;
 		
-		b.append(" SELECT new "+LOSGoodsOutRequestTO.class.getName()+"(out.id, out.version, out.number, out.number, out.outState, out.client.number, cu.number, cu.externalNumber, cu.externalId, cu.customerNumber, cu.customerName, out.shippingDate) FROM ");
+		b.append(" SELECT new "+LOSGoodsOutRequestTO.class.getName()+"(out.id, out.version, out.number, out.number, out.outState, out.client.number, cu.orderNumber, cu.externalNumber, cu.externalId, cu.customerNumber, cu.customerName, out.shippingDate) FROM ");
 		b.append(LOSGoodsOutRequest.class.getSimpleName() + " out ");
 		b.append("left outer join out.customerOrder as cu ");
 		b.append(" WHERE ( out.outState=:raw ");

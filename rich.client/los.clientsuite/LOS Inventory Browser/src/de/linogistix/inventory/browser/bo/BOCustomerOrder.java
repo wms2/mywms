@@ -19,13 +19,13 @@ import de.linogistix.inventory.browser.masternode.BOCustomerOrderMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSCustomerOrderCRUDRemote;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.model.Prio;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +74,9 @@ public class BOCustomerOrder extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSCustomerOrder c;
+        DeliveryOrder c;
 
-        c = new LOSCustomerOrder();
+        c = new DeliveryOrder();
 
         return c;
 
@@ -100,7 +100,7 @@ public class BOCustomerOrder extends BO {
     }
 
     protected String[] initIdentifiableProperties() {
-        return new String[]{"number"};
+        return new String[]{"orderNumber"};
     }
     @Override
     protected Property[] initBoMasterNodeProperties() {

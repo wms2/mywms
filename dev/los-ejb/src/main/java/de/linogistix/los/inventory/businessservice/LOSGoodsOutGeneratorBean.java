@@ -24,19 +24,19 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * @author krane
@@ -66,17 +66,17 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 	
-	public LOSGoodsOutRequest createOrder( LOSCustomerOrder customerOrder ) throws FacadeException {
+	public LOSGoodsOutRequest createOrder( DeliveryOrder deliveryOrder ) throws FacadeException {
 		String logStr = "createOrder ";
-		if( customerOrder == null ) {
-			log.warn(logStr+"Missing parameter customerOrder");
+		if( deliveryOrder == null ) {
+			log.warn(logStr+"Missing parameter deliveryOrder");
 			return null;
 		}
-		log.debug(logStr+"Create shipment for customer order number="+customerOrder.getNumber());
+		log.debug(logStr+"Create shipment for customer order number="+deliveryOrder.getOrderNumber());
 		
 		LOSGoodsOutRequest shipment = null;
 		
-		List<LOSGoodsOutRequest> goodsOutList = outService.getByCustomerOrder(customerOrder);
+		List<LOSGoodsOutRequest> goodsOutList = outService.getByDeliveryOrder(deliveryOrder);
 		for( LOSGoodsOutRequest s : goodsOutList ) {
 			if( s.getOutState() == LOSGoodsOutRequestState.RAW ) {
 				shipment = s;
@@ -84,10 +84,10 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 			}
 		}
 		
-		List<LOSPickingUnitLoad> unitLoadList = pickingUnitLoadService.getByCustomerOrderNumber(customerOrder.getNumber());
+		List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByDeliveryOrderNumber(deliveryOrder.getOrderNumber());
 		log.debug(logStr+"Found unit loads. num="+unitLoadList.size());
 
-		for( LOSPickingUnitLoad unitLoad : unitLoadList ) {
+		for( PickingUnitLoad unitLoad : unitLoadList ) {
 			if( unitLoad.getState()<State.PICKED || unitLoad.getState()>=State.FINISHED ) {
 				log.info(logStr+"Found unit load in invalid state. label="+unitLoad.getUnitLoad().getLabelId()+", state="+unitLoad.getState());
 				continue;
@@ -104,10 +104,10 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 			if( !posExists ) {
 				if( shipment == null ) {
 					shipment = entityGenerator.generateEntity(LOSGoodsOutRequest.class);
-					shipment.setClient(customerOrder.getClient());
-					shipment.setCustomerOrder(customerOrder);
-					shipment.setNumber(genService.generateGoodsOutNumber(customerOrder.getClient()));
-					shipment.setExternalNumber(customerOrder.getExternalNumber());
+					shipment.setClient(deliveryOrder.getClient());
+					shipment.setCustomerOrder(deliveryOrder);
+					shipment.setNumber(genService.generateGoodsOutNumber(deliveryOrder.getClient()));
+					shipment.setExternalNumber(deliveryOrder.getExternalNumber());
 					manager.persist(shipment);
 					manager.flush();
 					

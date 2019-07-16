@@ -10,8 +10,8 @@ package de.linogistix.los.inventory.pick.facade;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 
@@ -31,7 +31,7 @@ public class CreatePickRequestPositionTO implements Serializable{
 	 */
 	public BODTO<StockUnit> stock;
 	
-	public BODTO<LOSCustomerOrderPosition> orderPosition;
+	public BODTO<DeliveryOrderLine> orderPosition;
 //	public long customerOrderPositionId;
 //	public long customerOrderPositionNumber;
 	

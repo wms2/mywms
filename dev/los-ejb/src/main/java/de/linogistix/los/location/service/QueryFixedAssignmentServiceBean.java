@@ -3,66 +3,19 @@ package de.linogistix.los.location.service;
 import java.util.List;
 
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.inject.Inject;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 @Stateless
-public class QueryFixedAssignmentServiceBean implements QueryFixedAssignmentService, QueryFixedAssignmentServiceRemote {
-	
-	@PersistenceContext(unitName = "myWMS")
-	private EntityManager manager;
+public class QueryFixedAssignmentServiceBean implements QueryFixedAssignmentServiceRemote {
 
-	public LOSFixedLocationAssignment getByLocation(StorageLocation sl) {
-		Query query = manager.createNamedQuery("LOSFixedLocationAssignment.queryByLocation");
-		query.setParameter("location", sl);
-		query.setMaxResults(1);
-		try{
-			return (LOSFixedLocationAssignment) query.getSingleResult();
-		}catch(NoResultException nre){
-			return null;
-		}
-	}
+	@Inject
+	private FixAssignmentEntityService fixService;
 
-	public boolean existsByItemData(ItemData item) {
-		Query query = manager.createNamedQuery("LOSFixedLocationAssignment.existsByItem");
-		query.setParameter("item", item);
-        query.setMaxResults(1);
-        
-        try {
-        	query.getSingleResult();
-        }
-	    catch(NoResultException nre){
-	    	return false;
-	    }
-        return true;
+	public List<FixAssignment> getByItemData(ItemData item) {
+		return fixService.readList(item, null, null, null, null);
 	}
-
-	public boolean existsByLocation(StorageLocation location) {
-		Query query = manager.createNamedQuery("LOSFixedLocationAssignment.existsByLocation");
-		query.setParameter("location", location);
-        query.setMaxResults(1);
-        
-        try {
-        	query.getSingleResult();
-        }
-	    catch(NoResultException nre){
-	    	return false;
-	    }
-        return true;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<LOSFixedLocationAssignment> getByItemData(ItemData item) {
-		Query query = manager.createNamedQuery("LOSFixedLocationAssignment.queryByItem");
-		query.setParameter("item", item);
-		return query.getResultList();
-	}
-
-	
 }

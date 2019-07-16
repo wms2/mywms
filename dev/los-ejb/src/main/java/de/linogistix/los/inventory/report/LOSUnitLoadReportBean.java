@@ -28,9 +28,6 @@ import org.mywms.globals.DocumentTypes;
 
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.inventory.pick.model.PickReceiptPosition;
 import de.linogistix.los.inventory.pick.service.PickReceiptService;
@@ -38,8 +35,11 @@ import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 
 /**
@@ -73,7 +73,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		
 		log.info(logStr+"Generate report for unitLoad="+unitLoad.getLabelId());
 		
-		LOSPickingUnitLoad pul = pulService.getByLabel(unitLoad.getLabelId());
+		PickingUnitLoad pul = pulService.getByLabel(unitLoad.getLabelId());
 		
 		label = entityGenerator.generateEntity( PickReceipt.class );
 		label.setName( "LOS-"+unitLoad.getLabelId() );
@@ -85,18 +85,18 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		label.setPositions( new ArrayList<PickReceiptPosition>() );
 		
 		
-		LOSCustomerOrder customerOrder = null;
-		LOSPickingOrder pickingOrder = null;
+		DeliveryOrder deliveryOrder = null;
+		PickingOrder pickingOrder = null;
 		if( pul != null ) {
-			String customerOrderNumber = pul.getCustomerOrderNumber();
-			customerOrder = customerOrderService.getByNumber(customerOrderNumber);
+			String customerOrderNumber = pul.getDeliveryOrderNumber();
+			deliveryOrder = customerOrderService.getByNumber(customerOrderNumber);
 			
-			if( customerOrder != null ) {
-				label.setOrderNumber( customerOrder.getNumber() );
+			if( deliveryOrder != null ) {
+				label.setOrderNumber( deliveryOrder.getOrderNumber() );
 			}
 			pickingOrder = pul.getPickingOrder();
 			if( pickingOrder != null ) {
-				label.setPickNumber( pul.getPickingOrder().getNumber() );
+				label.setPickNumber( pul.getPickingOrder().getOrderNumber() );
 			}
 		}
 		
@@ -177,21 +177,21 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		}
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("formattedOrderNumber", customerOrder == null ? "" : StringTools.isEmpty(customerOrder.getExternalNumber()) ? customerOrder.getNumber() : customerOrder.getExternalNumber() );
+		parameters.put("formattedOrderNumber", deliveryOrder == null ? "" : StringTools.isEmpty(deliveryOrder.getExternalNumber()) ? deliveryOrder.getOrderNumber() : deliveryOrder.getExternalNumber() );
 		SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
 		parameters.put("formattedDate", sd.format(new Date()) );
 		parameters.put("labelId", label.getLabelID() );
 		parameters.put("pickingOrderNumber", label.getPickNumber());
 		parameters.put("printDate", new Date() );
-		parameters.put("orderDate", customerOrder == null ? null : customerOrder.getDelivery() );
-		parameters.put("orderNumber", customerOrder == null ? "" : customerOrder.getNumber() );
-		parameters.put("externalOrderNumber", customerOrder == null ? "" : customerOrder.getExternalNumber() );
+		parameters.put("orderDate", deliveryOrder == null ? null : deliveryOrder.getDeliveryDate() );
+		parameters.put("orderNumber", deliveryOrder == null ? "" : deliveryOrder.getOrderNumber() );
+		parameters.put("externalOrderNumber", deliveryOrder == null ? "" : deliveryOrder.getExternalNumber() );
 		parameters.put("clientNumber", unitLoad.getClient().getNumber() );
 		parameters.put("clientName", unitLoad.getClient().getName() );
 		parameters.put("clientCode", unitLoad.getClient().getCode() );
-		parameters.put("targetLocationName", customerOrder == null ? "" : customerOrder.getDestination() == null ? "" : customerOrder.getDestination().getName() );
-		parameters.put("orderStrategyName", customerOrder == null ? "" : customerOrder.getStrategy() == null ? "" : customerOrder.getStrategy().getName() );
-		parameters.put("prio", customerOrder == null ? 0 : customerOrder.getPrio() );
+		parameters.put("targetLocationName", deliveryOrder == null ? "" : deliveryOrder.getDestination() == null ? "" : deliveryOrder.getDestination().getName() );
+		parameters.put("orderStrategyName", deliveryOrder == null ? "" : deliveryOrder.getOrderStrategy() == null ? "" : deliveryOrder.getOrderStrategy().getName() );
+		parameters.put("prio", deliveryOrder == null ? 0 : deliveryOrder.getPrio() );
 		
 		byte[] bytes = reportGenerator.createPdf(unitLoad.getClient(), "UnitLoadLabel", InventoryBundleResolver.class, valueList2, parameters);
 		label.setDocument(bytes);

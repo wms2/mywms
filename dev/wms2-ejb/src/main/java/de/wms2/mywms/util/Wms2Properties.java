@@ -30,6 +30,12 @@ public class Wms2Properties {
 	 * Keys of system properties
 	 */
 	public final static String KEY_PASSWORD_EXPRESSION = "PASSWORD_REGULAR_EXPRESSION";
+	public static final String KEY_ORDERSTRATEGY_DEFAULT = "STRATEGY_ORDER_DEFAULT";
+	public static final String KEY_ORDERSTRATEGY_EXTINGUISH = "STRATEGY_ORDER_EXTINGUISH";
+	public static final String KEY_LOCATIONCLUSTER_DEFAULT = "LOCATIONCLUSTER_DEFAULT";
+	public static final String KEY_LOCATIONTYPE_DEFAULT = "LOCATIONTYPE_DEFAULT";
+	public static final String KEY_UNITLOADTYPE_DEFAULT = "UNITLOADTYPE_DEFAULT";
+	public static final String KEY_AREA_DEFAULT = "AREA_DEFAULT";
 
 	/**
 	 * Names of system property groups

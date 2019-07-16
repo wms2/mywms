@@ -83,8 +83,6 @@ public interface ManageLocationFacade {
 	 * @param rackTo DODTO of the rack to process
 	 * @param startValue The first index
 	 * @param diffValue The difference to the next index. May be negative for backward directions.
-	 * @return The last used index
-	 * @throws FacadeException
 	 */
 	int setLocationOrderIndex(String rackTo, int startValue, int diffValue) throws FacadeException;
 

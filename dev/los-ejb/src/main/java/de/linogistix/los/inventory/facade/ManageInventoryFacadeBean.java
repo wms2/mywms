@@ -39,9 +39,7 @@ import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -56,6 +54,8 @@ import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.product.PackagingUnit;
 import de.wms2.mywms.product.PackagingUnitEntityService;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 /**
  * A Webservice for managing ItemData/articles in the wms.
@@ -105,7 +105,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     private LOSStorageLocationQueryRemote slQueryRemote;
     
 	@EJB
-	private QueryFixedAssignmentService queryFixService;
+	private FixAssignmentEntityService fixService;
 
 	@EJB
 	private QueryUnitLoadTypeService queryUltService;
@@ -646,7 +646,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			isItemDataUnique = false;
 		}
 		
-		LOSFixedLocationAssignment fix = queryFixService.getByLocation(targetLocation);
+		FixAssignment fix = fixService.readFirst(null, targetLocation);
 		if( fix != null ) {
 			if( !isItemDataUnique ) {
 				log.error("Cannot store mixed unit load on fixed location for item data="+fix.getItemData().getNumber());

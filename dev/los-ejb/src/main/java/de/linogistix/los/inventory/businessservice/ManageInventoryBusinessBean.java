@@ -29,14 +29,14 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.LocationTypeEntityService;
+import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
 
@@ -60,7 +60,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 	@EJB 
 	private LOSLotService lotService;
 	@EJB
-	private LOSStorageLocationTypeService typeService;
+	private LocationTypeEntityService typeService;
 	@EJB
 	private LOSStorageLocationQueryRemote slQuery;
 	@EJB
@@ -96,7 +96,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 				log
 						.warn("NOT FOUND. Going to CREATE StorageLocation "
 								+ slName);
-				LocationType type = typeService.getDefaultStorageLocationType();
+				LocationType type = typeService.getDefault();
 				sl = slService.createStorageLocation(c, slName, type);
 			}
 

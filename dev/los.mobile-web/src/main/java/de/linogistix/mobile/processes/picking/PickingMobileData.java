@@ -16,7 +16,6 @@ import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.mobile.common.gui.bean.BasicBackingBean;
@@ -24,6 +23,7 @@ import de.linogistix.mobileserver.processes.picking.PickingMobileFacade;
 import de.linogistix.mobileserver.processes.picking.PickingMobileOrder;
 import de.linogistix.mobileserver.processes.picking.PickingMobilePos;
 import de.linogistix.mobileserver.processes.picking.PickingMobileUnitLoad;
+import de.wms2.mywms.picking.PickingOrder;
 
 
 
@@ -510,14 +510,14 @@ public class PickingMobileData extends BasicBackingBean implements Serializable 
 		log.debug(logStr);
 		reset();
 
-		List<LOSPickingOrder> orders = facade.getStartedOrders(useTransport);
+		List<PickingOrder> orders = facade.getStartedOrders(useTransport);
 		if( orders == null || orders.size()==0 ) {
 			return;
 		}
 
 		log.warn(logStr+"Found orders to resume");
 		
-		for( LOSPickingOrder order : orders ) {
+		for( PickingOrder order : orders ) {
 			loadOrder(order.getId());
 			break;
 		}

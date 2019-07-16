@@ -87,14 +87,17 @@
                 <package>de.linogistix.los.util.businessservice</package>
                 <package>de.linogistix.los.util.entityservice</package>
                 <package>de.wms2.mywms.client</package>
+                <package>de.wms2.mywms.delivery</package>
                 <package>de.wms2.mywms.document</package>
                 <package>de.wms2.mywms.entity</package>
                 <package>de.wms2.mywms.exception</package>
                 <package>de.wms2.mywms.inventory</package>
                 <package>de.wms2.mywms.location</package>
                 <package>de.wms2.mywms.module</package>
+                <package>de.wms2.mywms.picking</package>
                 <package>de.wms2.mywms.product</package>
                 <package>de.wms2.mywms.property</package>
+                <package>de.wms2.mywms.sequence</package>
                 <package>de.wms2.mywms.strategy</package>
                 <package>de.wms2.mywms.user</package>
                 <package>de.wms2.mywms.util</package>

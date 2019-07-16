@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.ItemUnitType;
-import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.UniqueConstraintViolatedException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -30,21 +29,21 @@ import de.linogistix.los.customization.ImportDataServiceDispatcher;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
@@ -67,7 +66,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	private LOSStorageLocationQueryRemote locationQuery; 
 	
 	@EJB
-	private LOSStorageLocationTypeService locationTypeService;
+	private LocationTypeEntityService locationTypeService;
 
 	@EJB
 	private LOSAreaQueryRemote areaQuery;
@@ -82,7 +81,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	private QueryUnitLoadTypeService ulTypeService;
 
 	@EJB
-	private QueryFixedAssignmentService fixedService;
+	private FixAssignmentEntityService fixedService;
 	@EJB
 	private EntityGenerator entityGenerator;
 
@@ -193,11 +192,10 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		LocationType locType;
 
-		try {
-			locType = locationTypeService.getByName(locTypeName);
-		} catch (EntityNotFoundException ex) {
+		locType = locationTypeService.read(locTypeName);
+		if (locType == null) {
 			logger.error("Unknown locTypeName: " + locTypeName + ". Try default");
-			locType = locationTypeService.getDefaultStorageLocationType();
+			locType = locationTypeService.getDefault();
 		}
 		
 		// ----------- Capacity Constraint -------------------------------------
@@ -304,18 +302,18 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		if (idat != null){
 			// first remove old assignments
-			List<LOSFixedLocationAssignment> flList = fixedService.getByItemData(idat);
-			for( LOSFixedLocationAssignment flOld : flList ) {
+			List<FixAssignment> flList = fixedService.readList(idat, null, null, null, null);
+			for( FixAssignment flOld : flList ) {
 				manager.remove(flOld);
 			}
-			LOSFixedLocationAssignment flOld = fixedService.getByLocation(rl);
+			FixAssignment flOld = fixedService.readFirst(null, rl);
 			if( flOld != null ) {
 				manager.remove(flOld);
 			}
 			manager.flush();
 			
-			LOSFixedLocationAssignment ass = entityGenerator.generateEntity( LOSFixedLocationAssignment.class );
-			ass.setAssignedLocation(rl);
+			FixAssignment ass = entityGenerator.generateEntity( FixAssignment.class );
+			ass.setStorageLocation(rl);
 			ass.setItemData(idat);
 			manager.persist(ass);
 		}

@@ -19,12 +19,13 @@ import de.linogistix.inventory.browser.masternode.BOPickingPositionMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSPickingPositionCRUDRemote;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.query.LOSPickingPositionQueryRemote;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +76,9 @@ public class BOPickingPosition extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSPickingPosition c;
+      PickingOrderLine c;
     
-    c = new LOSPickingPosition();
+    c = new PickingOrderLine();
     
     return c;
     
@@ -160,9 +161,9 @@ public class BOPickingPosition extends BO {
         }
         if( "pickingType".equals(fieldName) ) {
             List<Object> entryList = new ArrayList<Object>();
-            entryList.add(LOSPickingPosition.PICKING_TYPE_DEFAULT);
-            entryList.add(LOSPickingPosition.PICKING_TYPE_PICK);
-            entryList.add(LOSPickingPosition.PICKING_TYPE_COMPLETE);
+            entryList.add(PickingType.DEFAULT);
+            entryList.add(PickingType.PICK);
+            entryList.add(PickingType.COMPLETE);
 
             return entryList;
         }

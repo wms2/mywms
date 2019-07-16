@@ -28,8 +28,6 @@ import org.mywms.globals.DocumentTypes;
 
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.model.OrderReceipt;
 import de.linogistix.los.inventory.model.OrderReceiptPosition;
 import de.linogistix.los.inventory.model.OrderType;
@@ -37,8 +35,10 @@ import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.OrderReceiptService;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 
 /**
@@ -64,15 +64,15 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
     
     
     
-	public OrderReceipt generateOrderReceipt(LOSCustomerOrder order) throws FacadeException {
+	public OrderReceipt generateOrderReceipt(DeliveryOrder order) throws FacadeException {
 		String logStr = "generateOrderReceipt ";
 		OrderReceipt receipt = null;
 		
-		log.info(logStr+"Generate receipt for order="+order.getNumber());
+		log.info(logStr+"Generate receipt for order="+order.getOrderNumber());
 		receipt = entityGenerator.generateEntity( OrderReceipt.class );
-		receipt.setName("LOS-"+order.getNumber());
+		receipt.setName("LOS-"+order.getOrderNumber());
 		receipt.setClient(order.getClient());
-		receipt.setOrderNumber(order.getNumber());
+		receipt.setOrderNumber(order.getOrderNumber());
 		receipt.setDate(new Date());
 		receipt.setType(DocumentTypes.APPLICATION_PDF.toString());
 		receipt.setDestination(order.getDestination()==null?null:order.getDestination().getName());
@@ -81,11 +81,11 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
 		receipt.setUser("");
 		receipt.setPositions(new ArrayList<OrderReceiptPosition>());
 
-		List<LOSPickingUnitLoad> pulList = pulService.getByCustomerOrderNumber(order.getNumber());
+		List<PickingUnitLoad> pulList = pulService.getByDeliveryOrderNumber(order.getOrderNumber());
 
 		Map<String, LOSStockUnitReportTO> valueMap = new HashMap<String, LOSStockUnitReportTO>();
 
-		for( LOSPickingUnitLoad pul : pulList ) {
+		for( PickingUnitLoad pul : pulList ) {
 			UnitLoad unitLoad = pul.getUnitLoad();
 			for( StockUnit stock : unitLoad.getStockUnitList() ) {
 				String key = stock.getItemData().getNumber();
@@ -172,18 +172,18 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
 		}
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("formattedOrderNumber", StringTools.isEmpty(order.getExternalNumber()) ? order.getNumber() : order.getExternalNumber() );
+		parameters.put("formattedOrderNumber", StringTools.isEmpty(order.getExternalNumber()) ? order.getOrderNumber() : order.getExternalNumber() );
 		SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
 		parameters.put("formattedDate", sd.format(new Date()) );
 		parameters.put("printDate", new Date() );
-		parameters.put("orderDate", order.getDelivery() );
-		parameters.put("orderNumber", order.getNumber() );
+		parameters.put("orderDate", order.getDeliveryDate() );
+		parameters.put("orderNumber", order.getOrderNumber() );
 		parameters.put("externalOrderNumber", order.getExternalNumber() );
 		parameters.put("clientNumber", order.getClient().getNumber() );
 		parameters.put("clientName", order.getClient().getName() );
 		parameters.put("clientCode", order.getClient().getCode() );
 		parameters.put("targetLocationName", order.getDestination() == null ? "" : order.getDestination().getName() );
-		parameters.put("orderStrategyName", order.getStrategy() == null ? "" : order.getStrategy().getName() );
+		parameters.put("orderStrategyName", order.getOrderStrategy() == null ? "" : order.getOrderStrategy().getName() );
 		parameters.put("prio", order.getPrio() );
 		
 		byte[] bytes = reportGenerator.createPdf(order.getClient(), "OrderReceipt", InventoryBundleResolver.class, valueList2, parameters);

@@ -13,10 +13,10 @@ import de.linogistix.common.services.J2EEServiceLocatorException;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -72,7 +72,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
             try {
                 LOSCustomerOrderQueryRemote orderQuery;
                 orderQuery = loc.getStateless(LOSCustomerOrderQueryRemote.class);
-                LOSCustomerOrder order = orderQuery.queryById(orders.get(0).getId());
+                DeliveryOrder order = orderQuery.queryById(orders.get(0).getId());
                 if( !StringTools.isEmpty(order.getDocumentUrl()) ) {
                     fUrl1.setText(order.getDocumentUrl());
                     fPrintExternal.setSelected(true);

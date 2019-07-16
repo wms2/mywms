@@ -13,10 +13,10 @@ import java.util.List;
 
 import org.mywms.globals.SerialNoRecordType;
 
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrderLine;
 
 /**
  * @author krane
@@ -49,16 +49,16 @@ public class PickingMobilePos implements Serializable {
 	public String locationTypeName = null;
 	public long locationTypeId = 0;
 
-	public void init( LOSPickingPosition pos ) {
+	public void init( PickingOrderLine pos ) {
 		init(pos,null,null);
 	}
 	
-	public void init( LOSPickingPosition pos, List<String> eanList, Boolean fixedLocation ) {
+	public void init( PickingOrderLine pos, List<String> eanList, Boolean fixedLocation ) {
 		
 		this.id = pos.getId();
 		this.clientNumber = pos.getClient().getNumber();
-		this.pickingOrderNumber = (pos.getPickingOrder() == null ? null : pos.getPickingOrder().getNumber());
-		this.customerOrderNumber = pos.getCustomerOrderPosition() == null ? "" : pos.getCustomerOrderPosition().getOrder().getNumber();
+		this.pickingOrderNumber = (pos.getPickingOrder() == null ? null : pos.getPickingOrder().getOrderNumber());
+		this.customerOrderNumber = pos.getDeliveryOrderLine() == null ? "" : pos.getDeliveryOrderLine().getDeliveryOrder().getOrderNumber();
 		this.itemNo = pos.getItemData().getNumber();
 		this.itemName = pos.getItemData().getName();
 		this.locationName = pos.getPickFromLocationName();

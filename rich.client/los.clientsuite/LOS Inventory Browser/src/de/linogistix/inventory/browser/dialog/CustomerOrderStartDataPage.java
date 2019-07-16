@@ -116,8 +116,7 @@ final public class CustomerOrderStartDataPage implements WizardDescriptor.Valida
             getPanelUI().setPrio(""+wizard.prio);
         }
 
-        getPanelUI().setCreateOne(wizard.createOne);
-        getPanelUI().setCreateStrat(wizard.createStrat);
+        getPanelUI().setCombine(wizard.combine);
         getPanelUI().setRelease(wizard.release);
     }
 
@@ -141,9 +140,7 @@ final public class CustomerOrderStartDataPage implements WizardDescriptor.Valida
         catch( Throwable t ) {}
         wizard.prio = prio;
 
-        wizard.createOne = getPanelUI().isCreateOne();
-        wizard.createOnePerOrder = getPanelUI().isCreateOnePerOrder();
-        wizard.createStrat = getPanelUI().isCreateStrat();
+        wizard.combine = getPanelUI().isCombine();
         wizard.release = getPanelUI().isRelease();
     }
 

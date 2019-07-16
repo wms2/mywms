@@ -13,7 +13,6 @@ import de.linogistix.common.bobrowser.query.gui.component.BOQueryComponentProvid
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.LOSCompatibilityFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.query.BODTO;
@@ -25,6 +24,7 @@ import de.linogistix.wmsprocesses.processes.treat_order.gui.control.TreatOrderSt
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.product.ItemData;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import org.openide.util.Lookup;
  */
 public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<StockUnit>{
 
-    private BODTO<LOSCustomerOrderPosition> orderPositionTO;
+    private BODTO<DeliveryOrderLine> orderPositionTO;
     
     private BODTO<Lot> lotTO;
     
@@ -171,11 +171,11 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
         stockQueryProvider.setItemDataTO(item);
     }
     
-    public BODTO<LOSCustomerOrderPosition> getOrderPositionTO() {
+    public BODTO<DeliveryOrderLine> getOrderPositionTO() {
         return orderPositionTO;
     }
 
-    public void setOrderPositionTO(BODTO<LOSCustomerOrderPosition> orderPositionTO) {
+    public void setOrderPositionTO(BODTO<DeliveryOrderLine> orderPositionTO) {
         this.orderPositionTO = orderPositionTO;
     }
     

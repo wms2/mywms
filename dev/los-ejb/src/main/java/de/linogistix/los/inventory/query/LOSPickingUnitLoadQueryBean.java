@@ -12,19 +12,19 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.query.dto.LOSPickingUnitLoadTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<LOSPickingUnitLoad> implements LOSPickingUnitLoadQueryRemote{
+public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<PickingUnitLoad> implements LOSPickingUnitLoadQueryRemote{
 	
 	@Override
 	public String getUniqueNameProp() {
@@ -46,8 +46,8 @@ public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<LOSPick
 		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("unitLoad.labelId", false));
 		propList.add(new BODTOConstructorProperty("unitLoad.storageLocation.name", false));
-		propList.add(new BODTOConstructorProperty("pickingOrder.number", false));
-		propList.add(new BODTOConstructorProperty("customerOrderNumber", false));
+		propList.add(new BODTOConstructorProperty("pickingOrder.orderNumber", false));
+		propList.add(new BODTOConstructorProperty("deliveryOrderNumber", false));
 		
 		return propList;
 	}
@@ -64,11 +64,11 @@ public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<LOSPick
 		
 		TemplateQueryWhereToken token;
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "pickingOrder.number", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "pickingOrder.orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "customerOrderNumber", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "deliveryOrderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		

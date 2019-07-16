@@ -17,11 +17,11 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.browser.dialog.CustomerOrderStartWizard;
 import de.linogistix.los.inventory.facade.LOSPickingFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import java.awt.Dialog;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,7 @@ public final class BOCustomerOrderStartAction extends NodeAction {
             else {
                 J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
                 LOSCustomerOrderQueryRemote orderQuery;
-                LOSCustomerOrder r;
+                DeliveryOrder r;
                 try {
                     orderQuery = loc.getStateless(LOSCustomerOrderQueryRemote.class);
                     r = orderQuery.queryById(((BOMasterNode)n).getEntity().getId());
@@ -142,16 +142,18 @@ public final class BOCustomerOrderStartAction extends NodeAction {
             }
 
             try {
-                if( wizard.createOne ) {
+                if( wizard.combine ) {
                     List<Long> orderIdList = new ArrayList<Long>();
                     for( LOSCustomerOrderTO order : orderList ) {
                         orderIdList.add(order.getId());
                     }
-                    pickingFacade.createOrders(orderIdList, true, wizard.prio, wizard.destinationName, wizard.release, wizard.userName, wizard.hint );
+                    pickingFacade.createOrders(orderIdList, wizard.prio, wizard.destinationName, wizard.release, wizard.userName, wizard.hint );
                 }
                 else {
                     for( LOSCustomerOrderTO order : orderList ) {
-                        pickingFacade.createOrders(order.getId(), true, wizard.createOnePerOrder, wizard.createStrat, wizard.prio, wizard.destinationName, wizard.release, wizard.userName, wizard.hint );
+                    List<Long> orderIdList = new ArrayList<Long>();
+                    orderIdList.add(order.getId());
+                        pickingFacade.createOrders(orderIdList, wizard.prio, wizard.destinationName, wizard.release, wizard.userName, wizard.hint );
                     }
                 }
             } catch (FacadeException ex) {

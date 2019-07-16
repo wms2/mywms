@@ -5,35 +5,19 @@ update los_replenishorder set requestedrack = (select los_rack.rname from los_ra
 ALTER TABLE los_replenishorder
 	DROP COLUMN requestedrack_id;
 
-ALTER TABLE los_storagelocationtype
-	ADD COLUMN name character varying(255) NOT NULL;
-update los_storagelocationtype set name = sltname;
-ALTER TABLE los_storagelocationtype
-	DROP COLUMN sltname;
+ALTER TABLE los_storagelocationtype RENAME sltname TO name;
 
-ALTER TABLE los_storloc
-	ADD COLUMN rack character varying(255),
-	ADD COLUMN currenttypecapacityconstraint_id bigint,
-	ADD COLUMN locationcluster_id bigint,
-	ADD COLUMN locationtype_id bigint NOT NULL;
+ALTER TABLE los_storloc RENAME type_id TO locationtype_id;
+ALTER TABLE los_storloc RENAME cluster_id TO locationcluster_id;
+ALTER TABLE los_storloc RENAME currenttcc TO currenttypecapacityconstraint_id;
+ALTER TABLE los_storloc	ADD COLUMN rack character varying(255);
 update los_storloc set rack = (select los_rack.rname from los_rack where los_rack.id=rack_id);
-update los_storloc set currenttypecapacityconstraint_id = currenttcc;
-update los_storloc set locationcluster_id = cluster_id;
-update los_storloc set locationtype_id = type_id;
-ALTER TABLE los_storloc
-	DROP COLUMN cluster_id,
-	DROP COLUMN currenttcc,
-	DROP COLUMN rack_id,
-	DROP COLUMN type_id;
+ALTER TABLE los_storloc DROP COLUMN rack_id;
 
-ALTER TABLE los_typecapacityconstraint
-	ADD COLUMN locationtype_id bigint NOT NULL;
-update los_typecapacityconstraint set locationtype_id = storagelocationtype_id;
-ALTER TABLE los_typecapacityconstraint
-	DROP COLUMN storagelocationtype_id;
+ALTER TABLE los_typecapacityconstraint RENAME storagelocationtype_id TO locationtype_id;
 
-ALTER TABLE mywms_area
-	ADD COLUMN usages character varying(255);
+ALTER TABLE mywms_area ADD COLUMN usages character varying(255);
+update mywms_area set usages = '';
 update mywms_area set usages = usages||',GOODS_IN' where useforgoodsin=true;
 update mywms_area set usages = usages||',GOODS_OUT' where useforgoodsout=true;
 update mywms_area set usages = usages||',PICKING' where useforpicking=true;
@@ -50,46 +34,21 @@ ALTER TABLE mywms_area
 	DROP COLUMN usefortransfer,
 	DROP COLUMN client_id;
 
-ALTER TABLE mywms_itemdata
-	ADD COLUMN description character varying(2000),
-	ADD COLUMN number character varying(255) NOT NULL,
-	ADD COLUMN serialnorecordtype character varying(255) NOT NULL,
-	ADD COLUMN shelflife integer,
-	ADD COLUMN defaultstoragestrategy_id bigint,
-	ADD COLUMN defaultunitloadtype_id bigint,
-	ADD COLUMN itemunit_id bigint NOT NULL;
-update mywms_itemdata set description = descr;
-update mywms_itemdata set number = item_nr;
-update mywms_itemdata set serialnorecordtype = serialrectype;
-update mywms_itemdata set shelflife = rest_usage_gi;
-update mywms_itemdata set defaultunitloadtype_id = defultype_id;
-update mywms_itemdata set itemunit_id = handlingunit_id;
-ALTER TABLE mywms_itemdata
-	DROP COLUMN descr,
-	DROP COLUMN item_nr,
-	DROP COLUMN rest_usage_gi,
-	DROP COLUMN serialrectype,
-	DROP COLUMN defultype_id,
-	DROP COLUMN handlingunit_id;
+ALTER TABLE mywms_itemdata RENAME item_nr TO number;
+ALTER TABLE mywms_itemdata RENAME descr TO description;
+ALTER TABLE mywms_itemdata ALTER COLUMN description type character varying(2000);
+ALTER TABLE mywms_itemdata RENAME serialrectype TO serialnorecordtype;
+ALTER TABLE mywms_itemdata RENAME rest_usage_gi TO shelflife;
+ALTER TABLE mywms_itemdata RENAME defultype_id TO defaultunitloadtype_id;
+ALTER TABLE mywms_itemdata RENAME handlingunit_id TO itemunit_id;
+ALTER TABLE mywms_itemdata ADD COLUMN defaultstoragestrategy_id bigint;
 
-ALTER TABLE mywms_itemunit
-	ADD COLUMN name character varying(255) NOT NULL;
-update mywms_itemunit set name = unitname;
-ALTER TABLE mywms_itemunit
-	DROP COLUMN unitname;
+ALTER TABLE mywms_itemunit RENAME unitname TO name;
 
-ALTER TABLE mywms_unitload
-	ADD COLUMN index integer NOT NULL,
-	ADD COLUMN iscarrier boolean NOT NULL,
-	ADD COLUMN unitloadtype_id bigint NOT NULL;
-update mywms_unitload set index = location_index;
-update mywms_unitload set iscarrier = carrier;
-update mywms_unitload set unitloadtype_id = type_id;
-ALTER TABLE mywms_unitload
-	DROP COLUMN dtype,
-	DROP COLUMN location_index,
-	DROP COLUMN carrier,
-	DROP COLUMN type_id;
+ALTER TABLE mywms_unitload RENAME location_index TO index;
+ALTER TABLE mywms_unitload RENAME carrier TO iscarrier;
+ALTER TABLE mywms_unitload RENAME type_id TO unitloadtype_id;
+ALTER TABLE mywms_unitload DROP COLUMN dtype;
 
 ALTER TABLE mywms_zone
 	DROP COLUMN client_id,

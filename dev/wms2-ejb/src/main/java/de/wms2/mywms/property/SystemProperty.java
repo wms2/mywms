@@ -35,8 +35,8 @@ import de.wms2.mywms.util.Wms2Constants;
  * <p>
  * The key of a system property table contains of 3 parts<br>
  * - propertyKey: The main key<br>
- * - tenant: A property may be tenant-specific. At least the main implementation
- * with the system tenant has to exist.<br>
+ * - client: A property may be client-specific. At least the main implementation
+ * with the system client has to exist.<br>
  * - propertyContext: An optional further subkey.
  * <p>
  * 
@@ -52,7 +52,7 @@ public class SystemProperty extends BasicEntity {
 	 * The key of the property.
 	 * <p>
 	 * It has not stringently to be unique. Some properties allow context- and
-	 * tenant-specific values.
+	 * client-specific values.
 	 */
 	@Column(nullable = false)
 	private String propertyKey;

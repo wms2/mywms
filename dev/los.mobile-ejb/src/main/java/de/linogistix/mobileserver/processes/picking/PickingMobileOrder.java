@@ -11,10 +11,10 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderLine;
 
 /**
  * @author krane
@@ -38,29 +38,29 @@ public class PickingMobileOrder implements Serializable {
 	
 	public PickingMobileOrder() {
 	}
-	public PickingMobileOrder( LOSPickingOrder order ) {
+	public PickingMobileOrder( PickingOrder order ) {
 		String customerOrder = null;
 		boolean orderValid = true;
 		String externalNumber = null;
 		
 		this.id = order.getId();
-		this.pickingOrderNumber = order.getNumber();
+		this.pickingOrderNumber = order.getOrderNumber();
 		this.numPos = 0;
 		this.clientNumber = order.getClient().getNumber();
 		if( order.getDestination() != null ) {
 			this.targetName = order.getDestination().getName();
 		}
-		for( LOSPickingPosition pos : order.getPositions() ) {
+		for( PickingOrderLine pos : order.getLines() ) {
 			if( pos == null ) {
 				continue;
 			}
 			
-			if( pos.getCustomerOrderPosition() != null ) {
+			if( pos.getDeliveryOrderLine() != null ) {
 				if( customerOrder == null ) {
-					customerOrder = pos.getCustomerOrderPosition().getOrder().getNumber();
-					externalNumber = pos.getCustomerOrderPosition().getOrder().getExternalNumber();
+					customerOrder = pos.getDeliveryOrderLine().getDeliveryOrder().getOrderNumber();
+					externalNumber = pos.getDeliveryOrderLine().getDeliveryOrder().getExternalNumber();
 				}
-				else if( !customerOrder.equals(pos.getCustomerOrderPosition().getOrder().getNumber())){
+				else if( !customerOrder.equals(pos.getDeliveryOrderLine().getDeliveryOrder().getOrderNumber())){
 					orderValid = false;
 				}
 			}
@@ -77,10 +77,10 @@ public class PickingMobileOrder implements Serializable {
         DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
         created = formatter.format(order.getCreated());
     
-        strategy = order.getStrategy().getName();
+        strategy = order.getOrderStrategy().getName();
 	}
 	
-	public void setCustomerOrder( LOSCustomerOrder order ) {
+	public void setCustomerOrder( DeliveryOrder order ) {
 		this.customerNumber = order.getCustomerNumber();
 		this.customerName = order.getCustomerName();
 	}

@@ -58,7 +58,7 @@ public class StockState {
 	/**
 	 * Stock has left warehouse
 	 */
-	public static final int SHIPPED = 700;
+	public static final int SHIPPED = 680;
 
 	/**
 	 * Can be removed

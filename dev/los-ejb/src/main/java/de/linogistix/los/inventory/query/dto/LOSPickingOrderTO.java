@@ -7,10 +7,10 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.picking.PickingOrder;
 
-public class LOSPickingOrderTO extends BODTO<LOSPickingOrder>  {
+public class LOSPickingOrderTO extends BODTO<PickingOrder>  {
 
 	private static final long serialVersionUID = 1L;
 	

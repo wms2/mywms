@@ -24,9 +24,7 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         initComponents();
 
         fRelease.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelRelease") );
-        fCreateOnePerOrder.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelCreateOnePerOrder") );
-        fCreateOne.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelCreateOne") );
-        fCreateStrat.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelCreateStrat") );
+        fCombine.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelCombine") );
         fPrio.setTitle(org.openide.util.NbBundle.getMessage(InventoryBundleResolver.class, "CustomerOrderStartWizard.labelPrio"));
 
         String userName = null;
@@ -73,26 +71,13 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         return fPrio.getText();
     }
 
-    public boolean isCreateOne() {
-        return fCreateOne.isSelected();
+    public boolean isCombine() {
+        return fCombine.isSelected();
     }
-    public void setCreateOne(boolean val) {
-        fCreateOne.setSelected(val);
-    }
-
-    public boolean isCreateOnePerOrder() {
-        return fCreateOnePerOrder.isSelected();
-    }
-    public void setCreateOnePerOrder(boolean val) {
-        fCreateOnePerOrder.setSelected(val);
+    public void setCombine(boolean val) {
+        fCombine.setSelected(val);
     }
 
-    public boolean isCreateStrat() {
-        return fCreateStrat.isSelected();
-    }
-    public void setCreateStrat(boolean val) {
-        fCreateStrat.setSelected(val);
-    }
     public boolean isRelease() {
         return fRelease.isSelected();
     }
@@ -111,12 +96,10 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         fRelease = new javax.swing.JCheckBox();
-        fCreateOnePerOrder = new javax.swing.JRadioButton();
-        fCreateStrat = new javax.swing.JRadioButton();
-        fCreateOne = new javax.swing.JRadioButton();
         fPrio = new de.linogistix.common.gui.component.controls.LOSTextField();
         fDestination = new de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox();
         fUser = new de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox();
+        fCombine = new javax.swing.JCheckBox();
 
         setAlignmentX(0.0F);
         setAlignmentY(0.0F);
@@ -136,33 +119,6 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
         add(fRelease, gridBagConstraints);
-
-        buttonGroup1.add(fCreateOnePerOrder);
-        fCreateOnePerOrder.setText("Create one picking order per customer order");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(fCreateOnePerOrder, gridBagConstraints);
-
-        buttonGroup1.add(fCreateStrat);
-        fCreateStrat.setSelected(true);
-        fCreateStrat.setText("Create picking orders with strategy");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
-        add(fCreateStrat, gridBagConstraints);
-
-        buttonGroup1.add(fCreateOne);
-        fCreateOne.setText("Create one picking order");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weighty = 1.0;
-        add(fCreateOne, gridBagConstraints);
 
         fPrio.setColumns(3);
         fPrio.setTitle("Prio");
@@ -188,6 +144,14 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         add(fUser, gridBagConstraints);
+
+        fCombine.setText("Combine Customer Orders");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
+        add(fCombine, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void fReleaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fReleaseActionPerformed
@@ -196,9 +160,7 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JRadioButton fCreateOne;
-    private javax.swing.JRadioButton fCreateOnePerOrder;
-    private javax.swing.JRadioButton fCreateStrat;
+    private javax.swing.JCheckBox fCombine;
     private de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox fDestination;
     private de.linogistix.common.gui.component.controls.LOSTextField fPrio;
     private javax.swing.JCheckBox fRelease;

@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -40,7 +41,6 @@ import de.linogistix.los.location.crud.UnitLoadCRUDRemote;
 import de.linogistix.los.location.crud.UnitLoadTypeCRUDRemote;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSFixedLocationAssignmentQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
@@ -62,7 +62,9 @@ import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 /**
@@ -168,6 +170,9 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
     LOSStorageLocationService locationService;
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager em;
+
+	@Inject
+	LocationTypeEntityService slTypeEntityService;
 
 	/** Creates a new instance of TopologyBean */
 	public LocationTestTopologyBean() {
@@ -277,7 +282,7 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			BusinessObjectExistsException, BusinessObjectCreationException,
 			BusinessObjectSecurityException {
 
-		LocationType slTypeDefault = slTypeService.getDefaultStorageLocationType();
+		LocationType slTypeDefault = slTypeEntityService.getDefault();
 		UnitLoadType PALETTE = ulTypeQuery.getDefaultUnitLoadType();
 		UnitLoadType DUMMY_KOMM_ULTYPE = ulTypeQuery.getPickLocationUnitLoadType();
 		
@@ -377,7 +382,7 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			BusinessObjectExistsException, BusinessObjectCreationException,
 			BusinessObjectSecurityException {
 
-		LocationType slTypeNorestriction = slTypeService.getNoRestrictionType();
+		LocationType slTypeNorestriction = slTypeEntityService.getSystem();
 
 		try {
 			SL_WE = slQuery.queryByIdentity(TESTCLIENT,SL_WE_TESTCLIENT_NAME).get(0);
@@ -452,7 +457,7 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			BusinessObjectSecurityException, BusinessObjectNotFoundException,
 			BusinessObjectModifiedException, BusinessObjectMergeException {
 		
-		LocationType slTypeDefault = slTypeService.getDefaultStorageLocationType();
+		LocationType slTypeDefault = slTypeEntityService.getDefault();
 		UnitLoadType DUMMY_KOMM_ULTYPE = ulTypeQuery.getPickLocationUnitLoadType();
 		
 		TEST_RACK_1 = TEST_RACK_1_NAME;
@@ -631,11 +636,11 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			TemplateQuery q = new TemplateQuery();
 			q.addWhereToken(t);
 			q.addWhereToken(t2);
-			q.setBoClass(LOSFixedLocationAssignment.class);
+			q.setBoClass(FixAssignment.class);
 
-			List<LOSFixedLocationAssignment> l = assQuery.queryByTemplate(d, q);
-			for (LOSFixedLocationAssignment u : l) {
-				u = em.find(LOSFixedLocationAssignment.class, u.getId());
+			List<FixAssignment> l = assQuery.queryByTemplate(d, q);
+			for (FixAssignment u : l) {
+				u = em.find(FixAssignment.class, u.getId());
 				em.remove(u);
 			}
 		} catch (Throwable e) {

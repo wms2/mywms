@@ -55,8 +55,6 @@ import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BODTO;
@@ -76,6 +74,8 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 @Stateless
 public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
@@ -119,7 +119,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	@EJB
 	private LOSInventoryComponent inventoryComponent;
 	@EJB
-	private QueryFixedAssignmentService queryFixService;
+	private FixAssignmentEntityService fixService;
 	@EJB
 	private QueryItemDataService queryItemDataService;
 	@EJB
@@ -363,7 +363,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			
 			// Check, whether the target location is a fixed assigned location.
 			// On this locations a special handling is needed, which the posting methods do not know??
-			LOSFixedLocationAssignment fix = queryFixService.getByLocation(targetLocation);
+			FixAssignment fix = fixService.readFirst(null, targetLocation);
 			if( fix != null ) {
 				if( ! fix.getItemData().equals(idat) ) {
 					logger.error("Cannot store item data="+ idat.getNumber()+" on fixed location for item data="+fix.getItemData().getNumber());
@@ -856,7 +856,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			
 			// Check, whether the target location is a fixed assigned location.
 			// On this locations a special handling is needed, which the posting methods do not know??
-			LOSFixedLocationAssignment fix = queryFixService.getByLocation(targetLocation);
+			FixAssignment fix = fixService.readFirst(null, targetLocation);
 			if( fix != null ) {
 				if( ! fix.getItemData().equals(idat) ) {
 					logger.error("Cannot store item data="+ idat.getNumber()+" on fixed location for item data="+fix.getItemData().getNumber());

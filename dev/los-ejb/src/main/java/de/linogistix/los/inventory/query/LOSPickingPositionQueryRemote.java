@@ -14,8 +14,8 @@ import javax.ejb.Remote;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.picking.PickingOrderLine;
 
 
 /**
@@ -23,8 +23,8 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
  *
  */
 @Remote
-public interface LOSPickingPositionQueryRemote extends BusinessObjectQueryRemote<LOSPickingPosition>{ 
+public interface LOSPickingPositionQueryRemote extends BusinessObjectQueryRemote<PickingOrderLine>{ 
 
-	public List<LOSPickingPosition> queryAll( Client client );
+	public List<PickingOrderLine> queryAll( Client client );
 
 }

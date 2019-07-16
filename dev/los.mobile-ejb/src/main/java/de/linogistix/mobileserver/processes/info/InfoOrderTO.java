@@ -9,7 +9,7 @@ package de.linogistix.mobileserver.processes.info;
 
 import java.io.Serializable;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /**
  * @author krane
@@ -29,16 +29,16 @@ public class InfoOrderTO implements Serializable{
 	
 	public InfoOrderTO() {
 	}
-	public InfoOrderTO( LOSCustomerOrder order ) {
+	public InfoOrderTO( DeliveryOrder order ) {
 		if( order == null ) {
 			return;
 		}
 		this.clientName = order.getClient().getName();
 		this.clientNumber = order.getClient().getNumber();
-		this.number = order.getNumber();
-		this.type = (order.getStrategy() == null ? "" : order.getStrategy().getName());
+		this.number = order.getOrderNumber();
+		this.type = (order.getOrderStrategy() == null ? "" : order.getOrderStrategy().getName());
 		this.state = ""+order.getState();
-		this.numPos = order.getPositions().size();
+		this.numPos = order.getLines().size();
 		this.destinationName = (order.getDestination() == null ? "" : order.getDestination().getName());
 	}
 

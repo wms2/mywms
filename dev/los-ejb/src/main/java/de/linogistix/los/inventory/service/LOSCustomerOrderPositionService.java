@@ -11,16 +11,16 @@ import javax.ejb.Local;
 
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSCustomerOrderPositionService extends BasicService<LOSCustomerOrderPosition> {
+public interface LOSCustomerOrderPositionService extends BasicService<DeliveryOrderLine> {
 
-	public LOSCustomerOrderPosition getByNumber(String number);
+	public DeliveryOrderLine getByNumber(String number);
 	public boolean existsByNumber(String number);
 
 }

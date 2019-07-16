@@ -10,7 +10,7 @@ package de.linogistix.mobileserver.processes.picking;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import de.linogistix.los.inventory.model.LOSPickingPosition;
+import de.wms2.mywms.picking.PickingType;
 
 /**
  * @author krane
@@ -41,10 +41,10 @@ public class PickingMobileComparator implements Comparator<PickingMobilePos>, Se
 		}
 		
 		if( preferCompleteUnitLoad ) {
-			if( o1.pickingType == LOSPickingPosition.PICKING_TYPE_COMPLETE && o2.pickingType != LOSPickingPosition.PICKING_TYPE_COMPLETE ) {
+			if( o1.pickingType == PickingType.COMPLETE && o2.pickingType != PickingType.COMPLETE ) {
 				return 1;
 			}
-			if( o1.pickingType != LOSPickingPosition.PICKING_TYPE_COMPLETE && o2.pickingType == LOSPickingPosition.PICKING_TYPE_COMPLETE ) {
+			if( o1.pickingType != PickingType.COMPLETE && o2.pickingType == PickingType.COMPLETE ) {
 				return -1;
 			}
 		}

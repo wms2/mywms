@@ -17,7 +17,7 @@ import javax.faces.model.SelectItem;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
+import de.wms2.mywms.picking.PickingOrder;
 
 /**
  * @author krane
@@ -31,7 +31,7 @@ public interface PickingMobileFacade {
 	List<SelectItem> getCalculatedPickingOrders(String code, Long clientId, Long workingAreaId, boolean usePick, boolean useTransport, int limit);
 	public List<SelectItem> getWorkingAreaList(String code);
 
-	public List<LOSPickingOrder> getStartedOrders(boolean useTransport);
+	public List<PickingOrder> getStartedOrders(boolean useTransport);
 	
 	public void printLabel( String label, String printer ) throws FacadeException;
 

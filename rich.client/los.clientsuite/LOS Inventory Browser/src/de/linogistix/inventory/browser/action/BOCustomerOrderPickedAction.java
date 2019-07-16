@@ -15,10 +15,10 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -70,7 +70,7 @@ public final class BOCustomerOrderPickedAction extends NodeAction {
                 continue;
             }
 
-            BODTO<LOSCustomerOrder> bodto = ((BOMasterNode)n).getEntity();
+            BODTO<DeliveryOrder> bodto = ((BOMasterNode)n).getEntity();
             LOSCustomerOrderTO to = (LOSCustomerOrderTO)bodto;
 
             if( to.getState() != State.PENDING ) {
@@ -98,9 +98,9 @@ public final class BOCustomerOrderPickedAction extends NodeAction {
         }
 
         try {
-            List<BODTO<LOSCustomerOrder>> l = new ArrayList<BODTO<LOSCustomerOrder>>();
+            List<BODTO<DeliveryOrder>> l = new ArrayList<BODTO<DeliveryOrder>>();
             for (Node n : activatedNodes) {
-                l = new ArrayList<BODTO<LOSCustomerOrder>>();
+                l = new ArrayList<BODTO<DeliveryOrder>>();
                 if (n == null) {
                     continue;
                 }

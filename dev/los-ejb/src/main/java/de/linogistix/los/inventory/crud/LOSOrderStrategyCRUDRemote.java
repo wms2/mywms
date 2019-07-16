@@ -10,7 +10,7 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 
 
@@ -19,6 +19,6 @@ import de.linogistix.los.inventory.model.LOSOrderStrategy;
  *
  */
 @Remote
-public interface LOSOrderStrategyCRUDRemote extends BusinessObjectCRUDRemote<LOSOrderStrategy>{
+public interface LOSOrderStrategyCRUDRemote extends BusinessObjectCRUDRemote<OrderStrategy>{
 
 }

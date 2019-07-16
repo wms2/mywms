@@ -9,8 +9,6 @@ package de.linogistix.los.location.entityservice;
 
 import javax.ejb.Remote;
 
-import org.mywms.service.EntityNotFoundException;
-
 import de.wms2.mywms.location.LocationCluster;
 
 /**
@@ -20,9 +18,6 @@ import de.wms2.mywms.location.LocationCluster;
 @Remote
 public interface LOSLocationClusterServiceRemote {
 
-   
-    public LocationCluster getByName(String name) throws EntityNotFoundException;
-    
     public LocationCluster getDefault();
 
 }

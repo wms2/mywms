@@ -32,8 +32,6 @@ import de.linogistix.los.inventory.service.LOSReplenishOrderService;
 import de.linogistix.los.inventory.service.QueryStockService;
 import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
@@ -43,6 +41,8 @@ import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 // TODO krane: I18N
 @Stateless
@@ -60,7 +60,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	@EJB
 	private LOSStorageLocationService locService;
 	@EJB
-	private QueryFixedAssignmentService fixService;
+	private FixAssignmentEntityService fixService;
 	@EJB
 	private LOSReplenishOrderService orderService;
 	@EJB
@@ -108,7 +108,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		if( loc == null ) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, locationName);
 		}
-		LOSFixedLocationAssignment fix = fixService.getByLocation(loc);
+		FixAssignment fix = fixService.readFirst(null, loc);
 		if( fix == null ) {
 			throw new InventoryException(InventoryExceptionKey.NOT_A_FIXED_ASSIGNED_LOCATION, new Object[]{});
 		}
@@ -398,9 +398,9 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 			BigDecimal amountDestination = BigDecimal.ZERO;
 			
 			StorageLocation destination = locService.getByName(order.getDestinationLocationName());
-			LOSFixedLocationAssignment fix = fixService.getByLocation(destination);
+			FixAssignment fix = fixService.readFirst(null, destination);
 			if( fix != null ) {
-				order.setAmountDestinationMax(fix.getDesiredAmount());
+				order.setAmountDestinationMax(fix.getMaxAmount());
 			}
 			List<StockUnit> stockList = stockService2.getListByStorageLocation(destination);
 			for( StockUnit stock : stockList ) {

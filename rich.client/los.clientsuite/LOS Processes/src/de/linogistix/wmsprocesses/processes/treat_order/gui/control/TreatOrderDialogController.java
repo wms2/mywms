@@ -18,8 +18,6 @@ import de.linogistix.inventory.gui.component.controls.CustomerOrderPositionCombo
 import de.linogistix.location.gui.component.controls.LOSStorageLocationComboBoxModel;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.facade.LOSCompatibilityFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.inventory.query.dto.LotTO;
 import de.linogistix.los.model.State;
@@ -32,6 +30,8 @@ import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.product.ItemData;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
@@ -53,8 +53,8 @@ public class TreatOrderDialogController {
 
     private static final Logger log = Logger.getLogger(TreatOrderDialogController.class.getName());
     
-    private BOAutoFilteringComboBox<LOSCustomerOrder> orderCombo;
-    private BOAutoFilteringComboBox<LOSCustomerOrderPosition> orderPositionCombo;
+    private BOAutoFilteringComboBox<DeliveryOrder> orderCombo;
+    private BOAutoFilteringComboBox<DeliveryOrderLine> orderPositionCombo;
     private BOAutoFilteringComboBox<StorageLocation> targetPlaceCombo;
     
     private TreatOrderStockSelectionModel stockSelectionModel;
@@ -65,8 +65,8 @@ public class TreatOrderDialogController {
     private ItemMeasure chosenAmount;
 
     public TreatOrderDialogController(TreatOrderCenterPanel centerPanel,
-                                      BOAutoFilteringComboBox<LOSCustomerOrder> orderCombo,
-                                      BOAutoFilteringComboBox<LOSCustomerOrderPosition> orderPositionCombo,
+                                      BOAutoFilteringComboBox<DeliveryOrder> orderCombo,
+                                      BOAutoFilteringComboBox<DeliveryOrderLine> orderPositionCombo,
                                       TreatOrderStockSelectionModel stockSelectionModel,
                                       BOAutoFilteringComboBox<StorageLocation> targetPlaceCombo)
             throws Exception 
@@ -159,8 +159,8 @@ public class TreatOrderDialogController {
 
         orderPositionCombo.clear();
 
-        LOSCustomerOrder order = orderCombo.getSelectedAsEntity();
-        BODTO<LOSCustomerOrder> orderTO = orderCombo.getSelectedItem();
+        DeliveryOrder order = orderCombo.getSelectedAsEntity();
+        BODTO<DeliveryOrder> orderTO = orderCombo.getSelectedItem();
 
         if (orderTO != null && order != null) {
             ((CustomerOrderPositionComboBoxModel) orderPositionCombo.getComboBoxModel()).setOrderTO(orderTO);
@@ -203,8 +203,8 @@ public class TreatOrderDialogController {
     @SuppressWarnings("unchecked")
     private void orderPositionChanged() {
 
-        LOSCustomerOrderPosition pos = orderPositionCombo.getSelectedAsEntity();
-        BODTO<LOSCustomerOrderPosition> posTO = orderPositionCombo.getSelectedItem();
+        DeliveryOrderLine pos = orderPositionCombo.getSelectedAsEntity();
+        BODTO<DeliveryOrderLine> posTO = orderPositionCombo.getSelectedItem();
 
         if (posTO != null && pos != null) {
 
@@ -233,14 +233,14 @@ public class TreatOrderDialogController {
                 ((TreatOrderStockSelectionModel)myCenterPanel.getStockChooserView().getModel()).setLotTO(null);
             }
 
-            if (actuPickRequest != null && pos.getAmount().compareTo(pos.getAmountPicked())>0 ) {
+            if (actuPickRequest != null && pos.getAmount().compareTo(pos.getPickedAmount())>0 ) {
                 myCenterPanel.getStockChooserView().setEnabled(true);
             }
             else {
                 myCenterPanel.getStockChooserView().setEnabled(false);
             }
 
-            dialogModel.setActuOrderPosition(posTO, pos.getAmount().subtract(pos.getAmountPicked()));
+            dialogModel.setActuOrderPosition(posTO, pos.getAmount().subtract(pos.getPickedAmount()));
 
             List<BODTO> selPickList = myCenterPanel.getPickRequestListView().getSelectedEntities();
 
@@ -257,7 +257,7 @@ public class TreatOrderDialogController {
 
             BigDecimal amountPos = pos.getAmount();
 //            BigDecimal amountPicked = pos.getAmountPicked();
-            BigDecimal amountMissing = pos.getAmount().subtract(pos.getAmountPicked());
+            BigDecimal amountMissing = pos.getAmount().subtract(pos.getPickedAmount());
             BigDecimal amountChoosen = dialogModel.getChosenAmountByOrderId(pos.getId());
 //            BigDecimal amountIST = amountPicked.add(amountChoosen);
             chosenAmount = new ItemMeasure(dialogModel.getChosenAmountByOrderId(pos.getId()), pos.getItemData().getItemUnit());
@@ -273,9 +273,9 @@ public class TreatOrderDialogController {
     private void pickRequestSelected(TreatOrderPickRequestTO pickRequest) {
         actuPickRequest = pickRequest;
 
-        LOSCustomerOrderPosition pos = orderPositionCombo.getSelectedAsEntity();
+        DeliveryOrderLine pos = orderPositionCombo.getSelectedAsEntity();
         if (pos != null) {
-            if (actuPickRequest != null && pos.getAmount().compareTo(pos.getAmountPicked())>0 ) {
+            if (actuPickRequest != null && pos.getAmount().compareTo(pos.getPickedAmount())>0 ) {
                 myCenterPanel.getStockChooserView().setEnabled(true);
             }
             else {
@@ -314,26 +314,26 @@ public class TreatOrderDialogController {
     public void process() {
 
         try{            
-            LOSCustomerOrder order = orderCombo.getSelectedAsEntity();
+            DeliveryOrder order = orderCombo.getSelectedAsEntity();
             
-            if(dialogModel.getHandledPositions().size() != order.getPositions().size()){
+            if(dialogModel.getHandledPositions().size() != order.getLines().size()){
                 
                 StringBuffer sb = new StringBuffer("\n");
                 
-                for(LOSCustomerOrderPosition pos : order.getPositions()){
+                for(DeliveryOrderLine pos : order.getLines()){
                     
                     boolean handled = false;
                     
-                    for(BODTO<LOSCustomerOrderPosition> handledTO : dialogModel.getHandledPositions()){
+                    for(BODTO<DeliveryOrderLine> handledTO : dialogModel.getHandledPositions()){
                         
-                        if(pos.getNumber().equals(handledTO.getName())){
+                        if(pos.getLineNumber().equals(handledTO.getName())){
                             handled = true;
                             continue;
                         }
                     }
                     
                     if(!handled){
-                        sb.append(pos.getNumber()+"\n");
+                        sb.append(pos.getLineNumber()+"\n");
                     }
                 }
                 

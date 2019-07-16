@@ -14,7 +14,6 @@ import javax.ejb.Stateless;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
@@ -23,13 +22,14 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /** 
 *
 * @author krane
 */
 @Stateless
-public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<LOSCustomerOrder> implements LOSCustomerOrderQueryRemote {
+public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<DeliveryOrder> implements LOSCustomerOrderQueryRemote {
 	
 	@Override
 	protected String[] getBODTOConstructorProps() {
@@ -38,7 +38,7 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<LOSCustom
 
 	@Override
 	public String getUniqueNameProp() {
-		return "number";
+		return "orderNumber";
 	}
 
 	@Override
@@ -52,16 +52,16 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<LOSCustom
 		
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("number", false));
+		propList.add(new BODTOConstructorProperty("orderNumber", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
 		propList.add(new BODTOConstructorProperty("externalNumber", false));
-		propList.add(new BODTOConstructorProperty("delivery", false));
+		propList.add(new BODTOConstructorProperty("deliveryDate", false));
 		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("destination.name", null, BODTOConstructorProperty.JoinType.LEFT, "destination"));
 		propList.add(new BODTOConstructorProperty("customerNumber", false));
 		propList.add(new BODTOConstructorProperty("customerName", false));
 		propList.add(new BODTOConstructorProperty("prio", false));
-		propList.add(new BODTOConstructorProperty("strategy.name", false));
+		propList.add(new BODTOConstructorProperty("orderStrategy.name", false));
 //		propList.add(new BODTOConstructorProperty("positions.size", false));
 		
 		return propList;
@@ -81,7 +81,7 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<LOSCustom
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
 		
 		TemplateQueryWhereToken token;
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "number", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
@@ -97,7 +97,7 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<LOSCustom
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "strategy.name", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "orderStrategy.name", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
@@ -111,7 +111,7 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<LOSCustom
 	}
 
     
-  	public LOSResultList<BODTO<LOSCustomerOrder>> autoCompletionOpenOrders(String typed, BODTO<Client> clientTO, QueryDetail detail) {	
+  	public LOSResultList<BODTO<DeliveryOrder>> autoCompletionOpenOrders(String typed, BODTO<Client> clientTO, QueryDetail detail) {	
 		
 		Client client = null;
 		

@@ -28,12 +28,10 @@ import de.linogistix.los.inventory.businessservice.LOSGoodsOutBusiness;
 import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
@@ -41,7 +39,9 @@ import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.BusinessObjectHelper;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoad;
 @Stateless
 public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
@@ -272,16 +272,16 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 	public void createGoodsOutOrder(List<Long> pickingUnitLoadIdList) throws FacadeException {
 		String logStr = "createGoodsOutOrder ";
 		List<UnitLoad> ulList = new ArrayList<UnitLoad>();
-		LOSCustomerOrder customerOrder = null;
+		DeliveryOrder deliveryOrder = null;
 		Set<String> orderSet = new HashSet<String>();
 		Client client = null;
 		for( Long id : pickingUnitLoadIdList ) {
-			LOSPickingUnitLoad pul = manager.find(LOSPickingUnitLoad.class, id);
+			PickingUnitLoad pul = manager.find(PickingUnitLoad.class, id);
 			if( pul != null ) {
 				ulList.add(pul.getUnitLoad());
 				client = pul.getClient();
-				if( pul.getCustomerOrderNumber() != null ) {
-					orderSet.add(pul.getCustomerOrderNumber());
+				if( pul.getDeliveryOrderNumber() != null ) {
+					orderSet.add(pul.getDeliveryOrderNumber());
 				}
 			}
 			else {
@@ -290,7 +290,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		}
 		if( orderSet.size()==1 ) {
 			for( String s : orderSet ) {
-				customerOrder = orderService.getByNumber(s);
+				deliveryOrder = orderService.getByNumber(s);
 			}				
 		}
 		if( client == null ) {
@@ -301,7 +301,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		String shipmentNumber = genService.generateGoodsOutNumber(client);
 
 		LOSGoodsOutRequest out = outGenerator.createOrder(client, null, shipmentNumber, new Date(), null, null);
-		out.setCustomerOrder(customerOrder);
+		out.setCustomerOrder(deliveryOrder);
 		
 		for( UnitLoad unitLoad : ulList ) {
 			outGenerator.addPosition(out, unitLoad);

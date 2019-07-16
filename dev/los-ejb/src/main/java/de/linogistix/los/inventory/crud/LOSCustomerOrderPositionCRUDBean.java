@@ -13,8 +13,8 @@ import javax.ejb.Stateless;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.service.LOSCustomerOrderPositionService;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 
 
 /**
@@ -22,13 +22,13 @@ import de.linogistix.los.inventory.service.LOSCustomerOrderPositionService;
  *
  */
 @Stateless
-public class LOSCustomerOrderPositionCRUDBean extends BusinessObjectCRUDBean<LOSCustomerOrderPosition> implements LOSCustomerOrderPositionCRUDRemote {
+public class LOSCustomerOrderPositionCRUDBean extends BusinessObjectCRUDBean<DeliveryOrderLine> implements LOSCustomerOrderPositionCRUDRemote {
 
 	@EJB 
 	LOSCustomerOrderPositionService service;
 	
 	@Override
-	protected BasicService<LOSCustomerOrderPosition> getBasicService() {
+	protected BasicService<DeliveryOrderLine> getBasicService() {
 		
 		return service;
 	}

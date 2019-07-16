@@ -16,9 +16,9 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSOrderStrategyCRUDRemote;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.query.LOSOrderStrategyQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.strategy.OrderStrategy;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node;
@@ -69,9 +69,9 @@ public class BOOrderStrategy extends BO {
   
     
   protected BasicEntity initEntityTemplate() {
-    LOSOrderStrategy o;
+      OrderStrategy o;
 
-    o = new LOSOrderStrategy();
+    o = new OrderStrategy();
     LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
     o.setClient( login.getUsersClient() );
 

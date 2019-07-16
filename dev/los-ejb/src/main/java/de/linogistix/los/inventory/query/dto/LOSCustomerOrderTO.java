@@ -9,14 +9,14 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.util.Date;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /**
  * @author krane
  *
  */
-public class LOSCustomerOrderTO extends BODTO<LOSCustomerOrder>{
+public class LOSCustomerOrderTO extends BODTO<DeliveryOrder>{
 
 	private static final long serialVersionUID = 1L;
 

@@ -16,27 +16,27 @@ import javax.persistence.Query;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.los.inventory.query.dto.LOSPickingOrderTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.picking.PickingOrder;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSPickingOrderQueryBean extends BusinessObjectQueryBean<LOSPickingOrder> implements LOSPickingOrderQueryRemote {
+public class LOSPickingOrderQueryBean extends BusinessObjectQueryBean<PickingOrder> implements LOSPickingOrderQueryRemote {
 
 	@EJB
 	private ContextService ctxService;
 
 	@Override
 	public String getUniqueNameProp() {
-		return "number";
+		return "orderNumber";
 	}
 	
 	@Override
@@ -55,9 +55,9 @@ public class LOSPickingOrderQueryBean extends BusinessObjectQueryBean<LOSPicking
 	
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("number", false));
+		propList.add(new BODTOConstructorProperty("orderNumber", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
-		propList.add(new BODTOConstructorProperty("customerOrderNumber", false));
+		propList.add(new BODTOConstructorProperty("deliveryOrder.orderNumber", null, BODTOConstructorProperty.JoinType.LEFT, "deliveryOrder"));
 		propList.add(new BODTOConstructorProperty("state", false));
 //		propList.add(new BODTOConstructorProperty("positions.size", false));
 		propList.add(new BODTOConstructorProperty("prio", false));
@@ -69,7 +69,7 @@ public class LOSPickingOrderQueryBean extends BusinessObjectQueryBean<LOSPicking
 	
 	
 	@SuppressWarnings("unchecked")
-	public List<LOSPickingOrder> queryAll( Client client ) {
+	public List<PickingOrder> queryAll( Client client ) {
 		
 		if( !ctxService.getCallersClient().isSystemClient() ) {
 			client = ctxService.getCallersClient();
@@ -77,7 +77,7 @@ public class LOSPickingOrderQueryBean extends BusinessObjectQueryBean<LOSPicking
 		
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("SELECT order FROM ");
-		buffer.append(LOSPickingOrder.class.getSimpleName());
+		buffer.append(PickingOrder.class.getSimpleName());
 		buffer.append(" order ");
 		if( client != null ) {
 			buffer.append("WHERE client=:client");
@@ -108,11 +108,11 @@ public class LOSPickingOrderQueryBean extends BusinessObjectQueryBean<LOSPicking
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "number", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "customerOrderNumber", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "deliveryOrder.orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 

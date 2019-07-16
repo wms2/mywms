@@ -15,8 +15,8 @@ import javax.ejb.Remote;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Document;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.location.StorageLocation;
 
 /**
@@ -42,7 +42,7 @@ public interface LOSOrderFacade {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public LOSCustomerOrder order(
+	public DeliveryOrder order(
 			String clientNumber,
 			String externalNumber,
 			OrderPositionTO[] positions,
@@ -63,7 +63,7 @@ public interface LOSOrderFacade {
 	 * @param orderNumber
 	 * @throws FacadeException
 	 */
-	public LOSCustomerOrder finishOrder(Long orderId) throws FacadeException;
+	public DeliveryOrder finishOrder(Long orderId) throws FacadeException;
 
 	/**
 	 * Deletes a customer order.<br>
@@ -96,7 +96,7 @@ public interface LOSOrderFacade {
 	 * @param orderId
 	 * @throws FacadeException
 	 */
-	void processOrderPickedFinish(List<BODTO<LOSCustomerOrder>> orders) throws FacadeException;
+	void processOrderPickedFinish(List<BODTO<DeliveryOrder>> orders) throws FacadeException;
 
 
 }

@@ -14,22 +14,22 @@ import javax.ejb.Local;
 import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSCustomerOrderService extends BasicService<LOSCustomerOrder> {
+public interface LOSCustomerOrderService extends BasicService<DeliveryOrder> {
 
-    public List<LOSCustomerOrder> getByExternalId(Client client, String externalId);
-    public List<LOSCustomerOrder> getByExternalId(String externalId);
+    public List<DeliveryOrder> getByExternalId(Client client, String externalId);
+    public List<DeliveryOrder> getByExternalId(String externalId);
 
-    public List<LOSCustomerOrder> getByExternalNumber(Client client, String externalNumber);
-    public List<LOSCustomerOrder> getByExternalNumber(String externalNumber);
+    public List<DeliveryOrder> getByExternalNumber(Client client, String externalNumber);
+    public List<DeliveryOrder> getByExternalNumber(String externalNumber);
 
-	public LOSCustomerOrder getByNumber(String number);
+	public DeliveryOrder getByNumber(String number);
 	public boolean existsByNumber(String number);
 
 }

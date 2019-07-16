@@ -25,7 +25,6 @@ import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
@@ -34,6 +33,7 @@ import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
 
 /**
  * @author krane
@@ -127,8 +127,8 @@ public class LOSReplenishStockServiceBean implements LOSReplenishStockService {
 		sb.append(" AND area.usages like '%"+AreaUsages.REPLENISH+"%' ");
 		sb.append(" AND su.reservedAmount=0 ");
 		sb.append(" AND su.itemData =:item ");
-		sb.append(" AND not exists( select 1 from "+LOSFixedLocationAssignment.class.getSimpleName()+" fix ");
-		sb.append(                " where fix.assignedLocation = loc )");
+		sb.append(" AND not exists( select 1 from "+FixAssignment.class.getSimpleName()+" fix ");
+		sb.append(                " where fix.storageLocation = loc )");
 		sb.append(" and su.state="+StockState.ON_STOCK);
 		if( lot != null ) {
 			sb.append(" AND su.lot =:lot ");

@@ -38,9 +38,7 @@ public class CustomerOrderStartWizard extends WizardDescriptor implements Change
     public String userName = null;
     public String destinationName = null;
     public int numOrder = 0;
-    public boolean createOne = false;
-    public boolean createOnePerOrder = false;
-    public boolean createStrat = true;
+    public boolean combine = false;
     public boolean release = true;
 
     public String hint;

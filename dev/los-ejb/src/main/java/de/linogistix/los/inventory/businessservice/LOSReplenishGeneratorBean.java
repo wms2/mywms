@@ -28,12 +28,12 @@ import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSReplenishOrderService;
 import de.linogistix.los.location.businessservice.LocationReserver;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.model.State;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
 
 /**
  * @author krane
@@ -71,29 +71,29 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 
 		// find locations with UnitLoads on and free places left
 		StringBuffer sb = new StringBuffer("SELECT ass FROM ");
-		sb.append(LOSFixedLocationAssignment.class.getSimpleName() + " ass ");
-		sb.append(" WHERE ass.desiredAmount>0 ");
+		sb.append(FixAssignment.class.getSimpleName() + " ass ");
+		sb.append(" WHERE ass.maxAmount>0 ");
 		Query query = manager.createQuery(sb.toString());
 
-		List<LOSFixedLocationAssignment> fixed = query.getResultList();
+		List<FixAssignment> fixed = query.getResultList();
 
-		for (LOSFixedLocationAssignment ass : fixed) {
-			log.info("Check location " + ass.getAssignedLocation().getName());
+		for (FixAssignment ass : fixed) {
+			log.info("Check location " + ass.getStorageLocation().getName());
 			
-			BigDecimal amount = invBusiness.getAmountOfStorageLocation(ass.getItemData(), ass.getAssignedLocation());
-			BigDecimal d = ass.getDesiredAmount().multiply(new BigDecimal(0.25));
+			BigDecimal amount = invBusiness.getAmountOfStorageLocation(ass.getItemData(), ass.getStorageLocation());
+			BigDecimal d = ass.getMaxAmount().multiply(new BigDecimal(0.25));
 			if( amount.compareTo(d) >= 0 ) {
-				log.info("There is still enough material on location " + ass.getAssignedLocation().getName());
+				log.info("There is still enough material on location " + ass.getStorageLocation().getName());
 				continue;
 			}
 
-			List<LOSReplenishOrder> active = orderService.getActive(ass.getItemData(), null, ass.getAssignedLocation(), null);
+			List<LOSReplenishOrder> active = orderService.getActive(ass.getItemData(), null, ass.getStorageLocation(), null);
 			if (active != null && active.size() > 0) {
-				log.info(logStr+"There is already replenishment ordered for location " + ass.getAssignedLocation().getName());
+				log.info(logStr+"There is already replenishment ordered for location " + ass.getStorageLocation().getName());
 				continue;
 			}
 			
-			LOSReplenishOrder order = calculateOrder(ass.getItemData(), null, null, ass.getAssignedLocation(), null);
+			LOSReplenishOrder order = calculateOrder(ass.getItemData(), null, null, ass.getStorageLocation(), null);
 			ret.add(order);
 		}
 

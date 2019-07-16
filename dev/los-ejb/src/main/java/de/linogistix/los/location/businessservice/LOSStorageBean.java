@@ -25,13 +25,13 @@ import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 
 @Stateless
@@ -45,7 +45,7 @@ public class LOSStorageBean implements LOSStorage {
 	private LOSStorageLocationService slService;
 
 	@EJB
-	private QueryFixedAssignmentService fixAssignmentService;
+	private FixAssignmentEntityService fixAssignmentService;
 	
 	@EJB
 	private LOSUnitLoadService unitLoadService;
@@ -91,9 +91,9 @@ public class LOSStorageBean implements LOSStorage {
 		
 		// if the destination is permanent assigned to a special item data
 		// check if stocks on the unit load only contain that item
-		LOSFixedLocationAssignment fixAss;
+		FixAssignment fixAss;
 
-		if ((fixAss = fixAssignmentService.getByLocation(dest)) != null){
+		if ((fixAss = fixAssignmentService.readFirst(null, dest)) != null){
 
 			boolean hasChilds = unitLoadService.hasChilds(unitLoad);
 			

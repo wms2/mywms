@@ -11,7 +11,7 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 
 /**
@@ -19,6 +19,6 @@ import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
  *
  */
 @Remote
-public interface LOSPickingUnitLoadCRUDRemote extends BusinessObjectCRUDRemote<LOSPickingUnitLoad>{
+public interface LOSPickingUnitLoadCRUDRemote extends BusinessObjectCRUDRemote<PickingUnitLoad>{
 
 }

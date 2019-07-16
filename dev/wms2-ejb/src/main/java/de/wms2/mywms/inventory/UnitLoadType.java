@@ -25,9 +25,9 @@ import javax.persistence.Table;
 import org.mywms.model.BasicEntity;
 
 /**
- * This class replaces myWMS:UnitLoadType
- * <p>
  * The type of a UnitLoad
+ * <p>
+ * This class replaces myWMS:UnitLoadType
  */
 @Entity
 @Table
@@ -57,6 +57,11 @@ public class UnitLoadType extends BasicEntity {
 	 */
 	@Column(nullable = true, precision = 16, scale = 3)
 	private BigDecimal liftingCapacity;
+
+	/**
+	 * A comma separated list of the usage keys.
+	 */
+	private String usages;
 
 	@Override
 	public String toString() {
@@ -125,5 +130,13 @@ public class UnitLoadType extends BasicEntity {
 
 	public void setLiftingCapacity(BigDecimal liftingCapacity) {
 		this.liftingCapacity = liftingCapacity;
+	}
+
+	public String getUsages() {
+		return usages;
+	}
+
+	public void setUsages(String usages) {
+		this.usages = usages;
 	}
 }

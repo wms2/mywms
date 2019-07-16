@@ -10,8 +10,8 @@ package de.linogistix.los.inventory.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 
 /**
@@ -19,7 +19,7 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
  *
  */
 @Remote
-public interface LOSPickingUnitLoadQueryRemote extends BusinessObjectQueryRemote<LOSPickingUnitLoad>{ 
+public interface LOSPickingUnitLoadQueryRemote extends BusinessObjectQueryRemote<PickingUnitLoad>{ 
 
 
 }

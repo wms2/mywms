@@ -13,9 +13,9 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSPickingOrder;
 import de.linogistix.mobileserver.processes.picking.PickingMobileComparator;
 import de.linogistix.mobileserver.processes.picking.PickingMobilePos;
+import de.wms2.mywms.picking.PickingOrder;
 
 
 public class ManageMobileBean implements ManageMobile {
@@ -45,7 +45,7 @@ public class ManageMobileBean implements ManageMobile {
 		return new PickingMobileComparator(false);
 	}
 	
-	public String getPickingSelectionText(LOSPickingOrder pickingOrder) {
-		return pickingOrder.getNumber();
+	public String getPickingSelectionText(PickingOrder pickingOrder) {
+		return pickingOrder.getOrderNumber();
 	}
 }

@@ -1,15 +1,16 @@
 package de.linogistix.los.inventory.model;
 
 import de.linogistix.los.model.HostMsg;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 public class HostMsgOrder extends HostMsg{
 
-	private LOSCustomerOrder customerOrder;
+	private DeliveryOrder deliveryOrder;
 	private String orderNumber;
 	
-	public HostMsgOrder( LOSCustomerOrder customerOrder ) {
-		this.customerOrder = customerOrder;
-		this.orderNumber = (customerOrder == null ? "?" : customerOrder.getNumber());
+	public HostMsgOrder( DeliveryOrder customerOrder ) {
+		this.deliveryOrder = customerOrder;
+		this.orderNumber = (customerOrder == null ? "?" : customerOrder.getOrderNumber());
 	}
 
 	public String getOrderNumber() {
@@ -18,11 +19,11 @@ public class HostMsgOrder extends HostMsg{
 	public void setOrderNumber(String orderNumber) {
 		this.orderNumber = orderNumber;
 	}
-	public LOSCustomerOrder getCustomerOrder() {
-		return customerOrder;
+	public DeliveryOrder getDeliveryOrder() {
+		return deliveryOrder;
 	}
-	public void setCustomerOrder(LOSCustomerOrder customerOrder) {
-		this.customerOrder = customerOrder;
+	public void setDeliveryOrder(DeliveryOrder customerOrder) {
+		this.deliveryOrder = customerOrder;
 	}
 
 	

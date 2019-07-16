@@ -17,7 +17,6 @@ import de.linogistix.inventory.gui.component.controls.ItemDataComboBoxModel;
 import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.query.LOSOrderStrategyQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
@@ -25,7 +24,9 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.wmsprocesses.processes.order.gui.object.OrderItem;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.util.Wms2Properties;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -459,7 +460,7 @@ public class CenterPanel extends AbstractCenterPanel {
                 orderTypeCombo.addItem(strat);
             }
 
-            String typeName = propertyFacade.getString(loc.getWorkstationName(), LOSOrderStrategy.KEY_DEFAULT_STRATEGY);
+            String typeName = propertyFacade.getString(loc.getWorkstationName(), Wms2Properties.KEY_ORDERSTRATEGY_DEFAULT);
             if( typeName != null ) {
                 int max = orderTypeCombo.getItemCount();
                 for( int i = 0; i<max; i++ ) {
@@ -485,7 +486,7 @@ public class CenterPanel extends AbstractCenterPanel {
             String stratName = (String)orderTypeCombo.getSelectedItem();
             if( !StringTools.isEmpty(stratName) ) {
                 LOSOrderStrategyQueryRemote orderStratQuery = loc.getStateless(LOSOrderStrategyQueryRemote.class);
-                LOSOrderStrategy strat = orderStratQuery.queryByIdentity(stratName);
+                OrderStrategy strat = orderStratQuery.queryByIdentity(stratName);
                 if( strat != null ) {
                     String locationName = strat.getDefaultDestination().getName();
                     int max = targetplaceComboBox.getItemCount();

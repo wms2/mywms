@@ -12,19 +12,19 @@ import javax.ejb.Remote;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /** 
 *
 * @author krane
 */
 @Remote
-public interface LOSCustomerOrderQueryRemote extends BusinessObjectQueryRemote<LOSCustomerOrder>{ 
+public interface LOSCustomerOrderQueryRemote extends BusinessObjectQueryRemote<DeliveryOrder>{ 
   
-  	public LOSResultList<BODTO<LOSCustomerOrder>> autoCompletionOpenOrders(String typed, BODTO<Client> clientTO, QueryDetail detail);
+  	public LOSResultList<BODTO<DeliveryOrder>> autoCompletionOpenOrders(String typed, BODTO<Client> clientTO, QueryDetail detail);
 
 }

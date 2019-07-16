@@ -49,7 +49,7 @@ public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGood
 		propList.add(new BODTOConstructorProperty("number", false));
 		propList.add(new BODTOConstructorProperty("outState", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
-		propList.add(new BODTOConstructorProperty("customerOrder.number", "co.number", BODTOConstructorProperty.JoinType.LEFT, "customerOrder as co"));
+		propList.add(new BODTOConstructorProperty("customerOrder.orderNumber", "co.orderNumber", BODTOConstructorProperty.JoinType.LEFT, "customerOrder as co"));
 		propList.add(new BODTOConstructorProperty("customerOrder.externalNumber", "co.externalNumber", BODTOConstructorProperty.JoinType.JOIN, "co"));
 		propList.add(new BODTOConstructorProperty("customerOrder.externalId", "co.externalId", BODTOConstructorProperty.JoinType.JOIN, "co"));
 		propList.add(new BODTOConstructorProperty("customerOrder.customerNumber", "co.customerNumber", BODTOConstructorProperty.JoinType.JOIN, "co"));
@@ -76,7 +76,7 @@ public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGood
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
-		token = new TemplateQueryWhereToken( TemplateQueryWhereToken.OPERATOR_LIKE, "customerOrder.number", value);
+		token = new TemplateQueryWhereToken( TemplateQueryWhereToken.OPERATOR_LIKE, "customerOrder.orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 

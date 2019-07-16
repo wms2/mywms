@@ -89,6 +89,4 @@ public interface CustomLocationService {
 	public void onUnitLoadPlaced(StorageLocation location, UnitLoad unitLoad) throws FacadeException;
 
 	
-	public int setLocationOrderIndex( String rack, int startValue, int diffValue );
-
 }

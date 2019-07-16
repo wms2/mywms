@@ -14,11 +14,11 @@ import javax.ejb.Remote;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.pick.facade.CreatePickRequestPositionTO;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.location.StorageLocation;
 
@@ -30,7 +30,7 @@ public interface LOSCompatibilityFacade {
 
 	@Deprecated
 	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(
-			BODTO<LOSCustomerOrderPosition> orderPosTO, BODTO<Lot> lotTO,
+			BODTO<DeliveryOrderLine> orderPosTO, BODTO<Lot> lotTO,
 			BODTO<StorageLocation> locationTO) throws InventoryException;
 	
 	@Deprecated

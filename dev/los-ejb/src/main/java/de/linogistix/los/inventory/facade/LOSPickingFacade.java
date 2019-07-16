@@ -96,8 +96,7 @@ public interface LOSPickingFacade {
 	 * @param userName Reservation for one operator. If given, the order is reserved and the setProcessable flag is ignored
 	 * @throws FacadeException
 	 */
-	public void createOrders( long customerOrderId, boolean completeOnly, boolean useSingleOrderService, boolean useStratOrderService, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException;
-	public void createOrders( List<Long> customerOrderIdList, boolean completeOnly, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException;
+	public void createOrders(List<Long> customerOrderIdList, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException;
 	
 	public void finishPickingUnitLoad( String label, String location ) throws FacadeException;
 

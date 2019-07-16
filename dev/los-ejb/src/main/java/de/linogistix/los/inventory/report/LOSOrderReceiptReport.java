@@ -11,8 +11,8 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
 import de.linogistix.los.inventory.model.OrderReceipt;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /**
  * @author krane
@@ -30,7 +30,7 @@ public interface LOSOrderReceiptReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public OrderReceipt generateOrderReceipt(LOSCustomerOrder order) throws FacadeException;
+	public OrderReceipt generateOrderReceipt(DeliveryOrder order) throws FacadeException;
 	
 	/**
 	 * Persist an order receipt.

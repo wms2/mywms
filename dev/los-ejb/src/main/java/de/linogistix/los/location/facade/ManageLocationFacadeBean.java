@@ -12,6 +12,7 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -32,6 +33,7 @@ import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
@@ -57,6 +59,8 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 	private LocationReserver locationReserver;
 	@EJB
 	private CustomLocationService customLocationService;
+	@Inject
+	private StorageLocationEntityService locationServcie;
 
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
@@ -151,7 +155,7 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 		if (StringUtils.isBlank(rackTo)) {
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_LOCATION, new String[]{"NULL"});
 		}
-		return customLocationService.setLocationOrderIndex(rackTo, startValue, diffValue);
+		return locationServcie.writeStorageLocationOrderIndex(rackTo, startValue, diffValue);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 	private static final long serialVersionUID = 1L;
 
 	public LOSGoodsOutRequestTO( LOSGoodsOutRequest x ){
-		this(x.getId(), x.getVersion(), x.getNumber(), x.getNumber(), x.getOutState(), x.getClient().getNumber(), x.getCustomerOrder()==null?null:x.getCustomerOrder().getNumber(), x.getShippingDate());
+		this(x.getId(), x.getVersion(), x.getNumber(), x.getNumber(), x.getOutState(), x.getClient().getNumber(), x.getCustomerOrder()==null?null:x.getCustomerOrder().getOrderNumber(), x.getShippingDate());
 	}
 	
 

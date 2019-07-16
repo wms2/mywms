@@ -15,18 +15,18 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
 import de.linogistix.los.inventory.query.dto.LOSOrderStrategyTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 /** 
 *
 * @author krane
 */
 @Stateless
-public class LOSOrderStrategyQueryBean extends BusinessObjectQueryBean<LOSOrderStrategy> implements LOSOrderStrategyQueryRemote {
+public class LOSOrderStrategyQueryBean extends BusinessObjectQueryBean<OrderStrategy> implements LOSOrderStrategyQueryRemote {
 	private Logger log = Logger.getLogger(LOSOrderStrategyQueryBean.class);
 
 	@Override
@@ -78,7 +78,7 @@ public class LOSOrderStrategyQueryBean extends BusinessObjectQueryBean<LOSOrderS
 	@SuppressWarnings("unchecked")
 	public List<String> getNametList() {
 		String queryStr = 
-				"SELECT o FROM " + LOSOrderStrategy.class.getSimpleName() + " o " +
+				"SELECT o FROM " + OrderStrategy.class.getSimpleName() + " o " +
 				"WHERE manualCreationIndex>=0 " +
 				"ORDER BY manualCreationIndex ";
 
@@ -87,9 +87,9 @@ public class LOSOrderStrategyQueryBean extends BusinessObjectQueryBean<LOSOrderS
 		try {
 			Query query = manager.createQuery(queryStr);
 		
-			List<LOSOrderStrategy> stratList = query.getResultList();
+			List<OrderStrategy> stratList = query.getResultList();
 			
-			for( LOSOrderStrategy strat : stratList ) {
+			for( OrderStrategy strat : stratList ) {
 				ret.add(strat.getName());
 			}
 		}

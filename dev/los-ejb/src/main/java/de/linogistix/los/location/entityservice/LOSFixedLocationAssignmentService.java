@@ -11,10 +11,10 @@ import javax.ejb.Local;
 
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
+import de.wms2.mywms.strategy.FixAssignment;
 
 @Local
 public interface LOSFixedLocationAssignmentService 
-					extends BasicService<LOSFixedLocationAssignment>
+					extends BasicService<FixAssignment>
 {	
 }

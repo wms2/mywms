@@ -16,23 +16,23 @@ import javax.persistence.Query;
 import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
+import de.wms2.mywms.delivery.DeliveryOrder;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSCustomerOrderServiceBean extends BasicServiceBean<LOSCustomerOrder> implements LOSCustomerOrderService {
+public class LOSCustomerOrderServiceBean extends BasicServiceBean<DeliveryOrder> implements LOSCustomerOrderService {
 
 
-    public List<LOSCustomerOrder> getByExternalId(String externalId) {
+    public List<DeliveryOrder> getByExternalId(String externalId) {
     	return getByExternalId(null, externalId);
     }
     @SuppressWarnings("unchecked")
-	public List<LOSCustomerOrder> getByExternalId(Client client, String externalId) {
+	public List<DeliveryOrder> getByExternalId(Client client, String externalId) {
 		String queryStr = 
-				"SELECT o FROM " + LOSCustomerOrder.class.getSimpleName() + " o " +
+				"SELECT o FROM " + DeliveryOrder.class.getSimpleName() + " o " +
 				"WHERE o.externalId=:externalId";
 		if( client != null ) {
 			queryStr += " and client=:client";
@@ -48,13 +48,13 @@ public class LOSCustomerOrderServiceBean extends BasicServiceBean<LOSCustomerOrd
 		return query.getResultList();
     }
 
-    public List<LOSCustomerOrder> getByExternalNumber(String externalNumber) {
+    public List<DeliveryOrder> getByExternalNumber(String externalNumber) {
     	return getByExternalNumber(null, externalNumber);
     }
     @SuppressWarnings("unchecked")
-	public List<LOSCustomerOrder> getByExternalNumber(Client client, String externalNumber) {
+	public List<DeliveryOrder> getByExternalNumber(Client client, String externalNumber) {
 		String queryStr = 
-				"SELECT o FROM " + LOSCustomerOrder.class.getSimpleName() + " o " +
+				"SELECT o FROM " + DeliveryOrder.class.getSimpleName() + " o " +
 				"WHERE o.externalNumber=:externalNumber";
 		if( client != null ) {
 			queryStr += " and client=:client";
@@ -70,11 +70,12 @@ public class LOSCustomerOrderServiceBean extends BasicServiceBean<LOSCustomerOrd
 		return query.getResultList();
     }
 
-	public LOSCustomerOrder getByNumber(String number) {
-		Query q = manager.createNamedQuery("LOSCustomerOrder.queryByNumber");
+	public DeliveryOrder getByNumber(String number) {
+		Query q = manager.createQuery(
+				"SELECT order FROM " + DeliveryOrder.class.getSimpleName() + " order WHERE order.orderNumber=:number");
 		q = q.setParameter("number", number);
         try {
-            return (LOSCustomerOrder) q.getSingleResult();
+            return (DeliveryOrder) q.getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
@@ -82,7 +83,8 @@ public class LOSCustomerOrderServiceBean extends BasicServiceBean<LOSCustomerOrd
 	
 	public boolean existsByNumber(String number) {
 		manager.flush();
-		Query q = manager.createNamedQuery("LOSCustomerOrder.idByNumber");
+		Query q = manager.createQuery(
+				"SELECT order.id FROM " + DeliveryOrder.class.getSimpleName() + " order WHERE order.orderNumber=:number");
 		q = q.setParameter("number", number);
 		int x;
         try {

@@ -14,16 +14,13 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.location.res.LocationBundleResolver;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
-import de.linogistix.los.query.BODTO;
 import de.linogistix.los.location.facade.ManageLocationFacade;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.model.State;
+import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.location.StorageLocation;
 import java.awt.Dialog;
 import java.util.logging.Logger;
 import org.mywms.globals.Role;
-import org.mywms.model.BasicEntity;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
@@ -32,7 +29,6 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 import org.openide.windows.WindowManager;
-import de.wms2.mywms.location.StorageLocation;
 
 /**
  *

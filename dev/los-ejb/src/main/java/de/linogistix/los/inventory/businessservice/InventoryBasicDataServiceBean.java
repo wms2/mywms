@@ -24,12 +24,12 @@ import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemUnitService;
-import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.strategy.OrderStrategyEntityService;
 
 
 /**
@@ -44,7 +44,7 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 	@Inject
 	private ClientBusiness clientService;
 	@EJB
-	private LOSOrderStrategyService orderStrategyService;
+	private OrderStrategyEntityService orderStrategyService;
 	@EJB
 	private LOSStorageStrategyService storageStrategyService;
 	@EJB
@@ -59,18 +59,6 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 
 		Client sys = clientService.getSystemClient();
 
-		log.info("Create Sequences...");
-		genService.generateGoodsReceiptNumber(sys);
-		genService.generateAdviceNumber(sys);
-		genService.generateUnitLoadLabelId(sys, null);
-		genService.generatePickOrderNumber(sys, null);
-		genService.generateOrderNumber(sys);
-		genService.generateStorageRequestNumber(sys);
-		genService.generateGoodsOutNumber(sys) ;
-		genService.generateReplenishNumber(sys);
-		genService.generateManageInventoryNumber();
-		
-		
 		log.info("Create Strategies...");
 		
 		orderStrategyService.getDefault(sys);

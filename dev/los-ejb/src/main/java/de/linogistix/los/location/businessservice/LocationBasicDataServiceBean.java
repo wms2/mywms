@@ -24,10 +24,7 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.location.entityservice.LOSAreaService;
-import de.linogistix.los.location.entityservice.LOSAreaServiceBean;
 import de.linogistix.los.location.entityservice.LOSLocationClusterService;
-import de.linogistix.los.location.entityservice.LOSLocationClusterServiceBean;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.entityservice.LOSWorkingAreaService;
@@ -42,14 +39,17 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaEntityService;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.property.SystemProperty;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
 import de.wms2.mywms.strategy.ZoneEntityService;
+import de.wms2.mywms.util.Wms2Properties;
 
 
 /**
@@ -68,9 +68,9 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	@Inject
 	private ZoneEntityService zoneService;
 	@EJB
-	private LOSAreaService areaService;
+	private AreaEntityService areaService;
 	@EJB
-	private LOSStorageLocationTypeService locationTypeService;
+	private LOSStorageLocationTypeService losLocationTypeService;
 	@EJB
 	private QueryUnitLoadTypeService ultService;
 	@EJB
@@ -89,6 +89,8 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
 	
+	@Inject
+	private LocationTypeEntityService locationTypeService;
 	
 	public void createBasicData(Locale locale) throws FacadeException {
 
@@ -108,13 +110,14 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		log.info("Create Areas...");
 
 		String name = resolve("BasicDataAreaDefault", locale);
-		propertyService.createSystemProperty(sys, null, LOSAreaServiceBean.PROPERTY_KEY_AREA_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_AREA_DEFAULT", locale), false);
+		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_AREA_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_AREA_DEFAULT", locale), false);
 		Area storeArea = areaService.getDefault();
 		storeArea.setName(name);
+		storeArea.setUsages(null);
 		storeArea.setUseFor(AreaUsages.STORAGE, true);
 		storeArea.setUseFor(AreaUsages.PICKING, true);
 		storeArea.setUseFor(AreaUsages.REPLENISH, true);
-		SystemProperty prop = propertyService.getByKey(LOSAreaServiceBean.PROPERTY_KEY_AREA_DEFAULT);
+		SystemProperty prop = propertyService.getByKey(Wms2Properties.KEY_AREA_DEFAULT);
 		prop.setPropertyValue(name);
 
 		Area areaIn = createArea(sys, resolve("BasicDataAreaGoodsIn", locale));
@@ -129,10 +132,10 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		log.info("Create Cluster...");
 
 		name = resolve("BasicDataClusterDefault", locale);
-		propertyService.createSystemProperty(sys, null, LOSLocationClusterServiceBean.PROPERTY_KEY_CLUSTER_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_CLUSTER_DEFAULT", locale), false);
+		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_LOCATIONCLUSTER_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_CLUSTER_DEFAULT", locale), false);
 		LocationCluster clusterDefault = lcService.getDefault();
 		clusterDefault.setName(name);
-		prop = propertyService.getByKey(LOSLocationClusterServiceBean.PROPERTY_KEY_CLUSTER_DEFAULT);
+		prop = propertyService.getByKey(Wms2Properties.KEY_LOCATIONCLUSTER_DEFAULT);
 		prop.setPropertyValue(name);
 
 		
@@ -141,11 +144,11 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 
 		log.info("Create LocationTypes...");
 		
-		LocationType pType = locationTypeService.getDefaultStorageLocationType();
+		LocationType pType = locationTypeService.getDefault();
 		
-		LocationType sysType = locationTypeService.getNoRestrictionType();
+		LocationType sysType = locationTypeService.getSystem();
 		
-		locationTypeService.getAttachedUnitLoadType();
+		losLocationTypeService.getAttachedUnitLoadType();
 		
 		
 		
@@ -197,7 +200,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	private Area createArea(Client client, String name) {
 		Area area = null; 
 		try {
-			area = areaService.getByName(client, name);
+			area = areaService.read(name);
 		} catch (Exception e) {}
 		if( area == null ) {
 			area = entityGenerator.generateEntity( Area.class );

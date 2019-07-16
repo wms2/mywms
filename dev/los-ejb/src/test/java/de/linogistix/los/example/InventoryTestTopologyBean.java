@@ -33,15 +33,10 @@ import de.linogistix.los.crud.BusinessObjectMergeException;
 import de.linogistix.los.crud.BusinessObjectModifiedException;
 import de.linogistix.los.inventory.customization.ManageUnitLoadAdviceService;
 import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
@@ -60,20 +55,25 @@ import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
  * Creates an example topology
@@ -111,7 +111,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	@EJB
 	private StockUnitQueryRemote suQuery;
 	@EJB
-	private QueryFixedAssignmentService assService;
+	private FixAssignmentEntityService assService;
 	@EJB
 	private ItemDataQueryRemote itemQuery;
 	@EJB
@@ -286,10 +286,10 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 				
 				rl = slQuery.queryByIdentity(locName);
 							
-				LOSFixedLocationAssignment ass = assService.getByLocation(rl);
+				FixAssignment ass = assService.readFirst(null, rl);
 				if(ass == null){
-					ass = new LOSFixedLocationAssignment();
-					ass.setAssignedLocation(rl);
+					ass = new FixAssignment();
+					ass.setStorageLocation(rl);
 					ass.setItemData(ITEM_A1);
 					em.persist(ass);
 				}
@@ -303,10 +303,10 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 				
 				rl = slQuery.queryByIdentity(locName);
 				
-				LOSFixedLocationAssignment ass = assService.getByLocation(rl);
+				FixAssignment ass = assService.readFirst(null, rl);
 				if(ass == null){
-					ass = new LOSFixedLocationAssignment();
-					ass.setAssignedLocation(rl);
+					ass = new FixAssignment();
+					ass.setStorageLocation(rl);
 					ass.setItemData(ITEM_A1);
 					em.persist(ass);
 				}
@@ -500,24 +500,24 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			TemplateQuery q = new TemplateQuery();
 			q.addWhereToken(t);
 			q.addWhereToken(t2);
-			q.setBoClass(LOSCustomerOrder.class);
-			List<LOSCustomerOrder> l;
+			q.setBoClass(DeliveryOrder.class);
+			List<DeliveryOrder> l;
 			l = orderReqQuery.queryByTemplate(d, q);
 			
 			
 			
-			for (LOSCustomerOrder u : l) {
-				u = em.find(LOSCustomerOrder.class, u.getId());
+			for (DeliveryOrder u : l) {
+				u = em.find(DeliveryOrder.class, u.getId());
 				Vector<Long> ids = new Vector<Long>();	
-				for (LOSCustomerOrderPosition pos : u.getPositions()){
+				for (DeliveryOrderLine pos : u.getLines()){
 					ids.add(pos.getId());
 				}
 				for (Long id : ids){
-					LOSCustomerOrderPosition pos = em.find(LOSCustomerOrderPosition.class, id);
+					DeliveryOrderLine pos = em.find(DeliveryOrderLine.class, id);
 					em.remove(pos);
 				}
 				
-				u.setPositions(new ArrayList<LOSCustomerOrderPosition>());
+				u.setLines(new ArrayList<DeliveryOrderLine>());
 				
 				em.remove(u);
 				
@@ -606,21 +606,21 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			TemplateQuery q = new TemplateQuery();
 			q.addWhereToken(t);
 			q.addWhereToken(t2);
-			q.setBoClass(LOSPickingOrder.class);			
+			q.setBoClass(PickingOrder.class);			
 			
-			List<LOSPickingOrder> l = pickQuery.queryByTemplate(d, q);
-			for (LOSPickingOrder u : l) {
-				u = em.find(LOSPickingOrder.class, u.getId());
+			List<PickingOrder> l = pickQuery.queryByTemplate(d, q);
+			for (PickingOrder u : l) {
+				u = em.find(PickingOrder.class, u.getId());
 				Vector<Long> ids = new Vector<Long>();	
-				for (LOSPickingPosition pos : u.getPositions()){
+				for (PickingOrderLine pos : u.getLines()){
 					ids.add(pos.getId());
 				}
 				for (Long id : ids){
-					LOSPickingPosition pos = em.find(LOSPickingPosition.class, id);
+					PickingOrderLine pos = em.find(PickingOrderLine.class, id);
 					em.remove(pos);
 				}
 				
-				u.setPositions(new ArrayList<LOSPickingPosition>());
+				u.setLines(new ArrayList<PickingOrderLine>());
 
 				em.remove(u);
 			}
@@ -684,7 +684,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 					
 					rl = slQuery.queryByIdentity(locName);
 								
-					LOSFixedLocationAssignment ass = assService.getByLocation(rl);
+					FixAssignment ass = assService.readFirst(null, rl);
 					
 					if(ass != null){
 						em.remove(ass);
@@ -711,7 +711,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 					
 					rl = slQuery.queryByIdentity(locName);
 					
-					LOSFixedLocationAssignment ass = assService.getByLocation(rl);
+					FixAssignment ass = assService.readFirst(null, rl);
 					
 					if(ass != null){
 						em.remove(ass);
@@ -804,12 +804,12 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	
 
 	private void clearOrderStrat() {
-		List<LOSOrderStrategy> strats = orderStratService.getList(TESTCLIENT);
-		for( LOSOrderStrategy strat : strats ) {
+		List<OrderStrategy> strats = orderStratService.getList(TESTCLIENT);
+		for( OrderStrategy strat : strats ) {
 			em.remove(strat);
 		}
 		strats = orderStratService.getList(TESTMANDANT);
-		for( LOSOrderStrategy strat : strats ) {
+		for( OrderStrategy strat : strats ) {
 			em.remove(strat);
 		}
 		em.flush();

@@ -8,7 +8,6 @@
 package de.linogistix.los.location.entityservice;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -18,17 +17,15 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
-import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.location.res.BundleResolver;
-import de.linogistix.los.util.BundleHelper;
 import de.linogistix.los.util.businessservice.ContextService;
-import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.location.Area;
+import de.wms2.mywms.location.AreaEntityService;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 
 /**
  *
@@ -42,16 +39,14 @@ public class LOSStorageLocationServiceBean
         implements LOSStorageLocationService{
     
 	private static final Logger log = Logger.getLogger(LOSStorageLocationServiceBean.class);
-	@Inject
-	private ClientBusiness clService;
-	@EJB
-	private LOSStorageLocationTypeService slTypeService;
 	@EJB
 	private ContextService ctxService;
 	@EJB
 	private EntityGenerator entityGenerator;
-	@EJB
-	private LOSAreaService areaService;
+	@Inject
+	private AreaEntityService areaService;
+	@Inject
+	private StorageLocationEntityService locationService;
 	
     public StorageLocation createStorageLocation(Client client, String name, LocationType type) {
     	return createStorageLocation(client, name, type, null);
@@ -176,91 +171,14 @@ public class LOSStorageLocationServiceBean
 	}
 	
 	public StorageLocation getNirwana() {
-		StorageLocation nirwana;
-		nirwana = manager.find(StorageLocation.class, 0L);
-		if (nirwana != null){
-			return nirwana;
-		}
-		
-		createSystemStorageLocation(0, "SYSTEM_DATA_NIRWANA_LOCATION");
-
-		nirwana = manager.find(StorageLocation.class, 0L);
-		if (nirwana != null){
-			return nirwana;
-		} else{
-			throw new RuntimeException("Nirwana not found");
-		}
-		
+		return locationService.getTrash();
 	}
 
 	public StorageLocation getClearing() {
-		StorageLocation clearing;		
-			 
-		clearing = manager.find(StorageLocation.class, 1L);
-		if (clearing != null){
-			return clearing;
-		} 
-		
-		createSystemStorageLocation(1, "SYSTEM_DATA_CLEARING_LOCATION");
-		
-		clearing = manager.find(StorageLocation.class, 1L);
-		if (clearing != null){
-			return clearing;
-		} 
-		else{
-			throw new RuntimeException("Clearing not found");
-		}
-	}
-	
-	private void createSystemStorageLocation(long id, String nameKey) {
-		log.warn("Try to create system Location");
-		
-		User user = ctxService.getCallersUser();
-		Locale locale = null;
-		if( user != null ) {
-			try {
-				locale = new Locale(user.getLocale());
-			}
-			catch( Throwable x ) {
-				// egal
-			}
-		}
-		if( locale == null ) {
-			locale = Locale.getDefault();
-		}
-		
-		
-		String name = BundleHelper.resolve(BundleResolver.class, nameKey, locale );
-		
-		StorageLocation sl;
-		sl = getByName(name);
-		if(sl == null) {
-			sl = createStorageLocation(clService.getSystemClient(), name, slTypeService.getNoRestrictionType(), null);
-			if( sl == null ) {
-				log.error("Cannot create system Location");
-				return;
-			}
-			String comment = BundleHelper.resolve(BundleResolver.class, "SYSTEM_DATA_COMMENT", locale );
-			sl.setAdditionalContent(comment);
-		}
-		manager.flush();
-		
-		String queryStr = "UPDATE " + StorageLocation.class.getSimpleName() + " SET id=:idNew WHERE id=:idOld";
-		Query query = manager.createQuery(queryStr);
-		query.setParameter("idNew", id);
-		query.setParameter("idOld", sl.getId());
-		query.executeUpdate();
-		manager.flush();
-		sl = null;
+		return locationService.getClearing();
 	}
 	
 	public StorageLocation getCurrentUsersLocation() {
-		String callersName = ctxService.getCallerUserName();
-		StorageLocation loc = getByName(callersName);
-		if( loc == null ) {
-			LocationType locType = slTypeService.getNoRestrictionType(); 
-			loc = createStorageLocation(ctxService.getCallersClient(), callersName, locType, null);
-		}
-		return loc;
+		return locationService.getCurrentUsersLocation();
 	}
 }

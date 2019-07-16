@@ -33,7 +33,6 @@ import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.PersistenceManager;
-import de.wms2.mywms.exception.BusinessException;
 
 /**
  * The key of a system property contains of 3 parts<br>
@@ -376,7 +375,7 @@ public class SystemPropertyBusiness {
 	 * @param key   The property key
 	 * @param value The value to set
 	 */
-	public void setValue(String key, String value) throws BusinessException {
+	public void setValue(String key, String value) {
 		setValue(key, null, null, value);
 	}
 
@@ -386,7 +385,7 @@ public class SystemPropertyBusiness {
 	 * @param key   The property key
 	 * @param value The value to set
 	 */
-	public void setValue(String key, boolean value) throws BusinessException {
+	public void setValue(String key, boolean value) {
 		setValue(key, null, null, Boolean.toString(value));
 	}
 
@@ -396,7 +395,7 @@ public class SystemPropertyBusiness {
 	 * @param key   The property key
 	 * @param value The value to set
 	 */
-	public void setValue(String key, int value) throws BusinessException {
+	public void setValue(String key, int value) {
 		setValue(key, null, null, Integer.toString(value));
 	}
 
@@ -408,7 +407,7 @@ public class SystemPropertyBusiness {
 	 * @param context An optional subkey
 	 * @param value   The value to set
 	 */
-	public void setValue(String key, Client client, String context, String value) throws BusinessException {
+	public void setValue(String key, Client client, String context, String value) {
 		if (client == null) {
 			client = clientBusiness.getSystemClient();
 		}

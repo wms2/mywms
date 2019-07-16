@@ -14,10 +14,10 @@ import javax.ejb.Local;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
  *
@@ -26,9 +26,9 @@ import de.wms2.mywms.product.ItemData;
 @Local
 public interface LOSOrderGenerator {
 
-	public LOSCustomerOrder createCustomerOrder(Client client, LOSOrderStrategy strat) throws FacadeException;
+	public DeliveryOrder createDeliveryOrder(Client client, OrderStrategy strat) throws FacadeException;
 
-	public LOSCustomerOrder addCustomerOrderPos(LOSCustomerOrder order, ItemData item, Lot lot, String serialNumber, BigDecimal amount) throws FacadeException;
+	public DeliveryOrder addDeliveryOrderLine(DeliveryOrder order, ItemData item, Lot lot, String serialNumber, BigDecimal amount) throws FacadeException;
 
 
 }

@@ -13,8 +13,8 @@ import javax.ejb.Stateless;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
+import de.wms2.mywms.picking.PickingOrderLine;
 
 
 /**
@@ -22,13 +22,13 @@ import de.linogistix.los.inventory.service.LOSPickingPositionService;
  *
  */
 @Stateless
-public class LOSPickingPositionCRUDBean extends BusinessObjectCRUDBean<LOSPickingPosition> implements LOSPickingPositionCRUDRemote {
+public class LOSPickingPositionCRUDBean extends BusinessObjectCRUDBean<PickingOrderLine> implements LOSPickingPositionCRUDRemote {
 
 	@EJB 
 	LOSPickingPositionService service;
 	
 	@Override
-	protected BasicService<LOSPickingPosition> getBasicService() {
+	protected BasicService<PickingOrderLine> getBasicService() {
 		
 		return service;
 	}

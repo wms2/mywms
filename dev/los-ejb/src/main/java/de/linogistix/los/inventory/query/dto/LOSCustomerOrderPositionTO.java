@@ -9,14 +9,14 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 
 /**
  * @author krane
  *
  */
-public class LOSCustomerOrderPositionTO extends BODTO<LOSCustomerOrderPosition>{
+public class LOSCustomerOrderPositionTO extends BODTO<DeliveryOrderLine>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,8 +32,8 @@ public class LOSCustomerOrderPositionTO extends BODTO<LOSCustomerOrderPosition>{
 	private String externalId;
 
 	
-	public LOSCustomerOrderPositionTO(LOSCustomerOrderPosition pos){
-		this(pos.getId(),pos.getVersion(), pos.getNumber(), pos.getItemData().getNumber(), pos.getItemData().getName(), pos.getItemData().getScale(), pos.getLot()==null?null:pos.getLot().getName(), pos.getAmount(), pos.getAmountPicked(), pos.getState(), pos.getOrder().getNumber(), pos.getClient().getNumber(), pos.getExternalId());
+	public LOSCustomerOrderPositionTO(DeliveryOrderLine pos){
+		this(pos.getId(),pos.getVersion(), pos.getLineNumber(), pos.getItemData().getNumber(), pos.getItemData().getName(), pos.getItemData().getScale(), pos.getLot()==null?null:pos.getLot().getName(), pos.getAmount(), pos.getPickedAmount(), pos.getState(), pos.getDeliveryOrder().getOrderNumber(), pos.getClient().getNumber(), pos.getExternalId());
 	}
 	public LOSCustomerOrderPositionTO(Long id, int version, String name, String itemNumber, String itemName, int itemScale, 
 			String lotName, BigDecimal amount, BigDecimal amountPicked, int positionState, String orderNumber, String clientNumber, String externalId){
@@ -48,7 +48,7 @@ public class LOSCustomerOrderPositionTO extends BODTO<LOSCustomerOrderPosition>{
 		this.orderNumber = orderNumber;
 		this.clientNumber = clientNumber;
 		this.externalId = externalId;
-		setClassName(LOSCustomerOrderPosition.class.getName());
+		setClassName(DeliveryOrderLine.class.getName());
 	}
 
 	public LOSCustomerOrderPositionTO(Long id, int version, String name){

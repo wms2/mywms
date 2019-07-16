@@ -12,18 +12,8 @@ import javax.ejb.Stateless;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.facade.InventoryProcessFacade;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
-import de.linogistix.los.inventory.pick.model.PickReceipt;
-import de.linogistix.los.util.StringTools;
-import de.linogistix.los.util.businessservice.LOSSequenceGeneratorService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.sequence.SequenceBusiness;
 
 /**
  * 
@@ -34,112 +24,54 @@ public class InventoryGeneratorBean implements InventoryGeneratorService {
 
 
     @EJB
-    private LOSSequenceGeneratorService seqService;
+    private SequenceBusiness seqService;
     // -----------------------------------------------------------------------
     
     public String generateGoodsReceiptNumber(Client c){
-         String ret;
-         String NUMBER_PREFIX = "WE";
-         long n = seqService.getNextSequenceNumber(LOSGoodsReceipt.class);
-         ret = String.format(NUMBER_PREFIX  + " %1$06d", n);
-         return ret;
+         return seqService.readNextValue("GoodsReceipt");
      }
      
      public String generateAdviceNumber(Client c){
-         String ret;
-         String NUMBER_PREFIX = "AVIS";
-         long n = seqService.getNextSequenceNumber(LOSAdvice.class);
-         ret = String.format(NUMBER_PREFIX  + " %1$06d", n);
-         return ret;
+         return seqService.readNextValue("Advice");
      }
 
      public String generateUnitLoadAdviceNumber(Client c){
-         String ret;
-         String NUMBER_PREFIX = "UAV";
-         long n = seqService.getNextSequenceNumber(LOSUnitLoadAdvice.class);
-         ret = String.format(NUMBER_PREFIX  + " %1$08d", n);
-         return ret;
+         return seqService.readNextValue("UnitLoadAdvice");
      }
      
     public String generateUnitLoadLabelId(Client c, UnitLoadType ulType) {
-        
-        String ret;
-        
-        long n = seqService.getNextSequenceNumber(UnitLoadType.class);
-        ret = String.format("%1$06d", n);
-        return ret;
-        
+        return seqService.readNextValue("UnitLoad");
     }
 
     public String generatePickOrderNumber(Client c, String prefix) {
-        String ret;
-        if( StringTools.isEmpty(prefix) ) {
-        	prefix = "PICK";
-        }
-        long n = seqService.getNextSequenceNumber(LOSPickingOrder.class);
-        ret = String.format(prefix  + " %1$06d", n);
-        return ret;
+        return seqService.readNextValue("PickingOrder");
     }
 
     public String generateOrderNumber(Client c) {
     	return generateOrderNumber(c, null);
     }
     public String generateOrderNumber(Client c, String prefix) {
-        String ret;
-        if( StringTools.isEmpty(prefix) ) {
-        	prefix = "ORDER";
-        }
-        long n = seqService.getNextSequenceNumber(LOSCustomerOrder.class);
-        ret = String.format(prefix  + " %1$06d", n);
-        return ret;
+        return seqService.readNextValue("DeliveryOrder");
     }
 
     public String generateStorageRequestNumber(Client c) {
-        String ret;
-        String NUMBER_PREFIX = "STORE";
-        long n = seqService.getNextSequenceNumber(LOSStorageRequest.class);
-        ret = String.format(NUMBER_PREFIX  + " %1$06d", n);
-        return ret;
+        return seqService.readNextValue("Storage");
     }
 
 	public String generateGoodsOutNumber(Client c) {
-		String ret;
-		String NUMBER_PREFIX = "GOUT";
-		long n = seqService.getNextSequenceNumber(LOSGoodsOutRequest.class);
-		ret = String.format(NUMBER_PREFIX + " %1$06d", n);
-		return ret;
+        return seqService.readNextValue("Shipment");
 	}
 
 	public String generateReplenishNumber(Client c) {
-		String ret;
-		String NUMBER_PREFIX = "REPL";
-		long n = seqService.getNextSequenceNumber(PickReceipt.class);
-		ret = String.format(NUMBER_PREFIX + " %1$06d", n);
-		return ret;
+        return seqService.readNextValue("ReplenishOrder");
 	}
 
 	public String generateManageInventoryNumber() {
-		String ret;
-		String NUMBER_PREFIX = "IMAN";
-		long n = seqService.getNextSequenceNumber("de.linogistix.los.inventory.ws.ManageInventory");
-		ret = String.format(NUMBER_PREFIX + " %1$06d", n);
-		return ret;
-	}
-	
-	public String generateInventoryProcessNumber() {
-		String ret;
-		String NUMBER_PREFIX = "IINV";
-		long n = seqService.getNextSequenceNumber(InventoryProcessFacade.class);
-		ret = String.format(NUMBER_PREFIX + " %1$06d", n);
-		return ret;
+        return seqService.readNextValue("Inventory");
 	}
 	
 	public String generateStocktakingNumber() {
-		String ret;
-		String NUMBER_PREFIX = "IV";
-		long n = seqService.getNextSequenceNumber("de.linogistix.los.stocktaking.model.LOSStockTaking");
-		ret = String.format(NUMBER_PREFIX + " %1$08d", n);
-		return ret;
+        return seqService.readNextValue("Stocktaking");
 	}
 
 }

@@ -34,8 +34,6 @@ import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -46,6 +44,8 @@ import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
@@ -66,7 +66,7 @@ public class StorageBusinessBean implements StorageBusiness {
 	@EJB
 	private StockUnitService suService;
 	@EJB
-	private QueryFixedAssignmentService fixService;
+	private FixAssignmentEntityService fixService;
 	@EJB
 	private LOSInventoryComponent inventoryComponent;
 	@EJB
@@ -248,7 +248,7 @@ public class StorageBusinessBean implements StorageBusiness {
 
 	private void transferUnitLoad(LOSStorageRequest req, UnitLoad unitload, StorageLocation targetLocation ) throws FacadeException {
 		
-		LOSFixedLocationAssignment fix = fixService.getByLocation(targetLocation);
+		FixAssignment fix = fixService.readFirst(null, targetLocation);
 		String operator = contextService.getCallerUserName();
 
 		if( fix != null ) {

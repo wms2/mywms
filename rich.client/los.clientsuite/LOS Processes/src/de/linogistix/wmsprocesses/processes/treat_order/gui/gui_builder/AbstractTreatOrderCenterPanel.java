@@ -12,9 +12,9 @@ import de.linogistix.common.gui.component.view.LOSListChooserView;
 import de.linogistix.common.gui.component.view.LOSListView;
 import de.linogistix.common.gui.component.controls.LOSTextField;
 import de.linogistix.common.gui.listener.TopComponentListener;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -28,9 +28,9 @@ public class AbstractTreatOrderCenterPanel
                     implements TopComponentListener
 {
 
-    private BOAutoFilteringComboBox<LOSCustomerOrder> orderComboBox;
+    private BOAutoFilteringComboBox<DeliveryOrder> orderComboBox;
     
-    private BOAutoFilteringComboBox<LOSCustomerOrderPosition> orderPositionComboBox;
+    private BOAutoFilteringComboBox<DeliveryOrderLine> orderPositionComboBox;
     
     private BOAutoFilteringComboBox<StorageLocation> targetPlaceComboBox;
     
@@ -342,20 +342,20 @@ public class AbstractTreatOrderCenterPanel
     // End of variables declaration//GEN-END:variables
 
 
-    protected BOAutoFilteringComboBox<LOSCustomerOrder> getOrderComboBox() {
+    protected BOAutoFilteringComboBox<DeliveryOrder> getOrderComboBox() {
         
         if(orderComboBox == null){
-            orderComboBox = new BOAutoFilteringComboBox<LOSCustomerOrder>(LOSCustomerOrder.class);
+            orderComboBox = new BOAutoFilteringComboBox<DeliveryOrder>(DeliveryOrder.class);
             orderComboBoxPanel.add(orderComboBox, BorderLayout.WEST);
         }
         
         return orderComboBox;
     }
     
-    protected BOAutoFilteringComboBox<LOSCustomerOrderPosition> getOrderPositionComboBox() {
+    protected BOAutoFilteringComboBox<DeliveryOrderLine> getOrderPositionComboBox() {
         
         if(orderPositionComboBox == null){
-            orderPositionComboBox = new BOAutoFilteringComboBox<LOSCustomerOrderPosition>(LOSCustomerOrderPosition.class);
+            orderPositionComboBox = new BOAutoFilteringComboBox<DeliveryOrderLine>(DeliveryOrderLine.class);
             orderPositionComboBoxPanel.add(orderPositionComboBox, BorderLayout.WEST);
         }
         

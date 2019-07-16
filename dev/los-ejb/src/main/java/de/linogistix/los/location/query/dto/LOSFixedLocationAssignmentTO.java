@@ -9,10 +9,10 @@ package de.linogistix.los.location.query.dto;
 
 import java.math.BigDecimal;
 
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.strategy.FixAssignment;
 
-public class LOSFixedLocationAssignmentTO extends BODTO<LOSFixedLocationAssignment>{
+public class LOSFixedLocationAssignmentTO extends BODTO<FixAssignment>{
 
 	private static final long serialVersionUID = 1L;
 

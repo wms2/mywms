@@ -8,6 +8,7 @@
 package de.linogistix.los.inventory.facade;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -23,16 +24,9 @@ import org.mywms.model.User;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
-import de.linogistix.los.inventory.businessservice.LOSPickingOrderGenerator;
-import de.linogistix.los.inventory.businessservice.LOSPickingPosGenerator;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
@@ -45,10 +39,18 @@ import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderGenerator;
+import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.user.UserBusiness;
 
 // TODO krane: I18N
@@ -69,10 +71,10 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	private UserBusiness userService;
 	@EJB
 	private LOSStorageLocationService locationService;
-	@EJB
-	private LOSPickingPosGenerator pickingPosGenerator;
-	@EJB
-	private LOSPickingOrderGenerator pickingOrderGenerator;
+	@Inject
+	private PickingOrderLineGenerator pickingPosGenerator;
+	@Inject
+	private PickingOrderGenerator pickingOrderGenerator;
 	@EJB
 	private LOSOrderBusiness orderBusiness;
 	@EJB
@@ -94,7 +96,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "changePickingOrderPrio ";
 		log.debug(logStr+"order="+orderId);
 
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 
 		int prioOld = order.getPrio();
 		if( prio != prioOld ) {
@@ -107,7 +109,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "changePickingOrderDestination ";
 		log.debug(logStr+"order="+orderId);
 
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 
 		if( !StringTools.isEmpty(destinationName) ) {
 			StorageLocation loc = locationService.getByName(destinationName);
@@ -128,11 +130,11 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "changePickingOrderUser ";
 		log.debug(logStr+"order="+orderId);
 
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		int stateOld = order.getState();
 		
 		if( order.getState() >= State.STARTED ) {
-			log.warn(logStr+"Will not change user of started order. number="+order.getNumber());
+			log.warn(logStr+"Will not change user of started order. number="+order.getOrderNumber());
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order is already in progress. => Cannot change user.");
 		}
 		
@@ -161,7 +163,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "releaseOrder ";
 		log.debug(logStr+"order="+orderId);
 		
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		if( order.getState()>State.PROCESSABLE ) {
 			log.error(logStr+"Order is already in progress. => Cannot release.");
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order is already in progress. => Cannot release.");
@@ -176,7 +178,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "haltOrder ";
 		log.debug(logStr+"order="+orderId);
 		
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		
 		if( order.getState()>State.RESERVED ) {
 			log.error(logStr+"Order is already in progress. => Cannot release.");
@@ -191,7 +193,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "reserveOrder ";
 		log.debug(logStr+"order="+orderId);
 		
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		if( order.getState()>=State.STARTED ) {
 			log.error(logStr+"Order is already in progress. => Cannot reserve.");
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order is already in progress. => Cannot reserve.");
@@ -219,115 +221,29 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	}
 
 	public void resetOrder(long orderId) throws FacadeException {
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		orderBusiness.resetPickingOrder(order);
 	}
 
 	public void finishOrder(long orderId) throws FacadeException {
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		orderBusiness.finishPickingOrder(order);
 	}
 
 	public void removeOrder(long orderId) throws FacadeException {
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		
-		for( LOSPickingPosition pick : order.getPositions() ) {
+		for( PickingOrderLine pick : order.getLines() ) {
 			orderBusiness.cancelPick(pick);
 			manager.remove(pick);
 		}
-		for( LOSPickingUnitLoad ul : order.getUnitLoads() ) {
+		for( PickingUnitLoad ul : order.getUnitLoads() ) {
 			manager.remove(ul);
 		}
 		manager.remove(order);
 	}
 	
-	
-	
-	public void createOrders( long customerOrderId, boolean completeOnly, boolean useSingleOrderService, boolean useStratOrderService, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException {
-		String logStr = "createOrders ";
-		log.debug(logStr);
-
-		LOSCustomerOrder customerOrder = manager.find(LOSCustomerOrder.class, customerOrderId);
-
-		if( customerOrder == null ) {
-			log.error(logStr+"Customer order not found. id="+customerOrderId);
-			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order not found");
-		}
-
-		if( customerOrder.getState() >= State.FINISHED ) {
-			log.error(logStr+"Customer order already finshed. id="+customerOrderId);
-			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order already finished");
-		}
-		log.info(logStr+" orderNumber="+customerOrder.getNumber()+", useSingleOrderService="+useSingleOrderService+", useStratOrderService="+useStratOrderService);
-
-		StorageLocation destination = null;
-		if( destinationName != null && destinationName.length()>0 ) {
-			destination = locationService.getByName(destinationName);
-			if( destination == null ) {
-				log.info(logStr+"Location not found. name="+destinationName);
-				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Location not found");
-			}
-		}
-		if( destination == null ) {
-			destination = customerOrder.getDestination();
-		}
-		
-		User user = null;
-		if( userName != null && userName.length()>0 ) {
-			user = userService.readUser(userName);
-			if (user == null) {
-				log.info(logStr + "User not found. name=" + userName);
-				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "User not found");
-			}
-		}
-		
-		if( prio < 0 ) {
-			prio = customerOrder.getPrio();
-		}
-		
-		List<LOSPickingPosition> pickList = pickingPosGenerator.generatePicks(customerOrder, completeOnly);
-
-		if( pickList.size()<= 0 ) {
-			log.warn(logStr+"No picks created. => No picking order");
-			return;
-		}
-		
-		List<LOSPickingOrder> pickingOrderList = null;
-		
-		// Assign pick to picking order
-		if( useSingleOrderService ) {
-			LOSPickingOrder pickingOrder = pickingOrderGenerator.createSingleOrder(pickList);
-			pickingOrderList = new ArrayList<LOSPickingOrder>();
-			pickingOrderList.add(pickingOrder);
-		}
-		else if( useStratOrderService ) {
-			pickingOrderList = pickingOrderGenerator.createOrders(pickList);
-		}
-		
-		if( pickingOrderList != null && pickingOrderList.size()>0 ) {
-			for( LOSPickingOrder pickingOrder : pickingOrderList ) {
-				pickingOrder.setManualCreation(false);
-				pickingOrder.setPrio(prio);
-				pickingOrder.setAdditionalContent(comment);
-				if( user != null ) {
-					pickingOrder.setOperator(user);
-				}
-				if( destination != null ) {
-					pickingOrder.setDestination(destination);
-				}
-				
-				if( user != null ) {
-					orderBusiness.reservePickingOrder(pickingOrder, user, true);
-				}
-				else if ( setProcessable ) {
-					orderBusiness.releasePickingOrder(pickingOrder);
-				}
-				
-			}
-		}
-			
-	}
-	public void createOrders( List<Long> customerOrderIdList, boolean completeOnly, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException {
+	public void createOrders( List<Long> deliveryOrderIdList, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException {
 		String logStr = "createOrders ";
 		log.debug(logStr);
 
@@ -349,42 +265,47 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			}
 		}
 
-		List<LOSPickingPosition> pickList = new ArrayList<LOSPickingPosition>();
-		LOSOrderStrategy strat = null;
+		List<PickingOrderLine> pickList = new ArrayList<PickingOrderLine>();
+		OrderStrategy strat = null;
 		
-		for( Long customerOrderId : customerOrderIdList ) {
-			LOSCustomerOrder customerOrder = manager.find(LOSCustomerOrder.class, customerOrderId);
-			if( customerOrder == null && completeOnly ) {
-				log.error(logStr+"Customer order not found. id="+customerOrderId);
+		for( Long deliveryOrderId : deliveryOrderIdList ) {
+			DeliveryOrder deliveryOrder = manager.find(DeliveryOrder.class, deliveryOrderId);
+			if( deliveryOrder == null ) {
+				log.error(logStr+"Customer order not found. id="+deliveryOrderId);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order not found");
 			}
-			if( customerOrder == null ) {
+			if( deliveryOrder == null ) {
 				continue;
 			}
 			if( strat == null ) {
-				strat = customerOrder.getStrategy();
+				strat = deliveryOrder.getOrderStrategy();
 			}
-			if( !strat.equals(customerOrder.getStrategy()) ) {
-				log.info(logStr+"Orders use different strategies. Cannot build one picking order. strat1=" + strat.getName()+", strat2="+customerOrder.getStrategy().getName());
+			if( !strat.equals(deliveryOrder.getOrderStrategy()) ) {
+				log.info(logStr+"Orders use different strategies. Cannot build one picking order. strat1=" + strat.getName()+", strat2="+deliveryOrder.getOrderStrategy().getName());
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "User not found");
 			}
-			if( customerOrder.getState() >= State.FINISHED ) {
-				log.error(logStr+"Customer order already finshed. id="+customerOrderId);
+			if( deliveryOrder.getState() >= State.FINISHED ) {
+				log.error(logStr+"Customer order already finshed. id="+deliveryOrderId);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order already finished");
 			}
 
-			log.info(logStr+" orderNumber="+customerOrder.getNumber());
+			log.info(logStr+" orderNumber="+deliveryOrder.getOrderNumber());
 
 			if( destination == null ) {
-				destination = customerOrder.getDestination();
+				destination = deliveryOrder.getDestination();
 			}
 		
 		
 			if( prio < 0 ) {
-				prio = customerOrder.getPrio();
+				prio = deliveryOrder.getPrio();
 			}
 		
-			List<LOSPickingPosition> pickListX = pickingPosGenerator.generatePicks(customerOrder, completeOnly);
+			List<PickingOrderLine> pickListX;
+			try {
+				pickListX = pickingPosGenerator.generatePicks(deliveryOrder, true);
+			} catch (BusinessException e) {
+				throw e.toFacadeException();
+			}
 			pickList.addAll(pickListX);
 		}
 		
@@ -393,34 +314,38 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			return;
 		}
 		
-		LOSPickingOrder pickingOrder = pickingOrderGenerator.createSingleOrder(pickList);
-		
-		if( pickingOrder != null ) {
-			pickingOrder.setManualCreation(false);
-			pickingOrder.setPrio(prio);
-			pickingOrder.setAdditionalContent(comment);
-			if( user != null ) {
-				pickingOrder.setOperator(user);
-			}
-			if( destination != null ) {
-				pickingOrder.setDestination(destination);
-			}
-			
-			if( user != null ) {
-				orderBusiness.reservePickingOrder(pickingOrder, user, true);
-			}
-			else if ( setProcessable ) {
-				orderBusiness.releasePickingOrder(pickingOrder);
-			}
+		Collection<PickingOrder> pickingOrderList ;
+		try {
+			pickingOrderList = pickingOrderGenerator.generatePickingOrders(pickList);
+		} catch (BusinessException e) {
+			throw e.toFacadeException();
 		}
 		
+		if (pickingOrderList != null && pickingOrderList.size() > 0) {
+			for (PickingOrder pickingOrder : pickingOrderList) {
+				pickingOrder.setPrio(prio);
+				pickingOrder.setAdditionalContent(comment);
+				if (user != null) {
+					pickingOrder.setOperator(user);
+				}
+				if (destination != null) {
+					pickingOrder.setDestination(destination);
+				}
+
+				if (user != null) {
+					orderBusiness.reservePickingOrder(pickingOrder, user, true);
+				} else if (setProcessable) {
+					orderBusiness.releasePickingOrder(pickingOrder);
+				}
+			}
+		}
 	}
 	
 	public void finishPickingUnitLoad( String label, String locationName ) throws FacadeException {
 		String logStr = "finishPickingUnitLoad ";
 		log.debug(logStr+"label="+label+", locationName="+locationName);
 		
-		LOSPickingUnitLoad pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
+		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.warn(logStr+"PickingUnitLoad not found. label="+label);
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, label); 
@@ -450,7 +375,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "confirmOrder ";
 		log.debug(logStr+"id="+orderId);
 
-		LOSPickingOrder order = manager.find(LOSPickingOrder.class, orderId);
+		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		
 		// generate pick-to unit load
 		UnitLoad ul = null;
@@ -485,11 +410,11 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		}
 		
 		ul = ulService1.createLOSUnitLoad(client, label, type, destination, StockState.PICKED);
-		LOSPickingUnitLoad pul = pickingUnitLoadService.create(order, ul, -1);
+		PickingUnitLoad pul = pickingUnitLoadService.create(order, ul, -1);
 		
 		
 		// confirm all picks
-		for( LOSPickingPosition pick : order.getPositions() ) {
+		for( PickingOrderLine pick : order.getLines() ) {
 			orderBusiness.confirmPick(pick, pul, pick.getAmount(), null, null);
 		}
 		

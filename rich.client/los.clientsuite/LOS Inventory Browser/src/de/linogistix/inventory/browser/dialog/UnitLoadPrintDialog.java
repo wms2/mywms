@@ -13,8 +13,6 @@ import de.linogistix.common.services.J2EEServiceLocatorException;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.inventory.query.dto.LOSPickingUnitLoadTO;

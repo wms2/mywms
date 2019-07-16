@@ -59,6 +59,9 @@
                 <attr name="showInExplorer" boolvalue="true"/>
                 <attr name="position" intvalue="500"/>
             </file>
+            <file name="de-linogistix-common-bobrowser-bo-BOSequenceNumber.instance" >
+                <attr name="position" intvalue="600"/>
+            </file>
             <file name="de-linogistix-common-bobrowser-bo-BOJasperReport.instance" >
                 <attr name="position" intvalue="700"/>
             </file>

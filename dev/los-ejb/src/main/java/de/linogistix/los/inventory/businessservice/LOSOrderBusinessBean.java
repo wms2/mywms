@@ -9,6 +9,7 @@ package de.linogistix.los.inventory.businessservice;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -24,12 +25,6 @@ import org.mywms.model.User;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.inventory.model.LOSOrderStrategy;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
@@ -38,12 +33,22 @@ import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderGenerator;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingType;
+import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
  * 
@@ -58,10 +63,6 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private LOSGoodsOutGenerator goodsOutGenerator;
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private LOSPickingOrderGenerator pickingOrderGeneratorService;
-	@EJB
-	private LOSPickingPosGenerator pickingPosGeneratorService;
 	
 	@EJB
 	private LOSStorage storage;
@@ -78,113 +79,117 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private ManageOrderService manageOrderService;
 	@Inject
 	private JournalHandler journalHandler;
+	@Inject
+	private PickingOrderGenerator pickingOrderGeneratorService;
+	@Inject
+	private PickingOrderLineGenerator pickingPosGeneratorService;
 
-    public LOSCustomerOrder finishCustomerOrder(LOSCustomerOrder customerOrder) throws FacadeException {
-		String logStr = "finishCustomerOrder ";
-		log.debug(logStr+"orderNumber="+customerOrder.getNumber());
+    public DeliveryOrder finishDeliveryOrder(DeliveryOrder deliveryOrder) throws FacadeException {
+		String logStr = "finishdeliveryOrder ";
+		log.debug(logStr+"orderNumber="+deliveryOrder.getOrderNumber());
 		
-		if( customerOrder.getState()>State.FINISHED ) {
-			log.error(logStr+"Finishing of already finished customer order. orderNumber="+customerOrder.getNumber()+", state="+customerOrder.getState());
+		if( deliveryOrder.getState()>State.FINISHED ) {
+			log.error(logStr+"Finishing of already finished customer order. orderNumber="+deliveryOrder.getOrderNumber()+", state="+deliveryOrder.getState());
 			throw new InventoryException(InventoryExceptionKey.ORDER_ALREADY_FINISHED, "");
 		}
-		if( customerOrder.getState()==State.FINISHED ) {
-			log.warn(logStr+"Finishing of already finished customer order. Ignore. orderNumber="+customerOrder.getNumber()+", state="+customerOrder.getState());
-			return customerOrder;
+		if( deliveryOrder.getState()==State.FINISHED ) {
+			log.warn(logStr+"Finishing of already finished customer order. Ignore. orderNumber="+deliveryOrder.getOrderNumber()+", state="+deliveryOrder.getState());
+			return deliveryOrder;
 		}
 
-		int stateOld = customerOrder.getState();
+		int stateOld = deliveryOrder.getState();
 		
 		boolean hasOnlyCanceledPos = true;
-		for( LOSCustomerOrderPosition pos : customerOrder.getPositions() ) {
+		for( DeliveryOrderLine pos : deliveryOrder.getLines() ) {
 			int posStateOld = pos.getState(); 
 			if( posStateOld < State.FINISHED ) {
-				if( BigDecimal.ZERO.compareTo(pos.getAmountPicked())<0 ) {
+				if( BigDecimal.ZERO.compareTo(pos.getPickedAmount())<0 ) {
 					pos.setState(State.FINISHED);
 				}
 				else {
 					pos.setState(State.CANCELED);
 				}
-				manageOrderService.onCustomerOrderPositionStateChange(pos, posStateOld);
+				manageOrderService.onDeliveryOrderLineStateChange(pos, posStateOld);
 			}
 			if( pos.getState() != State.CANCELED ) {
 				hasOnlyCanceledPos = false;
 			}
 		}
 		if( hasOnlyCanceledPos ) {
-			customerOrder.setState(State.CANCELED);
+			deliveryOrder.setState(State.CANCELED);
 		}
 		else {
-			customerOrder.setState(State.FINISHED);
+			deliveryOrder.setState(State.FINISHED);
 		}
 
-		if( customerOrder.getState() != stateOld ) {
-			manageOrderService.onCustomerOrderStateChange(customerOrder, stateOld);
+		if( deliveryOrder.getState() != stateOld ) {
+			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, stateOld);
 		}
 		
-    	return customerOrder;
+    	return deliveryOrder;
     }
     
-	public LOSCustomerOrderPosition confirmCustomerOrderPos(LOSCustomerOrderPosition customerOrderPos, BigDecimal amount) throws FacadeException {
-		String logStr = "confirmCustomerOrderPos ";
+	public DeliveryOrderLine confirmDeliveryOrderLine(DeliveryOrderLine deliveryOrderLine, BigDecimal amount) throws FacadeException {
+		String logStr = "confirmDeliveryOrderLine ";
 		log.debug(logStr);
 
 		if( amount == null || BigDecimal.ZERO.compareTo(amount)>0 ) {
-			log.error(logStr+"No valid amount. Abort. amount="+amount+customerOrderPos.getNumber()+", state="+customerOrderPos.getState());
+			log.error(logStr+"No valid amount. Abort. amount="+amount+deliveryOrderLine.getLineNumber()+", state="+deliveryOrderLine.getState());
 			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_INVALID_AMOUNT, amount==null?"NULL":amount.toString());
 		}
 
-		int stateOld = customerOrderPos.getState();
-		BigDecimal amountRequested = customerOrderPos.getAmount();
-		BigDecimal amountPicked = customerOrderPos.getAmountPicked();
+		int stateOld = deliveryOrderLine.getState();
+		BigDecimal amountRequested = deliveryOrderLine.getAmount();
+		BigDecimal amountPicked = deliveryOrderLine.getPickedAmount();
 		amountPicked = amountPicked.add(amount);
 		
-		customerOrderPos.setAmountPicked(amountPicked);
+		deliveryOrderLine.setPickedAmount(amountPicked);
 
-		if( customerOrderPos.getState()>=State.PICKED ) {
-			log.warn(logStr+"Added picked amount to already finished customer order position. position="+customerOrderPos.getNumber()+", state="+customerOrderPos.getState()+", added amount="+amount+", new picked amount="+amountPicked);
+		if( deliveryOrderLine.getState()>=State.PICKED ) {
+			log.warn(logStr+"Added picked amount to already finished customer order position. position="+deliveryOrderLine.getLineNumber()+", state="+deliveryOrderLine.getState()+", added amount="+amount+", new picked amount="+amountPicked);
 		}
 
 		if( amountRequested.compareTo(amountPicked) <= 0 ) {
-			if( customerOrderPos.getState()<State.PICKED ) {
-				customerOrderPos.setState(State.PICKED);
+			if( deliveryOrderLine.getState()<State.PICKED ) {
+				deliveryOrderLine.setState(State.PICKED);
 			}
 		}
 		else {
 			// Find open picks. If no more picks are available, the state is set to PENDING
 			boolean hasOpenPicks = false;
-			List<LOSPickingPosition> pickList = pickingPositionService.getByCustomerOrderPosition(customerOrderPos);
-			for( LOSPickingPosition pick : pickList ) {
+			List<PickingOrderLine> pickList = pickingPositionService.getByDeliveryOrderLine(deliveryOrderLine);
+			for( PickingOrderLine pick : pickList ) {
 				if( pick.getState() < State.PICKED ) {
 					hasOpenPicks = true;
 					break;
 				}
 			}
-			if( customerOrderPos.getState()<State.PICKED ) {
+			if( deliveryOrderLine.getState()<State.PICKED ) {
 				if( hasOpenPicks ) {
-					customerOrderPos.setState(State.STARTED);
+					deliveryOrderLine.setState(State.STARTED);
 				}
 				else {
-					customerOrderPos.setState(State.PENDING);
+					deliveryOrderLine.setState(State.PENDING);
 				}
 			}
 		}
 		
-		LOSCustomerOrder customerOrder = customerOrderPos.getOrder();
-		int orderStateOld = customerOrder.getState();
-		if( customerOrder.getState()<State.STARTED ) {
-			customerOrder.setState(State.STARTED);
+		DeliveryOrder deliveryOrder = deliveryOrderLine.getDeliveryOrder();
+		int orderStateOld = deliveryOrder.getState();
+		if( deliveryOrder.getState()<State.STARTED ) {
+			deliveryOrder.setState(State.STARTED);
 
 		}
 		
-		if( customerOrderPos.getState() != stateOld )  {
-			manageOrderService.onCustomerOrderPositionStateChange(customerOrderPos, stateOld);
+		if( deliveryOrderLine.getState() != stateOld )  {
+			manageOrderService.onDeliveryOrderLineStateChange(deliveryOrderLine, stateOld);
 		}
 
-		if( customerOrderPos.getState()>=State.PENDING && customerOrder.getState()<State.PICKED ) {
+		if( deliveryOrderLine.getState()>=State.PENDING && deliveryOrder.getState()<State.PICKED ) {
 			// Check state of order
 			boolean hasAllPicked = true;
 			boolean hasPendingPicks = false;
-			for( LOSCustomerOrderPosition cop : customerOrder.getPositions() ) {
+			for( DeliveryOrderLine cop : deliveryOrder.getLines() ) {
 				if( cop.getState() == State.PENDING ) {
 					hasPendingPicks = true;
 				}
@@ -196,27 +201,27 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 			if( hasAllPicked ) {
 				if( hasPendingPicks ) {
-					log.info(logStr+"Found pending picks for order. number="+customerOrder.getNumber());
+					log.info(logStr+"Found pending picks for order. number="+deliveryOrder.getOrderNumber());
 					
-					customerOrder.setState(State.PENDING);
+					deliveryOrder.setState(State.PENDING);
 					
 				}
 				else {
-					log.info(logStr+"Everything picked for order. Confirm order. number="+customerOrder.getNumber());
-					customerOrder.setState(State.PICKED);
+					log.info(logStr+"Everything picked for order. Confirm order. number="+deliveryOrder.getOrderNumber());
+					deliveryOrder.setState(State.PICKED);
 
 				}
 			}
 		}
 		
-		if( customerOrder.getState() != orderStateOld )  {
-			manageOrderService.onCustomerOrderStateChange(customerOrder, stateOld);
+		if( deliveryOrder.getState() != orderStateOld )  {
+			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, stateOld);
 		}
 
-		return customerOrderPos;
+		return deliveryOrderLine;
 	}
 	
-	public LOSPickingOrder releasePickingOrder(LOSPickingOrder pickingOrder) throws FacadeException {
+	public PickingOrder releasePickingOrder(PickingOrder pickingOrder) throws FacadeException {
 		String logStr = "releasePickingOrder ";
 		log.debug(logStr+"order="+pickingOrder);
 		
@@ -249,7 +254,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		return pickingOrder;
 	}
 	
-	public LOSPickingOrder haltPickingOrder(LOSPickingOrder pickingOrder) throws FacadeException {
+	public PickingOrder haltPickingOrder(PickingOrder pickingOrder) throws FacadeException {
 		String logStr = "haltPickingOrder ";
 		log.debug(logStr+"order="+pickingOrder);
 		
@@ -285,7 +290,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public LOSPickingOrder reservePickingOrder(LOSPickingOrder pickingOrder, User user, boolean ignoreReservationGap) throws FacadeException {
+	public PickingOrder reservePickingOrder(PickingOrder pickingOrder, User user, boolean ignoreReservationGap) throws FacadeException {
 		String logStr = "reservePickingOrder ";
 		log.debug(logStr+"order="+pickingOrder+", ignoreReservationGap="+ignoreReservationGap);
 		
@@ -298,7 +303,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 		if( stateOld>=State.PICKED ) {
 			log.error(logStr+"Order is already picked. => Cannot reserve.");
-			throw new InventoryException(InventoryExceptionKey.PICK_ALREADY_STARTED, pickingOrder.getNumber());
+			throw new InventoryException(InventoryExceptionKey.PICK_ALREADY_STARTED, pickingOrder.getOrderNumber());
 		}
 		if( user == null ) {
 			user = contextService.getCallersUser();
@@ -328,7 +333,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		return pickingOrder;
 	}
 
-	public LOSPickingOrder startPickingOrder(LOSPickingOrder pickingOrder, boolean ignoreReservationGap) throws FacadeException {
+	public PickingOrder startPickingOrder(PickingOrder pickingOrder, boolean ignoreReservationGap) throws FacadeException {
 		String logStr = "startPickingOrder ";
 		log.debug(logStr+"order="+pickingOrder);
 
@@ -360,7 +365,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		return pickingOrder;
 	}
 	
-	public LOSPickingOrder resetPickingOrder(LOSPickingOrder pickingOrder) throws FacadeException {
+	public PickingOrder resetPickingOrder(PickingOrder pickingOrder) throws FacadeException {
 		String logStr = "resetPickingOrder ";
 		log.debug(logStr+"order="+pickingOrder);
 		
@@ -377,7 +382,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		boolean hasFinishedPicks = false;
 		boolean hasOpenPicks = false;
-		for( LOSPickingPosition pick : pickingOrder.getPositions() ) {
+		for( PickingOrderLine pick : pickingOrder.getLines() ) {
 			int pickStateOld = pick.getState(); 
 			if( pickStateOld >= State.PICKED ) {
 				hasFinishedPicks = true;
@@ -393,13 +398,13 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			pick.setState(State.PROCESSABLE);
 			manageOrderService.onPickingPositionStateChange(pick, pickStateOld);
 		}
-		List<LOSPickingPosition> openPickList = new ArrayList<LOSPickingPosition>();
+		List<PickingOrderLine> openPickList = new ArrayList<PickingOrderLine>();
 		
 		if( hasFinishedPicks ) {
 			if( hasOpenPicks ) {
 				// Remove open picks from the order
 				// Set them back to the pool to generate a new picking order
-				for( LOSPickingPosition pick : pickingOrder.getPositions() ) {
+				for( PickingOrderLine pick : pickingOrder.getLines() ) {
 					int pickStateOld = pick.getState(); 
 					if( pickStateOld >= State.PICKED ) {
 						continue;
@@ -433,16 +438,21 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			
 			// Take prefix of number to the new generated picking order.
 			// This only works for basic, not configurable picking order numbers
-			String numberOld = pickingOrder.getNumber();
+			String numberOld = pickingOrder.getOrderNumber();
 			String prefix = "";
 			int idx = numberOld.lastIndexOf("_PICK ");
 			if( idx>0 && idx<numberOld.length() ) {
 				prefix=numberOld.substring(0, idx)+"_";
 			}
 			
-			List<LOSPickingOrder> newOrderList = pickingOrderGeneratorService.createOrders(openPickList);
-			for( LOSPickingOrder newOrder : newOrderList ) {
-				newOrder.setNumber(prefix+newOrder.getNumber());
+			Collection<PickingOrder> newOrderList;
+			try {
+				newOrderList = pickingOrderGeneratorService.generatePickingOrders(openPickList);
+			} catch (BusinessException e) {
+				throw e.toFacadeException();
+			}
+			for( PickingOrder newOrder : newOrderList ) {
+				newOrder.setOrderNumber(prefix+newOrder.getOrderNumber());
 				releasePickingOrder(newOrder);
 			}
 		}
@@ -463,7 +473,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	 * @param pickingOrder
 	 * @throws FacadeException
 	 */
-	public LOSPickingOrder finishPickingOrder(LOSPickingOrder pickingOrder) throws FacadeException {
+	public PickingOrder finishPickingOrder(PickingOrder pickingOrder) throws FacadeException {
 		String logStr = "finishPickingOrder ";
 		log.debug(logStr+"order="+pickingOrder);
 
@@ -479,7 +489,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		int orderState = State.CANCELED;
-		for( LOSPickingPosition pick : pickingOrder.getPositions() ) {
+		for( PickingOrderLine pick : pickingOrder.getLines() ) {
 			if( pick.getState()<State.PICKED ) {
 				cancelPick(pick);
 			}
@@ -494,12 +504,12 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		// Not finished unit loads on the users location are moved to CLEARING
 		User user = pickingOrder.getOperator();
 		if( user != null ) {
-			List<LOSPickingUnitLoad> ulList = pickingUnitLoadService.getByPickingOrder(pickingOrder);
+			List<PickingUnitLoad> ulList = pickingUnitLoadService.getByPickingOrder(pickingOrder);
 			if( ulList != null && ulList.size()>0 ) {
 				log.debug(logStr+"Cleanup unit loads on users location. userName="+user.getName());
 				String userName = pickingOrder.getOperator() == null ? null : pickingOrder.getOperator().getName();
 				StorageLocation usersLocation = locationService.getCurrentUsersLocation();
-				for( LOSPickingUnitLoad unitLoad : ulList ) {
+				for( PickingUnitLoad unitLoad : ulList ) {
 					if( unitLoad.getUnitLoad().getStorageLocation().equals(usersLocation) ) {
 						StorageLocation clearing = locationService.getClearing();
 						storage.transferUnitLoad(userName, clearing, unitLoad.getUnitLoad(), -1, true, "", "");
@@ -517,47 +527,47 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		return pickingOrder;
 	}
 	
-	private void checkCreateGoodsOutOrder( LOSPickingOrder pickingOrder ) throws FacadeException {
+	private void checkCreateGoodsOutOrder( PickingOrder pickingOrder ) throws FacadeException {
 		String logStr = "checkCreateGoodsOutOrder ";
 		log.debug(logStr+"order="+pickingOrder);
 		
-		String customerOrderNumber = pickingOrder.getCustomerOrderNumber();
-		if( StringTools.isEmpty(customerOrderNumber) ) {
-			log.debug(logStr+"No customer order set picking order. => No goods out order. picking order="+pickingOrder.getNumber());
+		String deliveryOrderNumber = (pickingOrder.getDeliveryOrder()==null?null:pickingOrder.getDeliveryOrder().getOrderNumber());
+		if( StringTools.isEmpty(deliveryOrderNumber) ) {
+			log.debug(logStr+"No customer order set picking order. => No goods out order. picking order="+pickingOrder.getOrderNumber());
 			return;
 		}
 
-		LOSCustomerOrder customerOrder = customerOrderService.getByNumber(customerOrderNumber);
-		if( customerOrder == null ) {
-			log.warn(logStr+"Cannot create goods out order without customer order. PickingOrder="+pickingOrder.getNumber());
+		DeliveryOrder deliveryOrder = customerOrderService.getByNumber(deliveryOrderNumber);
+		if( deliveryOrder == null ) {
+			log.warn(logStr+"Cannot create goods out order without customer order. PickingOrder="+pickingOrder.getOrderNumber());
 			return;
 		}
 
-		int customerOrderStateOld = customerOrder.getState(); 
+		int deliveryOrderStateOld = deliveryOrder.getState(); 
 		boolean goodsOutOrderCreated = false;
-		if( pickingOrder.getStrategy().isCreateGoodsOutOrder() && customerOrderStateOld >= State.PICKED ) {
-			log.debug(logStr+"Create goods out order for customer order="+customerOrderNumber+", strategy="+pickingOrder.getStrategy().getName());
-			goodsOutOrderCreated = (goodsOutGenerator.createOrder(customerOrder) != null);
+		if( pickingOrder.getOrderStrategy().isCreateShippingOrder() && deliveryOrderStateOld >= State.PICKED ) {
+			log.debug(logStr+"Create goods out order for customer order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
+			goodsOutOrderCreated = (goodsOutGenerator.createOrder(deliveryOrder) != null);
 		}
 
 		if( goodsOutOrderCreated ) {
 			return;
 		}
 		
-		log.debug(logStr+"No goods out order for customer order="+customerOrderNumber+", strategy="+pickingOrder.getStrategy().getName());
-		if( customerOrderStateOld >= State.PICKED && customerOrderStateOld<State.FINISHED ) {
-			customerOrder.setState(State.FINISHED);
-			manageOrderService.onCustomerOrderStateChange(customerOrder, customerOrderStateOld);
+		log.debug(logStr+"No goods out order for customer order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
+		if( deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld<State.FINISHED ) {
+			deliveryOrder.setState(State.FINISHED);
+			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
 		}
 		
 	}
 	
 	
-	public void confirmPick(LOSPickingPosition pick, LOSPickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException {
+	public void confirmPick(PickingOrderLine pick, PickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException {
 		confirmPick(pick, pickToUnitLoad, amountPicked, amountRemain, serialNoList, false);
 	}
 	
-	public void confirmPick(LOSPickingPosition pick, LOSPickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException {
+	public void confirmPick(PickingOrderLine pick, PickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException {
 		String logStr = "confirmPick ";
 		if( pick == null ) {
 			log.error(logStr+"missing parameter pick");
@@ -586,7 +596,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_NOT_PICKED_COUNTED, "");
 		}
 
-		LOSPickingOrder pickingOrder = pick.getPickingOrder();
+		PickingOrder pickingOrder = pick.getPickingOrder();
 		if( pickingOrder == null ) {
 			log.error(logStr+"Cannot confirm without order. Abort");
 			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_MISSING_ORDER, "");
@@ -599,21 +609,21 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 		if( pickToUnitLoad != null ) {
 			if( !pickToUnitLoad.getPickingOrder().equals(pickingOrder) ) {
-				log.error(logStr+"Wrong unit load picking order number. Abort. Actual="+pickToUnitLoad.getPickingOrder().getNumber()+", Requested="+pickingOrder.getNumber());
-				throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_WRONG_UNITLOAD, new Object[]{pickToUnitLoad.getPickingOrder().getNumber(), pickingOrder.getNumber()});
+				log.error(logStr+"Wrong unit load picking order number. Abort. Actual="+pickToUnitLoad.getPickingOrder().getOrderNumber()+", Requested="+pickingOrder.getOrderNumber());
+				throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_WRONG_UNITLOAD, new Object[]{pickToUnitLoad.getPickingOrder().getOrderNumber(), pickingOrder.getOrderNumber()});
 			}
-			if( pick.getCustomerOrderPosition() != null ) {
-				String customerOrderNumber = pick.getCustomerOrderPosition().getOrder().getNumber();
-				if( StringTools.isEmpty(pickToUnitLoad.getCustomerOrderNumber()) ) {
-					pickToUnitLoad.setCustomerOrderNumber(customerOrderNumber);
+			if( pick.getDeliveryOrderLine() != null ) {
+				String deliveryOrderNumber = pick.getDeliveryOrderLine().getDeliveryOrder().getOrderNumber();
+				if( StringTools.isEmpty(pickToUnitLoad.getDeliveryOrderNumber()) ) {
+					pickToUnitLoad.setDeliveryOrderNumber(deliveryOrderNumber);
 				}
-				else if( !pickToUnitLoad.getCustomerOrderNumber().equals(customerOrderNumber) ) {
-					pickToUnitLoad.setCustomerOrderNumber("-");
+				else if( !pickToUnitLoad.getDeliveryOrderNumber().equals(deliveryOrderNumber) ) {
+					pickToUnitLoad.setDeliveryOrderNumber("-");
 				}
 			}
 		}
 
-		String activityCode = pickingOrder.getNumber();
+		String activityCode = pickingOrder.getOrderNumber();
 		StockUnit pickFromStock = pick.getPickFromStockUnit();
 		BigDecimal amountPickFrom = pickFromStock.getAmount();
 		Lot lotPicked = pickFromStock.getLot();
@@ -657,8 +667,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				// Maybe other picking positions are affected
 				// If the pick from stock is going to zero, other affected picks are reseted
 				if( BigDecimal.ZERO.compareTo(amountRemain) == 0 ) {
-					List<LOSPickingPosition> affectedList = pickingPositionService.getByPickFromStockUnit(pickFromStock);
-					for( LOSPickingPosition affected : affectedList ) {
+					List<PickingOrderLine> affectedList = pickingPositionService.getByPickFromStockUnit(pickFromStock);
+					for( PickingOrderLine affected : affectedList ) {
 						if( affected.equals(pick) ) {
 							continue;
 						}
@@ -667,12 +677,17 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 						// Remove temporal from follow up pick generation
 						pickFromStock.setReservedAmount(pickFromStock.getAmount());
 						
-						LOSPickingOrder affectedOrder = affected.getPickingOrder();
-						if( affectedOrder != null && !affectedOrder.isManualCreation() ) {
-							LOSCustomerOrderPosition orderPos = affected.getCustomerOrderPosition();
+						PickingOrder affectedOrder = affected.getPickingOrder();
+						if (affectedOrder != null && affectedOrder.isCreateFollowUpPicks()) {
+							DeliveryOrderLine orderPos = affected.getDeliveryOrderLine();
 							if( orderPos != null ) {
-								List<LOSPickingPosition> pickListNew = pickingPosGeneratorService.generatePicks( orderPos, pickingOrder.getStrategy(), affected.getAmount() );
-								pickingOrderGeneratorService.addToOrder( affectedOrder, pickListNew );
+								List<PickingOrderLine> pickListNew;
+								try {
+									pickListNew = pickingPosGeneratorService.generatePicks( orderPos, pickingOrder.getOrderStrategy(), affected.getAmount() );
+									pickingOrderGeneratorService.addPicksToOrder( affectedOrder, pickListNew );
+								} catch (BusinessException e) {
+									throw e.toFacadeException();
+								}
 							}
 						}
 					}
@@ -724,23 +739,32 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			pick.setPickToUnitLoad(null);
 		}
 
-		pick.setAmountPicked(amountPosted);
-		pick.setLotPicked(lotPicked);
+		pick.setPickedAmount(amountPosted);
+		pick.setPickedLotNumber(lotPicked==null?null:lotPicked.getName());
 		pick.setPickFromStockUnit(null);
 		
-		LOSCustomerOrderPosition customerOrderPos = pick.getCustomerOrderPosition();
-		if( customerOrderPos != null ) {
-			if( pickingOrder.getStrategy().isCreateFollowUpPicks() && !pickingOrder.isManualCreation()) {
+		DeliveryOrderLine deliveryOrderLine = pick.getDeliveryOrderLine();
+		if( deliveryOrderLine != null ) {
+			if( pickingOrder.isCreateFollowUpPicks()) {
 				BigDecimal amountMissing = pick.getAmount().subtract(amountPicked);
 				if( BigDecimal.ZERO.compareTo(amountMissing)<0 ) {
-					List<LOSPickingPosition> pickListNew = pickingPosGeneratorService.generatePicks(customerOrderPos, pickingOrder.getStrategy(), amountMissing );
+					List<PickingOrderLine> pickListNew;
+					try {
+						pickListNew = pickingPosGeneratorService.generatePicks(deliveryOrderLine, pickingOrder.getOrderStrategy(), amountMissing );
+					} catch (BusinessException e1) {
+						throw e1.toFacadeException();
+					}
 					
 					if( pickListNew != null && pickListNew.size()>0 ) {
-						pickingOrderGeneratorService.addToOrder( pickingOrder, pickListNew );
+						try {
+							pickingOrderGeneratorService.addPicksToOrder( pickingOrder, pickListNew );
+						} catch (BusinessException e) {
+							throw e.toFacadeException();
+						}
 					}
 				}
 			}		
-			confirmCustomerOrderPos(customerOrderPos, amountPicked);
+			confirmDeliveryOrderLine(deliveryOrderLine, amountPicked);
 		}
 
 		if( pickingOrder.getState()<State.STARTED ) {
@@ -760,7 +784,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		// Check picking order state
 		boolean allPicksDone = true;
-		for( LOSPickingPosition p : pickingOrder.getPositions() ) {
+		for( PickingOrderLine p : pickingOrder.getLines() ) {
 			if( p.getState() < State.PICKED ) {
 				allPicksDone = false;
 				break;
@@ -775,7 +799,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 	}
 
-	public void cancelPickFrom(LOSPickingPosition pick, boolean generateNewPick) throws FacadeException {
+	public void cancelPickFrom(PickingOrderLine pick, boolean generateNewPick) throws FacadeException {
 		String logStr = "cancelPickFrom ";
 		if( pick == null ) {
 			log.error(logStr+"missing parameter pick");
@@ -793,7 +817,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_NO_STOCK, "");
 		}
 		
-		LOSPickingOrder pickingOrder = pick.getPickingOrder();
+		PickingOrder pickingOrder = pick.getPickingOrder();
 		if( pickingOrder == null ) {
 			log.error(logStr+"Cannot confirm without order. Abort");
 			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_MISSING_ORDER, "");
@@ -807,28 +831,37 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		
 		pick.setState(State.CANCELED);
-		pick.setAmountPicked(BigDecimal.ZERO);
+		pick.setPickedAmount(BigDecimal.ZERO);
 		pick.setPickFromStockUnit(null);
 		pick.setPickToUnitLoad(null);
 		
-		LOSCustomerOrderPosition customerOrderPos = pick.getCustomerOrderPosition();
-		if( customerOrderPos != null ) {
-			if( generateNewPick && pickingOrder.getStrategy().isCreateFollowUpPicks() ) {
+		DeliveryOrderLine deliveryOrderLine = pick.getDeliveryOrderLine();
+		if( deliveryOrderLine != null ) {
+			if (generateNewPick && pickingOrder.getOrderStrategy().isCreateFollowUpPicks()) {
 				BigDecimal amountMissing = pick.getAmount();
-					
-				List<LOSPickingPosition> pickListNew = pickingPosGeneratorService.generatePicks(customerOrderPos, pickingOrder.getStrategy(), amountMissing );
-				
-				if( pickListNew != null && pickListNew.size()>0 ) {
-					List<LOSPickingOrder> orderList = pickingOrderGeneratorService.addToOrder( pickingOrder, pickListNew );
-					for( LOSPickingOrder pickingOrderNew : orderList ) {
-						if( pickingOrderNew.getState() < State.PROCESSABLE ) {
-							releasePickingOrder(pickingOrderNew);
+
+				try {
+					List<PickingOrderLine> pickListNew = pickingPosGeneratorService.generatePicks(deliveryOrderLine,
+							pickingOrder.getOrderStrategy(), amountMissing);
+					if (pickListNew != null && pickListNew.size() > 0) {
+						Collection<PickingOrderLine> notAddedPicks = pickingOrderGeneratorService
+								.addPicksToOrder(pickingOrder, pickListNew);
+						if (notAddedPicks.size() > 0) {
+							Collection<PickingOrder> additionalOrders = pickingOrderGeneratorService
+									.generatePickingOrders(notAddedPicks);
+							for (PickingOrder pickingOrderNew : additionalOrders) {
+								if (pickingOrderNew.getState() < State.PROCESSABLE) {
+									releasePickingOrder(pickingOrderNew);
+								}
+							}
 						}
 					}
+				} catch (BusinessException e) {
+					throw e.toFacadeException();
 				}
 			}
 			
-			confirmCustomerOrderPos(customerOrderPos, BigDecimal.ZERO);
+			confirmDeliveryOrderLine(deliveryOrderLine, BigDecimal.ZERO);
 		}
 		
 		if( pickingOrder.getState()<State.STARTED ) {
@@ -842,7 +875,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		// Check picking order state
 		boolean allPicksDone = true;
-		for( LOSPickingPosition p : pickingOrder.getPositions() ) {
+		for( PickingOrderLine p : pickingOrder.getLines() ) {
 			if( p.getState() < State.PICKED ) {
 				allPicksDone = false;
 				break;
@@ -863,7 +896,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	 * @param amountRemain
 	 * @throws FacadeException
 	 */
-	public void haltPickingPosition(LOSPickingPosition pick) throws FacadeException {
+	public void haltPickingPosition(PickingOrderLine pick) throws FacadeException {
 		String logStr = "haltPickingPosition ";
 		if( pick == null ) {
 			log.error(logStr+"missing parameter pick");
@@ -893,7 +926,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	 * @param pick
 	 * @throws FacadeException
 	 */
-	public LOSPickingPosition cancelPick(LOSPickingPosition pick) throws FacadeException {
+	public PickingOrderLine cancelPick(PickingOrderLine pick) throws FacadeException {
 		String logStr = "cancelPick ";
 		if( pick == null ) {
 			log.error(logStr+"missing parameter order");
@@ -916,8 +949,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			manageOrderService.onPickingPositionStateChange(pick, stateOld);
 		}
 		
-		if( pick.getCustomerOrderPosition() != null ) {
-			confirmCustomerOrderPos(pick.getCustomerOrderPosition(), BigDecimal.ZERO);
+		if( pick.getDeliveryOrderLine() != null ) {
+			confirmDeliveryOrderLine(pick.getDeliveryOrderLine(), BigDecimal.ZERO);
 		}
 
 		return pick;
@@ -929,7 +962,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	 * @param pickFromStockUnit
 	 * @throws FacadeException
 	 */
-	public LOSPickingPosition changePickFromStockUnit(LOSPickingPosition pick, StockUnit pickFromStockNew) throws FacadeException {
+	public PickingOrderLine changePickFromStockUnit(PickingOrderLine pick, StockUnit pickFromStockNew) throws FacadeException {
 		String logStr = "changePickFromStockUnit ";
 		
 		if( pick == null ) {
@@ -965,7 +998,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		// calculate the maximum of allowed reserved amount on the new stock
 		BigDecimal amountReservedMax = BigDecimal.ZERO;
-		if( pick.getPickingType() == LOSPickingPosition.PICKING_TYPE_COMPLETE ) {
+		if( pick.getPickingType() == PickingType.COMPLETE ) {
 			amountReservedMax = null;
 		}
 		else {
@@ -979,7 +1012,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		if( amountReservedMax==null || amountReservedNew.compareTo(amountReservedMax) > 0 ) {
 			// Try to change reservations
 
-			List<LOSPickingPosition> reserverList = pickingPositionService.getByPickFromStockUnit(pickFromStockNew);
+			List<PickingOrderLine> reserverList = pickingPositionService.getByPickFromStockUnit(pickFromStockNew);
 			if( reserverList == null || reserverList.size() == 0 ) {
 				log.warn(logStr+"seems to be a phantom reservation. kill it. stock="+pickFromStockNew.toDescriptiveString());
 				// seems to be a phantom reservation. kill it.
@@ -988,7 +1021,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			}
 			else {
 				log.debug(logStr+"check reservers. size="+reserverList.size());
-				for( LOSPickingPosition reserver : reserverList ) {
+				for( PickingOrderLine reserver : reserverList ) {
 					BigDecimal amountReserver = reserver.getAmount();
 					if( amountReserver.compareTo(amountAvailableOld)<= 0 ) {
 						// Pick can be switched
@@ -1026,7 +1059,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	}
 
 	
-	public LOSPickingUnitLoad confirmPickingUnitLoad( LOSPickingUnitLoad pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException {
+	public PickingUnitLoad confirmPickingUnitLoad( PickingUnitLoad pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException {
 		
 		UnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
 		if( ! unitLoad.getStorageLocation().equals(destination) ) {
@@ -1043,9 +1076,9 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		else if( state < 0 ) {
 			// automatically handling
-			LOSOrderStrategy strat = pickingUnitLoad.getPickingOrder().getStrategy();
+			OrderStrategy strat = pickingUnitLoad.getPickingOrder().getOrderStrategy();
 			if( strat != null ) {
-				if( strat.isCreateGoodsOutOrder() ) {
+				if( strat.isCreateShippingOrder() ) {
 					pickingUnitLoad.setState(State.PICKED);
 				}
 				else {
@@ -1061,7 +1094,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	}
 	
 	
-	public LOSPickingOrder recalculatePickingOrderState( LOSPickingOrder pickingOrder ) throws FacadeException {
+	public PickingOrder recalculatePickingOrderState( PickingOrder pickingOrder ) throws FacadeException {
 		String logStr = "recalculatePickingOrderState ";
 		log.debug(logStr);
 		
@@ -1070,7 +1103,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			return null;
 		}
 
-		if( pickingOrder.getPositions().size()==0 ) {
+		if( pickingOrder.getLines().size()==0 ) {
 			log.debug(logStr+"do not force calculation on orders with no positions");
 			return pickingOrder;
 		}
@@ -1080,7 +1113,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		boolean hasOnlyCanceled = true;
 		boolean hasOnlyFinished = true;
 		boolean hasProcessed = false;
-		for( LOSPickingPosition pick : pickingOrder.getPositions() ) {
+		for( PickingOrderLine pick : pickingOrder.getLines() ) {
 			if( pick.getState() < State.CANCELED ) {
 				hasOnlyCanceled = false;
 			}

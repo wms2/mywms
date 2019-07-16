@@ -11,16 +11,16 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
-import de.linogistix.los.inventory.model.LOSPickingOrder;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * User exits of goods out processes.
@@ -40,7 +40,7 @@ public interface ManageOrderService {
 	 * @param stateOld
 	 * @throws FacadeException
 	 */
-	public void onPickingOrderStateChange(LOSPickingOrder pickingOrder, int stateOld) throws FacadeException;
+	public void onPickingOrderStateChange(PickingOrder pickingOrder, int stateOld) throws FacadeException;
 
 	/**
 	 * User exit. Is called when the priority of a picking order changes.<br>
@@ -51,7 +51,7 @@ public interface ManageOrderService {
 	 * @param prioOld
 	 * @throws FacadeException
 	 */
-	public void onPickingOrderPrioChange(LOSPickingOrder pickingOrder, int prioOld) throws FacadeException;
+	public void onPickingOrderPrioChange(PickingOrder pickingOrder, int prioOld) throws FacadeException;
 
 	/**
 	 * User exit. Is called when the state of a picking position changes.<br>
@@ -62,7 +62,7 @@ public interface ManageOrderService {
 	 * @param stateOld
 	 * @throws FacadeException
 	 */
-	public void onPickingPositionStateChange(LOSPickingPosition pick, int stateOld) throws FacadeException;
+	public void onPickingPositionStateChange(PickingOrderLine pick, int stateOld) throws FacadeException;
 	
 	/**
 	 * User exit. Is called when the state of a picking unit load changes.<br>
@@ -73,29 +73,29 @@ public interface ManageOrderService {
 	 * @param stateOld
 	 * @throws FacadeException
 	 */
-	public void onPickingUnitLoadStateChange(LOSPickingUnitLoad unitLoad, int stateOld) throws FacadeException;
+	public void onPickingUnitLoadStateChange(PickingUnitLoad unitLoad, int stateOld) throws FacadeException;
 	
 	/**
 	 * User exit. Is called when the state of a customer order changes.<br>
 	 * This method is only called, when the change is done by business-logic. 
 	 * The only change of the database field does not trigger this method.
 	 * 
-	 * @param customerOrder
+	 * @param deliveryOrder
 	 * @param stateOld
 	 * @throws FacadeException
 	 */
-	public void onCustomerOrderStateChange(LOSCustomerOrder customerOrder, int stateOld) throws FacadeException;
+	public void onDeliveryOrderStateChange(DeliveryOrder deliveryOrder, int stateOld) throws FacadeException;
 
 	/**
 	 * User exit. Is called when the state of a customer order posiion changes.<br>
 	 * This method is only called, when the change is done by business-logic. 
 	 * The only change of the database field does not trigger this method.
 	 * 
-	 * @param customerOrderPosition
+	 * @param deliveryOrderLine
 	 * @param stateOld
 	 * @throws FacadeException
 	 */
-	public void onCustomerOrderPositionStateChange(LOSCustomerOrderPosition customerOrderPosition, int stateOld) throws FacadeException;
+	public void onDeliveryOrderLineStateChange(DeliveryOrderLine deliveryOrderLine, int stateOld) throws FacadeException;
 	
 	/**
 	 * User exit. Is called when the state of a shipping order changes.<br>
@@ -126,7 +126,7 @@ public interface ManageOrderService {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public boolean isPickingOrderReleasable(LOSPickingOrder pickingOrder) throws FacadeException;
+	public boolean isPickingOrderReleasable(PickingOrder pickingOrder) throws FacadeException;
 
 	/**
 	 * User exit. Is called when the state of a replenish order changes.<br>

@@ -21,26 +21,26 @@ import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
-import de.linogistix.los.inventory.model.LOSCustomerOrder;
-import de.linogistix.los.inventory.model.LOSCustomerOrderPosition;
-import de.linogistix.los.inventory.model.LOSPickingPosition;
-import de.linogistix.los.inventory.model.LOSPickingUnitLoad;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryStockService;
-import de.linogistix.los.location.model.LOSFixedLocationAssignment;
-import de.linogistix.los.location.service.QueryFixedAssignmentService;
 import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingUnitLoad;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 /**
  * @author krane
@@ -63,7 +63,7 @@ public class InfoFacadeBean implements InfoFacade {
 	private QueryStockService queryStock;
 	
 	@EJB
-	private QueryFixedAssignmentService fixService;
+	private FixAssignmentEntityService fixService;
 	
 	@Inject
 	private ClientBusiness clientService;
@@ -112,7 +112,7 @@ public class InfoFacadeBean implements InfoFacade {
 		}
 		item = itemList.get(0);
 		
-		List<LOSFixedLocationAssignment> fixList = fixService.getByItemData(item);
+		List<FixAssignment> fixList = fixService.readList(item, null, null, null, null);
 
 		List<StockUnit> suList = queryStock.getListByItemData(item, true);
 		
@@ -131,8 +131,8 @@ public class InfoFacadeBean implements InfoFacade {
 			return null;
 		}
 		
-		List<LOSFixedLocationAssignment> fixList = new ArrayList<LOSFixedLocationAssignment>();
-		LOSFixedLocationAssignment fix = fixService.getByLocation(loc);
+		List<FixAssignment> fixList = new ArrayList<>();
+		FixAssignment fix = fixService.readFirst(null, loc);
 		if( fix != null ) {
 			fixList.add(fix);
 		}
@@ -214,32 +214,32 @@ public class InfoFacadeBean implements InfoFacade {
 	}
 
 	private void readOrder( InfoUnitLoadTO ulto, UnitLoad ul ) {
-		HashSet<LOSCustomerOrder> orderSetUl = new HashSet<LOSCustomerOrder>();
-		HashSet<LOSCustomerOrder> pickSetUl = new HashSet<LOSCustomerOrder>();
-		LOSCustomerOrder customerOrder = null;
+		HashSet<DeliveryOrder> orderSetUl = new HashSet<DeliveryOrder>();
+		HashSet<DeliveryOrder> pickSetUl = new HashSet<DeliveryOrder>();
+		DeliveryOrder deliveryOrder = null;
 		
-		LOSPickingUnitLoad pul = pickinUnitLoadService.getByLabel(ul.getLabelId());
+		PickingUnitLoad pul = pickinUnitLoadService.getByLabel(ul.getLabelId());
 		if( pul != null ) {
-			if( pul.getCustomerOrderNumber() != null ) {
-				customerOrder = customerOrderService.getByNumber(pul.getCustomerOrderNumber());
-				orderSetUl.add( customerOrder );
+			if( pul.getDeliveryOrderNumber() != null ) {
+				deliveryOrder = customerOrderService.getByNumber(pul.getDeliveryOrderNumber());
+				orderSetUl.add( deliveryOrder );
 			}
 		}
 		
 		for( StockUnit su : ul.getStockUnitList() ) {
-			HashSet<LOSCustomerOrder> orderSetSu = new HashSet<LOSCustomerOrder>();
-			HashSet<LOSCustomerOrder> pickSetSu = new HashSet<LOSCustomerOrder>();
+			HashSet<DeliveryOrder> orderSetSu = new HashSet<DeliveryOrder>();
+			HashSet<DeliveryOrder> pickSetSu = new HashSet<DeliveryOrder>();
 			
-			if( customerOrder != null ) {
-				orderSetSu.add( customerOrder );
+			if( deliveryOrder != null ) {
+				orderSetSu.add( deliveryOrder );
 			}
 			else {
-				List<LOSPickingPosition> pickList = pickingPositionService.getByPickFromStockUnit(su);
-				for( LOSPickingPosition pick : pickList ) {
+				List<PickingOrderLine> pickList = pickingPositionService.getByPickFromStockUnit(su);
+				for( PickingOrderLine pick : pickList ) {
 					if( pick.getState() < State.PICKED ) {
-						LOSCustomerOrderPosition orderPos = pick.getCustomerOrderPosition();
+						DeliveryOrderLine orderPos = pick.getDeliveryOrderLine();
 						if( orderPos != null ) {
-							LOSCustomerOrder order = orderPos.getOrder();
+							DeliveryOrder order = orderPos.getDeliveryOrder();
 							pickSetSu.add( order );
 							pickSetUl.add( order );
 						}
@@ -249,20 +249,20 @@ public class InfoFacadeBean implements InfoFacade {
 			
 			InfoStockUnitTO suto = new InfoStockUnitTO( su ) ;
 			
-			for( LOSCustomerOrder order : orderSetSu ) {
+			for( DeliveryOrder order : orderSetSu ) {
 				suto.getOrderList().add( new InfoOrderTO(order) );
 			}
-			for( LOSCustomerOrder order : pickSetSu ) {
+			for( DeliveryOrder order : pickSetSu ) {
 				suto.getPickList().add( new InfoOrderTO(order) );
 			}
 			
 			ulto.getStockUnitList().add(suto);
 		}
 
-		for( LOSCustomerOrder order : orderSetUl ) {
+		for( DeliveryOrder order : orderSetUl ) {
 			ulto.getOrderList().add( new InfoOrderTO(order) );
 		}
-		for( LOSCustomerOrder order : pickSetUl ) {
+		for( DeliveryOrder order : pickSetUl ) {
 			ulto.getPickList().add( new InfoOrderTO(order) );
 		}
 		
