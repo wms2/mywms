@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -53,10 +54,7 @@ import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.service.QueryStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.query.QueryDetail;
@@ -71,8 +69,11 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -91,8 +92,6 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     @EJB
     private ItemDataQueryRemote itemQuery;
     @EJB
-    private LOSUnitLoadService losUlService; 
-    @EJB
     private StockUnitCRUDRemote suCrud;
     @EJB
     private InventoryGeneratorService genService;
@@ -107,15 +106,11 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     @EJB
     private LOSSystemPropertyService propertyService;
     @EJB
-    private QueryStorageLocationService locService;
-    @EJB
     private LOSStorage storageService;
 	@EJB
 	private ContextService contextService;
 	@EJB
 	private StockUnitService stockUnitService;
-	@EJB
-	private QueryUnitLoadTypeService queryUltService;
 	@EJB
 	private LOSInventoryComponent inventoryComponent;
 	@EJB
@@ -133,6 +128,12 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	
     @PersistenceContext(unitName = "myWMS")
     protected EntityManager manager;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
 
     //-----------------------------------------------------------------------
     // Query data for Process input to choose from
@@ -322,7 +323,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         if (unitLoadType != null){
         	ulType = manager.find(UnitLoadType.class, unitLoadType.getId());
         } else{
-        	ulType = queryUltService.getDefaultUnitLoadType();
+        	ulType = unitLoadTypeService.getDefault();
         }
                 
         if (idat == null){
@@ -354,7 +355,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         UnitLoad targetUnitLoad = null;
         if( targetLocationName != null && targetLocationName.length()>0 ) {
         	try {
-				targetLocation = locService.getByName(targetLocationName);
+				targetLocation = locationService.read(targetLocationName);
 			} catch (Exception e) {
 			}
 			if( targetLocation == null ) {
@@ -374,10 +375,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			}
         }
         if( targetUnitLoadName != null && targetUnitLoadName.length()>0 ) {
-        	try {
-				targetUnitLoad = losUlService.getByLabelId(c, targetUnitLoadName);
- 			} catch (Exception e) {
-			}
+			targetUnitLoad = unitLoadService.read(targetUnitLoadName);
 			if( targetUnitLoad == null ) {
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
 			}
@@ -398,13 +396,12 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	
 	        	printLabel = false;
 	        	
-	        	try{
-	        		ul = losUlService.getByLabelId(c, unitLoadLabel);
-	        		
+        		ul = unitLoadService.read(unitLoadLabel);
+        		if(ul!=null) {
 	        		throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_EXISTS, 
 	        									 new Object[]{unitLoadLabel}); 
 	        		
-	        	}catch(EntityNotFoundException enf){ 
+	        	} else { 
 	        		BODTO<UnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, unitLoadLabel);
 	                ul = manager.find(UnitLoad.class, unitLoad.getId()); 
 	        	}
@@ -419,9 +416,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	int i = 0;
 	        	while( i++ < 100 ) {
 	        		label = genService.generateUnitLoadLabelId(c, ulType);
-	        		try {
-						losUlService.getByLabelId(c, label);
-					} catch (EntityNotFoundException e) {
+        			UnitLoad test = unitLoadService.read(label);
+					if (test == null) {
 						break;
 					}
 	        		logger.info("UnitLoadLabel " + label + " already exists. Try the next");
@@ -612,7 +608,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         	type = storLoc.getCurrentTypeCapacityConstraint().getUnitLoadType();
         } else{
         	
-			type = queryUltService.getDefaultUnitLoadType();
+			type = unitLoadTypeService.getDefault();
 			if (type == null ) throw new RuntimeException("Default unit load type not found ");
 			
         }
@@ -765,7 +761,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			FacadeException {
 		
 		// To picking? (implicitly if virtual ul type)
-		UnitLoadType virtual = queryUltService.getPickLocationUnitLoadType();
+		UnitLoadType virtual = unitLoadTypeService.getVirtual();
 		
 		if (targetLocation.getUnitLoads() != null && targetLocation.getUnitLoads().size() > 0) {
 			// There is aready a unit load on the destination. => Add stock
@@ -815,9 +811,9 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         UnitLoadType ulType;
         
         if (unitLoadTypeName != null){
-        	ulType = queryUltService.getByName(unitLoadTypeName);
+        	ulType = unitLoadTypeService.read(unitLoadTypeName);
         } else{
-        	ulType = queryUltService.getDefaultUnitLoadType();
+        	ulType = unitLoadTypeService.getDefault();
         }
                 
         List<StorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
@@ -847,7 +843,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         UnitLoad targetUnitLoad = null;
         if( targetLocationName != null && targetLocationName.length()>0 ) {
         	try {
-				targetLocation = locService.getByName(targetLocationName);
+				targetLocation = locationService.read(targetLocationName);
 			} catch (Exception e) {
 			}
 			if( targetLocation == null ) {
@@ -867,10 +863,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			}
         }
         if( targetUnitLoadName != null && targetUnitLoadName.length()>0 ) {
-        	try {
-				targetUnitLoad = losUlService.getByLabelId(client, targetUnitLoadName);
- 			} catch (Exception e) {
-			}
+			targetUnitLoad = unitLoadService.read(targetUnitLoadName);
 			if( targetUnitLoad == null ) {
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
 			}
@@ -887,13 +880,12 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	
 	        	printLabel = false;
 	        	
-	        	try{
-	        		ul = losUlService.getByLabelId(client, unitLoadLabel);
-	        		
+				ul = unitLoadService.read(unitLoadLabel);
+				if (ul != null) {
 	        		throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_EXISTS, 
 	        									 new Object[]{unitLoadLabel}); 
 	        		
-	        	}catch(EntityNotFoundException enf){ 
+	        	} else { 
 	                ul = receiptComponent.getOrCreateUnitLoad(client, sl, ulType, unitLoadLabel);
 	        	}
 	        } 
@@ -907,9 +899,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	int i = 0;
 	        	while( i++ < 100 ) {
 	        		label = genService.generateUnitLoadLabelId(client, ulType);
-	        		try {
-						losUlService.getByLabelId(client, label);
-					} catch (EntityNotFoundException e) {
+        			UnitLoad test = unitLoadService.read(label);
+					if (test == null) {
 						break;
 					}
 	        		logger.info("UnitLoadLabel " + label + " already exists. Try the next");

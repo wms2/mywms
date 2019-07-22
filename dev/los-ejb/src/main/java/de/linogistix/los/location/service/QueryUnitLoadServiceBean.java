@@ -11,10 +11,9 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 import org.mywms.model.Client;
 
@@ -23,12 +22,15 @@ import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
 
 @Stateless
 public class QueryUnitLoadServiceBean 
-		implements QueryUnitLoadService, QueryUnitLoadServiceRemote 
+		implements QueryUnitLoadServiceRemote 
 {
+	@Inject
+	private UnitLoadEntityService unitLoadService;
 
 	@EJB
 	private QueryClientService queryClientService;
@@ -44,56 +46,30 @@ public class QueryUnitLoadServiceBean
 	 * @see de.linogistix.los.location.service.QueryUnitLoadService#getByLabelId(java.lang.String)
 	 */
 	public UnitLoad getByLabelId(String label) throws UnAuthorizedException {
-		
-		if( StringTools.isEmpty(ctxService.getCallerUserName()) ){
-    		throw new UnAuthorizedException();
-    	}
-		
-		Query query = manager.createQuery("SELECT ul FROM UnitLoad ul WHERE ul.labelId=:label");
-		query = query.setParameter("label", label);
-
-		try {
-			UnitLoad ul = (UnitLoad) query.getSingleResult();
-			
-			if(!ctxService.getCallersClient().equals(queryClientService.getSystemClient())
-	        	&& !ctxService.getCallersClient().equals(ul.getClient()))
-        	{
-        		throw new UnAuthorizedException();
-        	}
-			
-			return ul;
-			
-		} catch (NoResultException ex) {
+		if (StringTools.isEmpty(ctxService.getCallerUserName())) {
+			throw new UnAuthorizedException();
+		}
+		UnitLoad ul = unitLoadService.read(label);
+		if (ul == null) {
 			return null;
 		}
+		if (!ctxService.getCallersClient().equals(queryClientService.getSystemClient())
+				&& !ctxService.getCallersClient().equals(ul.getClient())) {
+			throw new UnAuthorizedException();
+		}
+		return ul;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see de.linogistix.los.location.service.QueryUnitLoadService#getListByLocation(de.linogistix.los.location.model.LOSStorageLocation)
 	 */
-	@SuppressWarnings("unchecked")
 	public List<UnitLoad> getListByLocation(StorageLocation sl) {
-		
-		Client callersClient = ctxService.getCallersClient();
-		
-		StringBuffer qstr = new StringBuffer();
-        qstr.append("SELECT ul FROM "
-                	+ UnitLoad.class.getSimpleName()+ " ul "
-                	+ "WHERE ul.storageLocation = :sl");
-		
-        if (!callersClient.isSystemClient()) {
-            qstr.append(" AND ul.client = :cl ");
-        }
-        
-		Query query = manager.createQuery(qstr.toString());
-
-        query.setParameter("sl", sl);
-        
-        if (!callersClient.isSystemClient()) {
-        	query.setParameter("cl", callersClient);
+		Client queryClient = ctxService.getCallersClient();
+        if (!queryClient.isSystemClient()) {
+        	queryClient = null;
         }
 
-        return (List<UnitLoad>) query.getResultList();
+		return unitLoadService.readList(queryClient, sl, null, null, null, null, null);
 	}
 }

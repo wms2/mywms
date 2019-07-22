@@ -21,15 +21,4 @@ import de.wms2.mywms.location.LocationType;
 public interface LOSStorageLocationTypeService 
         extends BasicService<LocationType>
 {
-    /**
-     * Returns the default LOSStorageLocationType for a warehouse
-     * @return
-     */
-    public LocationType getDefaultStorageLocationType();
-    
-    /**
-	 * Returns a LOSStorageLocationType with a fixed unit load attached to it.
-	 */
-    public LocationType getAttachedUnitLoadType();
-    
 }

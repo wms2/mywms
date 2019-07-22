@@ -22,9 +22,9 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
-import de.linogistix.los.location.service.UnitLoadService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
 
 /**
@@ -38,18 +38,20 @@ public class LOSStorageRequestServiceBean
         implements LOSStorageRequestService {
 
     private static final Logger log = Logger.getLogger(LOSStorageRequestServiceBean.class);
-    @EJB
-    UnitLoadService ulService;
     @Inject
     ClientBusiness clService;
+    @Inject
+    private UnitLoadEntityService unitLoadService;
+
 	@EJB
 	private EntityGenerator entityGenerator;
+
     @SuppressWarnings("unchecked")
 	public LOSStorageRequest getRawOrCreateByLabel(Client c, String label) throws InventoryException, EntityNotFoundException {
         LOSStorageRequest ret;
         UnitLoad ul;
                 
-        ul = ulService.getByLabelId(clService.getSystemClient(), label);
+        ul = unitLoadService.read(label);
         
         Query query =
                 manager.createQuery("SELECT req FROM " 

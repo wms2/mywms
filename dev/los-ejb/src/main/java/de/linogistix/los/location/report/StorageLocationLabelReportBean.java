@@ -20,6 +20,7 @@ import java.util.MissingResourceException;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -28,13 +29,13 @@ import org.apache.log4j.Logger;
 import org.mywms.globals.DocumentTypes;
 
 import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.model.StorageLocationLabel;
 import de.linogistix.los.location.res.BundleResolver;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 
 /**
  *
@@ -48,9 +49,9 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
     private LOSJasperReportGenerator reportGenerator;
     @PersistenceContext(unitName = "myWMS")
     private EntityManager manager;
-    @EJB
-    private LOSStorageLocationService locationService;
-    
+	@Inject
+	private StorageLocationEntityService locationService;
+
    
     /**
      * 
@@ -102,7 +103,7 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
     public StorageLocationLabel generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException {
         List<StorageLocationLabelTO> labels = new ArrayList<StorageLocationLabelTO>();
         for (String rack : list){
-           for (StorageLocation loc : locationService.getListByRack(rack) ){
+           for (StorageLocation loc : locationService.readList(null, null, rack, null, null) ){
             StorageLocationLabelTO to = new StorageLocationLabelTO(loc.getName(), 0);
             labels.add(to);
            }

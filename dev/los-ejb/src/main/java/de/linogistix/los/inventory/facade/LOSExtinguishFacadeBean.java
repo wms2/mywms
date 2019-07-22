@@ -33,7 +33,6 @@ import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LotLockState;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
@@ -41,12 +40,13 @@ import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
+import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
-import de.wms2.mywms.picking.PickingOrderLine;
 
 /**
  * @author krane
@@ -62,8 +62,6 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	private LOSLotService lotService;
 	@EJB
 	private ClientService clientService;
-	@EJB
-	private LOSStorageLocationService locationService;
 	@Inject
 	private PickingOrderLineGenerator pickPosGenerator;
 	@Inject
@@ -79,7 +77,9 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
-	
+
+	@Inject
+	private StorageLocationEntityService locationService;
 	
 	public void generateOrder( String clientNumber, String lotName, String itemDataNumber ) throws FacadeException {
 		String logStr = "generateOrder ";
@@ -151,7 +151,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 
 	public void generateOrder( Client client, List<StockUnit> stockList ) throws FacadeException {
 		String logStr = "generateOrder ";
-		StorageLocation nirwana = locationService.getNirwana();
+		StorageLocation nirwana = locationService.getTrash();
 		List<PickingOrderLine> pickList = new ArrayList<PickingOrderLine>();
 		OrderStrategy strat = strategyService.getExtinguish(client);
 		
@@ -238,7 +238,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	@SuppressWarnings("unchecked")
 	public List<StockUnit> getListByLot(Lot lot, boolean checkAvailable) {
 		
-		StorageLocation nirwana = locationService.getNirwana();
+		StorageLocation nirwana = locationService.getTrash();
 
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT su FROM " + StockUnit.class.getSimpleName()+ " su, ");

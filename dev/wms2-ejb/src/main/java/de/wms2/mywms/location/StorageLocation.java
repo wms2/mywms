@@ -25,8 +25,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -46,8 +44,6 @@ import de.wms2.mywms.strategy.Zone;
  */
 @Entity
 @Table
-@NamedQueries({
-		@NamedQuery(name = "LOSStorageLocation.queryByName", query = "FROM StorageLocation sl WHERE sl.name=:name") })
 public class StorageLocation extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 
@@ -168,7 +164,10 @@ public class StorageLocation extends BasicClientAssignedEntity {
 
 	@Override
 	public String toUniqueString() {
-		return toString();
+		if (name != null) {
+			return name;
+		}
+		return super.toString();
 	}
 
 	@PrePersist

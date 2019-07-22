@@ -33,7 +33,6 @@ import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.PersistenceManager;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Translator;
 import de.wms2.mywms.util.Wms2BundleResolver;
@@ -61,16 +60,15 @@ public class StorageLocationEntityService {
 	@Inject
 	private AreaEntityService areaService;
 
-	public StorageLocation create(Client client, String name, LocationType type, Area role, LocationCluster cluster)
-			throws BusinessException {
+	public StorageLocation create(String name, Client client, LocationType type, Area area, LocationCluster cluster) {
 		if (client == null) {
 			client = clientBusiness.getSystemClient();
 		}
 		if (type == null) {
 			type = locationTypeService.getDefault();
 		}
-		if (role == null) {
-			role = areaService.getDefault();
+		if (area == null) {
+			area = areaService.getDefault();
 		}
 		if (cluster == null) {
 			cluster = locationClusterService.getDefault();
@@ -80,15 +78,20 @@ public class StorageLocationEntityService {
 		location.setClient(client);
 		location.setName(name);
 		location.setLocationType(type);
-		location.setArea(role);
+		location.setArea(area);
 		location.setLocationCluster(cluster);
 
-		manager.persistValidated(location);
+		manager.persist(location);
+		manager.flush();
 
 		return location;
 	}
 
 	public StorageLocation read(String name) {
+		if (StringUtils.isBlank(name)) {
+			return null;
+		}
+
 		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
 		jpql += " WHERE entity.name=:name";
 		Query query = manager.createQuery(jpql);
@@ -97,10 +100,55 @@ public class StorageLocationEntityService {
 			return (StorageLocation) query.getSingleResult();
 		} catch (NoResultException e) {
 		}
+
+		jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
+		jpql += " WHERE lower(entity.name)=:name";
+		query = manager.createQuery(jpql);
+		query.setParameter("name", name.toLowerCase());
+		try {
+			return (StorageLocation) query.getSingleResult();
+		} catch (NoResultException e) {
+		}
+
+		jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
+		jpql += " WHERE entity.scanCode=:name";
+		jpql += " ORDER BY entity.name";
+		query = manager.createQuery(jpql);
+		query.setParameter("name", name);
+		query.setMaxResults(1);
+		try {
+			return (StorageLocation) query.getSingleResult();
+		} catch (NoResultException e) {
+		}
+
+		jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
+		jpql += " WHERE lower(entity.scanCode)=:name";
+		jpql += " ORDER BY entity.name";
+		query = manager.createQuery(jpql);
+		query.setParameter("name", name.toLowerCase());
+		query.setMaxResults(1);
+		try {
+			return (StorageLocation) query.getSingleResult();
+		} catch (NoResultException e) {
+		}
+
 		return null;
 	}
 
-	public StorageLocation readByBarcode(String code) {
+	public StorageLocation readByName(String name) {
+		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
+		jpql += " WHERE entity.name=:name";
+		Query query = manager.createQuery(jpql);
+		query.setParameter("name", name);
+		try {
+			return (StorageLocation) query.getSingleResult();
+		} catch (NoResultException e) {
+		}
+
+		return null;
+	}
+
+	public StorageLocation readByScancode(String code) {
 		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
 		jpql += " WHERE entity.barcode=:code";
 		jpql += " ORDER BY entity.name, entity.id";
@@ -128,7 +176,7 @@ public class StorageLocationEntityService {
 	 * @param limit  Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<StorageLocation> readList(Client client, Area area, String aisle, Integer offset, Integer limit) {
+	public List<StorageLocation> readList(Client client, Area area, String rack, Integer offset, Integer limit) {
 		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity WHERE 1=1 ";
 
 		if (client != null) {
@@ -137,8 +185,8 @@ public class StorageLocationEntityService {
 		if (area != null) {
 			jpql += " AND entity.area = :area ";
 		}
-		if (!StringUtils.isBlank(aisle)) {
-			jpql += " AND entity.aisle = :aisle ";
+		if (!StringUtils.isBlank(rack)) {
+			jpql += " AND entity.rack = :rack ";
 		}
 
 		jpql += " ORDER BY entity.name";
@@ -156,8 +204,8 @@ public class StorageLocationEntityService {
 		if (area != null) {
 			query.setParameter("area", area);
 		}
-		if (!StringUtils.isBlank(aisle)) {
-			query.setParameter("aisle", aisle);
+		if (!StringUtils.isBlank(rack)) {
+			query.setParameter("rack", rack);
 		}
 		return (List<StorageLocation>) query.getResultList();
 	}
@@ -187,33 +235,31 @@ public class StorageLocationEntityService {
 	/**
 	 * Get all StorageLocations with a area for goods in
 	 */
-	@SuppressWarnings("unchecked")
 	public List<StorageLocation> getForGoodsIn(Client client) {
-		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
-		jpql += " WHERE entity.area.usages like '%" + AreaUsages.GOODS_IN + "%'";
-
-		if (client != null) {
-			jpql += " AND entity.client = :client ";
-		}
-
-		jpql += " ORDER BY entity.name";
-
-		Query query = manager.createQuery(jpql);
-
-		if (client != null) {
-			query.setParameter("client", client);
-		}
-
-		return (List<StorageLocation>) query.getResultList();
+		return getForUsage(AreaUsages.GOODS_IN, client);
 	}
 
 	/**
 	 * Get all StorageLocations with a area for goods out
 	 */
-	@SuppressWarnings("unchecked")
 	public List<StorageLocation> getForGoodsOut(Client client) {
+		return getForUsage(AreaUsages.GOODS_OUT, client);
+	}
+
+	/**
+	 * Get all StorageLocations with a area for storage
+	 */
+	public List<StorageLocation> getForStorage(Client client) {
+		return getForUsage(AreaUsages.STORAGE, client);
+	}
+
+	/**
+	 * Get all StorageLocations with a area for storage
+	 */
+	@SuppressWarnings("unchecked")
+	public List<StorageLocation> getForUsage(String usage, Client client) {
 		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
-		jpql += " WHERE entity.area.usages like '%" + AreaUsages.GOODS_OUT + "%'";
+		jpql += " WHERE entity.area.usages like :usage";
 
 		if (client != null) {
 			jpql += " AND entity.client = :client ";
@@ -222,7 +268,7 @@ public class StorageLocationEntityService {
 		jpql += " ORDER BY entity.name";
 
 		Query query = manager.createQuery(jpql);
-
+		query.setParameter("usage", "%" + usage + "%");
 		if (client != null) {
 			query.setParameter("client", client);
 		}

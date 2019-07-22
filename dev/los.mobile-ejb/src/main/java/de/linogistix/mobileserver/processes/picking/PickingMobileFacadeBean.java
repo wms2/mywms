@@ -31,6 +31,7 @@ import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.LOSExceptionRB;
+import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
@@ -42,15 +43,11 @@ import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.StockUnitService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.model.LOSWorkingArea;
 import de.linogistix.los.location.model.LOSWorkingAreaPosition;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -61,13 +58,17 @@ import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingType;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -95,15 +96,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	@EJB
 	private LOSCustomerOrderService customerOrderService;
 	@EJB
-	private LOSUnitLoadService ulService;
-	@EJB
-	private LOSStorageLocationService locService;
-	@EJB
-	private QueryUnitLoadTypeService ultService;
-	@EJB
 	private InventoryGeneratorService sequenceService;
-	@EJB
-	private LOSPickingUnitLoadService pickingUnitLoadService;
 	@EJB
 	private StockUnitService stockUnitService;
 	@EJB
@@ -117,11 +110,22 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	@EJB
 	private ItemDataNumberService eanService;
 	@EJB
+	private LOSInventoryComponent inventoryComponent;
+	@Inject
 	private FixAssignmentEntityService fixService;
 
     @PersistenceContext(unitName = "myWMS")
     protected EntityManager manager;
-    
+
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	public Client getDefaultClient() {
 		Client systemClient = clientBusiness.getSingleClient();
 		if (systemClient != null) {
@@ -218,16 +222,15 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			
 			if( pickingUnitLoad == null ) {
 				UnitLoad unitLoad = null;
-				try {
-					unitLoad = ulService.getByLabelId(null, pickTo.label);
-				} catch (EntityNotFoundException e) {
-					UnitLoadType type = ultService.getDefaultUnitLoadType();
-					Client client = contextService.getCallersClient();
-					StorageLocation storageLocation = locService.getCurrentUsersLocation();
-					
-					unitLoad = ulService.createLOSUnitLoad(client, pickTo.label, type, storageLocation, StockState.PICKED);
+				unitLoad = unitLoadService.read(pickTo.label);
+				if (unitLoad == null) {
+					UnitLoadType type = unitLoadTypeService.getDefault();
+					StorageLocation storageLocation = locationService.getCurrentUsersLocation();
+					unitLoad = inventoryComponent.createUnitLoad(pick.getClient(), pickTo.label, type, storageLocation, StockState.PICKED);
 				}
-				pickingUnitLoad = pickingUnitLoadService.create(pick.getPickingOrder(), unitLoad, pickTo.index);
+				pickingUnitLoad = pickingUnitLoadService.create(unitLoad);
+				pickingUnitLoad.setPickingOrder(pick.getPickingOrder());
+				pickingUnitLoad.setPositionIndex(pickTo.index);
 			}
 		}
 		
@@ -247,10 +250,10 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		StorageLocation targetLoc = null;
 		if( targetLocName == null ) {
-			locService.getClearing();
+			locationService.getClearing();
 		}
 		else {
-			targetLoc = locService.getByName(targetLocName);
+			targetLoc = locationService.read(targetLocName);
 		}
 		
 		if( targetLoc == null ) {
@@ -268,11 +271,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		for( int i = 0; i < 1000; i++ ) {
 			String label = sequenceService.generateUnitLoadLabelId(null, null);
 			UnitLoad ul = null;
-			try {
-				ul = ulService.getByLabelId(null, label);
-			} catch (EntityNotFoundException e) {
-				return label;
-			}
+			ul = unitLoadService.read(label);
 			if( ul == null ) {
 				return label;
 			}
@@ -293,9 +292,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		UnitLoad unitLoadNew = null;
 
-		try {
-			unitLoadNew = ulService.getByLabelId(null, labelNew);
-		} catch (EntityNotFoundException e) {}
+		unitLoadNew = unitLoadService.read(labelNew);
 		if( unitLoadNew != null ) {
 			log.warn(logStr+"Unit load already exists. label="+labelNew);
 			throw new LOSExceptionRB( "UnitLoadAlreadyExists", this.getClass() );
@@ -307,10 +304,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		}
 		
 		UnitLoad unitLoad = null;
-		try {
-			unitLoad = ulService.getByLabelId(null, labelOld);
-		} catch (EntityNotFoundException e) {
-		}
+		unitLoad = unitLoadService.read(labelOld);
 		if( unitLoad == null )  { 
 			log.info(logStr+"Label does not exists => do not change. label="+labelOld);
 			return;
@@ -323,17 +317,15 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public PickingMobileUnitLoad createUnitLoad( String label, long pickingOrderId, int index ) throws FacadeException {
 		String logStr = "createUnitLoad ";
 		UnitLoad unitLoad = null;
-		try {
-			unitLoad = ulService.getByLabelId(null, label);
-		} catch (EntityNotFoundException e) {}
+		unitLoad = unitLoadService.read(label);
 		if( unitLoad != null ) {
 			log.warn(logStr+"Unit load already exists. label="+label);
 			throw new LOSExceptionRB( "UnitLoadAlreadyExists", this.getClass() );
 		}
 			
-		UnitLoadType type = ultService.getDefaultUnitLoadType();
+		UnitLoadType type = unitLoadTypeService.getDefault();
 		Client client = contextService.getCallersClient();
-		StorageLocation storageLocation = locService.getCurrentUsersLocation();
+		StorageLocation storageLocation = locationService.getCurrentUsersLocation();
 
 		PickingOrder pickingOrder = null;
 		try {
@@ -344,9 +336,11 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB( "CannotReadCurrentOrder", this.getClass() );
 		}
 		
-		unitLoad = ulService.createLOSUnitLoad(client, label, type, storageLocation, StockState.PICKED);
-		PickingUnitLoad pul = pickingUnitLoadService.create(pickingOrder, unitLoad, index);
-		
+		unitLoad = inventoryComponent.createUnitLoad(pickingOrder.getClient(), label, type, storageLocation, StockState.PICKED);
+		PickingUnitLoad pul = pickingUnitLoadService.create(unitLoad);
+		pul.setPickingOrder(pickingOrder);
+		pul.setPositionIndex(index);
+
 		return new PickingMobileUnitLoad(pul);
 	}
 
@@ -359,9 +353,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.info(logStr+"Picking unit load not found. Try LOSUnitLoad. label="+label);
-			try {
-				unitLoad = ulService.getByLabelId(null, label);
-			} catch (EntityNotFoundException e) {}
+			unitLoad = unitLoadService.read(label);
 			if( unitLoad == null ) {
 				return true;
 			}
@@ -655,12 +647,9 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 	public PickingMobilePos changePickFromStockUnit( PickingMobilePos to, String label ) throws FacadeException {
 		String logStr = "changePickFromStockUnit ";
-		Client client = clientService.getByNumber(to.clientNumber);
 		
 		UnitLoad unitLoadNew = null; 
-		try {
-			unitLoadNew = ulService.getByLabelId(client, label);
-		} catch (EntityNotFoundException e) {}
+		unitLoadNew = unitLoadService.read(label);
 		if( unitLoadNew == null ) {
 			log.info(logStr+"No unit load found. label="+label);
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, label);
@@ -712,9 +701,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public void printLabel( String label, String printer ) throws FacadeException {
 		String logStr = "printLabel ";
 		UnitLoad unitLoad = null; 
-		try {
-			unitLoad = ulService.getByLabelId(null, label);
-		} catch (EntityNotFoundException e) {}
+		unitLoad = unitLoadService.read(label);
 		if( unitLoad == null ) {
 			log.warn(logStr+"Cannot read unit load. label="+label);
 			throw new LOSExceptionRB("CannotReadUnitLoad", this.getClass());
@@ -754,7 +741,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
     
 	public void checkLocationScan( String name ) throws FacadeException {
 		String logStr = "checkLocationScan ";
-		StorageLocation loc = locService.getByName(name);
+		StorageLocation loc = locationService.read(name);
 		if( loc.getId() < 1 ) {
 			log.info(logStr+"Invalid location. id="+loc.getId());
 			throw new LOSExceptionRB("LocationInvalid", this.getClass());

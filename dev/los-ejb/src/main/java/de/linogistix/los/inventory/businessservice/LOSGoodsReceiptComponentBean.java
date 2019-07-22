@@ -51,10 +51,8 @@ import de.linogistix.los.inventory.service.LotService;
 import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
@@ -63,8 +61,10 @@ import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
 
@@ -73,8 +73,6 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 	private final Logger logger = Logger
 			.getLogger(LOSGoodsReceiptComponentBean.class);
-	@EJB
-	private QueryStorageLocationService slService;
 	@EJB
 	private LOSInventoryComponent inventoryComp;
 	@EJB
@@ -91,8 +89,6 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	private LotService lotService;
 	@EJB
 	private InventoryGeneratorService genService;
-	@EJB
-	private LOSUnitLoadService ulService;
 	@EJB
 	private StockUnitService suService;
 	@EJB
@@ -115,6 +111,10 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
 
 	// --------------------------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 			throws LOSLocationException {
 
 		List<StorageLocation> slList;
-		slList = slService.getListForGoodsIn();
+		slList = locationService.getForGoodsIn(null);
 
 		if (slList.size() == 0) {
 			// LOSStorageLocation defLoc;
@@ -532,14 +532,9 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 		}
 
 		if (ul == null) {
-						
-			try {
-				ul = ulService.getByLabelId(pos.getClient(), pos.getUnitLoad());
-			} catch (EntityNotFoundException ex) {
-				logger.debug("EntityNotFound UnitLoad Label=" + pos.getUnitLoad());
-			}
+			ul = unitLoadService.read(pos.getUnitLoad());
 		}
-		UnitLoad ulNirwana = ulService.getNirwana();
+		UnitLoad ulNirwana = unitLoadService.getTrash();
 		if( ul != null && ul.equals(ulNirwana) ) {
 			// The nirwana unit load is written to the position, when the stock is moved to another unit load
 			logger.info("The UnitLoad is NIRWANA. So Stock has changed!. Abort");
@@ -645,8 +640,9 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 		}
 
 		if (ref != null && ref.length() != 0) {
-			try {
-				ul = ulService.getByLabelId(cl, ref);
+//			try {
+			ul = unitLoadService.read(ref);
+			if (ul != null) {
 				if( !sl.equals(ul.getStorageLocation()) ) {
 					logger.warn("UnitLoad not on location. label="+ul.getLabelId()+", location="+ul.getStorageLocation().getName()+", check location="+sl.getName());
 					throw new LOSLocationException(
@@ -664,9 +660,8 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 //							LOSLocationExceptionKey.UNITLOAD_NOT_ON_LOCATION,
 //							new String[] { ul.getLabelId(), sl.getName() });
 //				}
-			} catch (EntityNotFoundException ex) {
-				logger.info("CREATE UnitLoad: " + ex.getMessage());
-				ul = ulService.createLOSUnitLoad(cl, ref, type, sl, StockState.INCOMING);
+			} else {
+				ul = inventoryComp.createUnitLoad(cl, ref, type, sl, StockState.INCOMING);
 				locationReserver.allocateLocation(sl, ul);
 
 // use the default value

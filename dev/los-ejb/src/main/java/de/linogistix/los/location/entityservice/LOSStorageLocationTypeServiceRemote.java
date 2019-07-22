@@ -23,10 +23,4 @@ public interface LOSStorageLocationTypeServiceRemote {
      * @return
      */
     public LocationType getDefaultStorageLocationType();
-    
-    /**
-	 * Returns a LOSStorageLocationType with a fixed unit load attached to it.
-	 */
-    public LocationType getAttachedUnitLoadType();
-    
 }

@@ -21,5 +21,4 @@ import de.wms2.mywms.location.Area;
 public interface LOSAreaService
 	extends BasicService<Area>
 {
-    public Area getDefault();
 }

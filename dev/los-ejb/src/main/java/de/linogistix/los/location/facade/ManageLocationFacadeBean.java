@@ -24,7 +24,6 @@ import org.mywms.facade.FacadeException;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.customization.CustomLocationService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
@@ -45,9 +44,6 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 
 	@EJB
 	private LOSStorage storage;
-
-	@EJB
-	private LOSStorageLocationService slService;
 
 	@EJB
 	private ContextService contextService;
@@ -87,7 +83,7 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 
 		UnitLoad u = uLoadQueryRemote.queryByIdentity(labelId);
 		manager.find(UnitLoad.class, u.getId());
-		StorageLocation nirwana = slService.getNirwana();
+		StorageLocation nirwana = locationServcie.getTrash();
 		storage.transferUnitLoad(contextService.getCallerUserName(), nirwana, u);
 
 	}
@@ -98,7 +94,7 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 			return;
 		}
 
-		StorageLocation nirwana = slService.getNirwana();
+		StorageLocation nirwana = locationServcie.getTrash();
 		for (BODTO<UnitLoad> ul : list) {
 			UnitLoad u = manager.find(UnitLoad.class, ul.getId());
 			storage.transferUnitLoad(contextService.getCallerUserName(), nirwana, u);

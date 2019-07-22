@@ -32,10 +32,10 @@ import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
@@ -78,16 +78,15 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	private ItemDataQueryRemote idatQuery;
 		
 	@EJB
-	private QueryUnitLoadTypeService ulTypeService;
-
-	@EJB
 	private FixAssignmentEntityService fixedService;
 	@EJB
 	private EntityGenerator entityGenerator;
 
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
-	
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	public Object handleDataRecord(String className, HashMap<String, String> dataRecord) throws FacadeException{
 		
 		Client sysClient = clientService.getSystemClient();
@@ -215,7 +214,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 
 		
-			ulTypeDummyPick = ulTypeService.getPickLocationUnitLoadType();
+			ulTypeDummyPick = unitLoadTypeService.getVirtual();
 		if (ulTypeDummyPick == null){
 			logger.error("getPickLocationUnitLoadType not found!" + " Won't set.");
 			ulTypeDummyPick = null;
@@ -416,8 +415,8 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		UnitLoadType ulType = null;;
 		String unitLoadTypeName = dataRecord.get("lhm-typ");
 		if (unitLoadTypeName != null && unitLoadTypeName.length() > 0){
-			ulTypeService.getDefaultUnitLoadType();
-			ulType = ulTypeService.getByName(unitLoadTypeName);
+			unitLoadTypeService.getDefault();
+			ulType = unitLoadTypeService.read(unitLoadTypeName);
 			if( ulType == null ) {
 				logger.error("UnitLoadType " + unitLoadTypeName + " does not exist. => Skip.");
 				return;

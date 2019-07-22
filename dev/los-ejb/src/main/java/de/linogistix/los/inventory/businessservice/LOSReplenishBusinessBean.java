@@ -13,13 +13,13 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.User;
-import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -28,14 +28,14 @@ import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 
 
@@ -57,18 +57,18 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 	@EJB
 	private LOSInventoryComponent inventoryBusiness;
 	@EJB
-	private QueryUnitLoadTypeService unitLoadTypeService;
-	@EJB
 	private InventoryGeneratorService inventoryGenerator;
-	@EJB
-	private LOSUnitLoadService unitLoadService;
 	@EJB
 	private ManageOrderService manageOrderService;
 	
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 
-	
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
     public LOSReplenishOrder finishOrder(LOSReplenishOrder order) throws FacadeException {
 		String logStr = "finishOrder ";
 		log.debug(logStr+"orderNumber="+order.getNumber());
@@ -194,7 +194,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 		}
 		
 		UnitLoad destinationUnitLoad = null;
-		List<UnitLoad> unitLoadList = unitLoadService.getListByStorageLocation(destinationLocation);
+		List<UnitLoad> unitLoadList = unitLoadService.readList(null, destinationLocation, null, null, null, null, null);
 		
 		for( UnitLoad ul : unitLoadList ) {
 			destinationUnitLoad = ul;
@@ -209,7 +209,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 			}
 		}
 		
-		UnitLoadType virtual = unitLoadTypeService.getPickLocationUnitLoadType();
+		UnitLoadType virtual = unitLoadTypeService.getVirtual();
 
 		if( destinationUnitLoad == null && moveComplete ) {
 			log.debug(logStr+"Move complete source unit load to location. label="+sourceStock.getUnitLoad().getLabelId()+" location="+destinationLocation.getName());
@@ -224,15 +224,14 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 	        	int i = 0;
 	        	while( i++ < 100 ) {
 	        		label = inventoryGenerator.generateUnitLoadLabelId(sourceStock.getClient(), virtual);
-	        		try {
-						unitLoadService.getByLabelId(null, label);
-					} catch (EntityNotFoundException e) {
+					UnitLoad test = unitLoadService.read(label);
+					if(test==null) {
 						break;
 					}
 	        		log.info("UnitLoadLabel " + label + " already exists. Try the next");
 	        	}
 				
-				destinationUnitLoad = unitLoadService.createLOSUnitLoad(sourceStock.getClient(), label, virtual, destinationLocation, StockState.ON_STOCK);
+				destinationUnitLoad = inventoryBusiness.createUnitLoad(sourceStock.getClient(), label, virtual, destinationLocation, StockState.ON_STOCK);
 			}
 			if( amount == null ) {
 				amount = sourceStock.getAmount();

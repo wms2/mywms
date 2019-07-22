@@ -25,6 +25,4 @@ import de.wms2.mywms.location.LocationCluster;
 public interface LOSLocationClusterService 
         extends BasicService<LocationCluster>
 {
-    public LocationCluster getDefault();
-
 }

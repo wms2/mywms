@@ -1085,7 +1085,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 					log.error(e.getMessage(), e);
 					throw new RuntimeException(e.getMessage());
 				}
-				sl = locationService.create(c, slName, type, null, null);
+				sl = locationService.create(slName, c, type, null, null);
 			}
 
 			ItemData idat = itemDataService.getByItemNumber(c, articleRef);

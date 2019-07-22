@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -34,13 +35,13 @@ import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
 import de.linogistix.los.location.exception.LOSLocationWrongClientException;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
@@ -70,8 +71,6 @@ public class StorageBusinessBean implements StorageBusiness {
 	@EJB
 	private LOSInventoryComponent inventoryComponent;
 	@EJB
-	private QueryUnitLoadTypeService ultService;
-	@EJB
 	private LocationReserver locationReserver;
 	@EJB
 	private EntityGenerator entityGenerator;
@@ -83,9 +82,11 @@ public class StorageBusinessBean implements StorageBusiness {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 	
-	@EJB
+	@Inject
 	private LocationFinder locationFinder;
-	
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul) throws FacadeException {
 		return getOrCreateStorageRequest(c, ul, false, null, null);
 	}
@@ -275,7 +276,7 @@ public class StorageBusinessBean implements StorageBusiness {
 				storageLocService.sendToNirwana( operator, unitload);
 				log.info("Transferred Stock to virtual UnitLoadType: "+unitload.toShortString());
 			} else {
-				UnitLoadType virtual = ultService.getPickLocationUnitLoadType();
+				UnitLoadType virtual = unitLoadTypeService.getVirtual();
 				unitload.setType(virtual);
 				unitload.setLabelId(targetLocation.getName());
 				storageLocService.transferUnitLoad(operator, targetLocation, unitload, -1, false, false, "", "");

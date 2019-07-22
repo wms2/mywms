@@ -40,7 +40,6 @@ import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.exception.BusinessException;
@@ -49,6 +48,7 @@ import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
@@ -108,9 +108,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private FixAssignmentEntityService fixService;
 
 	@EJB
-	private QueryUnitLoadTypeService queryUltService;
-
-	@EJB
 	private ItemUnitService itemUnitService;
 	
 	@PersistenceContext(unitName="myWMS")
@@ -122,6 +119,8 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private InventoryBusiness inventoryBusiness;
 	@Inject
 	private PackagingUnitEntityService packagingUnitEntityService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
 
 	/* 
 	 * @see ManageInventoryRemote#createItemData(java.lang.String, java.lang.String)
@@ -670,7 +669,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				storage.sendToNirwana( contextService.getCallerUserName(), unitLoad);
 				log.info("Transferred Stock to virtual UnitLoadType: "+onDestination.toShortString());
 			} else {
-				UnitLoadType virtual = queryUltService.getPickLocationUnitLoadType();
+				UnitLoadType virtual = unitLoadTypeService.getVirtual();
 
 				unitLoad.setUnitLoadType(virtual);
 				unitLoad.setLabelId(targetLocation.getName());

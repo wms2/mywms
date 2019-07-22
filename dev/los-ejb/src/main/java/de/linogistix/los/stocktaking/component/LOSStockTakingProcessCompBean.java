@@ -35,12 +35,7 @@ import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.stocktaking.customization.LOSManageStocktakingService;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingExceptionKey;
@@ -56,8 +51,11 @@ import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 
 @Stateless
@@ -66,9 +64,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	private static final Logger log = Logger
 			.getLogger(LOSStockTakingProcessComp.class);
 	private static final int STOCKTAKING_LOCK_NO = 7;
-
-	@EJB
-	private QueryStorageLocationService queryLocService;
 
 	@EJB
 	private QueryStockTakingOrderService queryStOrderService;
@@ -80,17 +75,11 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	private LOSInventoryComponent invComp;
 
 	@EJB
-	private QueryUnitLoadService queryUlService;
-
-	@EJB
 	private QueryItemDataService queryItemService;
 
 	@EJB
 	private QueryLotService queryLotService;
 
-	@EJB
-	private QueryUnitLoadTypeService queryUlTypeService;
-	
 	@EJB
 	private QueryTypeCapacityConstraintService queryTccService;
 
@@ -101,16 +90,10 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	private InventoryGeneratorService seqService;
 
 	@EJB
-	private LOSStorageLocationService slService;
-
-	@EJB
 	private ContextService ctxService;
 
 	@EJB
 	private LOSManageStocktakingService manageStocktakingService;
-	
-	@EJB
-	private LOSUnitLoadService ulService;
 	
 	@EJB
 	private EntityGenerator entityGenerator;
@@ -120,6 +103,12 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 	@Inject
 	private JournalHandler journalHandler;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
 
 	
 	/*
@@ -143,7 +132,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 		if (type == LOSStockTakingType.END_OF_PERIOD_INVENTORY) {
 
-			List<StorageLocation> slList = queryLocService.getListForStorage();
+			List<StorageLocation> slList = locationService.getForStorage(null);
 
 			int i = 0;
 			for (StorageLocation sl : slList) {
@@ -576,7 +565,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 			if (clientNo == null) {
 				
-				StorageLocation loc = queryLocService.getByName(so.getLocationName());
+				StorageLocation loc = locationService.read(so.getLocationName());
 				if( loc == null ) {
 					rec.setClientNo(queryClientService.getSystemClient().getNumber());
 				}
@@ -712,7 +701,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 		// Not all finished counting record mean, that everything is counted.
 		// There may be empty unit loads. In this case the state will be set to counted
-		List<UnitLoad> ulList = ulService.getListEmptyByStorageLocation(sl);
+		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null, null, null);
 		if( ulList.size()>0 ) {
 			log.info("There are empty unit loads on location " + so.getLocationName()  );
 			allFinished = false;
@@ -784,12 +773,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		}
 		
 		StorageLocation sl;
-		try {
-			sl = queryLocService.getByName( stOrder.getLocationName() );
-		} catch (UnAuthorizedException e) {
-			log.error(methodName + "No Permission to access location " +  stOrder.getLocationName());
-			throw new LOSStockTakingException(LOSStockTakingExceptionKey.NOT_AUTHORIZED, new Object[]{});
-		}
+		sl = locationService.read( stOrder.getLocationName() );
 		if( sl == null ) {
 			log.info(methodName + "Location does not exist <" + stOrder.getLocationName() + ">");
 			throw new LOSStockTakingException(LOSStockTakingExceptionKey.UNKNOWN_LOCATION, new Object[]{stOrder.getLocationName()});
@@ -829,13 +813,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				continue;
 			}
 				
-			UnitLoad ul = null;
-			try {
-				ul = queryUlService.getByLabelId(ulLabel);
-			} catch (UnAuthorizedException e) {
-				log.error(methodName + "No Permission to access unitload " + ulLabel);
-				throw new LOSStockTakingException(LOSStockTakingExceptionKey.NOT_AUTHORIZED, new Object[]{});
-			}
+			UnitLoad ul = unitLoadService.read(ulLabel);
 
 			// No new Stock on the UnitLoad
 			if( ul != null ) {
@@ -849,7 +827,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				
 				// Move the UnitLoad to trash
 				log.debug(methodName + "Move UL <" + ulLabel + "> to CLEARING");
-				StorageLocation clearing = slService.getClearing();
+				StorageLocation clearing = locationService.getClearing();
 				
 				clearing = manager.find(StorageLocation.class, clearing.getId());
 				ul = manager.find(UnitLoad.class, ul.getId());
@@ -886,13 +864,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			}
 			log.debug(methodName + "Found new Stock on UnitLoad <" + ulLabel + "> on location <" + sl.getName() + ">");
 
-			UnitLoad ul = null;
-			try {
-				ul = queryUlService.getByLabelId(ulLabel);
-			} catch (UnAuthorizedException e) {
-				log.error(methodName + "No Permission to access unitload " +  ulLabel);
-				throw new LOSStockTakingException(LOSStockTakingExceptionKey.NOT_AUTHORIZED, new Object[]{});
-			}
+			UnitLoad ul = unitLoadService.read(ulLabel);
 
 			// Check the unit load type
 			// the creation or transfer of the unit load may only be possible with the correct unit load type
@@ -1111,7 +1083,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			}
 		} 
 		
-		List<UnitLoad> ulList = ulService.getListEmptyByStorageLocation(sl);
+		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null, null, null);
 		for( UnitLoad ul : ulList ) {
 
 			if (!ulLabelRecMap.containsKey(ul.getLabelId())) {
@@ -1362,7 +1334,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		
 		if(rec.getUlTypeNo() != null && rec.getUlTypeNo().length() > 0){
 			
-			resolved.ulType = queryUlTypeService.getByName(rec.getUlTypeNo());
+			resolved.ulType = unitLoadTypeService.read(rec.getUlTypeNo());
 			
 			if(resolved.ulType == null){
 				throw new LOSStockTakingException(
@@ -1408,12 +1380,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 		StorageLocation sl = null;
 		if( order.getLocationName() != null ) {
-			try {
-				sl = queryLocService.getByName(order.getLocationName());
-			} catch (UnAuthorizedException e) {
-				throw new LOSStockTakingException(
-						LOSStockTakingExceptionKey.NO_PERMISSION, null);
-			}
+			sl = locationService.read(order.getLocationName());
 		}
 
 		if(sl != null && sl.getLock() == STOCKTAKING_LOCK_NO) {

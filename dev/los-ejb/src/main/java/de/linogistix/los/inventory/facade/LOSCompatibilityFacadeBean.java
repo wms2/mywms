@@ -29,7 +29,6 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.pick.facade.CreatePickRequestPositionTO;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
@@ -39,6 +38,7 @@ import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderEntityService;
 import de.wms2.mywms.picking.PickingOrderGenerator;
@@ -61,12 +61,12 @@ public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 	private PickingStockFinder pickingStockService;
 	
 	@EJB
-	private LOSStorageLocationService locationService;
-	@EJB
 	private LOSOrderBusiness orderBusiness;
 	@EJB
 	private InventoryGeneratorService genService;
-	
+	@Inject
+	private StorageLocationEntityService locationService;
+
 	public void createPickRequests( List<CreatePickRequestPositionTO> chosenStocks ) throws FacadeException {
 		String logStr = "createPickRequests ";
 		log.debug(logStr);
@@ -79,7 +79,7 @@ public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 			log.debug( "createPickRequestPosition posTO=" + posTO.orderPosition.getName() + ", amount=" + posTO.amountToPick );
 
 			if( target == null && posTO.targetPlace != null ) {
-				target = locationService.getByName( posTO.targetPlace.getName() );
+				target = locationService.read( posTO.targetPlace.getName() );
 			}
 			
 			DeliveryOrderLine orderPos = manager.find(DeliveryOrderLine.class, posTO.orderPosition.getId());

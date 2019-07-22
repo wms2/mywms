@@ -38,8 +38,14 @@ import org.mywms.service.UniqueConstraintViolatedException;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
+import de.wms2.mywms.location.AreaEntityService;
+import de.wms2.mywms.location.LocationClusterEntityService;
+import de.wms2.mywms.location.LocationTypeEntityService;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.sequence.SequenceBusiness;
+import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2Properties;
 
@@ -64,6 +70,18 @@ public class Wms2SetupService extends ModuleSetup {
 	private RoleService roleService;
 	@Inject
 	private SequenceBusiness sequeceBusiness;
+	@Inject
+	private LocationClusterEntityService locationClusterService;
+	@Inject
+	private AreaEntityService areaService;
+	@Inject
+	private LocationTypeEntityService locationTypeService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private StorageLocationEntityService storageLocationEntityService;
+	@Inject
+	private OrderStrategyEntityService orderStrategyService;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
@@ -157,6 +175,20 @@ public class Wms2SetupService extends ModuleSetup {
 		sequeceBusiness.createNotExisting("ReplenishOrder", "REPL-%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("Inventory", "IMAN-%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("Stocktaking", "IV-%1$06d", 1L, 999999L);
+
+		logger.info("Create defaults...");
+		locationClusterService.getSystem();
+		locationClusterService.getDefault();
+		areaService.getSystem();
+		areaService.getDefault();
+		locationTypeService.getSystem();
+		locationTypeService.getDefault();
+		unitLoadTypeService.getSystem();
+		unitLoadTypeService.getDefault();
+		unitLoadTypeService.getVirtual();
+		storageLocationEntityService.getClearing();
+		storageLocationEntityService.getTrash();
+		orderStrategyService.getDefault(client);
 
 		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
 

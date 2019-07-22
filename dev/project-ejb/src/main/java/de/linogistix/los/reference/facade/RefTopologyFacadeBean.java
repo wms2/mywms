@@ -35,6 +35,7 @@ import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
+import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
@@ -43,13 +44,8 @@ import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.businessservice.LocationBasicDataService;
-import de.linogistix.los.location.entityservice.LOSLocationClusterService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
-import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.Prio;
 import de.linogistix.los.reference.model.ProjectPropertyKey;
 import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
@@ -59,6 +55,7 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
@@ -66,9 +63,11 @@ import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaEntityService;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationCluster;
+import de.wms2.mywms.location.LocationClusterEntityService;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.module.ModuleSetup.SetupLevel;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
@@ -106,22 +105,10 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private QueryTypeCapacityConstraintService capaService;
 	
 	@EJB
-	private LOSStorageLocationService slService;
-	
-	@EJB
 	private ItemDataService itemDataService;
 	
 	@Inject
 	private FixAssignmentEntityService fixedService;
-	
-	@EJB
-	private LOSLocationClusterService lcService;
-	
-	@EJB
-	private LOSUnitLoadService ulService;
-	
-	@EJB
-	private QueryUnitLoadService ulQueryService;
 	
 	@EJB
 	private ContextService contextService;
@@ -139,6 +126,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private LOSStockTakingProcessComp stService;
 	@EJB
 	private EntityGenerator entityGenerator;
+	@EJB
+	private LOSInventoryComponent inventoryComponent;
 
 	
 	@EJB
@@ -151,8 +140,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private LOSSystemPropertyService propertyService;
 	@EJB
 	private LOSJasperReportGenerator reportService;
-	@EJB
-	private QueryStorageLocationService locService;
 	
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
@@ -161,6 +148,13 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private LocationTypeEntityService locationTypeService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private LocationClusterEntityService locationClusterService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+
 
 	private static final Logger log = Logger.getLogger(RefTopologyFacadeBean.class);
 	
@@ -227,9 +221,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		pType.setName( resolve("LocationTypePallet") );
 		locationTypeService.setDefault(pType);
 		
-		LocationType fixType = losLocationTypeService.getAttachedUnitLoadType();
-		fixType.setName( resolve("LocationTypePicking") );
-
 		LocationType fType = createLocationType(sys, resolve("LocationTypeShelf") );
 		
 
@@ -257,13 +248,12 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		createCapa( pType, euro140, BigDecimal.valueOf(100) );
 		createCapa( fType, kltType60, BigDecimal.valueOf(100));
 		createCapa( fType, kltType30, BigDecimal.valueOf(50));
-		createCapa( fixType, picking, BigDecimal.valueOf(100));
 		
 	
 
 		log.info("Create StorageLocations...");
 		
-		LocationCluster cluster = lcService.getDefault();
+		LocationCluster cluster = locationClusterService.getDefault();
 		
 
 		List<Area> areaList = null;
@@ -287,7 +277,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create Picklocations...");
 		
-		createRack(sys, resolve("RackNamePickFixed"), "P1", 2, 3, 2, pickArea, fixType, cluster, zoneSysA);
+		createRack(sys, resolve("RackNamePickFixed"), "P1", 2, 3, 2, pickArea, fType, cluster, zoneSysA);
 		manager.flush();
 
 		
@@ -309,8 +299,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create FixedLocations...");
 		
-		createFixLocation( sys, "P1-011-1", paper1, fixType);
-		createFixLocation( sys, "P1-012-1", paper2, fixType);
+		createFixLocation( sys, "P1-011-1", paper1);
+		createFixLocation( sys, "P1-012-1", paper2);
 		
 
 		
@@ -355,8 +345,14 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		reportService.getJasportReport(sys, InventoryBundleResolver.class, "StockUnitLabel");
 		reportService.getJasportReport(sys, InventoryBundleResolver.class, "UnitLoadLabel");
 		
-		log.info("Done.");
+		log.info("Finish...");
+		try {
+			propertyService.setValue(ProjectPropertyKey.CREATE_DEMO_TOPOLOGY, false);
+		} catch (UnAuthorizedException e) {
+			log.error("Cannot set property value. CREATE_DEMO_TOPOLOGY=false");
+		}
 
+		log.info("Done.");
 	}
 
 	private Locale getLocale() {
@@ -454,7 +450,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	//				String slName = locationName + "-" + String.format("%1$02d",y+1) + "-" + String.format("%1$03d",x+1) ;
 					String slName = locationName + "-" + String.format("%1$02d",x1+1) + String.format("%1$01d",x2+1) + "-" + String.format("%1$01d",y+1) ;
 					StorageLocation rl = null;
-					rl = slService.getByName(slName);
+					rl = locationService.readByName(slName);
 					if( rl == null ) {
 						rl = entityGenerator.generateEntity( StorageLocation.class );
 						rl.setClient(client);
@@ -515,13 +511,12 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		}
 		return ean;
 	}
-	private FixAssignment createFixLocation( Client client, String locationName, ItemData itemData, LocationType locType ) throws FacadeException {
-		StorageLocation sl = slService.getByName(locationName);
+	private FixAssignment createFixLocation( Client client, String locationName, ItemData itemData) throws FacadeException {
+		StorageLocation sl = locationService.readByName(locationName);
 		if(sl == null) {
 			return null;
 		}
 		
-		sl.setType(locType);
 		FixAssignment fl = null;
 		List<FixAssignment> flList = fixedService.readList(itemData, null, null, null, null);
 		for( FixAssignment x : flList ) {
@@ -545,14 +540,9 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		sl.setType(locationTypeService.getSystem());
 		
 		UnitLoadType pickUlType = unitLoadTypeService.getVirtual();
-		UnitLoad ul = null;
-		try {
-			ul = ulQueryService.getByLabelId(locationName);
-		} catch (UnAuthorizedException e) {
-			// Do nothing
-		}
+		UnitLoad ul = unitLoadService.read(locationName);
 		if( ul == null ) {
-			ul = ulService.createLOSUnitLoad(client, locationName, pickUlType, sl, StockState.ON_STOCK);
+			ul = inventoryComponent.createUnitLoad(client, locationName, pickUlType, sl, StockState.ON_STOCK);
 		}
 		else {
 			ul.setClient(client);
@@ -567,9 +557,9 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	
 	private void createStock( Client client, String locationName, ItemData idat, BigDecimal amount, String unitLoadNumber, String lotNumber) {
 		try {
-			UnitLoad ul = ulQueryService.getByLabelId(unitLoadNumber);
+			UnitLoad ul = unitLoadService.read(unitLoadNumber);
 			if( ul != null ) {
-				StorageLocation sl = slService.getByName(locationName);
+				StorageLocation sl = locationService.readByName(locationName);
 				FixAssignment x = fixedService.readFirst(null, sl);
 				if( x == null ) {
 					log.error("Do not create UnitLoad " + unitLoadNumber+" twice");
@@ -603,7 +593,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 				OrderPositionTO pos = new OrderPositionTO(client.getNumber(), null, idat2.getNumber(), amount2);
 				posList.add(pos);
 			}
-			List<StorageLocation>locList = locService.getListForGoodsOut();
+			List<StorageLocation>locList = locationService.getForGoodsOut(null);
 			String locName = null;
 			if( locList != null && locList.size() > 0 ) {
 				StorageLocation loc = locList.get(0);

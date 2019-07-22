@@ -15,6 +15,7 @@ import java.util.Vector;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -36,7 +37,6 @@ import de.linogistix.los.location.businessservice.LOSRackLocationNameUtil;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
@@ -56,6 +56,7 @@ import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 
 @Stateless
@@ -85,10 +86,6 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 	@EJB
 	private ClientService clientService;
 	@EJB
-	private LOSStorageLocationService slService;
-	@EJB
-	private LOSUnitLoadService ulService;
-	@EJB
 	private UnitLoadTypeQueryRemote uTypeQuery;
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
@@ -96,7 +93,9 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 	private EntityGenerator entityGenerator;
 	@EJB
 	private LocationReserver locationReserver;
-	
+	@Inject
+	private StorageLocationEntityService locationService;
+
 	public List<UnitLoadType> getUnitLoadTypes(){
 		try {
 			return uTypeQuery.queryAll(new QueryDetail(0,Integer.MAX_VALUE));
@@ -235,7 +234,7 @@ public class InventoryProcessFacadeBean implements InventoryProcessFacade {
 			log.info("WARN: no Unitload " + ulName
 					+ ". Create on StrageLocaton " + sl.getName());
 			
-			ul = ulService.createLOSUnitLoad(idat.getClient(), ulName, t, slService.getClearing(), StockState.ON_STOCK);
+			ul = inventoryComponent.createUnitLoad(idat.getClient(), ulName, t, locationService.getClearing(), StockState.ON_STOCK);
 			manager.flush();
 
 		} else{

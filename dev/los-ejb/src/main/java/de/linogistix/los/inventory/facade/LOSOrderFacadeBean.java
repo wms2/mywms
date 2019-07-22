@@ -27,7 +27,6 @@ import org.mywms.model.Client;
 import org.mywms.model.Document;
 import org.mywms.service.ClientService;
 
-import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.businessservice.LOSOrderGenerator;
@@ -47,14 +46,10 @@ import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.inventory.service.QueryLotService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.service.QueryStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
@@ -65,13 +60,16 @@ import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderEntityService;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
@@ -88,17 +86,11 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private Logger log = Logger.getLogger(LOSOrderFacadeBean.class);
 	
 	@EJB
-	private LOSStorageLocationService slService1;
-	@EJB
-	private QueryStorageLocationService slService2;
-	@EJB
 	private ClientService clientService;
 	@EJB
 	private LOSCustomerOrderService orderService;
 	@EJB
 	private LOSPickingPositionService pickingPositionService;
-	@EJB
-	private LOSPickingUnitLoadService pickingUnitLoadService;
 	@EJB
 	private LOSOrderBusiness orderBusiness;
 	@EJB
@@ -130,15 +122,19 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@EJB
 	private LOSGoodsOutGenerator goodsOutGenerator;
 	@EJB
-	private QueryUnitLoadService unitLoadService;
-	@EJB
 	private LOSUnitLoadReport unitLoadReport;
     @PersistenceContext(unitName = "myWMS")
     private  EntityManager manager;
 
     @Inject
     private PickingOrderEntityService pickingOrderEntityService;
-    
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+
 	public DeliveryOrder order(
 			String clientNumber,
 			String externalNumber,
@@ -188,7 +184,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		
 		StorageLocation destination = null;
 		if( destinationName != null && destinationName.length()>0 ) {
-			destination = slService1.getByName(destinationName);
+			destination = locationService.read(destinationName);
 			if( destination == null ){
 				String msg = "Location does not exist. name="+destination;
 				log.error(logStr+msg);
@@ -390,7 +386,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		
 		
 		List<StorageLocation> slList;
-		slList = slService2.getListForGoodsOut();
+		slList = locationService.getForGoodsOut(null);
 
 		if (slList.size() == 0) {
 			throw new LOSLocationException(
@@ -414,7 +410,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		
 		
 		List<StorageLocation> slList;
-		slList = slService2.getListForGoodsOut();
+		slList = locationService.getForGoodsOut(null);
 
 		if (slList.size() == 0) {
 			throw new LOSLocationException(
@@ -478,11 +474,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		log.debug(logStr+"label="+label);
 
 
-		UnitLoad unitLoad = null;
-		try {
-			unitLoad = unitLoadService.getByLabelId(label);
-		} catch (UnAuthorizedException e) {
-		}
+		UnitLoad unitLoad = unitLoadService.read(label);
 		if( unitLoad == null ) {
 			String msg = "Unit load does not exist. label="+label;
 			log.error(logStr+msg);

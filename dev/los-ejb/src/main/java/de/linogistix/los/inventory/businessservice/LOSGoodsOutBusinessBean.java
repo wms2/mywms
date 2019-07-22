@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -30,11 +31,8 @@ import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
@@ -43,8 +41,11 @@ import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 
 /**
  * 
@@ -66,18 +67,19 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 	@EJB
 	private ManageOrderService manageOrderService;
 	@EJB
-	private LOSPickingUnitLoadService pickingUnitLoadService;
-	@EJB
-	private LOSUnitLoadService unitLoadService;
-	@EJB
 	private LOSSystemPropertyService propertyService;
-	@EJB
-	private LOSStorageLocationService locationService;
 	@EJB
 	private LOSStorage storageService;
 	@EJB
 	private ContextService contextService;
-	
+
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+
 	public LOSGoodsOutRequest finish(LOSGoodsOutRequest out) throws FacadeException {
 		return finish(out, false);
 	}
@@ -187,7 +189,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 			}
 		}
 		
-		List<UnitLoad> childList = unitLoadService.getChilds(ul); //ul.getUnitLoadList();
+		List<UnitLoad> childList = unitLoadService.readChilds(ul); //ul.getUnitLoadList();
 		for( UnitLoad child : childList ) {
 			child.setLock(LOSUnitLoadLockState.SHIPPED.getLock());
 			child.setState(StockState.SHIPPED);
@@ -220,7 +222,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		
 		String targetLocationName = propertyService.getStringDefault(out.getClient(), null, LOSInventoryPropertyKey.SHIPPING_LOCATION, null);
 		if( targetLocationName!=null && targetLocationName.trim().length()>0 ) {
-			StorageLocation targetLocation = locationService.getByName(targetLocationName);
+			StorageLocation targetLocation = locationService.read(targetLocationName);
 			if( targetLocation == null ) {
 				log.warn(logStr+"Cannot find configured location. name="+targetLocationName);
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, targetLocationName);

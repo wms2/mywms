@@ -13,6 +13,7 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
@@ -40,14 +41,14 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryAdviceService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 
 @Stateless
@@ -71,16 +72,17 @@ public class GoodsReceiptBean implements GoodsReceipt {
 	@EJB
 	private ItemDataService itemDataService;
 	@EJB
-	private LOSStorageLocationService slService;
-	@EJB
-	private QueryUnitLoadTypeService ulTypeService;
-	@EJB
 	private ContextService context;
 	@EJB
 	private QueryAdviceService advService;
 	@EJB
 	private ManageReceiptService manageGrService;
 	
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	public void create(
 			@WebParam(name = "client") String client, 
 			@WebParam(name = "storageLocation") String storageLocation, 
@@ -106,7 +108,7 @@ public class GoodsReceiptBean implements GoodsReceipt {
 					licencePlate, driver, forwarder, deliveryNoteNumber,
 					new Date());
 
-			StorageLocation sl = slService.getByName(storageLocation);
+			StorageLocation sl = locationService.readByName(storageLocation);
 			if (sl == null){
 				throw new BusinessObjectNotFoundException(storageLocation);
 			}
@@ -180,10 +182,10 @@ public class GoodsReceiptBean implements GoodsReceipt {
 	
 	private UnitLoadType resolveUnitLoadType(Client c, String name) throws BusinessObjectNotFoundException{
 		UnitLoadType type = null;
-		type = ulTypeService.getByName(name);
+		type = unitLoadTypeService.read(name);
 		if( type == null ) {
 			log.error("Could not find Unitload type: " + name );
-			type = ulTypeService.getDefaultUnitLoadType();
+			type = unitLoadTypeService.getDefault();
 			if (type == null) {
 				throw new BusinessObjectNotFoundException(name);
 			}

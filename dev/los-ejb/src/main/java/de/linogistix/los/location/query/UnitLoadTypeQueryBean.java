@@ -12,12 +12,12 @@
 package de.linogistix.los.location.query;
 
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 
 
 /**
@@ -26,9 +26,8 @@ import de.wms2.mywms.inventory.UnitLoadType;
  */
 @Stateless
 public class UnitLoadTypeQueryBean extends BusinessObjectQueryBean<UnitLoadType> implements UnitLoadTypeQueryRemote{
-
-	@EJB
-	QueryUnitLoadTypeService ulTypeService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
 	
     @Override
     public String getUniqueNameProp() {
@@ -36,11 +35,11 @@ public class UnitLoadTypeQueryBean extends BusinessObjectQueryBean<UnitLoadType>
     }
 
 	public UnitLoadType getDefaultUnitLoadType() {
-		return ulTypeService.getDefaultUnitLoadType();
+		return unitLoadTypeService.getDefault();
 	}
 
 	public UnitLoadType getPickLocationUnitLoadType() {
-		return ulTypeService.getPickLocationUnitLoadType();
+		return unitLoadTypeService.getVirtual();
 	}
 	
 }

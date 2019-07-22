@@ -15,6 +15,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -28,7 +29,6 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSLotService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
@@ -37,6 +37,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
 
@@ -53,8 +54,6 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 	@EJB
 	private ClientService clientService;
 	@EJB
-	private LOSStorageLocationService slService;
-	@EJB
 	private ItemDataService idatService;
 	
 	@EJB 
@@ -67,6 +66,8 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 	private LOSInventoryComponent invComp;
 	@EJB
 	private ContextService contextService;
+	@Inject
+	private StorageLocationEntityService locationService;
 
 	
 	@PersistenceContext(unitName = "myWMS")
@@ -97,7 +98,7 @@ public class ManageInventoryBusinessBean implements ManageInventoryBusiness {
 						.warn("NOT FOUND. Going to CREATE StorageLocation "
 								+ slName);
 				LocationType type = typeService.getDefault();
-				sl = slService.createStorageLocation(c, slName, type);
+				sl = locationService.create(slName, c, type, null, null);
 			}
 
 			ItemData idat = idatService.getByItemNumber(c, articleRef);

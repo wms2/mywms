@@ -29,9 +29,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.BasicClientAssignedEntity;
@@ -48,7 +46,6 @@ import de.wms2.mywms.util.Wms2Constants;
  * Product master data
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "client_id", "number" }) })
 public class ItemData extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 	/**
@@ -187,7 +184,10 @@ public class ItemData extends BasicClientAssignedEntity {
 
 	@Override
 	public String toUniqueString() {
-		return toString();
+		if (number != null) {
+			return number;
+		}
+		return super.toString();
 	}
 
 	@PreUpdate

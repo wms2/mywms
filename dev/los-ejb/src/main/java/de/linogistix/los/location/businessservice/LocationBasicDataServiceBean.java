@@ -24,27 +24,26 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.location.entityservice.LOSLocationClusterService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
 import de.linogistix.los.location.entityservice.LOSWorkingAreaService;
 import de.linogistix.los.location.model.LOSWorkingArea;
 import de.linogistix.los.location.model.LOSWorkingAreaPosition;
-import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.res.BundleResolver;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaEntityService;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationCluster;
+import de.wms2.mywms.location.LocationClusterEntityService;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.property.SystemProperty;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
@@ -72,15 +71,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	@EJB
 	private LOSStorageLocationTypeService losLocationTypeService;
 	@EJB
-	private QueryUnitLoadTypeService ultService;
-	@EJB
 	private QueryTypeCapacityConstraintService capaService;
-	@EJB
-	private QueryStorageLocationService locService;
-	@EJB
-	private LOSStorageLocationService slService;
-	@EJB
-	private LOSLocationClusterService lcService;
 	@EJB
 	private LOSWorkingAreaService waService;
 	@EJB
@@ -91,7 +82,13 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	
 	@Inject
 	private LocationTypeEntityService locationTypeService;
-	
+	@Inject
+	private LocationClusterEntityService locationClusterService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	public void createBasicData(Locale locale) throws FacadeException {
 
 		log.info("Create Location Basic Data...");
@@ -133,7 +130,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 
 		name = resolve("BasicDataClusterDefault", locale);
 		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_LOCATIONCLUSTER_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_CLUSTER_DEFAULT", locale), false);
-		LocationCluster clusterDefault = lcService.getDefault();
+		LocationCluster clusterDefault = locationClusterService.getDefault();
 		clusterDefault.setName(name);
 		prop = propertyService.getByKey(Wms2Properties.KEY_LOCATIONCLUSTER_DEFAULT);
 		prop.setPropertyValue(name);
@@ -148,14 +145,10 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		
 		LocationType sysType = locationTypeService.getSystem();
 		
-		losLocationTypeService.getAttachedUnitLoadType();
-		
-		
-		
 		
 		log.info("Create UnitLoadTypes...");
 
-		UnitLoadType defUlType = ultService.getDefaultUnitLoadType();
+		UnitLoadType defUlType = unitLoadTypeService.getDefault();
 
 		
 		
@@ -168,18 +161,18 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		
 		log.info("Create StorageLocations...");
 		
-		List<StorageLocation> list = locService.getListForGoodsIn();
+		List<StorageLocation> list = locationService.getForGoodsIn(null);
 		if( list == null || list.size() == 0 ) {
 			createStorageLocation(sys, resolve("BasicDataLocationGoodsIn", locale), areaIn, sysType, clusterDefault);
 		}
-		list = locService.getListForGoodsOut();
+		list = locationService.getForGoodsOut(null);
 		if( list == null || list.size() == 0 ) {
 			createStorageLocation(sys, resolve("BasicDataLocationGoodsOut", locale), areaOut, sysType, clusterDefault);
 		}
-		StorageLocation loc = slService.getClearing();
+		StorageLocation loc = locationService.getClearing();
 		loc.setArea(areaClearing);
 		
-		loc = slService.getNirwana();
+		loc = locationService.getTrash();
 		loc.setArea(areaClearing);
 		
 
@@ -225,7 +218,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	
 	private StorageLocation createStorageLocation(Client client, String name, Area area, LocationType slType, LocationCluster cluster) {
 		StorageLocation loc = null;
-		loc = slService.getByName(name);
+		loc = locationService.readByName(name);
 		if( loc == null ) {
 			loc = entityGenerator.generateEntity( StorageLocation.class );
 			loc.setClient(client);

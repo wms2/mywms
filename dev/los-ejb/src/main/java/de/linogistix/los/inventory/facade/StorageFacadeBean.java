@@ -9,6 +9,7 @@ package de.linogistix.los.inventory.facade;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -21,7 +22,6 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
@@ -29,6 +29,7 @@ import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 
 /**
  *
@@ -40,12 +41,6 @@ public class StorageFacadeBean implements StorageFacade {
     private static final Logger log = Logger.getLogger(StorageFacadeBean.class);
     @EJB
     private StorageBusiness storage;
-//    @EJB
-//    private LOSStorageLocationQueryRemote locQuery;
-//    @EJB
-//    private LOSStorageRequestQueryRemote reqQuery;
-    @EJB
-    private LOSStorageLocationService locationService;
     @EJB
     private LOSStorageRequestService storageService;
     
@@ -54,6 +49,9 @@ public class StorageFacadeBean implements StorageFacade {
 	
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
+
+	@Inject
+	private StorageLocationEntityService locationService;
 
     public LOSStorageRequest getStorageRequest(String labelId, boolean startProcessing) throws FacadeException {
         try {
@@ -92,7 +90,7 @@ public class StorageFacadeBean implements StorageFacade {
 	            
 	            try{
 //	            	sl = locQuery.queryByIdentity(destination);
-	            	sl = locationService.getByName(destination);
+	            	sl = locationService.read(destination);
 	            	if( sl == null ) {
 	            		throw new BusinessObjectNotFoundException();
 	            	}
@@ -116,7 +114,7 @@ public class StorageFacadeBean implements StorageFacade {
 	        } catch (BusinessObjectNotFoundException ex) {
 	        	try { 
 //	            	sl = locQuery.queryByIdentity(destination);
-	            	sl = locationService.getByName(destination);
+	            	sl = locationService.read(destination);
 	            	if( sl == null ) {
 	            		throw new BusinessObjectNotFoundException();
 	            	}
@@ -139,7 +137,7 @@ public class StorageFacadeBean implements StorageFacade {
         	// try storage location first
 	        try {
 //	        	sl = locQuery.queryByIdentity(destination);
-	        	sl = locationService.getByName(destination);
+	        	sl = locationService.read(destination);
             	if( sl == null ) {
             		throw new BusinessObjectNotFoundException();
             	}

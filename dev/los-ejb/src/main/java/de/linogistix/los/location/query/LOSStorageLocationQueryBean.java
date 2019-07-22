@@ -14,12 +14,11 @@ package de.linogistix.los.location.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.location.query.dto.StorageLocationTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
@@ -28,6 +27,7 @@ import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 
 /**
  *
@@ -39,8 +39,8 @@ public class LOSStorageLocationQueryBean
         implements LOSStorageLocationQueryRemote
 {
 	
-	@EJB
-	private LOSStorageLocationService slService;
+	@Inject
+	private StorageLocationEntityService locationService;
 
 	
 	@Override
@@ -149,11 +149,11 @@ public class LOSStorageLocationQueryBean
 	}
     
 	public StorageLocation getClearing() {
-		return slService.getClearing();
+		return locationService.getClearing();
 	}
 
 	public StorageLocation getNirwana() {
-		return slService.getNirwana();
+		return locationService.getTrash();
 	}
 	
 	public String getNirwanaName(){

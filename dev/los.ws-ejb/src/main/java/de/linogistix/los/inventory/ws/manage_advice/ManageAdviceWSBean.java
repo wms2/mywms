@@ -13,6 +13,7 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
@@ -40,9 +41,9 @@ import de.linogistix.los.inventory.service.QueryAdviceService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.inventory.service.QueryUnitLoadAdviceService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.product.ItemData;
 
 @Stateless
@@ -54,9 +55,6 @@ import de.wms2.mywms.product.ItemData;
 public class ManageAdviceWSBean implements ManageAdviceWS {
 	private static final Logger log = Logger.getLogger(ManageAdviceWSBean.class);
 
-	@EJB
-	private QueryUnitLoadTypeService ultService;
-		
 	@EJB
 	private LotService lotService;
 	
@@ -80,7 +78,9 @@ public class ManageAdviceWSBean implements ManageAdviceWS {
 	
 	@EJB
 	private ManageAdviceService adviceService;
-	
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	/*
 	 * (non-Javadoc)
 	 * @see de.linogistix.los.inventory.ws.manage_advice.ManageAdviceWS#adviceUnitLoad(de.linogistix.los.inventory.ws.manage_advice.AdviceUnitLoadRequest)
@@ -156,7 +156,7 @@ public class ManageAdviceWSBean implements ManageAdviceWS {
 		if(req.getUnitLoadType() != null && req.getUnitLoadType().length() > 0){
 			
 			UnitLoadType ult = null;
-			ult = ultService.getByName(req.getUnitLoadType());
+			ult = unitLoadTypeService.read(req.getUnitLoadType());
 			if( ult == null ) {
 				throw new ManageAdviceWSFault(
 						ManageAdviceErrorCodes.ERROR_UNKNOWN_UNITLOADTYPE, 

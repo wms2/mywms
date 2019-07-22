@@ -21,7 +21,6 @@ import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.exception.LOSExceptionRB;
-import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.businessservice.LOSReplenishBusiness;
 import de.linogistix.los.inventory.businessservice.LOSReplenishGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -31,15 +30,15 @@ import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSReplenishOrderService;
 import de.linogistix.los.inventory.service.QueryStockService;
 import de.linogistix.los.inventory.service.StockUnitService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -58,8 +57,6 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	@EJB
 	private LOSReplenishOrderService replemishOrderService;
 	@EJB
-	private LOSStorageLocationService locService;
-	@EJB
 	private FixAssignmentEntityService fixService;
 	@EJB
 	private LOSReplenishOrderService orderService;
@@ -67,8 +64,6 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	private LOSReplenishGenerator orderGenerator;
 	@EJB
 	private ItemDataService itemDataService;
-	@EJB
-	private QueryUnitLoadService unitLoadService;
 	@EJB
 	private StockUnitService stockService;
 
@@ -80,7 +75,12 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	
     @PersistenceContext(unitName = "myWMS")
     protected EntityManager manager;
-    
+
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+
 	public Client getDefaultClient() {
 		Client systemClient = clientBusiness.getSingleClient();
 		if (systemClient != null) {
@@ -104,7 +104,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 
 
 	public ReplenishMobileOrder loadOrderByDestination( String locationName ) throws FacadeException {
-		StorageLocation loc = locService.getByName(locationName);
+		StorageLocation loc = locationService.read(locationName);
 		if( loc == null ) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, locationName);
 		}
@@ -167,12 +167,12 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		
 		log.debug(logStr+"Check location");
 		if( code.equals(mOrder.getSourceLocationName()) || code.equals(mOrder.getSourceLocationCode()) || code.toLowerCase().equals(mOrder.getSourceLocationName().toLowerCase())  ) {
-			StorageLocation location = locService.getByName(code);
+			StorageLocation location = locationService.read(code);
 			if( location == null ) {
 				log.info(logStr+"No storage location found for code="+code);
 				throw new LOSExceptionRB("MsgLocationNotFound", this.getClass());
 			}
-			List<UnitLoad> unitLoadList = unitLoadService.getListByLocation(location);
+			List<UnitLoad> unitLoadList = unitLoadService.readList(null, location, null, null, null, null, null);
 			if( unitLoadList.size()!=1) {
 				log.info(logStr+"More than one unit load on location, code="+code);
 				throw new LOSExceptionRB("MsgMoreThanOnUnitLoad", this.getClass());
@@ -182,10 +182,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		}
 		
 		log.debug(logStr+"Check unit load");
-		UnitLoad unitLoad = null;
-		try {
-			unitLoad = unitLoadService.getByLabelId(code);
-		} catch (UnAuthorizedException e) {}
+		UnitLoad unitLoad = unitLoadService.read(code);
 		if( unitLoad != null ) {
 			// A different unit load has been scanned
 		
@@ -259,7 +256,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		
 		StorageLocation destinationLocation = null;
 		if( mOrder.getDestinationLocationName() != null ) {
-			destinationLocation = locService.getByName(mOrder.getDestinationLocationName());
+			destinationLocation = locationService.read(mOrder.getDestinationLocationName());
 		}
 		
 		replenishBusiness.confirmOrder(order, sourceStock, destinationLocation, mOrder.getAmountPicked());
@@ -341,7 +338,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		
 		Client client = clientService.getByNumber(mOrder.getClientNumber());
 		ItemData item = itemDataService.getByItemNumber(client, mOrder.getItemNumber());
-		StorageLocation loc = locService.getByName(mOrder.getDestinationLocationName());
+		StorageLocation loc = locationService.read(mOrder.getDestinationLocationName());
 		
 		LOSReplenishOrder order = orderGenerator.calculateOrder(item, null, mOrder.getAmountRequested(), loc, null);
 		if( order == null ) {
@@ -397,7 +394,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		if( order.getDestinationLocationName() != null ) {
 			BigDecimal amountDestination = BigDecimal.ZERO;
 			
-			StorageLocation destination = locService.getByName(order.getDestinationLocationName());
+			StorageLocation destination = locationService.read(order.getDestinationLocationName());
 			FixAssignment fix = fixService.readFirst(null, destination);
 			if( fix != null ) {
 				order.setAmountDestinationMax(fix.getMaxAmount());

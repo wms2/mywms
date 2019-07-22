@@ -33,7 +33,6 @@ import de.linogistix.los.inventory.service.LOSStorageStrategyService;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
 import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
 import de.linogistix.los.location.exception.LOSLocationReservedException;
@@ -41,11 +40,13 @@ import de.linogistix.los.location.exception.LOSLocationWrongClientException;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.StorageStrategy;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
@@ -72,8 +73,8 @@ public class LocationFinderBean implements LocationFinder {
 	private LOSStorageRequestService storageRequestService;
 	@EJB
 	private LOSStorageStrategyService strategyService;
-	@EJB
-	private LOSUnitLoadService unitLoadService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
 	
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
@@ -307,7 +308,7 @@ public class LocationFinderBean implements LocationFinder {
 		sb.append(TypeCapacityConstraint.class.getSimpleName()+" constraint ");
 		sb.append(" WHERE loc.locationType = locType and loc.area=area");
 		sb.append(" AND constraint.unitLoadType=:unitLoadType and constraint.locationType=locType");
-		sb.append(" AND locType!=:fixedType ");
+		sb.append(" AND not exists(select 1 from "+FixAssignment.class.getSimpleName()+" fix where fix.storageLocation=loc)");
 		sb.append(" AND loc.allocation<100 ");
 		sb.append(" AND loc.lock in (:lockList) ");
 		sb.append(" AND loc.client in (:clientList) ");
@@ -383,15 +384,11 @@ public class LocationFinderBean implements LocationFinder {
 			sb.append("loc.YPos, loc.XPos, loc.name, loc.id ");
 		}
 
-		LocationType fixedType = storageLocationTypeService.getAttachedUnitLoadType();
-
 		log.debug(logStr+"Search location Query="+sb.toString());
 		Query query = manager.createQuery(sb.toString());
 		
 		query.setParameter("unitLoadType", unitLoad.getUnitLoadType());
 		paramLog += ", unitLoadType="+unitLoad.getUnitLoadType();
-		query.setParameter("fixedType", fixedType);
-		paramLog += ", fixedType="+fixedType;
 		query.setParameter("clientList", clients);
 		paramLog += ", clientList="+clients;
 		query.setParameter("lockList", locks);
@@ -448,7 +445,7 @@ public class LocationFinderBean implements LocationFinder {
 	
 	private BigDecimal readUnitLoadWeight(UnitLoad unitLoad) {
 		BigDecimal weight = unitLoad.getWeight();
-		List<UnitLoad> childs = unitLoadService.getChilds(unitLoad);
+		List<UnitLoad> childs = unitLoadService.readChilds(unitLoad);
 		for( UnitLoad child : childs ) {
 			BigDecimal weightChild = readUnitLoadWeight(child);
 			if( weightChild != null ) {
@@ -468,7 +465,7 @@ public class LocationFinderBean implements LocationFinder {
 			}
 		}
 
-		for (UnitLoad child : unitLoadService.getChilds(unitLoad)) {
+		for (UnitLoad child : unitLoadService.readChilds(unitLoad)) {
 			strategy = readUnitLoadStrategy(child);
 			if (strategy != null) {
 				return strategy;
@@ -488,7 +485,7 @@ public class LocationFinderBean implements LocationFinder {
 			}
 		}
 		
-		List<UnitLoad> childs = unitLoadService.getChilds(unitLoad);
+		List<UnitLoad> childs = unitLoadService.readChilds(unitLoad);
 		for( UnitLoad child : childs ) {
 			zone = readUnitLoadZone(child);
 			if( zone != null ) {

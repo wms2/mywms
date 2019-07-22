@@ -22,9 +22,7 @@ import org.mywms.model.Client;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.service.QueryStorageLocationService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
 import de.linogistix.los.stocktaking.customization.LOSManageStocktakingService;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
@@ -37,7 +35,9 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
@@ -47,12 +47,6 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 	@EJB
 	private LOSStockTakingProcessComp stComp;
 
-	@EJB
-	private QueryStorageLocationService queryLocationService;
-	
-	@EJB
-	private QueryUnitLoadTypeService queryUltService;
-	
 	@EJB
 	private QueryTypeCapacityConstraintService queryTccService;
 	
@@ -66,6 +60,11 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 	private ClientBusiness clientService;
 	@EJB
 	private LOSManageStocktakingService manageService;
+
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
 
 	public void acceptOrder( Long orderId ) throws LOSStockTakingException, LOSLocationException, UnAuthorizedException, FacadeException {
 		stComp.acceptOrder( orderId );
@@ -153,7 +152,7 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 		
 		List<String> ultList = new ArrayList<String>();
 		
-		StorageLocation sl = queryLocationService.getByName(location);
+		StorageLocation sl = locationService.read(location);
 		
 		if(sl == null){
 			throw new LOSStockTakingException(
@@ -192,7 +191,7 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 			List<TypeCapacityConstraint> tccList = queryTccService.getListByLocationType(sl.getType());
 			
 			if(tccList.size() == 0){
-				ultList.add(queryUltService.getDefaultUnitLoadType().getName());
+				ultList.add(unitLoadTypeService.getDefault().getName());
 				return ultList;
 			}
 			else{
