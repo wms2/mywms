@@ -176,6 +176,16 @@
             </value>
         </entry>
         <entry>
+			<key>operator</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+        <entry>
 			<key>weight</key>
             <value>
                 <group>

@@ -20,14 +20,10 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
-import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryStockService;
-import de.linogistix.los.location.service.QueryStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.client.ClientBusiness;
@@ -35,9 +31,12 @@ import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -51,12 +50,6 @@ public class InfoFacadeBean implements InfoFacade {
 	Logger log = Logger.getLogger(InfoFacadeBean.class);
 	
 	@EJB
-	private QueryUnitLoadService queryUlService;
-	
-	@EJB
-	private QueryStorageLocationService queryLocationService;
-	
-	@EJB
 	private QueryItemDataService queryItemData;
 	
 	@EJB
@@ -65,17 +58,22 @@ public class InfoFacadeBean implements InfoFacade {
 	@EJB
 	private FixAssignmentEntityService fixService;
 	
-	@Inject
-	private ClientBusiness clientService;
 	
 	@EJB
 	private ContextService contextService;
 	@EJB
-	private LOSPickingUnitLoadService pickinUnitLoadService;
-	@EJB
 	private LOSPickingPositionService pickingPositionService;
 	@EJB
 	private LOSCustomerOrderService customerOrderService;
+
+	@Inject
+	private ClientBusiness clientService;
+	@Inject
+	private PickingUnitLoadEntityService pickinUnitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
@@ -105,12 +103,7 @@ public class InfoFacadeBean implements InfoFacade {
 	
 	public InfoItemDataTO readItemData( String itemNumber ) {
 		log.info("readItemData itemNumber="+itemNumber);
-		ItemData item = null;
-		List<ItemData> itemList = queryItemData.getListByItemNumber( itemNumber );
-		if( itemList == null || itemList.size() < 1 ) {
-			return null;
-		}
-		item = itemList.get(0);
+		ItemData item = queryItemData.getByItemNumber( itemNumber );
 		
 		List<FixAssignment> fixList = fixService.readList(item, null, null, null, null);
 
@@ -122,11 +115,7 @@ public class InfoFacadeBean implements InfoFacade {
 	public InfoLocationTO readLocation( String locationName ) {
 		log.info("readLocation locationName="+locationName);
 		StorageLocation loc = null;
-		try {
-			loc = queryLocationService.getByName(locationName);
-		} catch (UnAuthorizedException e) {
-			// Do nothing
-		}
+			loc = locationService.read(locationName);
 		if( loc == null ) {
 			return null;
 		}
@@ -150,12 +139,7 @@ public class InfoFacadeBean implements InfoFacade {
 		
 		List<InfoStockUnitTO> toList = new ArrayList<InfoStockUnitTO>();
 		
-		ItemData item = null;
-		List<ItemData> itemList = queryItemData.getListByItemNumber( itemNumber );
-		if( itemList == null || itemList.size() < 1 ) {
-			return toList;
-		}
-		item = itemList.get(0);
+		ItemData item = queryItemData.getByItemNumber( itemNumber );
 		
 		List<StockUnit> suList = queryStock.getListByItemData(item, true);
 		if( suList == null || suList.size()<=0 ) {
@@ -174,11 +158,7 @@ public class InfoFacadeBean implements InfoFacade {
 		log.info("readUnitLoadList locationName="+locationName);
 		List<InfoUnitLoadTO> toList = new ArrayList<InfoUnitLoadTO>();
 		StorageLocation loc = null;
-		try {
-			loc = queryLocationService.getByName( locationName );
-		} catch (UnAuthorizedException e) {
-			// Do nothing
-		}
+		loc = locationService.read( locationName );
 		if( loc == null ) {
 			return toList;
 		}
@@ -197,12 +177,7 @@ public class InfoFacadeBean implements InfoFacade {
 	
 	public InfoUnitLoadTO readUnitLoad( String label ) {
 		log.info("readUnitLoad label="+label);
-		UnitLoad ul = null;
-		try {
-			ul = queryUlService.getByLabelId(label);
-		} catch (UnAuthorizedException e) {
-			// Do nothing
-		}
+		UnitLoad ul = unitLoadService.read(label);
 		if( ul == null ) {
 			return null;
 		}
@@ -220,10 +195,7 @@ public class InfoFacadeBean implements InfoFacade {
 		
 		PickingUnitLoad pul = pickinUnitLoadService.getByLabel(ul.getLabelId());
 		if( pul != null ) {
-			if( pul.getDeliveryOrderNumber() != null ) {
-				deliveryOrder = customerOrderService.getByNumber(pul.getDeliveryOrderNumber());
-				orderSetUl.add( deliveryOrder );
-			}
+			orderSetUl.add( pul.getDeliveryOrder());
 		}
 		
 		for( StockUnit su : ul.getStockUnitList() ) {

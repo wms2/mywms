@@ -34,6 +34,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.mywms.model.BasicClientAssignedEntity;
+import org.mywms.model.User;
 
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.OrderPrio;
@@ -97,6 +98,9 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	 */
 	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
 	private String pickingHint;
+
+	@ManyToOne(optional = true)
+	private User operator;
 
 	/**
 	 * Timestamp of start processing
@@ -303,5 +307,13 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	public void setVolume(BigDecimal volume) {
 		this.volume = volume;
+	}
+
+	public User getOperator() {
+		return operator;
+	}
+
+	public void setOperator(User operator) {
+		this.operator = operator;
 	}
 }

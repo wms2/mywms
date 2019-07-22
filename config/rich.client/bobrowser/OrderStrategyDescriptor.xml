@@ -15,7 +15,7 @@
             <key>defaultDestination</key>
             <value>
                 <group>
-                    <name>main</name>
+                    <name>processing</name>
                 </group>
                 <hidden>main</hidden>
                 <position>4</position>
@@ -59,7 +59,7 @@
                     <name>processing</name>
                 </group>
                 <hidden>false</hidden>
-                <position>14</position>
+                <position>11</position>
             </value>
         </entry>
 
@@ -115,7 +115,7 @@
             </value>
         </entry>
         <entry>
-            <key>completeUnitLoad</key>
+            <key>completeOnly</key>
             <value>
                 <group>
                     <name>stockSelection</name>

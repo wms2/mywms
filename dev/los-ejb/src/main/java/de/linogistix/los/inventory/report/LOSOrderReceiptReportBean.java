@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -32,13 +33,13 @@ import de.linogistix.los.inventory.model.OrderReceipt;
 import de.linogistix.los.inventory.model.OrderReceiptPosition;
 import de.linogistix.los.inventory.model.OrderType;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.inventory.service.OrderReceiptService;
 import de.linogistix.los.util.StringTools;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 
 
 /**
@@ -55,13 +56,13 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
 	@EJB
 	private EntityGenerator entityGenerator;
 	@EJB
-	private LOSPickingUnitLoadService pulService;
-	@EJB
 	private OrderReceiptService receiptService;
 	
     @PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
     
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
     
     
 	public OrderReceipt generateOrderReceipt(DeliveryOrder order) throws FacadeException {
@@ -81,7 +82,7 @@ public class LOSOrderReceiptReportBean implements LOSOrderReceiptReport {
 		receipt.setUser("");
 		receipt.setPositions(new ArrayList<OrderReceiptPosition>());
 
-		List<PickingUnitLoad> pulList = pulService.getByDeliveryOrderNumber(order.getOrderNumber());
+		List<PickingUnitLoad> pulList = pickingUnitLoadService.getByDeliveryOrder(order);
 
 		Map<String, LOSStockUnitReportTO> valueMap = new HashMap<String, LOSStockUnitReportTO>();
 

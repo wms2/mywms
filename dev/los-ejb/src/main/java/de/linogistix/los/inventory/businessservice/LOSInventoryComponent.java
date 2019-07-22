@@ -21,6 +21,7 @@ import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
+import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
@@ -401,5 +402,8 @@ public interface LOSInventoryComponent {
 	public BigDecimal recalculateWeight( UnitLoad unitLoad );
 
 	public UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref, int state) throws FacadeException;
+
+	UnitLoad createUnitLoad(Client client, String labelId, UnitLoadType type, StorageLocation storageLocation,
+			int state) throws FacadeException;
 
 }

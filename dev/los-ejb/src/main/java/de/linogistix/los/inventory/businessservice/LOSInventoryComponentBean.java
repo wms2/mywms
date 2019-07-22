@@ -51,13 +51,12 @@ import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.crud.LOSUnitLoadCRUDRemote;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
+import de.linogistix.los.location.customization.CustomLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
+import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
+import de.linogistix.los.location.exception.LOSLocationReservedException;
+import de.linogistix.los.location.exception.LOSLocationWrongClientException;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
-import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
-import de.linogistix.los.location.service.QueryStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.DateHelper;
@@ -68,11 +67,14 @@ import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
@@ -90,16 +92,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	private StockUnitService stockUnitService;
 
 	@EJB
-	private LOSUnitLoadService ulService;
-
-	@EJB
 	private LOSUnitLoadQueryRemote uLoadQueryRemote;
 
 	@EJB
 	private LOSStorage storage;
-
-	@EJB
-	private UnitLoadTypeQueryRemote ulTypeQueryRemote;
 
 	@EJB
 	private ContextService contextService;
@@ -126,18 +122,10 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	private ItemDataService itemDataService;
 
 	@EJB
-	private LOSStorageLocationService slService1;
-	@EJB
-	private QueryStorageLocationService slService2;
-
-	@EJB
 	private LocationTypeEntityService slTypeService;
 
 	@EJB
 	private LOSLotService lotService;
-
-	@EJB
-	private QueryUnitLoadTypeService ulTypeService;
 
 	@EJB
 	private LOSUnitLoadCRUDRemote ulCrud;
@@ -156,6 +144,8 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 
 	@EJB
 	private LOSGoodsOutRequestPositionService outPosService;
+	@EJB
+	private CustomLocationService customLocationService;
 
 	@EJB
 	private HostMsgService hostService;
@@ -165,7 +155,13 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	private ManageStockService manageStockService;
 	@Inject 
 	private JournalHandler journalHandler;
-	
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
 	public StockUnit createStock(Client client, Lot batch, ItemData item, BigDecimal amount, PackagingUnit packagingUnit, UnitLoad unitLoad, String activityCode, String serialNumber) throws FacadeException {
 		return createStock(client, batch, item, amount, packagingUnit, unitLoad, activityCode, serialNumber, null, true);
 	}
@@ -576,7 +572,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 	}
 
 	public void sendStockUnitsToNirwana(StockUnit su, String activityCode, String operator) throws FacadeException {
-		UnitLoad ul = ulService.getNirwana();
+		UnitLoad ul = unitLoadService.getTrash();
 
 		if (su.getReservedAmount().compareTo(new BigDecimal(0)) > 0) {
 			log.error("Cannot be deleted: " + su.toShortString());
@@ -795,7 +791,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		if (ul.getStockUnitList() == null || ul.getStockUnitList().size() == 0) {
 			log.info("A UnitLoad has become empty: " + ul.toShortString());
 			try {
-				UnitLoadType type = ulTypeQueryRemote.getPickLocationUnitLoadType();
+				UnitLoadType type = unitLoadTypeService.getVirtual();
 				if (ul.getType().equals(type)) {
 					log.debug("Skip: UnitLoad of type " + type.toUniqueString());
 				} else {
@@ -839,8 +835,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 //		}
 		
 		if (carrierUl != null && (carrierUl.getStockUnitList() == null || carrierUl.getStockUnitList().size() == 0)) {
-			Long numChilds = ulService.getNumChilds(carrierUl);
-			if (numChilds != null && numChilds.intValue() == 1) {
+			if( !unitLoadService.hasOtherChilds(carrierUl, ul)) {
 				sendUnitLoadWithParentsToNirwana(carrierUl);
 				return;
 			}
@@ -1076,7 +1071,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 				throw new EJBAccessException();
 			}
 
-			sl = slService1.getByName(slName);
+			sl = locationService.read(slName);
 
 			if (sl == null) {
 				log.warn("NOT FOUND. Going to CREATE StorageLocation " + slName);
@@ -1090,7 +1085,7 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 					log.error(e.getMessage(), e);
 					throw new RuntimeException(e.getMessage());
 				}
-				sl = slService1.createStorageLocation(c, slName, type);
+				sl = locationService.create(c, slName, type, null, null);
 			}
 
 			ItemData idat = itemDataService.getByItemNumber(c, articleRef);
@@ -1165,19 +1160,18 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 			throw new NullPointerException("Reference must not be null");
 
 		if (ref != null && ref.length() != 0) {
-			try {
-				ul = ulService.getByLabelId(c, ref);
-			} catch (EntityNotFoundException ex) {
+			ul = unitLoadService.read(ref);
+			if (ul == null) {
 				try {
 					log.warn("Unit load does not exist. create new. labelId="+ref);
 					type = idat.getDefaultUnitLoadType();
 					if (type == null) {
-						type = ulTypeService.getDefaultUnitLoadType();
+						type = unitLoadTypeService.getDefault();
 					}
 					if (type == null) {
 						throw new RuntimeException("Cannot retrieve default UnitLoadType");
 					}
-					ul = ulService.createLOSUnitLoad(c, ref, type, sl, state);
+					ul = createUnitLoad(c, ref, type, sl, state);
 					locationReserver.allocateLocation(sl, ul);
 				} catch (LOSLocationException lex) {
 					throw lex;
@@ -1294,5 +1288,35 @@ public class LOSInventoryComponentBean implements LOSInventoryComponent {
 		
 		unitLoad.setWeightCalculated(weightNew);
 		return weightNew;
+	}
+
+	public UnitLoad createUnitLoad(Client client, String labelId, UnitLoadType type, StorageLocation storageLocation,
+			int state) throws FacadeException {
+		if (client == null || labelId == null || type == null || storageLocation == null) {
+			throw new NullPointerException("createLOSUnitLoad: parameter == null");
+		}
+
+		UnitLoad ul = unitLoadService.create(client, labelId, type, storageLocation);
+		ul.setState(state);
+
+		try {
+			locationReserver.checkAllocateLocation(storageLocation, ul, false);
+		} catch (LOSLocationReservedException ex) {
+			throw ex.createRollbackException();
+		} catch (LOSLocationWrongClientException ex) {
+			throw ex.createRollbackException();
+		} catch (LOSLocationNotSuitableException ex) {
+			throw ex.createRollbackException();
+		}
+
+		ul.setStorageLocation(storageLocation);
+
+		manager.persist(ul);
+
+		customLocationService.onUnitLoadPlaced(storageLocation, ul);
+
+		log.info("CREATED LOSUnitLoad: " + ul.toShortString());
+
+		return ul;
 	}
 }

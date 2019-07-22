@@ -197,7 +197,7 @@ public class PickingStockFinder {
 			logger.log(Level.INFO, logStr
 					+ "No usable stock found. Only complete handling is allowed but no valid complete unit load has been found. candidates="
 					+ stockList.size() + ", itemData=" + itemData + ", amount=" + amount + ", client=" + client
-					+ ", lot=" + lot);
+					+ ", lot=" + lot+ ", (unitLoadOpened=false, reservedAmount=0, locationUseForStorage=true, onFixedLocation=false, mixed=false)");
 			return null;
 		}
 

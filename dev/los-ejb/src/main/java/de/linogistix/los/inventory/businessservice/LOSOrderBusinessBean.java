@@ -16,6 +16,9 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
@@ -27,9 +30,7 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -42,12 +43,15 @@ import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.picking.PickingType;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
@@ -57,7 +61,11 @@ import de.wms2.mywms.strategy.OrderStrategy;
 @Stateless
 public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private Logger log = Logger.getLogger(this.getClass());
-	@EJB
+
+	@PersistenceContext(unitName = "myWMS")
+	private EntityManager manager;
+
+ 	@EJB
 	private LOSPickingPositionService pickingPositionService;
 	@EJB
 	private LOSGoodsOutGenerator goodsOutGenerator;
@@ -67,12 +75,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	@EJB
 	private LOSStorage storage;
 	@EJB
-	private LOSPickingUnitLoadService pickingUnitLoadService;
-	@EJB
 	private LOSCustomerOrderService customerOrderService;
 
-	@EJB
-	private LOSStorageLocationService locationService;
 	@EJB
 	private LOSInventoryComponent invComponent;
 	@EJB
@@ -83,6 +87,10 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private PickingOrderGenerator pickingOrderGeneratorService;
 	@Inject
 	private PickingOrderLineGenerator pickingPosGeneratorService;
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
 
     public DeliveryOrder finishDeliveryOrder(DeliveryOrder deliveryOrder) throws FacadeException {
 		String logStr = "finishdeliveryOrder ";
@@ -544,22 +552,22 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		int deliveryOrderStateOld = deliveryOrder.getState(); 
-		boolean goodsOutOrderCreated = false;
-		if( pickingOrder.getOrderStrategy().isCreateShippingOrder() && deliveryOrderStateOld >= State.PICKED ) {
-			log.debug(logStr+"Create goods out order for customer order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
-			goodsOutOrderCreated = (goodsOutGenerator.createOrder(deliveryOrder) != null);
+		if( pickingOrder.getOrderStrategy().isCreatePackingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < OrderState.PACKED) {
+			log.debug(logStr+"Create packing order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
+			deliveryOrder.setState(OrderState.PACKING);
+			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
 		}
-
-		if( goodsOutOrderCreated ) {
-			return;
+		else if(pickingOrder.getOrderStrategy().isCreateShippingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < State.FINISHED) {
+			log.debug(logStr+"Create shipping order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
+			goodsOutGenerator.createOrder(deliveryOrder);
+			deliveryOrder.setState(OrderState.SHIPPING);
+			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
 		}
-		
-		log.debug(logStr+"No goods out order for customer order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
-		if( deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld<State.FINISHED ) {
+		else if(deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld<State.FINISHED) {
+			log.debug(logStr+"No goods out order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
 			deliveryOrder.setState(State.FINISHED);
 			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
 		}
-		
 	}
 	
 	
@@ -608,18 +616,16 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		if( pickToUnitLoad != null ) {
-			if( !pickToUnitLoad.getPickingOrder().equals(pickingOrder) ) {
+			if( pickToUnitLoad.getPickingOrder()==null ) {
+				log.error(logStr+"Correction of pickingOrder in PickingUnitLoad. Was empty. pickToUnitLoad="+pickToUnitLoad+", pickingOrder="+pickingOrder); 
+				pickToUnitLoad.setPickingOrder(pickingOrder);
+			}
+			if( pickToUnitLoad.getPickingOrder()==null || !pickToUnitLoad.getPickingOrder().equals(pickingOrder) ) {
 				log.error(logStr+"Wrong unit load picking order number. Abort. Actual="+pickToUnitLoad.getPickingOrder().getOrderNumber()+", Requested="+pickingOrder.getOrderNumber());
 				throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_WRONG_UNITLOAD, new Object[]{pickToUnitLoad.getPickingOrder().getOrderNumber(), pickingOrder.getOrderNumber()});
 			}
-			if( pick.getDeliveryOrderLine() != null ) {
-				String deliveryOrderNumber = pick.getDeliveryOrderLine().getDeliveryOrder().getOrderNumber();
-				if( StringTools.isEmpty(pickToUnitLoad.getDeliveryOrderNumber()) ) {
-					pickToUnitLoad.setDeliveryOrderNumber(deliveryOrderNumber);
-				}
-				else if( !pickToUnitLoad.getDeliveryOrderNumber().equals(deliveryOrderNumber) ) {
-					pickToUnitLoad.setDeliveryOrderNumber("-");
-				}
+			if (pick.getDeliveryOrderLine() != null && pickToUnitLoad.getDeliveryOrder() == null) {
+				pickToUnitLoad.setDeliveryOrder(findUniqueDeliveryOrder(pickingOrder));
 			}
 		}
 
@@ -797,6 +803,20 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 
+	}
+
+	@SuppressWarnings("unchecked")
+	private DeliveryOrder findUniqueDeliveryOrder(PickingOrder pickingOrder) {
+		String jpql = "select distinct pick.deliveryOrderLine.deliveryOrder from ";
+		jpql += PickingOrderLine.class.getSimpleName() + " pick";
+		jpql += " where pick.pickingOrder=:pickingOrder";
+		Query query = manager.createQuery(jpql);
+		query.setParameter("pickingOrder", pickingOrder);
+		List<DeliveryOrder> deliveryOrders = query.getResultList();
+		if (deliveryOrders.size() == 1) {
+			return deliveryOrders.get(0);
+		}
+		return null;
 	}
 
 	public void cancelPickFrom(PickingOrderLine pick, boolean generateNewPick) throws FacadeException {
@@ -1076,9 +1096,12 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		else if( state < 0 ) {
 			// automatically handling
-			OrderStrategy strat = pickingUnitLoad.getPickingOrder().getOrderStrategy();
+			OrderStrategy strat = null;
+			if (pickingUnitLoad.getPickingOrder() != null) {
+				strat = pickingUnitLoad.getPickingOrder().getOrderStrategy();
+			}
 			if( strat != null ) {
-				if( strat.isCreateShippingOrder() ) {
+				if (strat.isCreateShippingOrder() || strat.isCreatePackingOrder()) {
 					pickingUnitLoad.setState(State.PICKED);
 				}
 				else {

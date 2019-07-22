@@ -105,12 +105,6 @@ public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<PickingUnitL
 
 		return query.getResultList();
 	}
-	public DeliveryOrder getDeliveryOrder(PickingUnitLoad pickingUnitLoad) {
-		if( pickingUnitLoad == null || pickingUnitLoad.getDeliveryOrderNumber() == null || pickingUnitLoad.getDeliveryOrderNumber().equals("-") ) {
-			return null;
-		}
-		
-		return customerOrderService.getByNumber(pickingUnitLoad.getDeliveryOrderNumber());
-	}
+
 
 }

@@ -10,6 +10,7 @@ package de.linogistix.mobileserver.processes.picking;
 import java.io.Serializable;
 
 import de.linogistix.los.model.State;
+import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingUnitLoad;
 
 
@@ -48,18 +49,19 @@ public class PickingMobileUnitLoad implements Serializable {
 		if( unitLoad.getState() >= State.PICKED ) {
 			this.state = State.PICKED;
 		}
-
+		PickingOrder pickingOrder = unitLoad.getPickingOrder();
 		this.label = unitLoad.getUnitLoad().getLabelId();
 		this.index = unitLoad.getPositionIndex();
-		this.pickingOrderId = unitLoad.getPickingOrder().getId();
-		this.customerOrderNumber = unitLoad.getDeliveryOrderNumber();
+		this.pickingOrderId = (pickingOrder == null ? null : pickingOrder.getId());
+		this.customerOrderNumber = (unitLoad.getDeliveryOrder() == null ? null
+				: unitLoad.getDeliveryOrder().getOrderNumber());
 		this.clientNumber = unitLoad.getClient().getNumber();
-		this.pickingOrderNumber = unitLoad.getPickingOrder().getOrderNumber();
+		this.pickingOrderNumber = (pickingOrder == null ? null : pickingOrder.getOrderNumber());
 		// 01.08.2013, krane, avoid null pointer
 		//		this.targetName = unitLoad.getPickingOrder() ==null?"":unitLoad.getPickingOrder().getDestination().getName();
 		this.targetName = "";
-		if( unitLoad.getPickingOrder()!=null && unitLoad.getPickingOrder().getDestination()!=null ) {
-			this.targetName = unitLoad.getPickingOrder().getDestination().getName();
+		if (pickingOrder != null && pickingOrder.getDestination() != null) {
+			this.targetName = pickingOrder.getDestination().getName();
 		}
 	}
 	

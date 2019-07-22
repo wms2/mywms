@@ -81,6 +81,16 @@
 				<position>7</position>
 			</value>
 		</entry>
+		<entry>
+			<key>usages</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>true</hidden>
+				<position>7</position>
+			</value>
+		</entry>
     </descriptions>
 	<groups>
 		<groupPosition>2</groupPosition>

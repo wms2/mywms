@@ -28,6 +28,7 @@ import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.exception.WrappedFacadeException;
 import de.wms2.mywms.picking.PickingOrderLineStateChangeEvent;
+import de.wms2.mywms.picking.PickingUnitLoadStateChangeEvent;
 
 /**
  * Calls to the customization services are or will be replaced by CDI events.
@@ -65,6 +66,18 @@ public class CustomizationEventObserver {
 
 		try {
 			manageOrderService.onDeliveryOrderStateChange(event.getDeliveryOrder(), event.getOldState());
+		} catch (FacadeException e) {
+			throw new WrappedFacadeException(e);
+		}
+	}
+
+	public void listen(@Observes PickingUnitLoadStateChangeEvent event) throws BusinessException {
+		if (event == null || event.getPickingUnitLoad() == null) {
+			return;
+		}
+
+		try {
+			manageOrderService.onPickingUnitLoadStateChange(event.getPickingUnitLoad(), event.getOldState());
 		} catch (FacadeException e) {
 			throw new WrappedFacadeException(e);
 		}

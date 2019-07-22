@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -36,19 +37,17 @@ import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.util.BusinessObjectHelper;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.picking.PickingUnitLoad;
 @Stateless
 public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
 	private static final Logger log = Logger.getLogger(LOSGoodsOutFacadeBean.class);
 
-	@EJB
-	private QueryUnitLoadService ulQuery;
 	@EJB
 	private LOSGoodsOutBusiness outBusiness;
 	@EJB
@@ -62,6 +61,9 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
+
+	@Inject
+	private UnitLoadEntityService unitLoadService;
 
 	@Override
 	public LOSGoodsOutRequest confirm(Long goodsOutId) throws FacadeException {
@@ -96,7 +98,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		UnitLoad ul = null;
 		
 		try {
-			ul = ulQuery.getByLabelId(labelId);
+			ul = unitLoadService.read(labelId);
 		} catch (Exception e) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, labelId);
 		}
@@ -273,24 +275,22 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		String logStr = "createGoodsOutOrder ";
 		List<UnitLoad> ulList = new ArrayList<UnitLoad>();
 		DeliveryOrder deliveryOrder = null;
-		Set<String> orderSet = new HashSet<String>();
+		Set<DeliveryOrder> orderSet = new HashSet<>();
 		Client client = null;
 		for( Long id : pickingUnitLoadIdList ) {
 			PickingUnitLoad pul = manager.find(PickingUnitLoad.class, id);
 			if( pul != null ) {
 				ulList.add(pul.getUnitLoad());
 				client = pul.getClient();
-				if( pul.getDeliveryOrderNumber() != null ) {
-					orderSet.add(pul.getDeliveryOrderNumber());
-				}
+				orderSet.add(pul.getDeliveryOrder());
 			}
 			else {
 				log.warn(logStr+"Did not find unit load. id="+id);
 			}
 		}
 		if( orderSet.size()==1 ) {
-			for( String s : orderSet ) {
-				deliveryOrder = orderService.getByNumber(s);
+			for( DeliveryOrder s : orderSet ) {
+				deliveryOrder = s;
 			}				
 		}
 		if( client == null ) {

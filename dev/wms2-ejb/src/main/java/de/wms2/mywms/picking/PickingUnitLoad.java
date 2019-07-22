@@ -24,6 +24,7 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.strategy.OrderState;
 
@@ -42,10 +43,11 @@ public class PickingUnitLoad extends BasicClientAssignedEntity {
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private UnitLoad unitLoad;
 
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private PickingOrder pickingOrder;
 
-	private String deliveryOrderNumber;
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private DeliveryOrder deliveryOrder;
 
 	@Column(nullable = false)
 	private int positionIndex;
@@ -85,14 +87,6 @@ public class PickingUnitLoad extends BasicClientAssignedEntity {
 		this.pickingOrder = pickingOrder;
 	}
 
-	public String getDeliveryOrderNumber() {
-		return deliveryOrderNumber;
-	}
-
-	public void setDeliveryOrderNumber(String deliveryOrderNumber) {
-		this.deliveryOrderNumber = deliveryOrderNumber;
-	}
-
 	public int getPositionIndex() {
 		return positionIndex;
 	}
@@ -108,4 +102,13 @@ public class PickingUnitLoad extends BasicClientAssignedEntity {
 	public void setState(int state) {
 		this.state = state;
 	}
+
+	public DeliveryOrder getDeliveryOrder() {
+		return deliveryOrder;
+	}
+
+	public void setDeliveryOrder(DeliveryOrder deliveryOrder) {
+		this.deliveryOrder = deliveryOrder;
+	}
+
 }

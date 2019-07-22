@@ -116,8 +116,8 @@ public class UnitLoadTypeEntityService {
 
 		manager.persist(type);
 
-		type.setUsages(
-				UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.SHIPPING + "," + UnitLoadTypeUsages.STORAGE);
+		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING + ","
+				+ UnitLoadTypeUsages.SHIPPING + "," + UnitLoadTypeUsages.STORAGE);
 
 		return type;
 	}
@@ -132,7 +132,7 @@ public class UnitLoadTypeEntityService {
 	/**
 	 * Read the system UnitLoadType
 	 */
-	public UnitLoadType getSystemUnitLoadType() {
+	public UnitLoadType getSystem() {
 		UnitLoadType type = manager.find(UnitLoadType.class, 0L);
 		if (type != null) {
 			return type;

@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -33,13 +34,13 @@ import de.linogistix.los.inventory.pick.model.PickReceiptPosition;
 import de.linogistix.los.inventory.pick.service.PickReceiptService;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.util.StringTools;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 
 
 /**
@@ -56,8 +57,6 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 	@EJB
 	private EntityGenerator entityGenerator;
 	@EJB
-	private LOSPickingUnitLoadService pulService;
-	@EJB
 	private PickReceiptService labelService;
 	@EJB
 	private LOSCustomerOrderService customerOrderService;
@@ -65,6 +64,8 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
     @PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
     
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
     
     
 	public PickReceipt generateUnitLoadReport(UnitLoad unitLoad) throws FacadeException {
@@ -73,7 +74,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		
 		log.info(logStr+"Generate report for unitLoad="+unitLoad.getLabelId());
 		
-		PickingUnitLoad pul = pulService.getByLabel(unitLoad.getLabelId());
+		PickingUnitLoad pul = pickingUnitLoadService.getByLabel(unitLoad.getLabelId());
 		
 		label = entityGenerator.generateEntity( PickReceipt.class );
 		label.setName( "LOS-"+unitLoad.getLabelId() );
@@ -88,9 +89,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		DeliveryOrder deliveryOrder = null;
 		PickingOrder pickingOrder = null;
 		if( pul != null ) {
-			String customerOrderNumber = pul.getDeliveryOrderNumber();
-			deliveryOrder = customerOrderService.getByNumber(customerOrderNumber);
-			
+			deliveryOrder = pul.getDeliveryOrder();
 			if( deliveryOrder != null ) {
 				label.setOrderNumber( deliveryOrder.getOrderNumber() );
 			}

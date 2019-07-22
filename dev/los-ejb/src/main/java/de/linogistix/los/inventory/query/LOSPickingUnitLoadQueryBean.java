@@ -46,8 +46,8 @@ public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<Picking
 		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("unitLoad.labelId", false));
 		propList.add(new BODTOConstructorProperty("unitLoad.storageLocation.name", false));
-		propList.add(new BODTOConstructorProperty("pickingOrder.orderNumber", false));
-		propList.add(new BODTOConstructorProperty("deliveryOrderNumber", false));
+		propList.add(new BODTOConstructorProperty("pickingOrder.orderNumber", null, BODTOConstructorProperty.JoinType.LEFT, "pickingOrder"));
+		propList.add(new BODTOConstructorProperty("deliveryOrder.orderNumber", null, BODTOConstructorProperty.JoinType.LEFT, "deliveryOrder"));
 		
 		return propList;
 	}
@@ -68,7 +68,7 @@ public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<Picking
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "deliveryOrderNumber", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "deliveryOrder.orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		

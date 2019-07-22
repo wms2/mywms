@@ -33,8 +33,10 @@ public class LOSPickingUnitLoadTO extends BODTO<PickingOrderLine>{
 		this.state = pickingUnitLoad.getState();
 		this.label = pickingUnitLoad.getUnitLoad().getLabelId();
 		this.locationName = pickingUnitLoad.getUnitLoad().getStorageLocation().getName();
-		this.pickingOrderNumber = pickingUnitLoad.getPickingOrder().getOrderNumber();
-		this.customerOrderNumber = pickingUnitLoad.getDeliveryOrderNumber();
+		this.pickingOrderNumber = (pickingUnitLoad.getPickingOrder() == null ? null
+				: pickingUnitLoad.getPickingOrder().getOrderNumber());
+		this.customerOrderNumber = (pickingUnitLoad.getDeliveryOrder() == null ? null
+				: pickingUnitLoad.getDeliveryOrder().getOrderNumber());
 	}
 	
 	public LOSPickingUnitLoadTO(

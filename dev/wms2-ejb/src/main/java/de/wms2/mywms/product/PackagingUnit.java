@@ -85,7 +85,10 @@ public class PackagingUnit extends BasicEntity {
 
 	@Override
 	public String toUniqueString() {
-		return toString();
+		if (name != null) {
+			return name;
+		}
+		return super.toString();
 	}
 
 	public BigDecimal getAmount() {

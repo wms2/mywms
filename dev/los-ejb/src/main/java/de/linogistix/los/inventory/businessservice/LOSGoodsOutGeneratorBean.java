@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -31,12 +32,12 @@ import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
 import de.linogistix.los.model.State;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 
 /**
  * @author krane
@@ -59,13 +60,14 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 	private EntityGenerator entityGenerator;
 	
 	@EJB
-	private LOSPickingUnitLoadService pickingUnitLoadService;
-	@EJB
 	private ManageOrderService manageOrderService;
 
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
-	
+
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
+
 	public LOSGoodsOutRequest createOrder( DeliveryOrder deliveryOrder ) throws FacadeException {
 		String logStr = "createOrder ";
 		if( deliveryOrder == null ) {
@@ -84,7 +86,7 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 			}
 		}
 		
-		List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByDeliveryOrderNumber(deliveryOrder.getOrderNumber());
+		List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByDeliveryOrder(deliveryOrder);
 		log.debug(logStr+"Found unit loads. num="+unitLoadList.size());
 
 		for( PickingUnitLoad unitLoad : unitLoadList ) {

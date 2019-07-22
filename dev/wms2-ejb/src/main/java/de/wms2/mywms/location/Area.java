@@ -58,12 +58,10 @@ public class Area extends BasicEntity {
 
 	@Override
 	public String toUniqueString() {
-		return toString();
-	}
-
-	@Transient
-	public void setUsageList(List<String> usageList) {
-		this.usages = ListUtils.listToString(usageList);
+		if (name != null) {
+			return name;
+		}
+		return super.toString();
 	}
 
 	@Transient

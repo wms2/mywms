@@ -76,6 +76,22 @@ public class StorageStrategy extends BasicEntity {
 	@Column(nullable = false)
 	private boolean mixClient = false;
 
+	@Override
+	public String toString() {
+		if (name != null) {
+			return name;
+		}
+		return super.toString();
+	}
+
+	@Override
+	public String toUniqueString() {
+		if (name != null) {
+			return name;
+		}
+		return super.toString();
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -146,11 +162,6 @@ public class StorageStrategy extends BasicEntity {
 
 	public void setMixClient(boolean mixClient) {
 		this.mixClient = mixClient;
-	}
-
-	@Override
-	public String toUniqueString() {
-		return name;
 	}
 
 }

@@ -121,7 +121,10 @@ public class UnitLoad extends BasicClientAssignedEntity {
 
 	@Override
 	public String toUniqueString() {
-		return toString();
+		if (labelId != null) {
+			return labelId;
+		}
+		return super.toString();
 	}
 
 	public void setStorageLocation(StorageLocation storageLocation) {

@@ -373,12 +373,12 @@ public class PersistenceManager {
 
 		entity = (ENTITY_TYPE) manager.find(getDerivedType(entity.getClass()), entity.getId());
 		if (entity == null) {
-			logger.log(Level.WARNING, logStr + "Cannot read entity");
+			logger.log(Level.WARNING, logStr + "Cannot read entity. entity="+entity);
 			throw new BusinessException(BundleResolver.class, "PeristenceManager.cannotReadEntity");
 		}
 
 		if (checkVersion && entity.getVersion() != version) {
-			logger.log(Level.WARNING, logStr + "Object version has changed");
+			logger.log(Level.WARNING, logStr + "Object version has changed. entity="+entity);
 			throw new BusinessException(BundleResolver.class, "Validator.versionConflict");
 		}
 

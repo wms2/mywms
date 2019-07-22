@@ -32,6 +32,5 @@ public interface LOSPickingUnitLoadService extends BasicService<PickingUnitLoad>
 	public List<PickingUnitLoad> getByPickingOrder(PickingOrder pickingOrder);
 	public List<PickingUnitLoad> getByDeliveryOrderNumber(String orderNumber);
 	public List<PickingUnitLoad> getByDeliveryOrder(DeliveryOrder order);
-	public DeliveryOrder getDeliveryOrder(PickingUnitLoad pickingUnitLoad);
 
 }

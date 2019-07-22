@@ -26,12 +26,13 @@ package de.wms2.mywms.location;
  */
 public class AreaUsages {
 
+	public static final String BUFFER = "BUFFER";
+	public static final String CONSOLIDATION = "CONSOLIDATION";
 	public static final String GOODS_IN = "GOODS_IN";
 	public static final String GOODS_OUT = "GOODS_OUT";
-	public static final String STORAGE = "STORAGE";
 	public static final String PICKING = "PICKING";
-	public static final String TRANSFER = "TRANSFER";
 	public static final String REPLENISH = "REPLENISH";
-	public static final String BUFFER = "BUFFER";
+	public static final String STORAGE = "STORAGE";
+	public static final String TRANSFER = "TRANSFER";
 
 }

@@ -19,23 +19,16 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Client;
 import org.mywms.model.User;
 
-import de.linogistix.los.common.exception.UnAuthorizedException;
+import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
-import de.linogistix.los.location.entityservice.LOSStorageLocationService;
-import de.linogistix.los.location.entityservice.LOSUnitLoadService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
-import de.linogistix.los.location.service.QueryStorageLocationService;
-import de.linogistix.los.location.service.QueryUnitLoadService;
-import de.linogistix.los.location.service.QueryUnitLoadTypeService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -43,13 +36,17 @@ import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
-import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.user.UserBusiness;
 
@@ -69,8 +66,6 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	private ManageOrderService manageOrderService;
 	@Inject
 	private UserBusiness userService;
-	@EJB
-	private LOSStorageLocationService locationService;
 	@Inject
 	private PickingOrderLineGenerator pickingPosGenerator;
 	@Inject
@@ -78,20 +73,21 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	@EJB
 	private LOSOrderBusiness orderBusiness;
 	@EJB
-	private LOSPickingUnitLoadService pickingUnitLoadService;
-	@EJB
 	private InventoryGeneratorService sequenceService;
-	@EJB
-	private LOSUnitLoadService ulService1;
-	@EJB
-	private QueryUnitLoadService ulService2;
-	@EJB
-	private QueryUnitLoadTypeService ultService;
 	@EJB
 	private ContextService contextService;
 	@EJB
-	private QueryStorageLocationService slService2;
-	
+	private LOSInventoryComponent inentoryComponent;
+	@Inject
+	private UnitLoadTypeEntityService unitLoadTypeService;
+
+	@Inject
+	private PickingUnitLoadEntityService pickingUnitLoadService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
+
 	public void changePickingOrderPrio( long orderId, int prio ) throws FacadeException {
 		String logStr = "changePickingOrderPrio ";
 		log.debug(logStr+"order="+orderId);
@@ -112,7 +108,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		PickingOrder order = manager.find(PickingOrder.class, orderId);
 
 		if( !StringTools.isEmpty(destinationName) ) {
-			StorageLocation loc = locationService.getByName(destinationName);
+			StorageLocation loc = locationService.read(destinationName);
 			if( loc != null ) {
 				order.setDestination(loc);
 			}
@@ -249,7 +245,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 		StorageLocation destination = null;
 		if( destinationName != null && destinationName.length()>0 ) {
-			destination = locationService.getByName(destinationName);
+			destination = locationService.read(destinationName);
 			if( destination == null ) {
 				log.info(logStr+"Location not found. name="+destinationName);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Location not found");
@@ -353,13 +349,15 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 		StorageLocation location = null;
 		if( StringTools.isEmpty(locationName) ) {
-			location = pickingUnitLoad.getPickingOrder().getDestination();
+			if (pickingUnitLoad.getPickingOrder() != null) {
+				location = pickingUnitLoad.getPickingOrder().getDestination();
+			}
 			if( location == null ) {
 				location = locationService.getClearing();
 			}
 		}
 		else {
-			location = locationService.getByName(locationName);
+			location = locationService.read(locationName);
 		}
 		if( location == null ) {
 			log.warn(logStr+"Location not found. name="+locationName);
@@ -382,11 +380,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String label = null;
 		for( int i = 0; i < 1000; i++ ) {
 			label = sequenceService.generateUnitLoadLabelId(null, null);
-			try {
-				ul = ulService2.getByLabelId(label);
-			} catch (UnAuthorizedException e) {
-				continue;
-			}
+			ul = unitLoadService.read(label);
 			if( ul == null ) {
 				break;
 			}
@@ -396,12 +390,11 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			log.warn(logStr+"Cannot create pick-to unit load");
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new Object[]{""}); 
 		}
-		UnitLoadType type = ultService.getDefaultUnitLoadType();
-		Client client = contextService.getCallersClient();
+		UnitLoadType type = unitLoadTypeService.getDefault();
 		
 		StorageLocation destination = order.getDestination();
 		if( destination == null ) {
-			List<StorageLocation> slList = slService2.getListForGoodsOut();
+			List<StorageLocation> slList = locationService.getForGoodsOut(null);
 			if (slList.size() == 0) {
 				log.warn(logStr+"No goods out location");
 				throw new LOSLocationException( LOSLocationExceptionKey.NO_GOODS_OUT_LOCATION, new Object[0] );
@@ -409,10 +402,11 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			destination = slList.get(0);
 		}
 		
-		ul = ulService1.createLOSUnitLoad(client, label, type, destination, StockState.PICKED);
-		PickingUnitLoad pul = pickingUnitLoadService.create(order, ul, -1);
-		
-		
+		ul = inentoryComponent.createUnitLoad(order.getClient(), label, type, destination, StockState.PICKED);
+		PickingUnitLoad pul = pickingUnitLoadService.create(ul);
+		pul.setPickingOrder(order);
+		pul.setPositionIndex(-1);
+
 		// confirm all picks
 		for( PickingOrderLine pick : order.getLines() ) {
 			orderBusiness.confirmPick(pick, pul, pick.getAmount(), null, null);

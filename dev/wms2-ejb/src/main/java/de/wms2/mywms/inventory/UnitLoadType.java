@@ -17,12 +17,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.inventory;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.mywms.model.BasicEntity;
+
+import de.wms2.mywms.util.ListUtils;
 
 /**
  * The type of a UnitLoad
@@ -73,7 +78,43 @@ public class UnitLoadType extends BasicEntity {
 
 	@Override
 	public String toUniqueString() {
-		return toString();
+		if (name != null) {
+			return name;
+		}
+		return super.toString();
+	}
+
+	@Transient
+	public boolean isUseFor(String usageKey) {
+		if (usages == null) {
+			return false;
+		}
+		return usages.contains(usageKey);
+	}
+
+	@Transient
+	public void setUseFor(String usageKey, boolean activated) {
+		if (usageKey == null) {
+			return;
+		}
+		if (usages == null) {
+			usages = "";
+		}
+		if (activated) {
+			if (!usages.contains(usageKey)) {
+				List<String> usageList = new ArrayList<>();
+				usageList.addAll(ListUtils.stringToList(usages));
+				usageList.add(usageKey);
+				usages = ListUtils.listToString(usageList);
+			}
+		} else {
+			if (usages.contains(usageKey)) {
+				List<String> usageList = new ArrayList<>();
+				usageList.addAll(ListUtils.stringToList(usages));
+				usageList.remove(usageKey);
+				usages = ListUtils.listToString(usageList);
+			}
+		}
 	}
 
 	public String getName() {

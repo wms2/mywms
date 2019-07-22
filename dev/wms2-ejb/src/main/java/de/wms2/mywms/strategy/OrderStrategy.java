@@ -87,13 +87,13 @@ public class OrderStrategy extends BasicClientAssignedEntity {
 	 * A unit load is marked as opened after the first change of the amount is done.
 	 */
 	@Column(nullable = false)
-	private boolean preferComplete = true;
+	private boolean preferComplete = false;
 
 	/**
 	 * A matching amount of a stock unit overwrites FIFO
 	 */
 	@Column(nullable = false)
-	private boolean preferMatching = true;
+	private boolean preferMatching = false;
 
 	/**
 	 * Take only not opened unit loads. Overrides FIFO.
