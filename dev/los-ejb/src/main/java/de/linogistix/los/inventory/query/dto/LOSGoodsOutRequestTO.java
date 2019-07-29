@@ -23,7 +23,6 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 	private String customerOrderExternalNumber;
 	private String customerOrderExternalId;
     private String customerOrderCustomerNumber;
-    private String customerOrderCustomerName;
 	private Date shippingDate;
 	private int numPos;
 
@@ -43,7 +42,7 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 			String clientNumber, 
 			String customerOrderNumber,
 			Date shippingDate){
-		this(id, version, name, number, outState, clientNumber, customerOrderNumber, null, null, null, null, shippingDate, -1);
+		this(id, version, name, number, outState, clientNumber, customerOrderNumber, null, null, null, shippingDate, -1);
 	}
 
 	public LOSGoodsOutRequestTO(
@@ -56,7 +55,7 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 			String customerOrderNumber,
 			Date shippingDate,
 			int numPos){
-		this(id, version, name, number, outState, clientNumber, customerOrderNumber, null, null, null, null, shippingDate, numPos);
+		this(id, version, name, number, outState, clientNumber, customerOrderNumber, null, null, null, shippingDate, numPos);
 	}
 
 	public LOSGoodsOutRequestTO(
@@ -70,9 +69,8 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 			String customerOrderExternalNumber,
 			String customerOrderExternalId,
 		    String customerOrderCustomerNumber,
-		    String customerOrderCustomerName,
 			Date shippingDate){
-		this(id, version, name, number, outState, clientNumber, customerOrderNumber, customerOrderExternalNumber, customerOrderExternalId, customerOrderCustomerNumber, customerOrderCustomerName, shippingDate, -1);
+		this(id, version, name, number, outState, clientNumber, customerOrderNumber, customerOrderExternalNumber, customerOrderExternalId, customerOrderCustomerNumber, shippingDate, -1);
 	}
 
 	public LOSGoodsOutRequestTO(
@@ -86,7 +84,6 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 			String customerOrderExternalNumber,
 			String customerOrderExternalId,
 		    String customerOrderCustomerNumber,
-		    String customerOrderCustomerName,
 			Date shippingDate,
 			int numPos){
 		super(id, version, name);
@@ -98,7 +95,6 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 		this.customerOrderExternalNumber = customerOrderExternalNumber;
 		this.customerOrderExternalId = customerOrderExternalId;
 		this.customerOrderCustomerNumber = customerOrderCustomerNumber;
-		this.customerOrderCustomerName = customerOrderCustomerName;
 		this.shippingDate = shippingDate;
 		this.numPos = numPos;
 		setClassName(LOSGoodsOutRequest.class.getName());
@@ -187,16 +183,6 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 
 	public void setCustomerOrderCustomerNumber(String customerOrderCustomerNumber) {
 		this.customerOrderCustomerNumber = customerOrderCustomerNumber;
-	}
-
-
-	public String getCustomerOrderCustomerName() {
-		return customerOrderCustomerName;
-	}
-
-
-	public void setCustomerOrderCustomerName(String customerOrderCustomerName) {
-		this.customerOrderCustomerName = customerOrderCustomerName;
 	}
 
 

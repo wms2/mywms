@@ -53,7 +53,6 @@ public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGood
 		propList.add(new BODTOConstructorProperty("customerOrder.externalNumber", "co.externalNumber", BODTOConstructorProperty.JoinType.JOIN, "co"));
 		propList.add(new BODTOConstructorProperty("customerOrder.externalId", "co.externalId", BODTOConstructorProperty.JoinType.JOIN, "co"));
 		propList.add(new BODTOConstructorProperty("customerOrder.customerNumber", "co.customerNumber", BODTOConstructorProperty.JoinType.JOIN, "co"));
-		propList.add(new BODTOConstructorProperty("customerOrder.customerName", "co.customerName", BODTOConstructorProperty.JoinType.JOIN, "co"));
 		propList.add(new BODTOConstructorProperty("shippingDate", false));
 //		propList.add(new BODTOConstructorProperty("positions.size", false));
 		

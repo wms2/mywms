@@ -54,8 +54,10 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
@@ -134,6 +136,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private GenericEntityService entityService;
 
 	public DeliveryOrder order(
 			String clientNumber,
@@ -375,7 +379,14 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		
 		manager.flush();
 
-		// 7. Remove order
+		// 8. Remove address
+		Address address = order.getAddress();
+		if( address!=null) {
+			if(entityService.exists(DeliveryOrder.class, "address", address, order.getId())) {
+				order.setAddress(null);
+			}
+		}
+		// 9. Remove order
 		manager.remove(order);
 	}
 

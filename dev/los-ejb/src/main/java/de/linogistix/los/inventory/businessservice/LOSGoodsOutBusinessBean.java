@@ -246,7 +246,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 		StringBuffer b = new StringBuffer();
 		Query query;
 		
-		b.append(" SELECT new "+LOSGoodsOutRequestTO.class.getName()+"(out.id, out.version, out.number, out.number, out.outState, out.client.number, cu.orderNumber, cu.externalNumber, cu.externalId, cu.customerNumber, cu.customerName, out.shippingDate) FROM ");
+		b.append(" SELECT new "+LOSGoodsOutRequestTO.class.getName()+"(out.id, out.version, out.number, out.number, out.outState, out.client.number, cu.orderNumber, cu.externalNumber, cu.externalId, cu.customerNumber, out.shippingDate) FROM ");
 		b.append(LOSGoodsOutRequest.class.getSimpleName() + " out ");
 		b.append("left outer join out.customerOrder as cu ");
 		b.append(" WHERE ( out.outState=:raw ");

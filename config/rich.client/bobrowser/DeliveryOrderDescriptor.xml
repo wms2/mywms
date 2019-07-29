@@ -124,6 +124,16 @@
                 <position>11</position>
             </value>
         </entry>
+		<entry>
+			<key>address</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>12</position>
+			</value>
+		</entry>
 
         <entry>
 			<key>customerNumber</key>

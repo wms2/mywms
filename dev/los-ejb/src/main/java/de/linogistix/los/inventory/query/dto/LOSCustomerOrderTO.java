@@ -29,7 +29,6 @@ public class LOSCustomerOrderTO extends BODTO<DeliveryOrder>{
 	private int prio = 50;
 	private String destinationName;
     private String customerNumber;
-    private String customerName;
     private String strategyName;
 	
 	public LOSCustomerOrderTO(Long id, int version, String name){
@@ -37,13 +36,13 @@ public class LOSCustomerOrderTO extends BODTO<DeliveryOrder>{
 	}
 	
 	public LOSCustomerOrderTO(Long id, int version, String number, String clientNumber, String externalNumber, Date deliveryDate, int state, String destinationName,
-		    String customerNumber, String customerName, int prio, String strategyName){
+		    String customerNumber, int prio, String strategyName){
 		this(id, version, number, clientNumber, externalNumber, deliveryDate, state, destinationName,
-		    customerNumber, customerName, prio, strategyName, -1);
+		    customerNumber, prio, strategyName, -1);
 	}
 	
 	public LOSCustomerOrderTO(Long id, int version, String number, String clientNumber, String externalNumber, Date deliveryDate, int state, String destinationName,
-		    String customerNumber, String customerName, int prio, String strategyName, int numPos){
+		    String customerNumber, int prio, String strategyName, int numPos){
 		super(id, version, number);
 		this.number = number;
 		this.delivery = deliveryDate;
@@ -53,7 +52,6 @@ public class LOSCustomerOrderTO extends BODTO<DeliveryOrder>{
 		this.state = state;
 		
 	    this.customerNumber = customerNumber;
-	    this.customerName = customerName;
 	    this.strategyName = strategyName;
 	    
 	    this.prio = prio;
@@ -125,14 +123,6 @@ public class LOSCustomerOrderTO extends BODTO<DeliveryOrder>{
 
 	public void setCustomerNumber(String customerNumber) {
 		this.customerNumber = customerNumber;
-	}
-
-	public String getCustomerName() {
-		return customerName;
-	}
-
-	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
 	}
 
 	public String getExternalNumber() {

@@ -59,7 +59,6 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<DeliveryO
 		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("destination.name", null, BODTOConstructorProperty.JoinType.LEFT, "destination"));
 		propList.add(new BODTOConstructorProperty("customerNumber", false));
-		propList.add(new BODTOConstructorProperty("customerName", false));
 		propList.add(new BODTOConstructorProperty("prio", false));
 		propList.add(new BODTOConstructorProperty("orderStrategy.name", false));
 //		propList.add(new BODTOConstructorProperty("positions.size", false));

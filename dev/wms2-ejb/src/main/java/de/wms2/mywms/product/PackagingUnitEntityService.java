@@ -41,7 +41,7 @@ public class PackagingUnitEntityService {
 	@Inject
 	private PersistenceManager manager;
 
-	public PackagingUnit create(String name, ItemData itemData, BigDecimal amount) throws BusinessException {
+	public PackagingUnit create(ItemData itemData, String name, BigDecimal amount) throws BusinessException {
 		PackagingUnit packagingUnit = manager.createInstance(PackagingUnit.class);
 		packagingUnit.setName(name);
 		packagingUnit.setItemData(itemData);
@@ -52,7 +52,7 @@ public class PackagingUnitEntityService {
 		return packagingUnit;
 	}
 
-	public PackagingUnit read(String name, ItemData itemData) {
+	public PackagingUnit read(ItemData itemData, String name) {
 		String hql = "SELECT packaging FROM " + PackagingUnit.class.getName() + " packaging ";
 		hql += " WHERE packaging.itemData=:itemData and packaging.name=:name";
 		Query query = manager.createQuery(hql);
@@ -70,7 +70,7 @@ public class PackagingUnitEntityService {
 			return null;
 		}
 
-		PackagingUnit packagingUnit = read(name, itemData);
+		PackagingUnit packagingUnit = read(itemData, name);
 		if (packagingUnit != null) {
 			return packagingUnit;
 		}
@@ -87,7 +87,7 @@ public class PackagingUnitEntityService {
 		return null;
 	}
 
-	public boolean existsIgnoreCase(String name, ItemData itemData, Long ignoreId) {
+	public boolean existsIgnoreCase(ItemData itemData, String name, Long ignoreId) {
 		if (StringUtils.isBlank(name)) {
 			return false;
 		}
@@ -157,7 +157,7 @@ public class PackagingUnitEntityService {
 	 *            Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PackagingUnit> readList(String name, ItemData itemData, Integer offset, Integer limit) {
+	public List<PackagingUnit> readList(ItemData itemData, String name, Integer offset, Integer limit) {
 		String jpql = "SELECT entity FROM " + PackagingUnit.class.getName() + " entity ";
 		jpql += " WHERE 1=1 ";
 		if (itemData != null) {

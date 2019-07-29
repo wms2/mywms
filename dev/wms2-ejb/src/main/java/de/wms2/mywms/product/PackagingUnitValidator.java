@@ -51,7 +51,7 @@ public class PackagingUnitValidator implements EntityValidator<PackagingUnit> {
 	public void validateCreate(PackagingUnit entity) throws BusinessException {
 		validate(entity);
 
-		if (packagingUnitEntityService.existsIgnoreCase(entity.getName(), entity.getItemData(), null)) {
+		if (packagingUnitEntityService.existsIgnoreCase(entity.getItemData(), entity.getName(), null)) {
 			logger.log(Level.INFO, "Not unique. name=" + entity.getName());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueName");
 		}
@@ -63,14 +63,14 @@ public class PackagingUnitValidator implements EntityValidator<PackagingUnit> {
 		validate(newEntity);
 
 		if (!StringUtils.equals(oldEntity.getName(), newEntity.getName())) {
-			if (packagingUnitEntityService.existsIgnoreCase(newEntity.getName(), newEntity.getItemData(),
+			if (packagingUnitEntityService.existsIgnoreCase(newEntity.getItemData(), newEntity.getName(),
 					newEntity.getId())) {
 				logger.log(Level.INFO,
 						"Not unique. itemData=" + newEntity.getItemData() + ", name=" + newEntity.getName());
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueName");
 			}
 		}
-		
+
 		if (!Objects.equals(oldEntity.getItemData(), newEntity.getItemData())) {
 			logger.log(Level.INFO, "Cannot change ItemData of packagingUnit=" + oldEntity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidItemDataChange");

@@ -253,6 +253,10 @@
             <file name="de-linogistix-inventory-browser-bo-BOLOSGoodsOutRequestPosition.instance">
                 <attr name="position" intvalue="800"/>
             </file>
+            <file name="de-linogistix-inventory-browser-bo-BOAddress.instance">
+                <attr name="position" intvalue="1000"/>
+                <attr name="showInExplorer" boolvalue="false"/>
+            </file>
         </folder>
         
         <folder name="InternalOrders">
@@ -269,29 +273,6 @@
 
         </folder>
 
-        
-        <folder name="Documents">
-                 <!-- Localizing key : BOBrowser/Documents -->
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.inventory.res.Bundle"/>
-            <attr name="position" intvalue="700"/>
-                
-                <file name="de-linogistix-inventory-browser-bo-BOPickReceipt.instance">
-                    <attr name="position" intvalue="100"/>
-                </file>
-                <file name="de-linogistix-inventory-browser-bo-BOPickReceiptPosition.instance">
-                    <attr name="position" intvalue="200"/>
-                    <attr name="showInExplorer" boolvalue="false"/>
-                </file>
-                <file name="de-linogistix-inventory-browser-bo-BOOrderReceipt.instance">
-                    <attr name="position" intvalue="300"/>
-                </file>
-                <file name="de-linogistix-inventory-browser-bo-BOOrderReceiptPosition.instance">
-                    <attr name="position" intvalue="301"/>
-                    <attr name="showInExplorer" boolvalue="false"/>
-                </file>
-                <file name="de-linogistix-inventory-browser-bo-BOStockUnitLabel.instance">
-                    <attr name="position" intvalue="500"/>
-                </file>
-            </folder>
+ 
     </folder>
 </filesystem>

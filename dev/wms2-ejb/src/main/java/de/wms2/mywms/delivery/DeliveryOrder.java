@@ -22,11 +22,13 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -36,6 +38,7 @@ import javax.persistence.TemporalType;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.OrderPrio;
 import de.wms2.mywms.strategy.OrderState;
@@ -83,7 +86,8 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	private String customerNumber;
 
-	private String customerName;
+	@OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private Address address;
 
 	/**
 	 * Name of the carrier
@@ -245,14 +249,6 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 		this.customerNumber = customerNumber;
 	}
 
-	public String getCustomerName() {
-		return customerName;
-	}
-
-	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
-	}
-
 	public String getCarrierName() {
 		return carrierName;
 	}
@@ -316,4 +312,13 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	public void setOperator(User operator) {
 		this.operator = operator;
 	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
 }

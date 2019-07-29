@@ -18,9 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.entity;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -289,7 +286,7 @@ public class GenericEntityService {
 			logger.log(Level.WARNING, logStr + "Cannot read entity");
 			return null;
 		}
-		return eagerRead(entity, false);
+		return manager.eagerRead(entity, false);
 	}
 
 	/**
@@ -305,64 +302,7 @@ public class GenericEntityService {
 			logger.log(Level.WARNING, logStr + "Cannot read entity");
 			return null;
 		}
-		return eagerRead(entity, false);
-	}
-
-	/**
-	 * Eager read of an entity
-	 * 
-	 * @param entity                 The entity to query
-	 * @param readReferencedEntities If true, referenced entities will be eager read
-	 *                               too. Only one level.
-	 */
-	public <ENTITY_TYPE> ENTITY_TYPE eagerRead(ENTITY_TYPE entity, boolean readReferencedEntities) {
-		String logStr = "eagerRead ";
-
-		Class<?> actuClass = entity.getClass();
-		while (!actuClass.equals(Object.class) && !actuClass.equals(BasicEntity.class)) {
-
-			for (Field field : actuClass.getDeclaredFields()) {
-				int modifiers = field.getModifiers();
-				if (Modifier.isStatic(modifiers)) {
-					continue;
-				}
-				field.setAccessible(true);
-
-				try {
-					Object obj = field.get(entity);
-					if (obj != null) {
-						obj.hashCode(); // just to initialize
-						if (readReferencedEntities) {
-							if (!BasicEntity.class.equals(obj.getClass())
-									&& BasicEntity.class.isAssignableFrom(obj.getClass())) {
-								eagerRead(obj, false);
-							}
-						}
-					}
-				} catch (Exception e) {
-					logger.log(Level.SEVERE,
-							logStr + "Error reading 1: " + e.getClass().getName() + ", " + e.getMessage(), e);
-				}
-				if (Collection.class.isAssignableFrom(field.getType())) {
-					try {
-						Collection<?> list = (List<?>) field.get(entity);
-						if (list != null) {
-							for (Object item : list) {
-								if (BasicEntity.class.isAssignableFrom(item.getClass())) {
-									eagerRead(item, false);
-								}
-							}
-						}
-					} catch (Exception e) {
-						logger.log(Level.SEVERE,
-								logStr + "Error reading 2: " + e.getClass().getName() + ", " + e.getMessage(), e);
-					}
-				}
-			}
-			actuClass = actuClass.getSuperclass();
-		}
-
-		return entity;
+		return manager.eagerRead(entity, false);
 	}
 
 	private Query generateQuery(Class<? extends BasicEntity> entityType, String prefix, String[] attributeNames,
