@@ -68,7 +68,6 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 		
 		log.info("Create Properties...");
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.PRINT_GOODS_RECEIPT_LABEL, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPRINT_GOODS_RECEIPT_LABEL", locale), false);
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSTORE_GOODS_RECEIPT_LABEL", locale), false);
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.GOODS_IN_DEFAULT_LOCK, "0", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGOODS_IN_DEFAULT_LOCK", locale), false);
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_RECEIPT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescDEFAULT_GOODS_RECEIPT_LOCATION_NAME", locale), false);
 //		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_OUT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescPDEFAULT_GOODS_OUT_LOCATION_NAME", locale), false, false);

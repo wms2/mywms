@@ -15,12 +15,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 
 import de.linogistix.los.example.LocationTopologyException;
-import de.linogistix.los.location.model.StorageLocationLabel;
+import de.wms2.mywms.document.Document;
+import junit.framework.TestCase;
 
 /**
  * 
@@ -768,11 +767,11 @@ public class StorageLocationLabelReportBeanTest extends TestCase {
 
 	StorageLocationLabelReportBean b = new StorageLocationLabelReportBean();
 
-	StorageLocationLabel s;
+	Document s;
 	try {
 		s = b.generateStorageLocationLabels(weiss);
 
-		byte[] pdf = s.getDocument();
+		byte[] pdf = s.getData();
 
 		if (pdf == null) {
 			fail();
@@ -787,7 +786,7 @@ public class StorageLocationLabelReportBeanTest extends TestCase {
 		// -------------------------
 		s = b.generateStorageLocationLabels(gelb);
 
-		pdf = s.getDocument();
+		pdf = s.getData();
 
 		if (pdf == null) {
 			fail();

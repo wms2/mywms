@@ -25,7 +25,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
-import org.mywms.model.Document;
 import org.mywms.model.User;
 
 import de.wms2.mywms.entity.EntityValidator;
@@ -105,10 +104,6 @@ public class ClientValidator implements EntityValidator<Client> {
 		if (entitySerivce.exists(StorageLocation.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to StorageLocation. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByStorageLocation");
-		}
-		if (entitySerivce.exists(Document.class, "client", entity)) {
-			logger.log(Level.INFO, logStr + "Existing reference to Document. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByDocument");
 		}
 		if (entitySerivce.exists(User.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to User. entity=" + entity);

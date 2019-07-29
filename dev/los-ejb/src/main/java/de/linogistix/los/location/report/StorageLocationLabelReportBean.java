@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -26,16 +25,16 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.mywms.globals.DocumentTypes;
 
-import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.StorageLocationLabel;
 import de.linogistix.los.location.res.BundleResolver;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
+import de.wms2.mywms.document.Document;
+import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.report.ReportBusiness;
 
 /**
  *
@@ -45,13 +44,12 @@ import de.wms2.mywms.location.StorageLocationEntityService;
 public class StorageLocationLabelReportBean implements StorageLocationLabelReport {
 
     private static final Logger log = Logger.getLogger(StorageLocationLabelReportBean.class);
-    @EJB
-    private LOSJasperReportGenerator reportGenerator;
     @PersistenceContext(unitName = "myWMS")
     private EntityManager manager;
 	@Inject
 	private StorageLocationEntityService locationService;
-
+    @Inject
+    private ReportBusiness reportBusiness;
    
     /**
      * 
@@ -62,12 +60,12 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
      * @throws de.linogistix.los.report.ReportException
      */
     @SuppressWarnings("unchecked")
-	public StorageLocationLabel generateStorageLocationLabels(int offset) throws LOSLocationException, BusinessObjectQueryException, ReportException {
+	public Document generateStorageLocationLabels(int offset) throws LOSLocationException, BusinessObjectQueryException, ReportException {
         try {
 
-            StorageLocationLabel doc = new StorageLocationLabel();
+        	Document doc = new Document();
             doc.setName("StorageLocationLabels");
-            doc.setType(DocumentTypes.APPLICATION_PDF.toString());
+            doc.setDocumentType(DocumentType.PDF.toString());
 
             StringBuffer b = new StringBuffer();
             b.append("SELECT NEW ");
@@ -100,7 +98,7 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
         }
     }
     
-    public StorageLocationLabel generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException {
+    public Document generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException {
         List<StorageLocationLabelTO> labels = new ArrayList<StorageLocationLabelTO>();
         for (String rack : list){
            for (StorageLocation loc : locationService.readList(null, null, rack, null, null) ){
@@ -111,18 +109,18 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
         return generateStorageLocationLabels(labels);
     }
 
-    public StorageLocationLabel generateStorageLocationLabels(List<StorageLocationLabelTO> labels) throws LOSLocationException, BusinessObjectQueryException, ReportException {
+    public Document generateStorageLocationLabels(List<StorageLocationLabelTO> labels) throws LOSLocationException, BusinessObjectQueryException, ReportException {
         try {
 
-            StorageLocationLabel doc = new StorageLocationLabel();
+        	Document doc = new Document();
             doc.setName("StorageLocationLabels");
-            doc.setType(DocumentTypes.APPLICATION_PDF.toString());
+            doc.setDocumentType(DocumentType.PDF.toString());
 
             HashMap<String, Object> parameters = new HashMap<String, Object>();
             parameters.put("REPORT_LOCALE", Locale.GERMANY);
             
-            byte[] bytes = reportGenerator.createPdf(doc.getClient(), doc.getName(), BundleResolver.class, labels, parameters);           
-            doc.setDocument(bytes);
+            byte[] bytes = reportBusiness.createPdfDocument(null, doc.getName(), BundleResolver.class, labels, parameters);           
+            doc.setData(bytes);
             
             return doc;
         } catch (Throwable ex) {

@@ -24,7 +24,6 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.model.Document;
 import org.mywms.service.ClientService;
 
 import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
@@ -37,9 +36,6 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.OrderReceipt;
-import de.linogistix.los.inventory.pick.model.PickReceipt;
-import de.linogistix.los.inventory.report.LOSOrderReceiptReport;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
@@ -57,6 +53,9 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.delivery.DeliverynoteGenerator;
+import de.wms2.mywms.document.Document;
+import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
@@ -112,8 +111,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@EJB
 	private ManageOrderService manageOrderService;
 	@EJB
-	private LOSOrderReceiptReport receiptService;
-	@EJB
 	private LOSGoodsOutRequestPositionService outPosService;
 	@EJB
 	private LOSGoodsOutRequestService outService;
@@ -138,6 +135,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private GenericEntityService entityService;
+	@Inject
+	private DeliverynoteGenerator deliverynoteGenerator;
 
 	public DeliveryOrder order(
 			String clientNumber,
@@ -462,7 +461,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	}
 	
 	
-	public Document generateReceipt( Long orderId, boolean save ) throws FacadeException {
+	public Document generateReceipt( Long orderId ) throws FacadeException {
 		String logStr = "generateReceipt ";
 		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
 		if( order == null ) {
@@ -472,15 +471,19 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		log.debug(logStr+"order number="+order.getOrderNumber());
 
-		OrderReceipt receipt = null;
-		receipt = receiptService.generateOrderReceipt(order);
-		if( save && receipt != null ) {
-			receiptService.storeOrderReceipt(receipt);
+		try {
+			byte[] data = deliverynoteGenerator.generateReport(order);
+			Document document = new Document();
+			document.setData(data);
+			document.setDocumentType(DocumentType.PDF);
+			document.setName("deliverynote-" + order.getOrderNumber());
+			return document;
+		} catch (BusinessException e) {
+			throw e.toFacadeException();
 		}
-		
-		return receipt;
 	}
-	public Document generateUnitLoadLabel( String label, boolean save ) throws FacadeException {
+	
+	public Document generateUnitLoadLabel( String label ) throws FacadeException {
 		String logStr = "generateUnitLoadLabel ";
 		log.debug(logStr+"label="+label);
 
@@ -492,11 +495,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
 
-		PickReceipt doc = null;
-		doc = unitLoadReport.generateUnitLoadReport(unitLoad);
-		if( save && doc != null ) {
-			unitLoadReport.storeUnitLoadReport(doc);
-		}
+		Document doc = unitLoadReport.generateUnitLoadReport(unitLoad);
 		
 		return doc;
 	}

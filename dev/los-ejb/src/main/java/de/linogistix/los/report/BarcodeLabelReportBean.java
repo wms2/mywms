@@ -12,13 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.res.BundleResolver;
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.report.ReportBusiness;
 
 /**
  *
@@ -27,9 +28,9 @@ import de.linogistix.los.res.BundleResolver;
 @Stateless
 public class BarcodeLabelReportBean implements BarcodeLabelReport {
 	
-	@EJB
-	private LOSJasperReportGenerator reportGenerator;
-	
+    @Inject
+    private ReportBusiness reportBusiness;
+
 	public byte[] generateBarcodeLabels(String docName, String[] labels) throws FacadeException {
 		List<BarcodeLabelTO> list = new ArrayList<BarcodeLabelTO>();
 		for (String label : labels) {
@@ -39,8 +40,11 @@ public class BarcodeLabelReportBean implements BarcodeLabelReport {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("REPORT_LOCALE", Locale.GERMANY);
 
-		byte[] bytes = reportGenerator.createPdf(null, docName, BundleResolver.class, list, null);
-		return bytes;
+		try {
+			return reportBusiness.createPdfDocument(null, docName, BundleResolver.class, list, null);
+		} catch (BusinessException e) {
+			throw e.toFacadeException();
+		}
 	}
 
 }

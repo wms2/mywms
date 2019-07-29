@@ -16,21 +16,22 @@ import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.globals.DocumentTypes;
-import org.mywms.service.ConstraintViolatedException;
 
-import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.StockUnitLabel;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
-import de.linogistix.los.inventory.service.StockUnitLabelService;
+import de.wms2.mywms.document.Document;
+import de.wms2.mywms.document.DocumentType;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.report.ReportBusiness;
 
 /**
  *
@@ -40,17 +41,15 @@ import de.wms2.mywms.inventory.UnitLoad;
 public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 
     private static final Logger log = Logger.getLogger(LOSStockUnitLabelReportBean.class);
-    @EJB
-	private LOSJasperReportGenerator reportGenerator;
-    @EJB
-    private StockUnitLabelService labelService;
 	@EJB
 	private EntityGenerator entityGenerator;
 
     @PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
     
-    
+    @Inject
+    private ReportBusiness reportBusiness;
+ 
     
 	/**
 	 * Generation of a goods receipt stock unit label
@@ -61,7 +60,7 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public StockUnitLabel generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException {
+	public Document generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException {
 		String logStr = "generateStockUnitLabel ";
 		StockUnitLabel label = null;
 		
@@ -69,10 +68,9 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 		
 		label = entityGenerator.generateEntity( StockUnitLabel.class );
 		label.setName( "LOS-"+unitLoad.getLabelId() );
-		label.setClient( unitLoad.getClient() );
 		label.setClientRef( unitLoad.getClient().getNumber() );
 		label.setLabelID( unitLoad.getLabelId() );
-		label.setType(DocumentTypes.APPLICATION_PDF.toString());
+		label.setDocumentType(DocumentType.PDF);
 
 		SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
 		label.setDateRef( sd.format(new Date()) );
@@ -114,41 +112,17 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 		parameters.put("clientName", unitLoad.getClient().getName() );
 		parameters.put("clientCode", unitLoad.getClient().getCode() );
 
-		byte[] bytes = reportGenerator.createPdf(unitLoad.getClient(), "StockUnitLabel", InventoryBundleResolver.class, valueMap, parameters);
-		label.setDocument(bytes);
+		byte[] bytes;
+		try {
+			bytes = reportBusiness.createPdfDocument(unitLoad.getClient(), "StockUnitLabel", InventoryBundleResolver.class, valueMap, parameters);
+		} catch (BusinessException e) {
+			throw e.toFacadeException();
+		}
+		label.setData(bytes);
 
 
 		return label;
 
 	}
 	
-	/**
-	 * Persist a stock unit label
-	 * If it is already existing, it will be replaced.
-	 * 
-	 * @param label
-	 * @return
-	 * @throws FacadeException
-	 */
-	public StockUnitLabel storeStockUnitLabel(StockUnitLabel label) throws FacadeException {
-		String logStr = "storeStockUnitLabel ";
-
-		StockUnitLabel labelOld = labelService.getByLabelId(label.getLabelID());
-		if( labelOld != null ) {
-			try {
-				log.debug(logStr+"Remove old label. name="+labelOld.getName());
-				labelService.delete(labelOld);
-				manager.flush();
-			} catch (ConstraintViolatedException e) {
-				log.error(logStr+"Cannot remove old receipt! Cannot build new!");
-				return null;
-			}
-		}
-		
-		manager.persist(label);
-		
-		return label;
-
-	}
-
 }

@@ -10,13 +10,16 @@ package de.linogistix.common.bobrowser.action;
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
 import de.linogistix.common.bobrowser.query.BOQueryNode;
 import de.linogistix.common.res.CommonBundleResolver;
+import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.model.LOSJasperReport;
+import de.linogistix.los.common.facade.LOSJasperReportFacade;
 
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.document.Document;
+import de.wms2.mywms.report.Report;
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -24,7 +27,6 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
-import org.mywms.model.Document;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
@@ -95,6 +97,8 @@ public final class BOJasperReportSaveSourceAction extends NodeAction {
             } else{
                 return;
             }
+
+            BOMasterNode node = null;
             
             for (Node n : activatedNodes) {
                 
@@ -105,26 +109,23 @@ public final class BOJasperReportSaveSourceAction extends NodeAction {
                     log.warning("Not a BOMasterNodeType: " + n.toString());
                     continue;
                 }
+                node = (BOMasterNode)n;
 
-                if (!(n.getParentNode() instanceof BOQueryNode)) {
-                    log.warning("No BOQueryNode found: " + n.toString());
-                    continue;
-                }
 
-                BODTO<Document> dto = ((BOMasterNode) n).getEntity();
-                BOQueryNode parent = (BOQueryNode) n.getParentNode();
-                BusinessObjectQueryRemote service = parent.getModel().getBoNode().getQueryService();
-                LOSJasperReport doc = (LOSJasperReport) service.queryById(dto.getId());
-
-                File outf = new File(f, doc.getName() + "-" + doc.getClient().getNumber()+".jrxml");
-                FileOutputStream out = new FileOutputStream(outf);
-                if( doc.getSourceDocument()==null || doc.getSourceDocument().length() == 0 ){
+                J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
+                LOSJasperReportFacade facade = loc.getStateless(LOSJasperReportFacade.class);
+                Document doc = facade.readSource( node.getId() );
+                if( doc.getData()==null || doc.getData().length== 0 ){
                     FacadeException ex = new FacadeException("Document is empty", "BusinessException.DocumentEmpty", null);
                     ex.setBundleResolver(CommonBundleResolver.class);
                     ExceptionAnnotator.annotate(ex);
                     return;
                 }
-                out.write( doc.getSourceDocument().getBytes() );
+
+                String fileName = node.getName() + ".jrxml";
+                File outf = new File(f, fileName);
+                FileOutputStream out = new FileOutputStream(outf);
+                out.write( doc.getData() );
                 out.close();
             }
         } catch (Throwable ex) {

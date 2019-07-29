@@ -36,6 +36,7 @@ public class Wms2Properties {
 	public static final String KEY_LOCATIONTYPE_DEFAULT = "LOCATIONTYPE_DEFAULT";
 	public static final String KEY_UNITLOADTYPE_DEFAULT = "UNITLOADTYPE_DEFAULT";
 	public static final String KEY_AREA_DEFAULT = "AREA_DEFAULT";
+	public static final String KEY_REPORT_LOCALE = "REPORT_LOCALE";
 
 	/**
 	 * Names of system property groups

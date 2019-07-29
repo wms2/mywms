@@ -11,6 +11,8 @@ import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
 
+import de.wms2.mywms.document.Document;
+
 /**
  * @author krane
  *
@@ -39,4 +41,6 @@ public interface LOSJasperReportFacade  {
 	 */
 	public void compileReport( long id ) throws FacadeException;
 	
+	Document readSource( long id ) throws FacadeException;
+
 }

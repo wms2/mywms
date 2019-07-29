@@ -16,7 +16,7 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSJasperReportQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.crud.LOSJasperReportCRUDRemote;
-import de.linogistix.los.model.LOSJasperReport;
+import de.wms2.mywms.report.Report;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node;
@@ -55,7 +55,7 @@ public class BOJasperReport extends BO {
     }
 
     protected BasicEntity initEntityTemplate() {
-        LOSJasperReport c = new LOSJasperReport();
+        Report c = new Report();
 
         LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
         c.setClient( login.getUsersClient() );

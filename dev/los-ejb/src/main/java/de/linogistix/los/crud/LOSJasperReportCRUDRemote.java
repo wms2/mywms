@@ -9,13 +9,13 @@ package de.linogistix.los.crud;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.model.LOSJasperReport;
+import de.wms2.mywms.report.Report;
 
 /**
  * @author krane
  *
  */
 @Remote
-public interface LOSJasperReportCRUDRemote extends BusinessObjectCRUDRemote<LOSJasperReport>{
+public interface LOSJasperReportCRUDRemote extends BusinessObjectCRUDRemote<Report>{
     
 }

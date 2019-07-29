@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mywms.model.Document;
 
 import de.wms2.mywms.entity.EntityValidator;
 import de.wms2.mywms.entity.GenericEntityService;
@@ -66,7 +65,7 @@ public class DocumentValidator implements EntityValidator<Document> {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
 		}
 
-		if (StringUtils.isEmpty(entity.getType())) {
+		if (StringUtils.isEmpty(entity.getDocumentType())) {
 			logger.log(Level.INFO, logStr + "missing documentType. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingType");
 		}

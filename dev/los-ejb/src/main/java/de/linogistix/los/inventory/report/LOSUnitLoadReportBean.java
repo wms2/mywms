@@ -25,22 +25,23 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.globals.DocumentTypes;
 
-import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.inventory.pick.model.PickReceiptPosition;
-import de.linogistix.los.inventory.pick.service.PickReceiptService;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.util.StringTools;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.document.Document;
+import de.wms2.mywms.document.DocumentType;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingUnitLoad;
 import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.report.ReportBusiness;
 
 
 /**
@@ -53,11 +54,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 	private static final Logger log = Logger.getLogger(LOSUnitLoadReportBean.class);
 	
 	@EJB
-	private LOSJasperReportGenerator reportGenerator;
-	@EJB
 	private EntityGenerator entityGenerator;
-	@EJB
-	private PickReceiptService labelService;
 	@EJB
 	private LOSCustomerOrderService customerOrderService;
 
@@ -66,9 +63,11 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
     
 	@Inject
 	private PickingUnitLoadEntityService pickingUnitLoadService;
+    @Inject
+    private ReportBusiness reportBusiness;
+
     
-    
-	public PickReceipt generateUnitLoadReport(UnitLoad unitLoad) throws FacadeException {
+	public Document generateUnitLoadReport(UnitLoad unitLoad) throws FacadeException {
 		String logStr = "generateUnitLoadReport ";
 		PickReceipt label = null;
 		
@@ -78,10 +77,9 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		
 		label = entityGenerator.generateEntity( PickReceipt.class );
 		label.setName( "LOS-"+unitLoad.getLabelId() );
-		label.setClient( unitLoad.getClient() );
 		label.setLabelID( unitLoad.getLabelId() );
 		label.setDate(new Date());
-		label.setType(DocumentTypes.APPLICATION_PDF.toString());
+		label.setDocumentType(DocumentType.PDF.toString());
 
 		label.setPositions( new ArrayList<PickReceiptPosition>() );
 		
@@ -192,35 +190,17 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		parameters.put("orderStrategyName", deliveryOrder == null ? "" : deliveryOrder.getOrderStrategy() == null ? "" : deliveryOrder.getOrderStrategy().getName() );
 		parameters.put("prio", deliveryOrder == null ? 0 : deliveryOrder.getPrio() );
 		
-		byte[] bytes = reportGenerator.createPdf(unitLoad.getClient(), "UnitLoadLabel", InventoryBundleResolver.class, valueList2, parameters);
-		label.setDocument(bytes);
+		byte[] bytes;
+		try {
+			bytes = reportBusiness.createPdfDocument(unitLoad.getClient(), "UnitLoadLabel", InventoryBundleResolver.class, valueList2, parameters);
+		} catch (BusinessException e) {
+			throw e.toFacadeException();
+		}
+		label.setData(bytes);
 
 
 		return label;
 	}
-
-	public PickReceipt storeUnitLoadReport(PickReceipt label) throws FacadeException {
-		String logStr = "storeUnitLoadReport ";
-
-		PickReceipt labelOld = labelService.getByLabelId(label.getLabelID());
-		if( labelOld != null ) {
-			log.debug(logStr+"Remove old label. name="+labelOld.getName());
-			for( PickReceiptPosition pos : labelOld.getPositions() ) {
-				manager.remove(pos);
-			}
-			manager.remove(labelOld);
-			manager.flush();
-		}
-		
-		manager.persist(label);
-		for( PickReceiptPosition pos : label.getPositions() ) {
-			manager.persist(pos);
-		}
-		
-		return label;
-	}
-
-	
 
 	
 	class ReceiptPositionComparator implements Comparator<LOSStockUnitReportTO>{

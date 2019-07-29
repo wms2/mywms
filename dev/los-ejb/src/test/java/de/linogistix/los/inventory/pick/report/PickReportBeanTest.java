@@ -15,7 +15,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.mywms.globals.DocumentTypes;
 
 import de.linogistix.los.example.CommonTestTopologyRemote;
 import de.linogistix.los.inventory.pick.model.PickReceipt;

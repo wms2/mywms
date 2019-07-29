@@ -18,6 +18,7 @@ import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.inventory.query.dto.LOSPickingUnitLoadTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
+import de.wms2.mywms.document.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -41,7 +42,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Document;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
@@ -357,11 +357,11 @@ public class UnitLoadPrintDialog extends javax.swing.JDialog {
                 Document doc = null;
 
                 if( fPrintLabel.isSelected() || fSaveLabel.isSelected() ) {
-                    doc = orderFacade.generateUnitLoadLabel(label, false);
+                    doc = orderFacade.generateUnitLoadLabel(label);
                 }
 
                 if( fSaveLabel.isSelected() && doc != null ) {
-                    if (doc.getDocument().length == 0){
+                    if (doc.getData().length == 0){
                         FacadeException ex = new FacadeException("Document is empty", "BusinessException.DocumentEmpty", null);
                         ex.setBundleResolver(CommonBundleResolver.class);
                         ExceptionAnnotator.annotate(ex);
@@ -369,13 +369,13 @@ public class UnitLoadPrintDialog extends javax.swing.JDialog {
                     }
                     File outf = new File(fFile.getText(), doc.getName() + ".pdf");
                     FileOutputStream out = new FileOutputStream(outf);
-                    out.write(doc.getDocument());
+                    out.write(doc.getData());
                     out.flush();
                     out.close();
                 }
                 
                 if( fPrintLabel.isSelected() && doc != null && printService != null ) {
-                    print( doc.getDocument(), printService );
+                    print( doc.getData(), printService );
                 }
 
             }

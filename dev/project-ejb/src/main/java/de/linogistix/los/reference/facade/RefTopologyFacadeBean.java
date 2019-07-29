@@ -31,7 +31,6 @@ import org.mywms.model.Client;
 import org.mywms.model.ItemUnitType;
 
 import de.linogistix.los.common.businessservice.CommonBasicDataService;
-import de.linogistix.los.common.businessservice.LOSJasperReportGenerator;
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
@@ -39,7 +38,6 @@ import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
@@ -138,8 +136,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private InventoryBasicDataService inventoryBasicDataService;
 	@EJB
 	private LOSSystemPropertyService propertyService;
-	@EJB
-	private LOSJasperReportGenerator reportService;
 	
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
@@ -154,7 +150,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
-
 
 	private static final Logger log = Logger.getLogger(RefTopologyFacadeBean.class);
 	
@@ -338,12 +333,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		
 		log.info("Create Stocktaking...");
 		createStocktaking( sys, "A1-01%1");
-		
-		
-		log.info("Create Reports...");
-		reportService.getJasportReport(sys, InventoryBundleResolver.class, "OrderReceipt");
-		reportService.getJasportReport(sys, InventoryBundleResolver.class, "StockUnitLabel");
-		reportService.getJasportReport(sys, InventoryBundleResolver.class, "UnitLoadLabel");
 		
 		log.info("Finish...");
 		try {

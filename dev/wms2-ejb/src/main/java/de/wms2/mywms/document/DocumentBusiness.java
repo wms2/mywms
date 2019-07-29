@@ -24,16 +24,10 @@ import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mywms.model.Client;
-import org.mywms.model.Document;
 import org.mywms.res.BundleResolver;
 
-import de.wms2.mywms.client.ClientBusiness;
-import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.util.ImageUtils;
 
@@ -48,9 +42,7 @@ public class DocumentBusiness {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Inject
-	private PersistenceManager manager;
-	@Inject
-	private ClientBusiness clientService;
+	private DocumentEntityService documentService;
 
 	/**
 	 * Read the image assigned to an entity as Document
@@ -60,19 +52,8 @@ public class DocumentBusiness {
 			return null;
 		}
 		String imageName = generateDocumentName(entityType, entityId, "image", null);
-
-		String jpql = "select doc from " + Document.class.getName() + " doc";
-		jpql += " where doc.name=:name";
-
-		Query query = manager.createQuery(jpql);
-		query.setParameter("name", imageName);
-		query.setMaxResults(1);
-		try {
-			Document doc = (Document) query.getSingleResult();
-			return doc;
-		} catch (NoResultException e) {
-		}
-		return null;
+		Document doc = documentService.read(imageName);
+		return doc;
 	}
 
 	/**
@@ -86,8 +67,8 @@ public class DocumentBusiness {
 
 		byte[] data = null;
 		try {
-			data = ImageUtils.scaleImage(doc.getDocument(), imageSize, false);
-			doc.setDocument(data);
+			data = ImageUtils.scaleImage(doc.getData(), imageSize, false);
+			doc.setData(data);
 		} catch (IOException e) {
 		}
 		return doc;
@@ -104,13 +85,8 @@ public class DocumentBusiness {
 			return;
 		}
 
-		String jpql = "delete from " + Document.class.getName() + " doc";
-		jpql += " where doc.name=:name";
-
-		Query query = manager.createQuery(jpql);
 		String imageName = generateDocumentName(entityType, entityId, "image", null);
-		query.setParameter("name", imageName);
-		query.executeUpdate();
+		documentService.delete(imageName);
 	}
 
 	/**
@@ -124,14 +100,8 @@ public class DocumentBusiness {
 			return;
 		}
 
-		String jpql = "delete from " + Document.class.getName() + " doc";
-		jpql += " where doc.name=:name";
-
-		Query query = manager.createQuery(jpql);
-
 		String namePrefix = entityType.getSimpleName() + ":" + entityId.toString();
-		query.setParameter("name", namePrefix);
-		query.executeUpdate();
+		documentService.deleteAll(namePrefix);
 	}
 
 	/**
@@ -149,16 +119,9 @@ public class DocumentBusiness {
 		deleteImage(entityType, entityId);
 
 		String imageName = generateDocumentName(entityType, entityId, "image", null);
+		Document doc = documentService.create(imageName, documentType, data);
 
-		Document imageNew = manager.createInstance(Document.class);
-		Client client = clientService.getSystemClient();
-		imageNew.setClient(client);
-		imageNew.setDocument(data);
-		imageNew.setType(documentType);
-		imageNew.setName(imageName);
-
-		manager.persistValidated(imageNew);
-		return imageNew;
+		return doc;
 	}
 
 	/**
@@ -183,15 +146,8 @@ public class DocumentBusiness {
 		}
 
 		String imageName = generateDocumentName(entityType, entityId, "image", null);
+		Document doc = documentService.create(imageName, documentType, data);
 
-		Document doc = manager.createInstance(Document.class);
-		Client client = clientService.getSystemClient();
-		doc.setClient(client);
-		doc.setDocument(data);
-		doc.setType(documentType);
-		doc.setName(imageName);
-
-		manager.persistValidated(doc);
 		return doc;
 	}
 
@@ -205,23 +161,11 @@ public class DocumentBusiness {
 
 		String documentName = generateDocumentName(entityType, entityId, path, displayName);
 
-		String jpql = "delete from " + Document.class.getName() + " doc";
-		jpql += " where doc.name=:name";
-		Query query = manager.createQuery(jpql);
-		query.setParameter("name", documentName);
-		query.executeUpdate();
+		documentService.delete(documentName);
 
-		Document doc = manager.createInstance(Document.class);
-		Client client = clientService.getSystemClient();
-		doc.setClient(client);
-		doc.setDocument(data);
-		doc.setType(documentType);
-		doc.setName(documentName);
-
-		manager.persistValidated(doc);
+		Document doc = documentService.create(documentName, documentType, data);
 
 		return doc;
-
 	}
 
 	/**

@@ -117,7 +117,7 @@ public class BasicEntity
         return this.version;
     }
 
-    protected void setVersion(int version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 

@@ -10,23 +10,14 @@ package de.linogistix.los.inventory.model;
 import java.math.BigDecimal;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.mywms.model.Document;
+import de.wms2.mywms.document.Document;
 
 /**
  *
  * @author trautm
  */
-@Entity
-@Table(name = "los_suLabel"
-//	, uniqueConstraints = {
-//	    @UniqueConstraint(columnNames = {
-//	            "client_id","labelID"
-//	        })}
-) 
 public class StockUnitLabel extends Document{
 
 	private static final long serialVersionUID = 1L;

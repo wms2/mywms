@@ -10,25 +10,16 @@ package de.linogistix.los.inventory.pick.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.mywms.model.Document;
+import de.wms2.mywms.document.Document;
 
 /**
  *
  * @author trautm
  */
-@Entity
-@Table(name = "los_pickreceipt"
-//	, uniqueConstraints = {
-//	    @UniqueConstraint(columnNames = {
-//	            "client_id","labelID"
-//	        })}
-) 
 public class PickReceipt extends Document{
 
 	private static final long serialVersionUID = 1L;

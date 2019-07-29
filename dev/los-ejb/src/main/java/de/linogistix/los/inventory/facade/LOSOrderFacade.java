@@ -13,10 +13,10 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Document;
 
 import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.location.StorageLocation;
 
 /**
@@ -87,9 +87,9 @@ public interface LOSOrderFacade {
 	public void changeOrderPrio( Long orderId, int prio ) throws FacadeException;
 
 	
-	public Document generateReceipt( Long orderId, boolean replace ) throws FacadeException;
+	public Document generateReceipt( Long orderId ) throws FacadeException;
 	
-	public Document generateUnitLoadLabel( String label, boolean save ) throws FacadeException;
+	public Document generateUnitLoadLabel( String label ) throws FacadeException;
 
 	/**
 	 * Generate goods-out request for pending order

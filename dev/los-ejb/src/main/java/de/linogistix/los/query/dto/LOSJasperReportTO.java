@@ -7,14 +7,14 @@
  */
 package de.linogistix.los.query.dto;
 
-import de.linogistix.los.model.LOSJasperReport;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.report.Report;
 
 /**
  * @author krane
  *
  */
-public class LOSJasperReportTO extends BODTO<LOSJasperReport> {
+public class LOSJasperReportTO extends BODTO<Report> {
 
 	private static final long serialVersionUID = 1L;
     
@@ -23,16 +23,14 @@ public class LOSJasperReportTO extends BODTO<LOSJasperReport> {
 	private boolean compiled;
 	private boolean sourceAttached;
 	
-	public LOSJasperReportTO(LOSJasperReport x){
-		this(x.getId(), x.getVersion(), x.getName(), x.getClient().getNumber(), x.getCompiledDocument(), x.getSourceDocument());
+	public LOSJasperReportTO(Report x){
+		this(x.getId(), x.getVersion(), x.getName(), x.getClient().getNumber());
 	}
 	
-	public LOSJasperReportTO(Long id, int version, String name, String clientNumber, byte[] compiled, String source){
+	public LOSJasperReportTO(Long id, int version, String name, String clientNumber){
 		super(id, version, name);
 		this.clientNumber = clientNumber;
 		this.name = name;
-		this.compiled = ( compiled != null && compiled.length>0 );
-		this.sourceAttached = ( source != null && source.length()>0 );
 	}
 
 	public String getName() {

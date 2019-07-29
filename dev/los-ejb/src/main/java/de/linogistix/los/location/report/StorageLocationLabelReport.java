@@ -12,9 +12,9 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.StorageLocationLabel;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
+import de.wms2.mywms.document.Document;
 
 /**
  * Generates labels for storage locations. Minimum information is the name of the location and a barcode.
@@ -23,9 +23,9 @@ import de.linogistix.los.report.ReportException;
 @Remote
 public interface StorageLocationLabelReport {
     
-    StorageLocationLabel generateStorageLocationLabels(int offset) throws LOSLocationException, BusinessObjectQueryException, ReportException;
+    Document generateStorageLocationLabels(int offset) throws LOSLocationException, BusinessObjectQueryException, ReportException;
     
-    StorageLocationLabel generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException;
+    Document generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException;
     
-    StorageLocationLabel generateStorageLocationLabels(List<StorageLocationLabelTO> labels) throws LOSLocationException, BusinessObjectQueryException, ReportException;
+    Document generateStorageLocationLabels(List<StorageLocationLabelTO> labels) throws LOSLocationException, BusinessObjectQueryException, ReportException;
 }

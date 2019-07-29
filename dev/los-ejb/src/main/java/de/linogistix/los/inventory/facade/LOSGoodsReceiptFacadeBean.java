@@ -43,7 +43,6 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
-import de.linogistix.los.inventory.model.StockUnitLabel;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
 import de.linogistix.los.inventory.query.LotQueryRemote;
@@ -66,6 +65,7 @@ import de.linogistix.los.util.BusinessObjectHelper;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -501,12 +501,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	            printer = propertyService.getString(c, null, LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER);
         	}
         	
-            StockUnitLabel label = suLabelReport.generateStockUnitLabel(ul);
-            boolean storeLabel = propertyService.getBooleanDefault(LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, false);
-            if( storeLabel ) {
-            	suLabelReport.storeStockUnitLabel(label);
-            }
-        	printService.print(printer, label.getDocument(), label.getType());
+            Document label = suLabelReport.generateStockUnitLabel(ul);
+        	printService.print(printer, label.getData(), label.getDocumentType());
         }
 	        
 		manageGrService.onGoodsReceiptPositionCollected(pos);
@@ -702,7 +698,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		}
 	}
 	
-	public StockUnitLabel createStockUnitLabel(LOSGoodsReceiptPosition pos, String printer) 	throws FacadeException {
+	public Document createStockUnitLabel(LOSGoodsReceiptPosition pos, String printer) 	throws FacadeException {
 		String logStr = "createStockUnitLabel ";
 
 		pos = manager.find(LOSGoodsReceiptPosition.class, pos.getId());
@@ -726,12 +722,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		
 		UnitLoad unitLoad = stock.getUnitLoad();
 		
-    	StockUnitLabel label = suLabelReport.generateStockUnitLabel(unitLoad);
-        boolean storeLabel = propertyService.getBooleanDefault(LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, false);
-        if( storeLabel ) {
-        	suLabelReport.storeStockUnitLabel(label);
-        }
-    	printService.print(printer, label.getDocument(), label.getType());
+    	Document label = suLabelReport.generateStockUnitLabel(unitLoad);
+    	printService.print(printer, label.getData(), label.getDocumentType());
     	
 		return label;
 		
@@ -954,12 +946,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         
         if(printLabel){
-        	StockUnitLabel label = suLabelReport.generateStockUnitLabel(ul);
-            boolean storeLabel = propertyService.getBooleanDefault(LOSInventoryPropertyKey.STORE_GOODS_RECEIPT_LABEL, false);
-            if( storeLabel ) {
-            	suLabelReport.storeStockUnitLabel(label);
-            }
-        	printService.print(null, label.getDocument(), label.getType());
+        	Document label = suLabelReport.generateStockUnitLabel(ul);
+        	printService.print(null, label.getData(), label.getDocumentType());
         }
 
 	}

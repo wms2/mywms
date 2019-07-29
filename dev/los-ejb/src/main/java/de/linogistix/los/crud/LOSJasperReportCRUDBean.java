@@ -13,20 +13,20 @@ import javax.ejb.Stateless;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.common.service.LOSJasperReportService;
-import de.linogistix.los.model.LOSJasperReport;
+import de.wms2.mywms.report.Report;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSJasperReportCRUDBean extends BusinessObjectCRUDBean<LOSJasperReport> implements LOSJasperReportCRUDRemote {
+public class LOSJasperReportCRUDBean extends BusinessObjectCRUDBean<Report> implements LOSJasperReportCRUDRemote {
 
     @EJB
     LOSJasperReportService service;
 
     @Override
-    protected BasicService<LOSJasperReport> getBasicService() {
+    protected BasicService<Report> getBasicService() {
         return service;
     }
 

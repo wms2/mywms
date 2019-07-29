@@ -191,6 +191,7 @@ public class Wms2SetupService extends ModuleSetup {
 		orderStrategyService.getDefault(client);
 
 		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
+		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE, locale.toString(), Wms2Properties.GROUP_WMS, locale);
 
 		logger.log(Level.INFO, "Completed Setup");
 	}

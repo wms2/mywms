@@ -14,6 +14,7 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.document.Document;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +23,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Document;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -102,13 +102,13 @@ public final class BODocumentOpenAction extends NodeAction {
 
                 File outf = new File(f, doc.getName() + ".pdf");
                 FileOutputStream out = new FileOutputStream(outf);
-                if (doc.getDocument().length == 0){
+                if (doc.getData().length == 0){
                     FacadeException ex = new FacadeException("Document is empty", "BusinessException.DocumentEmpty", null);
                     ex.setBundleResolver(CommonBundleResolver.class);
                     ExceptionAnnotator.annotate(ex);
                     return;
                 }
-                out.write(doc.getDocument());
+                out.write(doc.getData());
                 out.close();
 //                FileSystem fs = FileUtil.createMemoryFileSystem();
 //                FileObject fob = fs.getRoot().createData(dto.getName(), "pdf");

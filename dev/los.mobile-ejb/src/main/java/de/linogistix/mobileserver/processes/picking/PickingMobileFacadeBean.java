@@ -35,7 +35,6 @@ import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.pick.model.PickReceipt;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
@@ -55,6 +54,7 @@ import de.linogistix.mobileserver.processes.controller.ManageMobile;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -707,9 +707,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB("CannotReadUnitLoad", this.getClass());
 		}
 		
-		PickReceipt receipt = unitLoadReport.generateUnitLoadReport(unitLoad);
-		unitLoadReport.storeUnitLoadReport(receipt);
-		printService.print(printer, receipt.getDocument(), receipt.getType());
+		Document receipt = unitLoadReport.generateUnitLoadReport(unitLoad);
+		printService.print(printer, receipt.getData(), receipt.getDocumentType());
 
 	}
 

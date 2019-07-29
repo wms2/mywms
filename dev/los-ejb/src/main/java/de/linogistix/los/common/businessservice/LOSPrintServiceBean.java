@@ -26,10 +26,10 @@ import javax.print.event.PrintJobEvent;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.globals.DocumentTypes;
 
 import de.linogistix.los.report.ReportException;
 import de.linogistix.los.report.ReportExceptionKey;
+import de.wms2.mywms.document.DocumentType;
 
 /**
  * @author krane
@@ -53,10 +53,10 @@ public class LOSPrintServiceBean implements LOSPrintService {
 			if (type == null || type.length() == 0){
 				fl = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 				printObject = bytes;
-			} else if (type.equals(DocumentTypes.APPLICATION_PDF.toString())) {
+			} else if (type.equals(DocumentType.PDF)) {
 				fl = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 				printObject = bytes;
-			} else if (type.equals(DocumentTypes.TEXT_XML.toString())) {
+			} else if (type.equals(DocumentType.XML)) {
 				fl = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 				printObject = bytes;
 			} else {

@@ -12,10 +12,10 @@ import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.document.Document;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.BasicEntity;
-import org.mywms.model.Document;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -70,7 +70,7 @@ public final class SavePDFAction extends NodeAction {
                     BasicEntity entity = q.queryById(id);
                     if (entity instanceof Document){
                         Document d = (Document)entity;
-                        byte[] document = d.getDocument();
+                        byte[] document = d.getData();
                         //store in tmp
                         
                         // open id viewer

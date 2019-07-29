@@ -25,6 +25,15 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+
+   		<!-- jasper -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>${version.jasperreports}</version>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

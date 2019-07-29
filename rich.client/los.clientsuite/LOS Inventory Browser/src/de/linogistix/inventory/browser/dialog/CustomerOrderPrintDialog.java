@@ -17,6 +17,7 @@ import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
 import de.linogistix.los.util.StringTools;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.document.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -40,7 +41,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Document;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
@@ -413,11 +413,11 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
 //                LOSCustomerOrder order = orderQuery.queryById(orderTO.getId());
 
                 if( fPrintReceipt.isSelected() || fSaveReceipt.isSelected() ) {
-                    receipt = orderFacade.generateReceipt(orderTO.getId(), false);
+                    receipt = orderFacade.generateReceipt(orderTO.getId());
                 }
 
                 if( fSaveReceipt.isSelected() && receipt != null ) {
-                    if (receipt.getDocument().length == 0){
+                    if (receipt.getData().length == 0){
                         FacadeException ex = new FacadeException("Document is empty", "BusinessException.DocumentEmpty", null);
                         ex.setBundleResolver(CommonBundleResolver.class);
                         ExceptionAnnotator.annotate(ex);
@@ -425,13 +425,13 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
                     }
                     File outf = new File(fFile.getText(), receipt.getName() + ".pdf");
                     FileOutputStream out = new FileOutputStream(outf);
-                    out.write(receipt.getDocument());
+                    out.write(receipt.getData());
                     out.flush();
                     out.close();
                 }
                 
                 if( fPrintReceipt.isSelected() && receipt != null && printService != null ) {
-                    print( receipt.getDocument(), printService );
+                    print( receipt.getData(), printService );
                 }
 
                 if( fPrintExternal.isSelected() ) {

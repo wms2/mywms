@@ -11,7 +11,7 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.inventory.model.StockUnitLabel;
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.UnitLoad;
 
 /**
@@ -30,17 +30,6 @@ public interface LOSStockUnitLabelReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public StockUnitLabel generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException;
+	public Document generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException;
 	
-	/**
-	 * Persist a stock unit label
-	 * If it is already existing, it will be replaced.
-	 * 
-	 * @param label
-	 * @return
-	 * @throws FacadeException
-	 */
-	public StockUnitLabel storeStockUnitLabel(StockUnitLabel label) throws FacadeException;
-	
-    	
 }

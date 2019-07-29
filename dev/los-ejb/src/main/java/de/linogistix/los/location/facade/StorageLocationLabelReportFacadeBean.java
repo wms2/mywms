@@ -13,11 +13,11 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.model.StorageLocationLabel;
 import de.linogistix.los.location.report.StorageLocationLabelReport;
 import de.linogistix.los.location.report.StorageLocationLabelTO;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
+import de.wms2.mywms.document.Document;
 
 @Stateless
 public class StorageLocationLabelReportFacadeBean implements
@@ -29,9 +29,9 @@ public class StorageLocationLabelReportFacadeBean implements
 	public byte[] generateStorageLocationLabels(
 			List<StorageLocationLabelTO> labels) throws LOSLocationException,
 			BusinessObjectQueryException, ReportException {
-		StorageLocationLabel label = report.generateStorageLocationLabels(labels);
+		Document label = report.generateStorageLocationLabels(labels);
 		if (label != null)
-			return label.getDocument();
+			return label.getData();
 		else{
 			return new byte[0];
 		}

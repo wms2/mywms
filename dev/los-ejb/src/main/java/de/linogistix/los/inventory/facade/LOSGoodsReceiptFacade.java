@@ -22,11 +22,11 @@ import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
-import de.linogistix.los.inventory.model.StockUnitLabel;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -335,7 +335,7 @@ public interface LOSGoodsReceiptFacade {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public StockUnitLabel createStockUnitLabel(LOSGoodsReceiptPosition pos, String printer) 	throws FacadeException;
+	public Document createStockUnitLabel(LOSGoodsReceiptPosition pos, String printer) 	throws FacadeException;
     
 	/**
 	 * Checks, whether the serialNo is allowed to use in goods receipt.

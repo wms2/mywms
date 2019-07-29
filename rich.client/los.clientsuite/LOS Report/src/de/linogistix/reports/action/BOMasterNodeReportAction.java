@@ -12,6 +12,7 @@ import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.services.J2EEServiceNotAvailable;
 import de.linogistix.common.util.ExceptionAnnotator;
+import de.wms2.mywms.document.Document;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,7 +23,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
-import org.mywms.model.Document;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
@@ -97,7 +97,7 @@ public class BOMasterNodeReportAction extends CookieAction {
 
                 @Override
                 public String getDescription() {
-                    return doc.getType();
+                    return doc.getDocumentType();
                 }
                 });
             chooser.setSelectedFile(defaultFile);
@@ -110,7 +110,7 @@ public class BOMasterNodeReportAction extends CookieAction {
                 file = chooser.getSelectedFile();
                 selected = file.getCanonicalPath();
                 FileOutputStream out = new FileOutputStream(file);
-                out.write(doc.getDocument());
+                out.write(doc.getData());
                 out.close();
 
                 //open File

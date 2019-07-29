@@ -11,7 +11,7 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.inventory.pick.model.PickReceipt;
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.UnitLoad;
 
 /**
@@ -30,16 +30,6 @@ public interface LOSUnitLoadReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public PickReceipt generateUnitLoadReport(UnitLoad unitLoad) throws FacadeException;
-	
-	/**
-	 * Persist an order receipt.
-	 * If it is already existing, it will be replaced.
-	 * 
-	 * @param receipt
-	 * @return
-	 * @throws FacadeException
-	 */
-	public PickReceipt storeUnitLoadReport(PickReceipt label) throws FacadeException;
+	public Document generateUnitLoadReport(UnitLoad unitLoad) throws FacadeException;
 	
 }

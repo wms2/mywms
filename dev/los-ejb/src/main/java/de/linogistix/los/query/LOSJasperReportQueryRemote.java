@@ -10,7 +10,7 @@ package de.linogistix.los.query;
 
 import javax.ejb.Remote;
 
-import de.linogistix.los.model.LOSJasperReport;
+import de.wms2.mywms.report.Report;
 
 
 /**
@@ -18,6 +18,6 @@ import de.linogistix.los.model.LOSJasperReport;
  *
  */
 @Remote
-public interface LOSJasperReportQueryRemote extends BusinessObjectQueryRemote<LOSJasperReport>{ 
+public interface LOSJasperReportQueryRemote extends BusinessObjectQueryRemote<Report>{ 
   
 }

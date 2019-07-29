@@ -10,7 +10,6 @@ package de.linogistix.los.common.businessservice;
 import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.globals.DocumentTypes;
 
 /**
  * @author krane
@@ -27,7 +26,7 @@ public interface LOSPrintService {
 	 * 
 	 * @param printer
 	 * @param bytes
-	 * @param type (@see {@link DocumentTypes})
+	 * @param type
 	 * @throws FacadeException
 	 */
 	public void print(String printer, byte[] bytes, String type) throws FacadeException;

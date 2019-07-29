@@ -9,16 +9,13 @@ package de.linogistix.los.common.service;
 
 import javax.ejb.Local;
 
-import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
-import de.linogistix.los.model.LOSJasperReport;
+import de.wms2.mywms.report.Report;
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSJasperReportService extends BasicService<LOSJasperReport>{
-
-	public LOSJasperReport getByName( Client client, String name );
+public interface LOSJasperReportService extends BasicService<Report>{
 }

@@ -25,11 +25,6 @@ public class LOSInventoryPropertyKey {
 	public static final String PRINT_GOODS_RECEIPT_LABEL = "GOODS_RECEIPT_PRINT_LABEL";
 
 	/**
-	 * Store printed label
-	 */
-	public static final String STORE_GOODS_RECEIPT_LABEL = "GOODS_RECEIPT_STORE_LABEL";
-
-	/**
 	 * A default value for the lock of the receipt stock
 	 */
 	public static final String GOODS_IN_DEFAULT_LOCK = "GOODS_IN_DEFAULT_LOCK";
