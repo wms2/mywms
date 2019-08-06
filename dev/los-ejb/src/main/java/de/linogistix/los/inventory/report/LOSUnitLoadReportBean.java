@@ -35,7 +35,6 @@ import de.linogistix.los.util.StringTools;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.document.DocumentType;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.PickingOrder;
@@ -190,12 +189,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		parameters.put("orderStrategyName", deliveryOrder == null ? "" : deliveryOrder.getOrderStrategy() == null ? "" : deliveryOrder.getOrderStrategy().getName() );
 		parameters.put("prio", deliveryOrder == null ? 0 : deliveryOrder.getPrio() );
 		
-		byte[] bytes;
-		try {
-			bytes = reportBusiness.createPdfDocument(unitLoad.getClient(), "UnitLoadLabel", InventoryBundleResolver.class, valueList2, parameters);
-		} catch (BusinessException e) {
-			throw e.toFacadeException();
-		}
+		byte[] bytes = reportBusiness.createPdfDocument(unitLoad.getClient(), "UnitLoadLabel", InventoryBundleResolver.class, valueList2, parameters);
 		label.setData(bytes);
 
 

@@ -17,7 +17,6 @@ import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.common.exception.LOSExceptionRB;
 import de.wms2.mywms.document.Document;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.report.Report;
 import de.wms2.mywms.report.ReportBusiness;
 
@@ -59,11 +58,7 @@ public class LOSJasperReportFacadeBean implements LOSJasperReportFacade  {
 			throw new LOSExceptionRB("Cannot read client");
 		}
 		log.debug(logStr+"report="+report.getName());
-		try {
-			reportBusiness.compile(report);
-		} catch (BusinessException e) {
-			throw e.toFacadeException();
-		}
+		reportBusiness.compile(report);
 		report.setVersion(report.getVersion()+1);
 	}
 

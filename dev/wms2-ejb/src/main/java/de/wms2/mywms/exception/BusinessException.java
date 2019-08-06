@@ -26,7 +26,6 @@ import org.mywms.facade.FacadeException;
 
 import de.wms2.mywms.util.Translator;
 
-
 /**
  * BusinessException is the super class of the business exceptions.
  * <p>
@@ -44,42 +43,37 @@ import de.wms2.mywms.util.Translator;
  * @author krane
  */
 @ApplicationException(rollback = true)
-public class BusinessException extends java.lang.Exception {
+public class BusinessException extends FacadeException {
 	private static final long serialVersionUID = 1L;
 
-	protected String resourceKey;
-	protected Object[] parameters;
-	protected Class<?> bundleResolver = BusinessException.class;
-	protected String bundleName;
 	public int HTTPStatusCode = 500;
 
 	public BusinessException(Class<?> bundleResolver, String resourceKey) {
-		super(resourceKey);
-		this.resourceKey = resourceKey;
-		this.parameters = null;
-		this.bundleResolver = bundleResolver;
+		super(resourceKey, resourceKey, null);
+
+		setBundleResolver(bundleResolver);
+		setBundleName("translation.Bundle");
 	}
 
 	public BusinessException(Class<?> bundleResolver, String resourceKey, String parameter) {
-		super(resourceKey);
-		this.resourceKey = resourceKey;
-		this.parameters = new Object[] { parameter };
-		this.bundleResolver = bundleResolver;
+		super(resourceKey, resourceKey, new Object[] { parameter });
+
+		setBundleResolver(bundleResolver);
+		setBundleName("translation.Bundle");
 	}
 
 	public BusinessException(Class<?> bundleResolver, String resourceKey, Object[] parameters) {
-		super(resourceKey);
-		this.resourceKey = resourceKey;
-		this.parameters = parameters;
-		this.bundleResolver = bundleResolver;
+		super(resourceKey, resourceKey, parameters);
+
+		setBundleResolver(bundleResolver);
+		setBundleName("translation.Bundle");
 	}
 
 	public BusinessException(Class<?> bundleResolver, String bundleName, String resourceKey, Object[] parameters) {
-		super(resourceKey);
-		this.resourceKey = resourceKey;
-		this.parameters = parameters;
-		this.bundleResolver = bundleResolver;
-		this.bundleName = bundleName;
+		super(resourceKey, resourceKey, parameters);
+
+		setBundleResolver(bundleResolver);
+		setBundleName(bundleName);
 	}
 
 	/**
@@ -99,35 +93,12 @@ public class BusinessException extends java.lang.Exception {
 	 * The message contains the parameters by String.format().
 	 */
 	public String getLocalizedMessage(Locale locale) {
-		return Translator.getString(bundleResolver, bundleName, null, resourceKey, null, locale, parameters);
+		return Translator.getString(getBundleResolver(), getBundleName(), null, getKey(), null, locale,
+				getParameters());
 	}
 
 	public String getResourceKey() {
-		return resourceKey;
-	}
-
-	public Object[] getParameters() {
-		return parameters;
-	}
-
-	/**
-	 * By setting the BundleResolver you set the translation to a different bundle.
-	 * <p>
-	 * The BundleResolver is a class inside the package, where the resource bundle
-	 * files are located.
-	 */
-	public void setBundleResolver(Class<?> bundleResolver) {
-		this.bundleResolver = bundleResolver;
-	}
-
-	public Class<?> getBundleResolver() {
-		return this.bundleResolver;
-	}
-
-	public FacadeException toFacadeException() {
-		FacadeException facadeException = new FacadeException(getMessage(), getMessage(), new Object[] {}, getBundleResolver());
-		facadeException.setBundleName("translation.Bundle");
-		return facadeException;
+		return getKey();
 	}
 
 }

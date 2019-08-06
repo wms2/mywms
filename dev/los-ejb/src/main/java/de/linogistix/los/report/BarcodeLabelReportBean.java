@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.res.BundleResolver;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.report.ReportBusiness;
 
 /**
@@ -40,11 +39,7 @@ public class BarcodeLabelReportBean implements BarcodeLabelReport {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("REPORT_LOCALE", Locale.GERMANY);
 
-		try {
-			return reportBusiness.createPdfDocument(null, docName, BundleResolver.class, list, null);
-		} catch (BusinessException e) {
-			throw e.toFacadeException();
-		}
+		return reportBusiness.createPdfDocument(null, docName, BundleResolver.class, list, null);
 	}
 
 }

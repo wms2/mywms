@@ -42,7 +42,6 @@ import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
@@ -470,11 +469,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		}
 
 		inventoryComponent.changeAmount(stockUnit, amount, true, s, comment, null, true);
-		try {
-			inventoryBusiness.changePackagingUnit(stockUnit, packagingUnit);
-		} catch (BusinessException e) {
-			throw e.toFacadeException();
-		}
+		inventoryBusiness.changePackagingUnit(stockUnit, packagingUnit);
 
 		inventoryComponent.changeReservedAmount(stockUnit, reserved, s);
 	}

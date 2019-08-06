@@ -34,7 +34,6 @@ import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
@@ -106,11 +105,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			su.releaseReservedAmount(amount);
 
 			PickingOrderLine pick;
-			try {
-				pick = pickingPosGenerator.generatePick(orderPos, order.getOrderStrategy(), su, amount, su.getClient(), null, null);
-			} catch (BusinessException e) {
-				throw e.toFacadeException();
-			}
+			pick = pickingPosGenerator.generatePick(orderPos, order.getOrderStrategy(), su, amount, su.getClient(), null, null);
 			
 			String pickingOrderNumber = posTO.pickRequestNumber;
 			List<PickingOrderLine> pickList = pickingOrderMap.get(pickingOrderNumber);
@@ -126,12 +121,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			for( String key : pickingOrderMap.keySet() ) {
 				List<PickingOrderLine> pickList = pickingOrderMap.get(key);
 				if( pickList.size()>0 ) {
-					Collection<PickingOrder> pickingOrders;
-					try {
-						pickingOrders = pickingOrderGenerator.generatePickingOrders(pickList);
-					} catch (BusinessException e) {
-						throw e.toFacadeException();
-					}
+					Collection<PickingOrder> pickingOrders = pickingOrderGenerator.generatePickingOrders(pickList);
 					int i=1;
 					for(PickingOrder pickingOrder:pickingOrders) {
 						pickingOrder.setOrderNumber(key);

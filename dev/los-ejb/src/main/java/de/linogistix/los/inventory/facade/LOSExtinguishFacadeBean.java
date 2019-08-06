@@ -34,7 +34,6 @@ import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.util.businessservice.ContextService;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
@@ -170,21 +169,13 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 				continue;
 			}
 			PickingOrderLine pick;
-			try {
-				pick = pickPosGenerator.generatePick( null, strat, stock, stock.getAvailableAmount(), stock.getClient(), null, null);
-			} catch (BusinessException e) {
-				throw e.toFacadeException();
-			}
+			pick = pickPosGenerator.generatePick( null, strat, stock, stock.getAvailableAmount(), stock.getClient(), null, null);
 
 			pickList.add(pick);
 		}
 		Collection<PickingOrder> pickingOrderList = null;
 		if( pickList.size()>0 ) {
-			try {
-				pickingOrderList = pickOrderGenerator.generatePickingOrders(pickList);
-			} catch (BusinessException e) {
-				throw e.toFacadeException();
-			}
+			pickingOrderList = pickOrderGenerator.generatePickingOrders(pickList);
 		}
 		
 		if( pickingOrderList != null && pickingOrderList.size()>0 ) {

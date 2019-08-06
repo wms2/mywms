@@ -33,7 +33,6 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
@@ -297,11 +296,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			}
 		
 			List<PickingOrderLine> pickListX;
-			try {
-				pickListX = pickingPosGenerator.generatePicks(deliveryOrder, true);
-			} catch (BusinessException e) {
-				throw e.toFacadeException();
-			}
+			pickListX = pickingPosGenerator.generatePicks(deliveryOrder, true);
 			pickList.addAll(pickListX);
 		}
 		
@@ -311,11 +306,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		}
 		
 		Collection<PickingOrder> pickingOrderList ;
-		try {
-			pickingOrderList = pickingOrderGenerator.generatePickingOrders(pickList);
-		} catch (BusinessException e) {
-			throw e.toFacadeException();
-		}
+		pickingOrderList = pickingOrderGenerator.generatePickingOrders(pickList);
 		
 		if (pickingOrderList != null && pickingOrderList.size() > 0) {
 			for (PickingOrder pickingOrder : pickingOrderList) {

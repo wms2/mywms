@@ -57,7 +57,6 @@ import de.wms2.mywms.delivery.DeliverynoteGenerator;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.entity.GenericEntityService;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -231,19 +230,16 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 
 		if( startPicking ) {
-			try {
-				List<PickingOrderLine> pickList;
-				pickList = pickingPosGenerator.generatePicks(order, completeOnly);
-				if (pickList != null && pickList.size() > 0) {
-					Collection<PickingOrder> pickingOrders = pickingOrderGenerator.generatePickingOrders(pickList);
-					for (PickingOrder pickingOrder : pickingOrders) {
-						pickingOrder.setDestination(destination);
-						pickingOrder.setPrio(prio);
-						orderBusiness.releasePickingOrder(pickingOrder);
-					}
+
+			List<PickingOrderLine> pickList;
+			pickList = pickingPosGenerator.generatePicks(order, completeOnly);
+			if (pickList != null && pickList.size() > 0) {
+				Collection<PickingOrder> pickingOrders = pickingOrderGenerator.generatePickingOrders(pickList);
+				for (PickingOrder pickingOrder : pickingOrders) {
+					pickingOrder.setDestination(destination);
+					pickingOrder.setPrio(prio);
+					orderBusiness.releasePickingOrder(pickingOrder);
 				}
-			} catch (BusinessException e) {
-				throw e.toFacadeException();
 			}
 		}
 		
@@ -471,16 +467,12 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		log.debug(logStr+"order number="+order.getOrderNumber());
 
-		try {
-			byte[] data = deliverynoteGenerator.generateReport(order);
-			Document document = new Document();
-			document.setData(data);
-			document.setDocumentType(DocumentType.PDF);
-			document.setName("deliverynote-" + order.getOrderNumber());
-			return document;
-		} catch (BusinessException e) {
-			throw e.toFacadeException();
-		}
+		byte[] data = deliverynoteGenerator.generateReport(order);
+		Document document = new Document();
+		document.setData(data);
+		document.setDocumentType(DocumentType.PDF);
+		document.setName("deliverynote-" + order.getOrderNumber());
+		return document;
 	}
 	
 	public Document generateUnitLoadLabel( String label ) throws FacadeException {

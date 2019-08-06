@@ -36,7 +36,6 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
-import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
@@ -454,11 +453,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			}
 			
 			Collection<PickingOrder> newOrderList;
-			try {
-				newOrderList = pickingOrderGeneratorService.generatePickingOrders(openPickList);
-			} catch (BusinessException e) {
-				throw e.toFacadeException();
-			}
+			newOrderList = pickingOrderGeneratorService.generatePickingOrders(openPickList);
 			for( PickingOrder newOrder : newOrderList ) {
 				newOrder.setOrderNumber(prefix+newOrder.getOrderNumber());
 				releasePickingOrder(newOrder);
@@ -687,13 +682,9 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 						if (affectedOrder != null && affectedOrder.isCreateFollowUpPicks()) {
 							DeliveryOrderLine orderPos = affected.getDeliveryOrderLine();
 							if( orderPos != null ) {
-								List<PickingOrderLine> pickListNew;
-								try {
-									pickListNew = pickingPosGeneratorService.generatePicks( orderPos, pickingOrder.getOrderStrategy(), affected.getAmount() );
-									pickingOrderGeneratorService.addPicksToOrder( affectedOrder, pickListNew );
-								} catch (BusinessException e) {
-									throw e.toFacadeException();
-								}
+								List<PickingOrderLine> pickListNew = pickingPosGeneratorService.generatePicks(orderPos,
+										pickingOrder.getOrderStrategy(), affected.getAmount());
+								pickingOrderGeneratorService.addPicksToOrder(affectedOrder, pickListNew);
 							}
 						}
 					}
@@ -755,18 +746,11 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				BigDecimal amountMissing = pick.getAmount().subtract(amountPicked);
 				if( BigDecimal.ZERO.compareTo(amountMissing)<0 ) {
 					List<PickingOrderLine> pickListNew;
-					try {
-						pickListNew = pickingPosGeneratorService.generatePicks(deliveryOrderLine, pickingOrder.getOrderStrategy(), amountMissing );
-					} catch (BusinessException e1) {
-						throw e1.toFacadeException();
-					}
-					
-					if( pickListNew != null && pickListNew.size()>0 ) {
-						try {
-							pickingOrderGeneratorService.addPicksToOrder( pickingOrder, pickListNew );
-						} catch (BusinessException e) {
-							throw e.toFacadeException();
-						}
+					pickListNew = pickingPosGeneratorService.generatePicks(deliveryOrderLine,
+							pickingOrder.getOrderStrategy(), amountMissing);
+
+					if (pickListNew != null && pickListNew.size() > 0) {
+						pickingOrderGeneratorService.addPicksToOrder(pickingOrder, pickListNew);
 					}
 				}
 			}		
@@ -860,24 +844,20 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			if (generateNewPick && pickingOrder.getOrderStrategy().isCreateFollowUpPicks()) {
 				BigDecimal amountMissing = pick.getAmount();
 
-				try {
-					List<PickingOrderLine> pickListNew = pickingPosGeneratorService.generatePicks(deliveryOrderLine,
-							pickingOrder.getOrderStrategy(), amountMissing);
-					if (pickListNew != null && pickListNew.size() > 0) {
-						Collection<PickingOrderLine> notAddedPicks = pickingOrderGeneratorService
-								.addPicksToOrder(pickingOrder, pickListNew);
-						if (notAddedPicks.size() > 0) {
-							Collection<PickingOrder> additionalOrders = pickingOrderGeneratorService
-									.generatePickingOrders(notAddedPicks);
-							for (PickingOrder pickingOrderNew : additionalOrders) {
-								if (pickingOrderNew.getState() < State.PROCESSABLE) {
-									releasePickingOrder(pickingOrderNew);
-								}
+				List<PickingOrderLine> pickListNew = pickingPosGeneratorService.generatePicks(deliveryOrderLine,
+						pickingOrder.getOrderStrategy(), amountMissing);
+				if (pickListNew != null && pickListNew.size() > 0) {
+					Collection<PickingOrderLine> notAddedPicks = pickingOrderGeneratorService
+							.addPicksToOrder(pickingOrder, pickListNew);
+					if (notAddedPicks.size() > 0) {
+						Collection<PickingOrder> additionalOrders = pickingOrderGeneratorService
+								.generatePickingOrders(notAddedPicks);
+						for (PickingOrder pickingOrderNew : additionalOrders) {
+							if (pickingOrderNew.getState() < State.PROCESSABLE) {
+								releasePickingOrder(pickingOrderNew);
 							}
 						}
 					}
-				} catch (BusinessException e) {
-					throw e.toFacadeException();
 				}
 			}
 			

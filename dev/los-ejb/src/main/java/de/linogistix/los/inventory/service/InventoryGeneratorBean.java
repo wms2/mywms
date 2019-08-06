@@ -7,8 +7,8 @@
  */
 package de.linogistix.los.inventory.service;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.mywms.model.Client;
 
@@ -23,7 +23,7 @@ import de.wms2.mywms.sequence.SequenceBusiness;
 public class InventoryGeneratorBean implements InventoryGeneratorService {
 
 
-    @EJB
+    @Inject
     private SequenceBusiness seqService;
     // -----------------------------------------------------------------------
     
