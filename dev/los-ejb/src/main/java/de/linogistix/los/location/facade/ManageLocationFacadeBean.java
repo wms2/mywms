@@ -21,8 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.customization.CustomLocationService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
@@ -30,10 +28,11 @@ import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.location.query.dto.LOSRackTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
-import de.wms2.mywms.strategy.TypeCapacityConstraint;
+import de.wms2.mywms.strategy.LocationReserver;
 
 @Stateless
 @PermitAll
@@ -42,8 +41,6 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 	private static final Logger log = Logger
 			.getLogger(ManageLocationFacadeBean.class);
 
-	@EJB
-	private LOSStorage storage;
 
 	@EJB
 	private ContextService contextService;
@@ -52,14 +49,17 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 	private LOSUnitLoadQueryRemote uLoadQueryRemote;
 
 	@EJB
-	private LocationReserver locationReserver;
-	@EJB
 	private CustomLocationService customLocationService;
 	@Inject
 	private StorageLocationEntityService locationServcie;
 
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
+
+	@Inject
+	private LocationReserver locationReserver;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	public void releaseReservations(List<BODTO<StorageLocation>> locations)
 			throws FacadeException {
@@ -75,7 +75,7 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 				log.warn("Not found: " + storLoc.getName());
 				continue;
 			}
-			locationReserver.deallocateLocationComplete(sl);
+			locationReserver.deallocateLocation(sl);
 		}
 	}
 
@@ -83,9 +83,9 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 
 		UnitLoad u = uLoadQueryRemote.queryByIdentity(labelId);
 		manager.find(UnitLoad.class, u.getId());
-		StorageLocation nirwana = locationServcie.getTrash();
-		storage.transferUnitLoad(contextService.getCallerUserName(), nirwana, u);
-
+		if (u != null) {
+			inventoryBusiness.deleteUnitLoad(u, null, null, null);
+		}
 	}
 
 	public void sendUnitLoadToNirwana(List<BODTO<UnitLoad>> list)
@@ -94,17 +94,18 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 			return;
 		}
 
-		StorageLocation nirwana = locationServcie.getTrash();
 		for (BODTO<UnitLoad> ul : list) {
 			UnitLoad u = manager.find(UnitLoad.class, ul.getId());
-			storage.transferUnitLoad(contextService.getCallerUserName(), nirwana, u);
+			if (u != null) {
+				inventoryBusiness.deleteUnitLoad(u, null, null, null);
+			}
 		}
 	}
 
 
-	public TypeCapacityConstraint checkUnitLoadSuitable(
+	public void checkUnitLoadSuitable(
 			BODTO<StorageLocation> dest, BODTO<UnitLoad> ul, boolean ignoreLock)
-			throws LOSLocationException {
+			throws FacadeException {
 		
 		StorageLocation storageLocation = manager.find(StorageLocation.class, dest.getId());
 		if (storageLocation == null)
@@ -114,7 +115,7 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 		if (unitLoad == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{dest.getName()});
 
-		return locationReserver.checkAllocateLocation(storageLocation, unitLoad, ignoreLock);
+		locationReserver.checkAllocateLocation(storageLocation, unitLoad, !ignoreLock, true);
 		
 	}
 
@@ -128,7 +129,8 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 		if (unitLoad == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{dest.getName()});
 		
-		storage.transferUnitLoad(contextService.getCallerUserName(), storageLocation, unitLoad, -1, ignoreSlLock, info, "");
+		inventoryBusiness.checkTransferUnitLoad(unitLoad, storageLocation, !ignoreSlLock);
+		inventoryBusiness.transferUnitLoad(unitLoad, storageLocation, null, null, info);
 		
 	}
 
@@ -142,8 +144,7 @@ public class ManageLocationFacadeBean implements ManageLocationFacade {
 		if (destination == null)
 			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new String[]{destinationTo.getName()});
 		
-		storage.transferToCarrier(contextService.getCallerUserName(), source, destination, info, "");
-		
+		inventoryBusiness.transferToCarrier(source, destination, null, null, info);
 	}
 
 	@Override

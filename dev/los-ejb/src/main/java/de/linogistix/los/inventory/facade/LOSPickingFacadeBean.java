@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.User;
 
-import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -33,9 +32,9 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
@@ -75,8 +74,6 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	private InventoryGeneratorService sequenceService;
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private LOSInventoryComponent inentoryComponent;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
 
@@ -85,7 +82,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	@Inject
 	private StorageLocationEntityService locationService;
 	@Inject
-	private UnitLoadEntityService unitLoadService;
+	private InventoryBusiness inventoryBusiness;
 
 	public void changePickingOrderPrio( long orderId, int prio ) throws FacadeException {
 		String logStr = "changePickingOrderPrio ";
@@ -269,9 +266,6 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 				log.error(logStr+"Customer order not found. id="+deliveryOrderId);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order not found");
 			}
-			if( deliveryOrder == null ) {
-				continue;
-			}
 			if( strat == null ) {
 				strat = deliveryOrder.getOrderStrategy();
 			}
@@ -367,20 +361,6 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		
 		// generate pick-to unit load
-		UnitLoad ul = null;
-		String label = null;
-		for( int i = 0; i < 1000; i++ ) {
-			label = sequenceService.generateUnitLoadLabelId(null, null);
-			ul = unitLoadService.read(label);
-			if( ul == null ) {
-				break;
-			}
-			log.warn(logStr+"Label already exists. Try next. label="+label);
-		}
-		if( ul != null ) {
-			log.warn(logStr+"Cannot create pick-to unit load");
-			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_UNITLOAD, new Object[]{""}); 
-		}
 		UnitLoadType type = unitLoadTypeService.getDefault();
 		
 		StorageLocation destination = order.getDestination();
@@ -393,7 +373,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			destination = slList.get(0);
 		}
 		
-		ul = inentoryComponent.createUnitLoad(order.getClient(), label, type, destination, StockState.PICKED);
+		UnitLoad ul = inventoryBusiness.createUnitLoad(order.getClient(), null, type, destination, StockState.PICKED, order.getOrderNumber(), null, null);
 		PickingUnitLoad pul = pickingUnitLoadService.create(ul);
 		pul.setPickingOrder(order);
 		pul.setPositionIndex(-1);

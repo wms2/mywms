@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
+import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jws.WebParam;
@@ -27,7 +28,6 @@ import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.businessservice.LOSAdviceBusiness;
-import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.customization.ManageItemDataService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
@@ -38,17 +38,21 @@ import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
-import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
+import de.wms2.mywms.location.LocationType;
+import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.product.PackagingUnit;
@@ -71,9 +75,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	Logger log = Logger.getLogger(ManageInventoryFacadeBean.class);
 
 	@EJB
-	private LOSStorage storage;
-	
-	@EJB
 	private ManageItemDataService itemDataService;
 
 	@EJB
@@ -92,9 +93,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     private LOSAdviceBusiness goodsAdvice;
 	
     @EJB
-    private LOSInventoryComponent inventoryComponent;
-    
-    @EJB
     private ContextService contextService;
     
     @EJB
@@ -108,7 +106,11 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 
 	@EJB
 	private ItemUnitService itemUnitService;
-	
+	@EJB
+	private LocationTypeEntityService slTypeService;
+	@EJB
+	private ItemDataService itemDataService1;
+
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
 	
@@ -120,6 +122,10 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private PackagingUnitEntityService packagingUnitEntityService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
 
 	/* 
 	 * @see ManageInventoryRemote#createItemData(java.lang.String, java.lang.String)
@@ -188,7 +194,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		}
 	}
 
-	/* 
+/* 
 	 * @see ManageInventoryRemote#updateItemReference(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public boolean updateItemReference(
@@ -252,7 +258,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 					batch = lotService.create(c, itemData, batchRef, new Date(), useNotBefore, bestBeforeEnd);
 				}
 				
-				inventoryComponent.processLotDates(batch, bestBeforeEnd, useNotBefore);
+				lotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
 			goodsAdvice.goodsAdvise(c, itemData, batch, amount, expireBatch, expectedDelivery, "");
@@ -265,7 +271,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		}
 		
 	}
-	
+
 	public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
 			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch,
@@ -275,7 +281,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				bestBeforeEnd, useNotBefore, expireBatch,
 				requestID, "");
 	}
-	
+
 	public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
 			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch,
@@ -307,7 +313,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 					batch = lotService.create(c, itemData, batchRef, new Date(), useNotBefore, bestBeforeEnd);
 				}
 				
-				inventoryComponent.processLotDates(batch, bestBeforeEnd, useNotBefore);
+				lotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
 			LOSAdvice adv = goodsAdvice.goodsAdvise(c, itemData, batch, amount, expireBatch, expectedDelivery, requestID);
@@ -334,24 +340,124 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
             @WebParam(name = "amount") BigDecimal amount,
             
             @WebParam(name = "unitLoadRef") String unitLoadRef) throws InventoryException, FacadeException, EntityNotFoundException 
-    {    
-  
-        inventoryComponent.createStockUnitOnStorageLocation(clientRef, slName, articleRef, lotRef, amount, unitLoadRef,genService.generateManageInventoryNumber(), null );
-    }
+	{
 
-    public void deleteStockUnitsFromStorageLocations(List<BODTO<StorageLocation>> locations) throws FacadeException{
-    	
-    	if (locations == null){
-    		return;
-    	}
-    
-    	for (BODTO<StorageLocation> loc : locations){
-    		StorageLocation sl = manager.find(StorageLocation.class, loc.getId());
-    		if (sl != null){
-    			inventoryComponent.deleteStockUnitsFromStorageLocation(sl, genService.generateManageInventoryNumber());
-    		}
-    	}
-    }
+		Client c;
+		StorageLocation sl;
+		Lot lot = null;
+		UnitLoad ul;
+
+		try {
+			c = clientService.getByNumber(clientRef);
+			Client callerClient = contextService.getCallersClient();
+			if ((!callerClient.equals(c)) && (!callerClient.isSystemClient())) {
+				throw new EJBAccessException();
+			}
+
+			sl = locationService.read(slName);
+
+			if (sl == null) {
+				log.warn("NOT FOUND. Going to CREATE StorageLocation " + slName);
+
+				LocationType type;
+				try {
+					type = slTypeService.getDefault();
+					if (type == null)
+						throw new NullPointerException("No default location type found.");
+				} catch (Throwable e) {
+					log.error(e.getMessage(), e);
+					throw new RuntimeException(e.getMessage());
+				}
+				sl = locationService.create(slName, c, type, null, null);
+			}
+
+			ItemData idat = itemDataService1.getByItemNumber(c, articleRef);
+
+			if (idat == null) {
+				log.error("--- !!! NO ITEM WITH NUMBER " + articleRef + " !!! ---");
+				throw new InventoryException(InventoryExceptionKey.NO_SUCH_ITEMDATA, articleRef);
+			}
+
+			if ((lotRef != null && lotRef.length() > 0) || idat.isLotMandatory()) {
+				try {
+					lot = getOrCreateLot(c, lotRef, idat);
+				} catch (Throwable ex) {
+					log.error(ex.getMessage(), ex);
+					throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED,
+							slName);
+				}
+			}
+			try {
+				ul = getOrCreateUnitLoad(c, idat, sl, unitLoadRef, StockState.ON_STOCK);
+			} catch (Throwable ex) {
+				log.error(ex.getMessage(), ex);
+				throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED, slName);
+			}
+
+			// Fucking hibernate is not able to handle the stock unit list without accessing
+			// it in advance
+			ul.getStockUnitList().size();
+
+			inventoryBusiness.createStock(ul, idat, amount, lot, null, null, ul.getState(), null, null, null, true);
+
+		} catch (FacadeException ex) {
+			throw ex;
+		} catch (Throwable t) {
+			log.error(t.getMessage(), t);
+			throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ONSTOCK, "");
+		}
+	}
+
+	private Lot getOrCreateLot(Client c, String lotRef, ItemData idat) {
+		Lot lot;
+		if (lotRef != null && lotRef.length() != 0) {
+			try {
+				lot = lotService.getByNameAndItemData(c, lotRef, idat.getNumber());
+				if (!lot.getItemData().equals(idat)) {
+					throw new RuntimeException("ItemData does not match Lot");
+				}
+			} catch (EntityNotFoundException ex) {
+				log.warn("CREATE Lot: " + ex.getMessage());
+				lot = lotService.create(c, idat, lotRef, new Date(), null, null);
+			}
+		} else {
+			throw new IllegalArgumentException("Missing orderRef");
+		}
+		return lot;
+	}
+
+	private UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref, int state)
+			throws FacadeException {
+		UnitLoad ul;
+		UnitLoadType type;
+
+		if (c == null)
+			throw new NullPointerException("Client must not be null");
+		if (idat == null)
+			throw new NullPointerException("Article must not be null");
+		if (sl == null)
+			throw new NullPointerException("StorageLocation must not be null");
+		if (ref == null)
+			throw new NullPointerException("Reference must not be null");
+
+		if (ref != null && ref.length() != 0) {
+			ul = unitLoadService.read(ref);
+			if (ul == null) {
+				log.warn("Unit load does not exist. create new. labelId=" + ref);
+				type = idat.getDefaultUnitLoadType();
+				if (type == null) {
+					type = unitLoadTypeService.getDefault();
+				}
+				if (type == null) {
+					throw new RuntimeException("Cannot retrieve default UnitLoadType");
+				}
+				ul = inventoryBusiness.createUnitLoad(c, ref, type, sl, StockState.ON_STOCK, null, null, null);
+			}
+		} else {
+			throw new IllegalArgumentException("Missing labelId");
+		}
+		return ul;
+	}
 
     public void sendStockUnitsToNirwanaFromSl(List<BODTO<StorageLocation>> locations) throws FacadeException{
     	
@@ -362,11 +468,13 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     	for (BODTO<StorageLocation> loc : locations){
     		StorageLocation sl = manager.find(StorageLocation.class, loc.getId());
     		if (sl != null){
-    			inventoryComponent.sendStockUnitsToNirwana(sl, genService.generateManageInventoryNumber());
+    			for (UnitLoad ul : sl.getUnitLoads()) {
+        			inventoryBusiness.deleteUnitLoad(ul, null, null, null);
+    			}
     		}
     	}
     }
-    
+
     public void sendStockUnitsToNirwana(List<BODTO<StockUnit>> sus) throws FacadeException{
     	
     	if (sus == null){
@@ -378,11 +486,11 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     		if (su != null){
     				// do not change amount to zero. This kills reservation check!  
     				// inventoryComponent.changeAmount(su, new BigDecimal(0), true, genService.generateManageInventoryNumber(), null, null, true);
-                    inventoryComponent.sendStockUnitsToNirwana(su, genService.generateManageInventoryNumber());
+    			inventoryBusiness.deleteStockUnit(su, null, null, null);
     		}
     	}
     }
-    
+
     public void sendStockUnitsToNirwanaFromUl(List<BODTO<UnitLoad>> unitLoads) throws FacadeException{
     	
     	if (unitLoads == null){
@@ -393,42 +501,15 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     	for (BODTO<UnitLoad> loc : unitLoads){
     		UnitLoad ul = manager.find(UnitLoad.class, loc.getId());
     		if (ul != null){
-    			inventoryComponent.sendStockUnitsToNirwana(ul, genService.generateManageInventoryNumber());
+    			inventoryBusiness.deleteUnitLoad(ul, null, null, null);
     		}
     	}
     }
-	
-    public void sendStockUnitToNirwana(String location) throws FacadeException{
-    	
-    	if (location == null){
-    		return;
-    	}
-  
-        StorageLocation sl = slQueryRemote.queryByIdentity(location);
-        sl = manager.find(StorageLocation.class, sl.getId());
-        if (sl != null) {
-            inventoryComponent.sendStockUnitsToNirwana(sl, genService.generateManageInventoryNumber());
-        }
-    }
 
-	public void transferStockUnit(BODTO<StockUnit> suTO,
-			BODTO<UnitLoad> ulTO) throws FacadeException {
-		
-		transferStockUnit(suTO, ulTO, false, false, null);
-		
-	}
-	
     public void transferStockUnit(BODTO<StockUnit> suTO, BODTO<UnitLoad> ulTO, String info) throws FacadeException {
 		transferStockUnit(suTO, ulTO, false, false, info);
     }
 
-	public void transferStockUnit(BODTO<StockUnit> suTO,
-			BODTO<UnitLoad> ulTO, 
-			boolean removeSuReservation,
-			boolean removeSuLock) throws FacadeException {
-		transferStockUnit(suTO, ulTO, removeSuReservation, removeSuLock, null);
-	}
-	
 	public void transferStockUnit(BODTO<StockUnit> suTO,
 			BODTO<UnitLoad> ulTO, 
 			boolean removeSuReservation,
@@ -438,7 +519,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		StockUnit su = manager.find(StockUnit.class, suTO.getId());
 		UnitLoad ul = manager.find(UnitLoad.class, ulTO.getId());
 		
-		String s = genService.generateManageInventoryNumber();
 		if (removeSuLock){
 			su.setLock(0);
 		}
@@ -447,55 +527,38 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			su.setReservedAmount(new BigDecimal(0));
 		}
 		
-		inventoryComponent.transferStockUnit(su, ul, s, comment);
-		
+		inventoryBusiness.checkTransferStock(su, ul, null);
+		inventoryBusiness.transferStock(su, ul, null, su.getState(), null, null, comment);
 	}
-  
-	public boolean testSuitable(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException{
+
+	public void testSuitable(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException{
 		UnitLoad unitLoad = manager.find(UnitLoad.class, ul.getId());
 		StockUnit stockUnit = manager.find(StockUnit.class, su.getId());
-		return inventoryComponent.testSuiable(stockUnit, unitLoad);
+		inventoryBusiness.checkTransferStock(stockUnit, unitLoad, null);
 	}
 
 	public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String packaging, String comment)
 			throws FacadeException {
 		
 		StockUnit stockUnit = manager.find(StockUnit.class, su.getId());
-		String s = genService.generateManageInventoryNumber();
 
 		PackagingUnit packagingUnit = null;
 		if (!StringUtils.isEmpty(packaging)) {
 			packagingUnit = packagingUnitService.readIgnoreCase(packaging, stockUnit.getItemData());
 		}
 
-		inventoryComponent.changeAmount(stockUnit, amount, true, s, comment, null, true);
+		inventoryBusiness.changeAmount(stockUnit, amount, null, null, null, comment, true);
 		inventoryBusiness.changePackagingUnit(stockUnit, packagingUnit);
-
-		inventoryComponent.changeReservedAmount(stockUnit, reserved, s);
-	}
-	
-	public void transferStock(BODTO<StockUnit> from, BODTO<StockUnit> to,
-			BigDecimal amount, boolean makeReservation) throws FacadeException {
 		
-		StockUnit fromStockUnit = manager.find(StockUnit.class, from.getId());
-		StockUnit toStockUnit = manager.find(StockUnit.class, to.getId());
-		
-		String s = genService.generateManageInventoryNumber();
-
-		if (makeReservation){
-			fromStockUnit.setReservedAmount(amount);
+		if (reserved.compareTo(new BigDecimal(0)) < 0) {
+			throw new IllegalArgumentException("Amount cannot be negative");
 		}
-		inventoryComponent.transferStockFromReserved(fromStockUnit, toStockUnit, amount, s);		
-	}
-	
-	public void transferStock(BODTO<UnitLoad> from, BODTO<UnitLoad> to
-			, boolean relesereservation) throws FacadeException {
-		
-		UnitLoad fromUl = manager.find(UnitLoad.class, from.getId());
-		UnitLoad toUl = manager.find(UnitLoad.class, to.getId());
-		String s = genService.generateManageInventoryNumber();
 
-		inventoryComponent.transferStock(fromUl, toUl, s, false);		
+		if (reserved.compareTo(amount) > 0) {
+			throw new InventoryException(InventoryExceptionKey.CANNOT_RESERVE_MORE_THAN_AVAILABLE, "" + stockUnit.getAmount());
+		}
+
+		stockUnit.setReservedAmount(reserved);
 	}
 
 	public BODTO<Lot> createLot(BODTO<Client> client, 
@@ -534,12 +597,12 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		
 		Lot lot = lotService.create(cl, it, lotNumber, new Date(), useNotBefore, bestBeforeEnd);
 		
-		inventoryComponent.processLotDates(lot, bestBeforeEnd, useNotBefore);
+		lotService.processLotDates(lot, bestBeforeEnd, useNotBefore);
 		
 		return new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.getName());
 	}
 
-		
+	
 	public void reserveStock(BODTO<StockUnit> stockTO, BigDecimal amountToReserve) throws InventoryException{
 		
 		if(stockTO == null){
@@ -567,7 +630,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		
 		stock.addReservedAmount(amountToReserve);
 	}
-	
+
 	public void releaseReservation(BODTO<StockUnit> stockTO, BigDecimal amountToRelease) throws InventoryException{
 		
 		if(stockTO == null){
@@ -597,25 +660,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		
 	}
 
-//	public void createStockUnit(String clientRef, String suName,
-//			String articleRef, String lotRef, int amount, String unitLoadRef)
-//			throws InventoryException, FacadeException, EntityNotFoundException {
-//		Client c = clientService.getByNumber(clientRef);  
-//        User u = contextService.getCallersUser();
-//    	manageInventory.createStockUnit(clientRef, suName, articleRef, lotRef, amount, unitLoadRef,genService.generateManageInventoryNumber(u) );
-//		
-//	}
-
-	public void removeStockUnit(BODTO<StockUnit> stockUnit, String activityCode)
-		throws FacadeException 
-	{
-
-		StockUnit su = manager.find(StockUnit.class, stockUnit.getId());
-		
-		inventoryComponent.removeStockUnit(su, activityCode, true);
-
-	}
-	
 	public void transferUnitLoad(BODTO<StorageLocation> target,
 			BODTO<UnitLoad> ul, int index, boolean ignoreSlLock, String info) throws FacadeException {
 		StorageLocation targetLocation = manager.find(StorageLocation.class, target.getId());
@@ -659,25 +703,25 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				// There is aready a unit load on the destination. => Add stock
 				
 				UnitLoad onDestination = targetLocation.getUnitLoads().get(0);
+				for (StockUnit stock : unitLoad.getStockUnitList()) {
+					inventoryBusiness.transferStock(stock, onDestination, null, StockState.ON_STOCK, null, null, info);
+				}
 				
-				inventoryComponent.transferStock(unitLoad, onDestination, "", false);
-				storage.sendToNirwana( contextService.getCallerUserName(), unitLoad);
 				log.info("Transferred Stock to virtual UnitLoadType: "+onDestination.toShortString());
 			} else {
 				UnitLoadType virtual = unitLoadTypeService.getVirtual();
 
 				unitLoad.setUnitLoadType(virtual);
 				unitLoad.setLabelId(targetLocation.getName());
-				storage.transferUnitLoad( contextService.getCallerUserName(), targetLocation, unitLoad, -1, false, null, null);
-
+				inventoryBusiness.checkTransferUnitLoad(unitLoad, targetLocation, false);
+				inventoryBusiness.transferUnitLoad(unitLoad, targetLocation, null, null, info);
 			}
 
 			return;
 		}
 		
-
-		storage.transferUnitLoad(contextService.getCallerUserName(), targetLocation, unitLoad, -1, ignoreSlLock, info, "");
-		
+		inventoryBusiness.checkTransferUnitLoad(unitLoad, targetLocation, false);
+		inventoryBusiness.transferUnitLoad(unitLoad, targetLocation, null, null, info);
 	}
 
 	@Override

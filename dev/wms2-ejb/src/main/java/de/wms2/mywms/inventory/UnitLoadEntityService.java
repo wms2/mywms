@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -137,11 +138,11 @@ public class UnitLoadEntityService {
 			hql += " and entity.storageLocation=:location";
 		}
 		if (emptyUnitLoad != null && emptyUnitLoad.booleanValue()) {
-			hql += " and not exist(select 1 from " + StockUnit.class.getSimpleName()
+			hql += " and not exists(select 1 from " + StockUnit.class.getSimpleName()
 					+ " stock where stock.unitLoad=entity) ";
 		}
-		if (emptyUnitLoad != null && emptyUnitLoad.booleanValue()) {
-			hql += " and exist(select 1 from " + StockUnit.class.getSimpleName()
+		if (emptyUnitLoad != null && !emptyUnitLoad.booleanValue()) {
+			hql += " and exists(select 1 from " + StockUnit.class.getSimpleName()
 					+ " stock where stock.unitLoad=entity) ";
 		}
 		if (minState != null) {

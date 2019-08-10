@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
+import org.mywms.model.User;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
@@ -31,7 +32,6 @@ import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.businessservice.LOSGoodsReceiptComponent;
-import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.crud.StockUnitCRUDRemote;
 import de.linogistix.los.inventory.customization.ManageReceiptService;
 import de.linogistix.los.inventory.exception.InventoryException;
@@ -52,7 +52,6 @@ import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.inventory.service.StockUnitService;
-import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.ClientQueryRemote;
@@ -66,6 +65,7 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.document.Document;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -105,14 +105,10 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     private ManageInventoryFacade manageInventoryFacade;
     @EJB
     private LOSSystemPropertyService propertyService;
-    @EJB
-    private LOSStorage storageService;
 	@EJB
 	private ContextService contextService;
 	@EJB
 	private StockUnitService stockUnitService;
-	@EJB
-	private LOSInventoryComponent inventoryComponent;
 	@EJB
 	private FixAssignmentEntityService fixService;
 	@EJB
@@ -134,6 +130,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
     //-----------------------------------------------------------------------
     // Query data for Process input to choose from
@@ -478,7 +476,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	    			putOnFixedAssigned( contextService.getCallerUserName(), gr.getGoodsReceiptNumber(), ul, targetLocation);
 	    		}
 	    		else {
-					storageService.transferUnitLoad( contextService.getCallerUserName(), targetLocation, ul, -1, false, null, null);
+					inventoryBusiness.checkTransferUnitLoad(ul, targetLocation, true);
+					inventoryBusiness.transferUnitLoad(ul, targetLocation, gr.getGoodsReceiptNumber(), null, null);
 	    		}
 			} catch (FacadeException e) {
 				logger.error("Error in Transfer to target="+targetLocation.getName());
@@ -487,8 +486,10 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         else if( targetUnitLoad != null ) {
         	try {
-				inventoryComponent.transferStock(ul, targetUnitLoad, gr.getGoodsReceiptNumber(), false);
-				storageService.sendToNirwana( contextService.getCallerUserName(), ul);
+        		for(StockUnit stock:ul.getStockUnitList()) {
+            		inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
+            		inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), gr.getGoodsReceiptNumber(), null, null);
+        		}
 				ul = targetUnitLoad;
 			} catch (FacadeException e) {
 				logger.error("Error in Transfer to target="+targetUnitLoadName);
@@ -760,14 +761,17 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			
 			UnitLoad onDestination = targetLocation.getUnitLoads().get(0);
 			
-			inventoryComponent.transferStock(unitload, onDestination, activityCode, false);
-			storageService.sendToNirwana( contextService.getCallerUserName(), unitload);
+    		for(StockUnit stock:unitload.getStockUnitList()) {
+        		inventoryBusiness.checkTransferStock(stock, onDestination, null);
+        		inventoryBusiness.transferStock(stock, onDestination, null, stock.getState(), activityCode, null, null);
+    		}
+
 			logger.info("Transferred Stock to virtual UnitLoadType: "+unitload.toShortString());
 		} else {
 			unitload.setType(virtual);
 			unitload.setLabelId(targetLocation.getName());
-			storageService.transferUnitLoad( userName, targetLocation, unitload, -1, false, null, null);
-
+			inventoryBusiness.checkTransferUnitLoad(unitload, targetLocation, true);
+			inventoryBusiness.transferUnitLoad(unitload, targetLocation, null, null, null);
 		}
 	}
 
@@ -908,9 +912,9 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
             throw new InventoryException(InventoryExceptionKey.CREATE_UNITLOAD, new Object[0]);
         }
         
-		StockUnit su = inventoryComponent.createStock(client, lot, idat,
-				amount, null, ul, "IMAN", serialNumber, null, true);
-
+		User operator = contextService.getCallersUser();
+		StockUnit su = inventoryBusiness.createStock(ul, idat, amount, lot, serialNumber, null, ul.getState(), null,
+				operator, null, true);
         if(lock > 0){
 	        try {
 				suCrud.lock(su, lock, lockCause);
@@ -925,10 +929,11 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         if( targetLocation != null ) {
     		try {
 	    		if( isFixedLocation ) {
-	    			putOnFixedAssigned( contextService.getCallerUserName(), "IMAN", ul, targetLocation);
+	    			putOnFixedAssigned( contextService.getCallerUserName(), null, ul, targetLocation);
 	    		}
 	    		else {
-					storageService.transferUnitLoad( contextService.getCallerUserName(), targetLocation, ul, -1, false, null, null);
+					inventoryBusiness.checkTransferUnitLoad(ul, targetLocation, true);
+					inventoryBusiness.transferUnitLoad(ul, targetLocation, null, null, null);
 	    		}
 			} catch (FacadeException e) {
 				logger.error("Error in Transfer to target="+targetLocation.getName());
@@ -937,8 +942,10 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         else if( targetUnitLoad != null ) {
         	try {
-				inventoryComponent.transferStock(ul, targetUnitLoad, "IMAN", false);
-				storageService.sendToNirwana( contextService.getCallerUserName(), ul);
+        		for(StockUnit stock:ul.getStockUnitList()) {
+            		inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
+            		inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), null, null, null);
+        		}
 			} catch (FacadeException e) {
 				logger.error("Error in Transfer to target="+targetUnitLoadName);
 				throw e;

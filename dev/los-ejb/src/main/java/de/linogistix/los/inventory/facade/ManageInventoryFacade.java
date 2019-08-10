@@ -190,11 +190,6 @@ public interface ManageInventoryFacade {
     //-------------
     
     /**
-     * Deletes {@link StockUnit} from {@link StorageLocation}. Does not necessarily delete the {@link StockUnit} itself!
-     */
-    void deleteStockUnitsFromStorageLocations(List<BODTO<StorageLocation>> locations) throws FacadeException;
-    
-    /**
      * Sends all {@link StockUnit} on given {@link StorageLocation}s to nirwana.
      * 
      * @param locations
@@ -216,21 +211,6 @@ public interface ManageInventoryFacade {
      * @throws FacadeException
      */
     void sendStockUnitsToNirwanaFromUl(List<BODTO<UnitLoad>> uls) throws FacadeException;
-    
-    /**
-     * Sends {@link StockUnit}s on given {@link StorageLocation} to nirwana.
-     * 
-     * @param location the name of the storage location
-     * @throws FacadeException
-     */
-    void sendStockUnitToNirwana(String location) throws FacadeException;
-    
-    //-------------
-    
-    /**
-     * Transferres {@link StockUnit} to given {@link UnitLoad}
-     */
-    void transferStockUnit(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException;
     
     /**
      * 
@@ -261,7 +241,7 @@ public interface ManageInventoryFacade {
       * @return
       * @throws FacadeException
       */
-     public boolean testSuitable(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException;
+     public void testSuitable(BODTO<StockUnit> su, BODTO<UnitLoad> ul) throws FacadeException;
 
      
      /**
@@ -274,17 +254,6 @@ public interface ManageInventoryFacade {
       */
      public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String packaging, String comment) throws FacadeException;
 
-     /**
-      * Transfers all stock units from one unit load to the other.
-      * 
-      * @param from
-      * @param to
-      * @param relesereservation releases reservations on stock unit being transferred
-      * @throws FacadeException
-      */
-     public void transferStock(BODTO<UnitLoad> from, BODTO<UnitLoad> to
- 			, boolean relesereservation) throws FacadeException ;
-     
      /**
       * Create a new {@link Lot}.
       * 
@@ -322,16 +291,6 @@ public interface ManageInventoryFacade {
       */
      public void releaseReservation(BODTO<StockUnit> stockTO, BigDecimal amountToRelease) throws InventoryException;
 
-     
-     /**
-      * Remove {@link StockUnit} from System
-      * 
-      * @param stockUnit
-      * @param activityCode
-      */
-     public void removeStockUnit(BODTO<StockUnit> stockUnit, String activityCode) throws FacadeException;
-     
-     
  	 /**
  	  * Replacement for ManageStorage.transferUnitLoad.
  	  * It considers fixed location assignments

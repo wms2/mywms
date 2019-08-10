@@ -31,13 +31,13 @@ import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
-import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -69,8 +69,6 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 	@EJB
 	private LOSSystemPropertyService propertyService;
 	@EJB
-	private LOSStorage storageService;
-	@EJB
 	private ContextService contextService;
 
 	@Inject
@@ -79,6 +77,8 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	public LOSGoodsOutRequest finish(LOSGoodsOutRequest out) throws FacadeException {
 		return finish(out, false);
@@ -227,7 +227,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 				log.warn(logStr+"Cannot find configured location. name="+targetLocationName);
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, targetLocationName);
 			}
-			storageService.transferUnitLoad(contextService.getCallerUserName(), targetLocation, ul, -1, true, null, out.getNumber());
+			inventoryBusiness.transferUnitLoad(ul, targetLocation,  out.getNumber(), null, null);
 		}
 
 		if( pos.getOutState() != stateOld ) {

@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -93,7 +94,7 @@ public class PickingUnitLoadEntityService {
 		if (deliveryOrder != null) {
 			jpql += " and pickingUnitLoad.deliveryOrder=:deliveryOrder ";
 		}
-		jpql += " order by pickingUnitLoad.unitLoad.labelId";
+		jpql += " order by pickingUnitLoad.unitLoad.labelId, pickingUnitLoad.id";
 		Query query = manager.createQuery(jpql);
 		if (offset != null) {
 			query.setFirstResult(offset);

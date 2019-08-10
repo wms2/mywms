@@ -26,15 +26,14 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
+import org.mywms.model.User;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.inventory.service.QueryLotService;
-import de.linogistix.los.location.businessservice.LOSStorage;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.stocktaking.customization.LOSManageStocktakingService;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
@@ -46,6 +45,7 @@ import de.linogistix.los.stocktaking.model.LOSStocktakingRecord;
 import de.linogistix.los.stocktaking.model.LOSStocktakingState;
 import de.linogistix.los.stocktaking.service.QueryStockTakingOrderService;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
@@ -57,6 +57,7 @@ import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.user.UserEntityService;
 
 @Stateless
 public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp {
@@ -67,12 +68,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 	@EJB
 	private QueryStockTakingOrderService queryStOrderService;
-
-	@EJB
-	private LOSStorage storage;
-
-	@EJB
-	private LOSInventoryComponent invComp;
 
 	@EJB
 	private QueryItemDataService queryItemService;
@@ -109,6 +104,10 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private UserEntityService userService;
 
 	
 	/*
@@ -333,7 +332,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			// send empty unit loads to Nirwana
 			for (UnitLoad ul : emptyUlList) {
 				try {
-					storage.sendToNirwana(operator, ul);
+					inventoryBusiness.deleteUnitLoad(ul, null, null, null);
 				} catch (FacadeException e) {
 					throw new LOSStockTakingException(
 							LOSStockTakingExceptionKey.ERROR_DELETING_EMPTY_UNITLOAD,
@@ -788,6 +787,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			throw new LOSStockTakingException(LOSStockTakingExceptionKey.NOT_AUTHORIZED, new Object[]{});
 		}
 
+		User operator = userService.read(stOrder.getOperator());
+
 		
 		// Check first for empty UnitLoads and move them away
 		// Possibly a new UnitLoad can only be created on an empty Location
@@ -827,12 +828,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				
 				// Move the UnitLoad to trash
 				log.debug(methodName + "Move UL <" + ulLabel + "> to CLEARING");
-				StorageLocation clearing = locationService.getClearing();
-				
-				clearing = manager.find(StorageLocation.class, clearing.getId());
-				ul = manager.find(UnitLoad.class, ul.getId());
-				
-				storage.transferUnitLoad(stOrder.getOperator(), clearing, ul, -1, true, "", "ST "+stOrder.getId().toString());
+				inventoryBusiness.transferToClearing(ul, "ST "+stOrder.getId().toString(), operator, null);
+
 			}
 			else {
 				log.info(methodName + "UnitLoad should be moved to CLEARING, but there is no UnitLoad");
@@ -893,7 +890,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				sl = manager.find(StorageLocation.class, sl.getId());
 				ul = manager.find(UnitLoad.class, ul.getId());
 				
-				storage.transferUnitLoad(stOrder.getOperator(), sl, ul, -1, true, "", "ST "+stOrder.getId().toString());
+				inventoryBusiness.checkTransferUnitLoad(ul, sl, false);
+				inventoryBusiness.transferUnitLoad(ul, sl, "ST "+stOrder.getId().toString(), operator, null);
 			}
 			
 			if( ul == null ) {
@@ -1004,6 +1002,9 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		}
 		
 		log.debug(methodName+"Post Resolved");
+
+		User operator =userService.read(stOrder.getOperator()); 
+
 		// For every known StockUnit a StocktakingRecord must have been inserted!!
 		for (ResolvedStockTakingRecord res : recordList){
 			StockUnit suDiff = null;
@@ -1023,21 +1024,14 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				// change existing
 				if( BigDecimal.ZERO.compareTo(res.countedQuantity) >= 0 ) {
 					// The stock has been counted with zero quantity. remove it.
-					log.debug(methodName+"Stock not counted => Nirvana");
-					// The InventoryComponent does not allow to delete!
-					// And it is also not possible to send Stock to the Nirvana!!
-					// Only empty stocks can be sent to Nirvana. Why? An empty Stock should disappear automatically-
-					if( BigDecimal.ZERO.compareTo(suDiff.getAmount()) < 0 ) {
-						invComp.changeAmount(suDiff, BigDecimal.ZERO, true, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
-					}
-					invComp.sendStockUnitsToNirwana(suDiff, "ST "+stOrder.getId().toString(), stOrder.getOperator());
+					inventoryBusiness.deleteStockUnit(suDiff, "ST "+stOrder.getId().toString(), operator, null);
 				}
 				else {
-					invComp.changeAmount(suDiff, res.countedQuantity, true, "ST "+stOrder.getId().toString(), null, stOrder.getOperator());
+					inventoryBusiness.changeAmount(suDiff, res.countedQuantity, null, "ST "+stOrder.getId().toString(), operator, null, true);
 				}
 			} else{
 				// new stock unit
-				invComp.createStock(res.client, res.lot, res.item, res.countedQuantity, null, ul, "ST "+stOrder.getId().toString(), res.serialNumber, stOrder.getOperator(), true);
+				inventoryBusiness.createStock(ul, res.item, res.countedQuantity, res.lot, res.serialNumber, null, ul.getState(), "ST "+stOrder.getId().toString(), operator, null, true);
 			}
 
 		}

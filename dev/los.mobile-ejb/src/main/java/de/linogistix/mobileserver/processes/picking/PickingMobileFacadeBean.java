@@ -31,7 +31,6 @@ import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.LOSExceptionRB;
-import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
@@ -55,6 +54,7 @@ import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.document.Document;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -109,8 +109,6 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	private ManageMobile manageMobile;
 	@EJB
 	private ItemDataNumberService eanService;
-	@EJB
-	private LOSInventoryComponent inventoryComponent;
 	@Inject
 	private FixAssignmentEntityService fixService;
 
@@ -125,6 +123,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	public Client getDefaultClient() {
 		Client systemClient = clientBusiness.getSingleClient();
@@ -226,7 +226,11 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 				if (unitLoad == null) {
 					UnitLoadType type = unitLoadTypeService.getDefault();
 					StorageLocation storageLocation = locationService.getCurrentUsersLocation();
-					unitLoad = inventoryComponent.createUnitLoad(pick.getClient(), pickTo.label, type, storageLocation, StockState.PICKED);
+					String activityCode = (pick.getPickingOrder() == null ? null
+							: pick.getPickingOrder().getOrderNumber());
+					unitLoad = inventoryBusiness.createUnitLoad(pick.getClient(), pickTo.label, type, storageLocation,
+							StockState.PICKED, activityCode, null, null);
+
 				}
 				pickingUnitLoad = pickingUnitLoadService.create(unitLoad);
 				pickingUnitLoad.setPickingOrder(pick.getPickingOrder());
@@ -335,8 +339,9 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			log.warn(logStr+"Picking order not found. id="+pickingOrderId);
 			throw new LOSExceptionRB( "CannotReadCurrentOrder", this.getClass() );
 		}
-		
-		unitLoad = inventoryComponent.createUnitLoad(pickingOrder.getClient(), label, type, storageLocation, StockState.PICKED);
+
+		unitLoad = inventoryBusiness.createUnitLoad(pickingOrder.getClient(), label, type, storageLocation,
+				StockState.PICKED, pickingOrder.getOrderNumber(), null, null);
 		PickingUnitLoad pul = pickingUnitLoadService.create(unitLoad);
 		pul.setPickingOrder(pickingOrder);
 		pul.setPositionIndex(index);

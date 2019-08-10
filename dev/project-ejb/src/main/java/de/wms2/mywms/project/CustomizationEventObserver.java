@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -24,9 +25,11 @@ import javax.enterprise.event.Observes;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.customization.ManageOrderService;
+import de.linogistix.los.inventory.customization.ManageStockService;
 import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.exception.WrappedFacadeException;
+import de.wms2.mywms.inventory.StockUnitChangeAmountEvent;
 import de.wms2.mywms.picking.PickingOrderLineStateChangeEvent;
 import de.wms2.mywms.picking.PickingUnitLoadStateChangeEvent;
 
@@ -46,6 +49,8 @@ public class CustomizationEventObserver {
 
 	@EJB
 	private ManageOrderService manageOrderService;
+	@EJB
+	private ManageStockService manageStockService;
 
 	public void listen(@Observes PickingOrderLineStateChangeEvent event) throws BusinessException {
 		if (event == null || event.getPickingOrderLine() == null) {
@@ -78,6 +83,18 @@ public class CustomizationEventObserver {
 
 		try {
 			manageOrderService.onPickingUnitLoadStateChange(event.getPickingUnitLoad(), event.getOldState());
+		} catch (FacadeException e) {
+			throw new WrappedFacadeException(e);
+		}
+	}
+
+	public void listen(@Observes StockUnitChangeAmountEvent event) throws BusinessException {
+		if (event == null || event.getStock() == null) {
+			return;
+		}
+
+		try {
+			manageStockService.onStockAmountChange(event.getStock(), event.getOldAmount());
 		} catch (FacadeException e) {
 			throw new WrappedFacadeException(e);
 		}

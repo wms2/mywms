@@ -50,7 +50,7 @@ public interface ManageLocationFacade {
      * 
      * @return the current {@link TypeCapacityConstraint} of this {@link StorageLocation} 
 	 */
-	TypeCapacityConstraint checkUnitLoadSuitable(BODTO<StorageLocation> dest, BODTO<UnitLoad> ul, boolean ignoreLock) throws FacadeException;
+	void checkUnitLoadSuitable(BODTO<StorageLocation> dest, BODTO<UnitLoad> ul, boolean ignoreLock) throws FacadeException;
 	
 	/**
 	 * Relases any reservation on the given LOSStorageLocation.

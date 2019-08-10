@@ -193,10 +193,7 @@ final public class StockUnitTransferDataPage implements WizardDescriptor.Validat
 //            }
 
             try {
-                if (!manageInv.testSuitable(wizard.getSu(), wizard.getUl())) {
-                    InventoryException ex = new InventoryException(InventoryExceptionKey.STOCKUNIT_TRANSFER_NOT_ALLOWED, new Object[]{"", ""});
-                    throw new WizardValidationException(getPanelUI(), ex.getMessage(), ex.getLocalizedMessage());
-                }
+                manageInv.testSuitable(wizard.getSu(), wizard.getUl());
             } catch (FacadeException ex) {
                 throw new WizardValidationException(getPanelUI(), ex.getMessage(), ex.getLocalizedMessage());
             }
@@ -271,10 +268,7 @@ final public class StockUnitTransferDataPage implements WizardDescriptor.Validat
 //                        NbBundle.getMessage(WMSProcessesBundleResolver.class, "ERROR.setSuRemoveLockOption", new Object[]{}));
 //            }
 
-            if (!manageInv.testSuitable(wizard.getSu(), wizard.getUl())) {
-                InventoryException ex = new InventoryException(InventoryExceptionKey.STOCKUNIT_TRANSFER_NOT_ALLOWED, new Object[]{"", ""});
-                throw new WizardValidationException(getPanelUI(), ex.getMessage(), ex.getLocalizedMessage());
-            }
+            manageInv.testSuitable(wizard.getSu(), wizard.getUl());
 
 //            wizard.process();
         } catch (FacadeException ex) {

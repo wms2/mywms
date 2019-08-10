@@ -80,4 +80,13 @@ public interface LOSLotService extends BasicService<Lot>{
      */
 	public Lot getByNameAndItemData(Client c, String lotName, String idat) throws EntityNotFoundException;
 
+	/**
+	 * Sets dates as indicated and locks the Lot if necessary.
+	 * 
+	 * @param lot
+	 * @param bestBeforeEnd
+	 * @param useNotBefore
+	 */
+	void processLotDates(Lot lot, Date bestBeforeEnd, Date useNotBefore);
+
 }

@@ -23,6 +23,7 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
+import org.mywms.model.User;
 import org.mywms.service.EntityNotFoundException;
 import org.mywms.service.UserService;
 
@@ -49,14 +50,13 @@ import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.inventory.service.LotService;
 import de.linogistix.los.inventory.service.StockUnitService;
-import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
@@ -73,8 +73,6 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 	private final Logger logger = Logger
 			.getLogger(LOSGoodsReceiptComponentBean.class);
-	@EJB
-	private LOSInventoryComponent inventoryComp;
 	@EJB
 	private LOSGoodsReceiptService grService;
 	@Inject
@@ -93,13 +91,9 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	private StockUnitService suService;
 	@EJB
 	private ManageAdviceService manageAdviceService;
-	@EJB
-	private LocationReserver locationReserver;
 	
 	@EJB
 	private LOSStorageRequestService storeReqService;
-	@EJB
-	private LOSStorage storageService;
 	@EJB
 	private ContextService contextService;
 	@EJB
@@ -115,6 +109,8 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	// --------------------------------------------------------------------------------------------
 
@@ -265,8 +261,10 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 		String activityCode = grPosition.getPositionNumber();
 
-		su = inventoryComp.createStock(grPosition.getClient(), batch, item,
-				amount, packagingUnit, unitLoad, activityCode, serialNumber, null, false);
+		User operator = contextService.getCallersUser();
+		su = inventoryBusiness.createStock(unitLoad, item, amount, batch, serialNumber, packagingUnit,
+				unitLoad.getState(), activityCode, operator, null, false);
+
 		manager.flush();
 
 		grPosition.setStockUnit(su);
@@ -526,7 +524,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 			//dgrys portierung wildfly 8.2
 			//logger.info("Going to remove SU " + su.getLabelId());
 			logger.info("Going to remove SU " + su.getId());
-			inventoryComp.removeStockUnit(su, pos.getPositionNumber(), false);
+			inventoryBusiness.deleteStockUnit(su, pos.getPositionNumber(), null, null);
 		} else {
 			logger.warn("position holds no StockUnit: " + pos.getPositionNumber());
 		}
@@ -560,7 +558,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 			
 			if( ul.getStockUnitList().size() <= 1 ) {
 				logger.info("Remove UnitLoad " + ul.getLabelId());
-				storageService.sendToNirwana(contextService.getCallerUserName(), ul);
+				inventoryBusiness.deleteUnitLoad(ul, r.getGoodsReceiptNumber(), null, null);
 			}
 		}
 		
@@ -661,8 +659,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 //							new String[] { ul.getLabelId(), sl.getName() });
 //				}
 			} else {
-				ul = inventoryComp.createUnitLoad(cl, ref, type, sl, StockState.INCOMING);
-				locationReserver.allocateLocation(sl, ul);
+				ul = inventoryBusiness.createUnitLoad(cl, ref, type, sl, StockState.INCOMING, null, null, null);
 
 // use the default value
 //				ul.setPackageType(LOSUnitLoadPackageType.OF_SAME_LOT);

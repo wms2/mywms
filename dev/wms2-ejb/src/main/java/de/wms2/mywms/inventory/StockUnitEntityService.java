@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -41,6 +42,14 @@ public class StockUnitEntityService {
 	@Inject
 	private PersistenceManager manager;
 
+	public List<StockUnit> readByLocation(StorageLocation location) {
+		return readList(null, null, null, null, location, null, null, null);
+	}
+
+	public List<StockUnit> readByUnitLoad(UnitLoad unitLoad) {
+		return readList(null, null, null, unitLoad, null, null, null, null);
+	}
+
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
@@ -55,7 +64,7 @@ public class StockUnitEntityService {
 	 * @param limit        Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<StockUnit> readList(Client client, ItemData itemData, String lotNumber, UnitLoad unitLoad,
+	public List<StockUnit> readList(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad,
 			StorageLocation location, String serialNumber, Integer offset, Integer limit) {
 		String hql = "SELECT stock, stock.unitLoad, stock.itemData FROM " + StockUnit.class.getName() + " stock";
 		hql += " WHERE 1=1";
@@ -71,8 +80,8 @@ public class StockUnitEntityService {
 		if (location != null) {
 			hql += " AND stock.unitLoad.storageLocation=:location";
 		}
-		if (!StringUtils.isBlank(lotNumber)) {
-			hql += " AND stock.lot.name=:lotNumber";
+		if (lot != null) {
+			hql += " AND stock.lot=:lot";
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			hql += " AND stock.serialNumber=:serial";
@@ -98,8 +107,8 @@ public class StockUnitEntityService {
 		if (location != null) {
 			query = query.setParameter("location", location);
 		}
-		if (!StringUtils.isBlank(lotNumber)) {
-			query = query.setParameter("lotNumber", lotNumber);
+		if (lot != null) {
+			query = query.setParameter("lot", lot);
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			query = query.setParameter("serial", serialNumber);

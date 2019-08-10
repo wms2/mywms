@@ -26,10 +26,9 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -37,6 +36,7 @@ import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.LocationReserver;
 
 
 // TODO krane i18n
@@ -49,13 +49,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 	private final static Logger log = Logger.getLogger(LOSReplenishBusinessBean.class);
 	
 	@EJB
-	private LocationReserver locationReserver;
-	@EJB
-	private LOSStorage storageBusiness;
-	@EJB
 	private ContextService contextService;
-	@EJB
-	private LOSInventoryComponent inventoryBusiness;
 	@EJB
 	private InventoryGeneratorService inventoryGenerator;
 	@EJB
@@ -68,6 +62,10 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private LocationReserver locationReserver;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
     public LOSReplenishOrder finishOrder(LOSReplenishOrder order) throws FacadeException {
 		String logStr = "finishOrder ";
@@ -210,57 +208,25 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 		}
 		
 		UnitLoadType virtual = unitLoadTypeService.getVirtual();
+		User operator = contextService.getCallersUser();
 
 		if( destinationUnitLoad == null && moveComplete ) {
 			log.debug(logStr+"Move complete source unit load to location. label="+sourceStock.getUnitLoad().getLabelId()+" location="+destinationLocation.getName());
 			sourceStock.getUnitLoad().setUnitLoadType(virtual);
-			storageBusiness.transferUnitLoad(contextService.getCallerUserName(), destinationLocation, sourceStock.getUnitLoad(), -1, true, true, "", order.getNumber());
+			inventoryBusiness.checkTransferUnitLoad(sourceStock.getUnitLoad(), destinationLocation, false);
+			inventoryBusiness.transferUnitLoad(sourceStock.getUnitLoad(), destinationLocation, order.getNumber(), operator, null);
 		}
 		else {
-			if( destinationUnitLoad == null ) {
-
-				// do not use the label twice
-	        	String label = null;
-	        	int i = 0;
-	        	while( i++ < 100 ) {
-	        		label = inventoryGenerator.generateUnitLoadLabelId(sourceStock.getClient(), virtual);
-					UnitLoad test = unitLoadService.read(label);
-					if(test==null) {
-						break;
-					}
-	        		log.info("UnitLoadLabel " + label + " already exists. Try the next");
-	        	}
-				
-				destinationUnitLoad = inventoryBusiness.createUnitLoad(sourceStock.getClient(), label, virtual, destinationLocation, StockState.ON_STOCK);
+			if (destinationUnitLoad == null) {
+				destinationUnitLoad = inventoryBusiness.createUnitLoad(sourceStock.getClient(), null, virtual,
+						destinationLocation, StockState.ON_STOCK, order.getNumber(), operator, null);
 			}
 			if( amount == null ) {
 				amount = sourceStock.getAmount();
 			}
 
-			UnitLoad sourceUnitLoad = sourceStock.getUnitLoad();
-			
-			// TODO Bestandsbuchung benutzbar machen. splitStock vernichtet alles, wenn die komplette Menge genommen wird!
-
-			log.debug(logStr+"Move amount to location. amount="+amount+", label="+sourceStock.getUnitLoad().getLabelId()+", location="+destinationLocation.getName());
-			StockUnit newStock = inventoryBusiness.createStock(sourceStock.getClient(), sourceStock.getLot(),
-					sourceStock.getItemData(), BigDecimal.ZERO, sourceStock.getPackagingUnit(), destinationUnitLoad,
-					order.getNumber(), null);
-			inventoryBusiness.transferStock(sourceStock, newStock, amount, order.getNumber());
-			log.debug(logStr+"consolidate "+newStock.getUnitLoad().getLabelId());
-			inventoryBusiness.consolidate(newStock.getUnitLoad(), order.getNumber());
-			
-			if( BigDecimal.ZERO.compareTo(sourceStock.getAmount())==0 ) {
-				boolean remove = true;
-				for( StockUnit su : sourceUnitLoad.getStockUnitList() ) {
-					if( su.getAmount().compareTo(BigDecimal.ZERO)!=0 ) {
-						remove = false;
-						break;
-					}
-				}
-				if( remove ) {
-					storageBusiness.sendToNirwana(contextService.getCallersUser().getName(), sourceUnitLoad);
-				}
-			}
+			inventoryBusiness.transferStock(sourceStock, destinationUnitLoad, amount, StockState.ON_STOCK,
+					order.getNumber(), operator, null);
 		}
 		
 		order.setState(State.FINISHED);

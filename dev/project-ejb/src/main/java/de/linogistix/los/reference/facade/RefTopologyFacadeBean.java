@@ -34,7 +34,6 @@ import de.linogistix.los.common.businessservice.CommonBasicDataService;
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
-import de.linogistix.los.inventory.businessservice.LOSInventoryComponent;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
@@ -51,6 +50,7 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
@@ -124,8 +124,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private LOSStockTakingProcessComp stService;
 	@EJB
 	private EntityGenerator entityGenerator;
-	@EJB
-	private LOSInventoryComponent inventoryComponent;
 
 	
 	@EJB
@@ -150,6 +148,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	private static final Logger log = Logger.getLogger(RefTopologyFacadeBean.class);
 	
@@ -531,7 +531,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		UnitLoadType pickUlType = unitLoadTypeService.getVirtual();
 		UnitLoad ul = unitLoadService.read(locationName);
 		if( ul == null ) {
-			ul = inventoryComponent.createUnitLoad(client, locationName, pickUlType, sl, StockState.ON_STOCK);
+			ul = inventoryBusiness.createUnitLoad(client, locationName, pickUlType, sl, StockState.ON_STOCK, null, null, null);
 		}
 		else {
 			ul.setClient(client);

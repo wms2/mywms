@@ -64,6 +64,32 @@ public class UnitLoadType extends BasicEntity {
 	private BigDecimal liftingCapacity;
 
 	/**
+	 * Activate the manage empties process for the type.
+	 * <p>
+	 * Empty unit loads will not be automatically removed.
+	 */
+	@Column(nullable = false)
+	private boolean manageEmpties = false;
+
+	/**
+	 * On this type stocks will be aggregated automatically.
+	 * <p>
+	 * If you place two identical stock units on a unit load of this type, the
+	 * result will be one stock unit with aggregated amount.
+	 */
+	@Column(nullable = false)
+	private boolean aggregateStocks = true;
+
+	/**
+	 * Calculate the sum weight for unit loads with this type.
+	 * <p>
+	 * Do not activate on container types. The calculation will use many
+	 * processing performance.
+	 */
+	@Column(nullable = false)
+	private boolean calculateWeight = true;
+
+	/**
 	 * A comma separated list of the usage keys.
 	 */
 	private String usages;
@@ -173,6 +199,30 @@ public class UnitLoadType extends BasicEntity {
 		this.liftingCapacity = liftingCapacity;
 	}
 
+	public boolean isManageEmpties() {
+		return manageEmpties;
+	}
+
+	public void setManageEmpties(boolean manageEmpties) {
+		this.manageEmpties = manageEmpties;
+	}
+
+	public boolean isAggregateStocks() {
+		return aggregateStocks;
+	}
+
+	public void setAggregateStocks(boolean aggregateStocks) {
+		this.aggregateStocks = aggregateStocks;
+	}
+
+	public boolean isCalculateWeight() {
+		return calculateWeight;
+	}
+
+	public void setCalculateWeight(boolean calculateWeight) {
+		this.calculateWeight = calculateWeight;
+	}
+
 	public String getUsages() {
 		return usages;
 	}
@@ -180,4 +230,5 @@ public class UnitLoadType extends BasicEntity {
 	public void setUsages(String usages) {
 		this.usages = usages;
 	}
+
 }

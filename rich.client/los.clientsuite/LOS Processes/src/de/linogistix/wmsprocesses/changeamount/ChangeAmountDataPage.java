@@ -252,10 +252,10 @@ final public class ChangeAmountDataPage implements WizardDescriptor.ValidatingPa
                     NbBundle.getMessage(WMSProcessesBundleResolver.class, "ERROR.noStockUnit", new Object[]{}));
         }
         
-        if (this.wizard.getAmount().compareTo(this.wizard.getReserveAmount()) < 0 && !this.wizard.isReleaseReservation() ){
-            throw new WizardValidationException(getPanelUI(), "amount to reserve cannot be greater than amount",
-              NbBundle.getMessage(WMSProcessesBundleResolver.class, "ERROR.reserveTooMany", new Object[]{}));
-        }
+//        if (this.wizard.getAmount().compareTo(this.wizard.getReserveAmount()) < 0 && !this.wizard.isReleaseReservation() ){
+//            throw new WizardValidationException(getPanelUI(), "amount to reserve cannot be greater than amount",
+//              NbBundle.getMessage(WMSProcessesBundleResolver.class, "ERROR.reserveTooMany", new Object[]{}));
+//        }
 
     }
 

@@ -30,13 +30,8 @@ import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
-import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.location.constants.LOSStorageLocationLockState;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
-import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
-import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
-import de.linogistix.los.location.exception.LOSLocationReservedException;
-import de.linogistix.los.location.exception.LOSLocationWrongClientException;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -47,6 +42,7 @@ import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.LocationReserver;
 import de.wms2.mywms.strategy.StorageStrategy;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
@@ -67,7 +63,7 @@ public class LocationFinderBean implements LocationFinder {
 	private ClientBusiness clientService;
 	@EJB
 	private LOSStorageLocationTypeService storageLocationTypeService;
-	@EJB
+	@Inject
 	private LocationReserver locationReserver;
 	@EJB
 	private LOSStorageRequestService storageRequestService;
@@ -266,19 +262,8 @@ public class LocationFinderBean implements LocationFinder {
 					}
 				}
 
-				try {
-					locationReserver.checkAllocateLocation(location, unitLoad, false);
-				} catch (LOSLocationAlreadyFullException e) {
-					log.debug(logStr + "Location not usable. LOSLocationAlreadyFullException=" + e.getMessage());
-					continue;
-				} catch (LOSLocationNotSuitableException e) {
-					log.debug(logStr + "Location not usable. LOSLocationNotSuitableException=" + e.getMessage());
-					continue;
-				} catch (LOSLocationReservedException e) {
-					log.debug(logStr + "Location not usable, LOSLocationReservedException=" + e.getMessage());
-					continue;
-				} catch (LOSLocationWrongClientException e) {
-					log.debug(logStr + "Location not usable, LOSLocationWrongClientException=" + e.getMessage());
+				if (!locationReserver.checkAllocateLocation(location, unitLoad, true, false)) {
+					log.debug(logStr + "Location not usable. location=" + location);
 					continue;
 				}
 

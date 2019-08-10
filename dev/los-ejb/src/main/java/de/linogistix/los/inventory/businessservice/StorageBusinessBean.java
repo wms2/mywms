@@ -19,6 +19,7 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
+import org.mywms.model.User;
 
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.customization.ManageStorageService;
@@ -28,15 +29,10 @@ import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.StockUnitService;
-import de.linogistix.los.location.businessservice.LOSStorage;
-import de.linogistix.los.location.businessservice.LocationReserver;
-import de.linogistix.los.location.exception.LOSLocationAlreadyFullException;
 import de.linogistix.los.location.exception.LOSLocationException;
-import de.linogistix.los.location.exception.LOSLocationNotSuitableException;
-import de.linogistix.los.location.exception.LOSLocationReservedException;
-import de.linogistix.los.location.exception.LOSLocationWrongClientException;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadPackageType;
@@ -47,6 +43,7 @@ import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
+import de.wms2.mywms.strategy.LocationReserver;
 import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
@@ -59,8 +56,6 @@ public class StorageBusinessBean implements StorageBusiness {
 	private static final Logger log = Logger
 			.getLogger(StorageBusinessBean.class);
 	@EJB
-	private LOSStorage storageLocService;
-	@EJB
 	private InventoryGeneratorService genService;
 	@EJB
 	private ClientQueryRemote clQuery;
@@ -68,10 +63,6 @@ public class StorageBusinessBean implements StorageBusiness {
 	private StockUnitService suService;
 	@EJB
 	private FixAssignmentEntityService fixService;
-	@EJB
-	private LOSInventoryComponent inventoryComponent;
-	@EJB
-	private LocationReserver locationReserver;
 	@EJB
 	private EntityGenerator entityGenerator;
 	@EJB
@@ -86,6 +77,10 @@ public class StorageBusinessBean implements StorageBusiness {
 	private LocationFinder locationFinder;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private LocationReserver locationReserver;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul) throws FacadeException {
 		return getOrCreateStorageRequest(c, ul, false, null, null);
@@ -187,18 +182,7 @@ public class StorageBusinessBean implements StorageBusiness {
 		
 		assigned = manager.find(StorageLocation.class, req.getDestination().getId());
 		if (!(sl.equals(assigned))) {
-			try {
-				locationReserver.checkAllocateLocation(sl, req.getUnitLoad(), force);
-			} catch(LOSLocationNotSuitableException ex) {
-				throw ex.createRollbackException();
-			} catch(LOSLocationWrongClientException ex) {
-				throw ex.createRollbackException();
-			} catch(LOSLocationReservedException ex) {
-				throw ex.createRollbackException();
-			} catch(LOSLocationAlreadyFullException ex) {
-				throw ex.createRollbackException();
-			}
-			
+			locationReserver.checkAllocateLocation(sl, req.getUnitLoad(), force, true);
 				
 			// Do not ask questions in front-end.
 			// Do not place front-end logic into back-end
@@ -250,7 +234,7 @@ public class StorageBusinessBean implements StorageBusiness {
 	private void transferUnitLoad(LOSStorageRequest req, UnitLoad unitload, StorageLocation targetLocation ) throws FacadeException {
 		
 		FixAssignment fix = fixService.readFirst(null, targetLocation);
-		String operator = contextService.getCallerUserName();
+		User operator = contextService.getCallersUser();
 
 		if( fix != null ) {
 			for( StockUnit su : unitload.getStockUnitList() ) {
@@ -271,20 +255,21 @@ public class StorageBusinessBean implements StorageBusiness {
 				if( targetUl == null ) {
 					targetUl = targetLocation.getUnitLoads().get(0);
 				}
-				
-				inventoryComponent.transferStock(unitload, targetUl, req.getNumber(), false);
-				storageLocService.sendToNirwana( operator, unitload);
+
+				for(StockUnit stock:unitload.getStockUnitList()) {
+					inventoryBusiness.transferStock(stock, targetUl, null, stock.getState(), req.getNumber(), operator, null);
+				}
+
 				log.info("Transferred Stock to virtual UnitLoadType: "+unitload.toShortString());
 			} else {
 				UnitLoadType virtual = unitLoadTypeService.getVirtual();
 				unitload.setType(virtual);
 				unitload.setLabelId(targetLocation.getName());
-				storageLocService.transferUnitLoad(operator, targetLocation, unitload, -1, false, false, "", "");
-
+				inventoryBusiness.transferUnitLoad(unitload, targetLocation, req.getNumber(), operator, null);
 			}
 		} 
 		else {
-			storageLocService.transferUnitLoad(operator, targetLocation, unitload, -1, false, false, "", "");
+			inventoryBusiness.transferUnitLoad(unitload, targetLocation, req.getNumber(), operator, null);
 		}
 	}
 	
@@ -315,16 +300,17 @@ public class StorageBusinessBean implements StorageBusiness {
 			throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_CONSTRAINT_VIOLATED, destination.getLabelId());
 		}
 		
-		inventoryComponent.transferStock(from, destination,  req.getNumber(), false);
-		
+		for(StockUnit stock:from.getStockUnitList()) {
+			inventoryBusiness.transferStock(stock, destination, null, stock.getState(), req.getNumber(), null, null);
+		}
+
 		StorageLocation orig = manager.find(StorageLocation.class, req.getDestination().getId());
 		locationReserver.deallocateLocation(orig, from);
 		
 		// if UnitLoad empty, send to nirwana
 		if (req.getUnitLoad().getStockUnitList().isEmpty()) {
 			UnitLoad u = manager.find(UnitLoad.class, req.getUnitLoad().getId());
-			String operator = contextService.getCallerUserName();
-			storageLocService.sendToNirwana(operator, u);
+			inventoryBusiness.deleteUnitLoad(u, req.getNumber(), null, null);
 		}
 		
 		if( stateOld != req.getRequestState() ) {

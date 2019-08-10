@@ -16,6 +16,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -27,13 +28,14 @@ import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSReplenishOrderService;
-import de.linogistix.los.location.businessservice.LocationReserver;
 import de.linogistix.los.model.State;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.LocationReserver;
 
 /**
  * @author krane
@@ -48,13 +50,13 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 	@EJB
 	private EntityGenerator entityGenerator;
 	@EJB
-	private LOSInventoryComponent invBusiness;
-	@EJB
 	private LOSReplenishOrderService orderService;
 	@EJB
 	private LOSReplenishStockService stockService;
-	@EJB
+	@Inject
 	private LocationReserver locationReserver;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 
 	@PersistenceContext(unitName = "myWMS")
@@ -80,7 +82,7 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 		for (FixAssignment ass : fixed) {
 			log.info("Check location " + ass.getStorageLocation().getName());
 			
-			BigDecimal amount = invBusiness.getAmountOfStorageLocation(ass.getItemData(), ass.getStorageLocation());
+			BigDecimal amount = inventoryBusiness.readAmount(ass.getItemData(), ass.getStorageLocation());
 			BigDecimal d = ass.getMaxAmount().multiply(new BigDecimal(0.25));
 			if( amount.compareTo(d) >= 0 ) {
 				log.info("There is still enough material on location " + ass.getStorageLocation().getName());
@@ -160,7 +162,7 @@ public class LOSReplenishGeneratorBean implements LOSReplenishGenerator {
 		order.setStockUnit(sourceStock);
 		order.setState(State.PROCESSABLE);
 
-		invBusiness.changeReservedAmount(sourceStock, sourceStock.getAmount(), null);
+		sourceStock.setReservedAmount(sourceStock.getAmount());
 
 		locationReserver.allocateLocation(requestedLocation, sourceStock.getUnitLoad());
 

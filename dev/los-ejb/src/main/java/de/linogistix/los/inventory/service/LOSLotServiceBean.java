@@ -23,6 +23,7 @@ import org.mywms.service.BasicServiceBean;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.customization.EntityGenerator;
+import de.linogistix.los.util.DateHelper;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 
@@ -219,5 +220,32 @@ public class LOSLotServiceBean extends BasicServiceBean<Lot> implements
 			throw new EntityNotFoundException(
 					ServiceExceptionKey.NO_ENTITY_WITH_NAME);
 		}
+	}
+
+	public void processLotDates(Lot lot, Date bestBeforeEnd, Date useNotBefore) {
+
+		lot = manager.merge(lot);
+
+		Date today = DateHelper.endOfDay(new Date());
+
+		if (useNotBefore != null && (lot.getUseNotBefore() == null || lot.getUseNotBefore().compareTo(useNotBefore) != 0)) {
+			lot.setUseNotBefore(useNotBefore);
+		}
+		if (useNotBefore != null && lot.getUseNotBefore() != null && lot.getUseNotBefore().after(today)) {
+			log.warn("Set Lot to LotLockState.LOT_TOO_YOUNG: " + lot.toShortString());
+			lot.setLock(LotLockState.LOT_TOO_YOUNG.getLock());
+		}
+
+		today = DateHelper.beginningOfDay(new Date());
+		if (bestBeforeEnd != null && (lot.getBestBeforeEnd() == null || lot.getBestBeforeEnd().compareTo(bestBeforeEnd) != 0)) {
+			lot.setBestBeforeEnd(bestBeforeEnd);
+		}
+
+		if (bestBeforeEnd != null && lot.getBestBeforeEnd() != null && lot.getBestBeforeEnd().before(today)) {
+			log.warn("Set Lot to LotLockState.LOT_EXPIRED: " + lot.toShortString());
+			lot.setLock(LotLockState.LOT_EXPIRED.getLock());
+		}
+
+		manager.flush();
 	}
 }
