@@ -51,7 +51,7 @@ public class LOSStorageRequestServiceBean
         LOSStorageRequest ret;
         UnitLoad ul;
                 
-        ul = unitLoadService.read(label);
+        ul = unitLoadService.readByLabel(label);
         
         Query query =
                 manager.createQuery("SELECT req FROM " 

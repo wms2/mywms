@@ -86,7 +86,7 @@ public class LOSCompatibilityFacadeBean implements LOSCompatibilityFacade {
 
 			PickingOrder req;
 
-			req = pickingOrderService.read(posTO.pickRequestNumber);
+			req = pickingOrderService.readByOrderNumber(posTO.pickRequestNumber);
 			if( req != null && req.getState() < State.FINISHED ) {
 				throw new InventoryException(InventoryExceptionKey.WRONG_STATE, ""+req.getState());
 			}

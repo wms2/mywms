@@ -101,7 +101,7 @@ public class StorageLocationLabelReportBean implements StorageLocationLabelRepor
     public Document generateRackLabels(List<String> list) throws LOSLocationException, BusinessObjectQueryException, ReportException {
         List<StorageLocationLabelTO> labels = new ArrayList<StorageLocationLabelTO>();
         for (String rack : list){
-           for (StorageLocation loc : locationService.readList(null, null, rack, null, null) ){
+           for (StorageLocation loc : locationService.readList(null, null, rack) ){
             StorageLocationLabelTO to = new StorageLocationLabelTO(loc.getName(), 0);
             labels.add(to);
            }

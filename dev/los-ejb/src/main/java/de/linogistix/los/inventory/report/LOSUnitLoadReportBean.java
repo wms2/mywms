@@ -72,7 +72,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		
 		log.info(logStr+"Generate report for unitLoad="+unitLoad.getLabelId());
 		
-		PickingUnitLoad pul = pickingUnitLoadService.getByLabel(unitLoad.getLabelId());
+		PickingUnitLoad pul = pickingUnitLoadService.readFirstByUnitLoad(unitLoad);
 		
 		label = entityGenerator.generateEntity( PickReceipt.class );
 		label.setName( "LOS-"+unitLoad.getLabelId() );

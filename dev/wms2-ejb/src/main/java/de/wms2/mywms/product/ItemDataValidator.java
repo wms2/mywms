@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -49,7 +50,7 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 	public void validateCreate(ItemData entity) throws BusinessException {
 		validate(entity);
 
-		if (productSerivce.existsIgnoreCase(entity.getNumber(), null)) {
+		if (productSerivce.existsByNumberIgnoreCase(entity.getNumber(), null)) {
 			logger.log(Level.INFO, "Not unique. number=" + entity.getNumber());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueNumber");
 		}
@@ -61,7 +62,7 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 		validate(entityNew);
 
 		if (entityOld != null && !StringUtils.equals(entityOld.getName(), entityNew.getName())) {
-			if (productSerivce.existsIgnoreCase(entityNew.getNumber(), entityNew.getId())) {
+			if (productSerivce.existsByNumberIgnoreCase(entityNew.getNumber(), entityNew.getId())) {
 				logger.log(Level.INFO, "Not unique. number=" + entityNew.getNumber());
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueNumber");
 			}

@@ -16,6 +16,6 @@ public class QueryFixedAssignmentServiceBean implements QueryFixedAssignmentServ
 	private FixAssignmentEntityService fixService;
 
 	public List<FixAssignment> getByItemData(ItemData item) {
-		return fixService.readList(item, null, null, null, null);
+		return fixService.readByItemData(item);
 	}
 }

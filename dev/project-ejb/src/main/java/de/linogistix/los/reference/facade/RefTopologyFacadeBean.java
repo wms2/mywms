@@ -385,7 +385,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private LocationType createLocationType(Client client, String name) {
 		LocationType type = null;
 		try {
-			type = locationTypeService.read(name);
+			type = locationTypeService.readByName(name);
 		} catch (Exception e) {
 			// ignore
 		}
@@ -401,7 +401,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 
 	private UnitLoadType createUnitLoadType(Client client, String name, double depth, double width, double height, double liftingCapacity, double weight) {
 		UnitLoadType type = null;
-		type = unitLoadTypeService.read(name);
+		type = unitLoadTypeService.readByName(name);
 		if( type == null ) {
 			type = entityGenerator.generateEntity( UnitLoadType.class );
 			type.setName(name);
@@ -507,7 +507,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		}
 		
 		FixAssignment fl = null;
-		List<FixAssignment> flList = fixedService.readList(itemData, null, null, null, null);
+		List<FixAssignment> flList = fixedService.readByItemData(itemData);
 		for( FixAssignment x : flList ) {
 			manager.remove(x);
 		}
@@ -529,7 +529,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		sl.setType(locationTypeService.getSystem());
 		
 		UnitLoadType pickUlType = unitLoadTypeService.getVirtual();
-		UnitLoad ul = unitLoadService.read(locationName);
+		UnitLoad ul = unitLoadService.readByLabel(locationName);
 		if( ul == null ) {
 			ul = inventoryBusiness.createUnitLoad(client, locationName, pickUlType, sl, StockState.ON_STOCK, null, null, null);
 		}
@@ -546,7 +546,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	
 	private void createStock( Client client, String locationName, ItemData idat, BigDecimal amount, String unitLoadNumber, String lotNumber) {
 		try {
-			UnitLoad ul = unitLoadService.read(unitLoadNumber);
+			UnitLoad ul = unitLoadService.readByLabel(unitLoadNumber);
 			if( ul != null ) {
 				StorageLocation sl = locationService.readByName(locationName);
 				FixAssignment x = fixedService.readFirst(null, sl);

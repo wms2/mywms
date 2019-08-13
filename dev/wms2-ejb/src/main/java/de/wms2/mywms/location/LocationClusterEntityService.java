@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -61,7 +62,7 @@ public class LocationClusterEntityService {
 		return cluster;
 	}
 
-	public LocationCluster read(String name) {
+	public LocationCluster readByName(String name) {
 		String jpql = "SELECT entity FROM " + LocationCluster.class.getName() + " entity ";
 		jpql += " where entity.name=:name";
 		Query query = manager.createQuery(jpql);
@@ -90,7 +91,7 @@ public class LocationClusterEntityService {
 					desc);
 		}
 
-		LocationCluster cluster = read(name);
+		LocationCluster cluster = readByName(name);
 		if (cluster != null) {
 			return cluster;
 		}
@@ -134,7 +135,7 @@ public class LocationClusterEntityService {
 		String checkedName = name;
 		int i = 1;
 		while (true) {
-			cluster = read(checkedName);
+			cluster = readByName(checkedName);
 			if (cluster == null) {
 				break;
 			}

@@ -373,7 +373,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			}
         }
         if( targetUnitLoadName != null && targetUnitLoadName.length()>0 ) {
-			targetUnitLoad = unitLoadService.read(targetUnitLoadName);
+			targetUnitLoad = unitLoadService.readByLabel(targetUnitLoadName);
 			if( targetUnitLoad == null ) {
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
 			}
@@ -394,7 +394,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	
 	        	printLabel = false;
 	        	
-        		ul = unitLoadService.read(unitLoadLabel);
+        		ul = unitLoadService.readByLabel(unitLoadLabel);
         		if(ul!=null) {
 	        		throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_EXISTS, 
 	        									 new Object[]{unitLoadLabel}); 
@@ -414,7 +414,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	int i = 0;
 	        	while( i++ < 100 ) {
 	        		label = genService.generateUnitLoadLabelId(c, ulType);
-        			UnitLoad test = unitLoadService.read(label);
+        			UnitLoad test = unitLoadService.readByLabel(label);
 					if (test == null) {
 						break;
 					}
@@ -807,7 +807,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         UnitLoadType ulType;
         
         if (unitLoadTypeName != null){
-        	ulType = unitLoadTypeService.read(unitLoadTypeName);
+        	ulType = unitLoadTypeService.readByName(unitLoadTypeName);
         } else{
         	ulType = unitLoadTypeService.getDefault();
         }
@@ -859,7 +859,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			}
         }
         if( targetUnitLoadName != null && targetUnitLoadName.length()>0 ) {
-			targetUnitLoad = unitLoadService.read(targetUnitLoadName);
+			targetUnitLoad = unitLoadService.readByLabel(targetUnitLoadName);
 			if( targetUnitLoad == null ) {
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
 			}
@@ -876,7 +876,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	
 	        	printLabel = false;
 	        	
-				ul = unitLoadService.read(unitLoadLabel);
+				ul = unitLoadService.readByLabel(unitLoadLabel);
 				if (ul != null) {
 	        		throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_EXISTS, 
 	        									 new Object[]{unitLoadLabel}); 
@@ -895,7 +895,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	        	int i = 0;
 	        	while( i++ < 100 ) {
 	        		label = genService.generateUnitLoadLabelId(client, ulType);
-        			UnitLoad test = unitLoadService.read(label);
+        			UnitLoad test = unitLoadService.readByLabel(label);
 					if (test == null) {
 						break;
 					}

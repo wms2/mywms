@@ -700,7 +700,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 		// Not all finished counting record mean, that everything is counted.
 		// There may be empty unit loads. In this case the state will be set to counted
-		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null, null, null);
+		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null);
 		if( ulList.size()>0 ) {
 			log.info("There are empty unit loads on location " + so.getLocationName()  );
 			allFinished = false;
@@ -814,7 +814,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				continue;
 			}
 				
-			UnitLoad ul = unitLoadService.read(ulLabel);
+			UnitLoad ul = unitLoadService.readByLabel(ulLabel);
 
 			// No new Stock on the UnitLoad
 			if( ul != null ) {
@@ -861,7 +861,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			}
 			log.debug(methodName + "Found new Stock on UnitLoad <" + ulLabel + "> on location <" + sl.getName() + ">");
 
-			UnitLoad ul = unitLoadService.read(ulLabel);
+			UnitLoad ul = unitLoadService.readByLabel(ulLabel);
 
 			// Check the unit load type
 			// the creation or transfer of the unit load may only be possible with the correct unit load type
@@ -1077,7 +1077,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			}
 		} 
 		
-		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null, null, null);
+		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null);
 		for( UnitLoad ul : ulList ) {
 
 			if (!ulLabelRecMap.containsKey(ul.getLabelId())) {
@@ -1328,7 +1328,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		
 		if(rec.getUlTypeNo() != null && rec.getUlTypeNo().length() > 0){
 			
-			resolved.ulType = unitLoadTypeService.read(rec.getUlTypeNo());
+			resolved.ulType = unitLoadTypeService.readByName(rec.getUlTypeNo());
 			
 			if(resolved.ulType == null){
 				throw new LOSStockTakingException(

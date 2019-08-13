@@ -192,7 +192,7 @@ public class LOSReplenishBusinessBean implements LOSReplenishBusiness {
 		}
 		
 		UnitLoad destinationUnitLoad = null;
-		List<UnitLoad> unitLoadList = unitLoadService.readList(null, destinationLocation, null, null, null, null, null);
+		List<UnitLoad> unitLoadList = unitLoadService.readByLocation(destinationLocation);
 		
 		for( UnitLoad ul : unitLoadList ) {
 			destinationUnitLoad = ul;

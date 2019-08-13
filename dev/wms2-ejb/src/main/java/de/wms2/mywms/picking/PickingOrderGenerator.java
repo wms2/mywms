@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -174,8 +175,7 @@ public class PickingOrderGenerator {
 			// The called service may generate more than one picking order.
 			String id = UUID.randomUUID().toString();
 			firePickingOrderPrepareEvent(id, affectedPicks, destinationLocation, prio);
-			List<PickingOrder> preparedOrders = pickingOrderService.readList(id, null, OrderState.PROCESSABLE, null,
-					null);
+			List<PickingOrder> preparedOrders = pickingOrderService.readList(id, null, OrderState.PROCESSABLE);
 
 			// Other picks are calculated by the default strategy
 			List<PickingOrderLine> preparedLines = new ArrayList<>();

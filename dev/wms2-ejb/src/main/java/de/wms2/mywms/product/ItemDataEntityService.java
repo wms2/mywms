@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -51,7 +52,7 @@ public class ItemDataEntityService {
 		return itemData;
 	}
 
-	public ItemData read(String number) {
+	public ItemData readByNumber(String number) {
 		String jpql = "SELECT entity FROM " + ItemData.class.getName() + " entity ";
 		jpql += " where entity.number=:number";
 		Query query = manager.createQuery(jpql);
@@ -64,12 +65,12 @@ public class ItemDataEntityService {
 		return null;
 	}
 
-	public ItemData readIgnoreCase(String number) {
+	public ItemData readByNumberIgnoreCase(String number) {
 		if (StringUtils.isBlank(number)) {
 			return null;
 		}
 
-		ItemData itemData = read(number);
+		ItemData itemData = readByNumber(number);
 		if (itemData != null) {
 			return itemData;
 		}
@@ -87,7 +88,7 @@ public class ItemDataEntityService {
 		return null;
 	}
 
-	public boolean existsIgnoreCase(String number, Long ignoreId) {
+	public boolean existsByNumberIgnoreCase(String number, Long ignoreId) {
 		if (StringUtils.isBlank(number)) {
 			return false;
 		}

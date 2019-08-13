@@ -182,7 +182,7 @@ public class GoodsReceiptBean implements GoodsReceipt {
 	
 	private UnitLoadType resolveUnitLoadType(Client c, String name) throws BusinessObjectNotFoundException{
 		UnitLoadType type = null;
-		type = unitLoadTypeService.read(name);
+		type = unitLoadTypeService.readByName(name);
 		if( type == null ) {
 			log.error("Could not find Unitload type: " + name );
 			type = unitLoadTypeService.getDefault();

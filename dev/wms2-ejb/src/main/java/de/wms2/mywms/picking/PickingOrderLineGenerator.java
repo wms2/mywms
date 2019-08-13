@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -86,17 +87,16 @@ public class PickingOrderLineGenerator {
 		int orderState = deliveryOrder.getState();
 		OrderStrategy strategy = deliveryOrder.getOrderStrategy();
 
-		for (DeliveryOrderLine deliveryOrderPosition : deliveryOrder.getLines()) {
-			int lineState = deliveryOrderPosition.getState();
+		for (DeliveryOrderLine deliveryOrderLine : deliveryOrder.getLines()) {
+			int lineState = deliveryOrderLine.getState();
 			if (lineState >= OrderState.PICKED) {
 				continue;
 			}
 
-			BigDecimal remainingAmount = deliveryOrderPosition.getAmount();
+			BigDecimal remainingAmount = deliveryOrderLine.getAmount();
 
 			// Consider already existing picks
-			List<PickingOrderLine> existingPickList = pickingLineService.readList(null, null, null,
-					deliveryOrderPosition, null, null, null, null);
+			List<PickingOrderLine> existingPickList = pickingLineService.readByDeliveryOrderLine(deliveryOrderLine);
 			for (PickingOrderLine pick : existingPickList) {
 				if (pick.getState() < OrderState.PICKED) {
 					remainingAmount = remainingAmount.subtract(pick.getAmount());
@@ -105,13 +105,13 @@ public class PickingOrderLineGenerator {
 				}
 			}
 			if (remainingAmount.compareTo(BigDecimal.ZERO) <= 0) {
-				logger.log(Level.INFO, logStr + "All done for order line=" + deliveryOrderPosition + ", ordered amount="
-						+ deliveryOrderPosition.getAmount() + ", remaining amount=" + remainingAmount);
+				logger.log(Level.INFO, logStr + "All done for order line=" + deliveryOrderLine + ", ordered amount="
+						+ deliveryOrderLine.getAmount() + ", remaining amount=" + remainingAmount);
 				continue;
 			}
 
 			// Generate picks for the remaining amount
-			List<PickingOrderLine> newPickList = generatePicks(deliveryOrderPosition, strategy, remainingAmount);
+			List<PickingOrderLine> newPickList = generatePicks(deliveryOrderLine, strategy, remainingAmount);
 
 			// Check whether all is calculated
 			if (completeOrderOnly) {
@@ -120,20 +120,20 @@ public class PickingOrderLineGenerator {
 				}
 				if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
 					logger.log(Level.INFO,
-							logStr + "Not enough amount to pick. itemData=" + deliveryOrderPosition.getItemData()
-									+ ", ordered amount=" + deliveryOrderPosition.getAmount()
+							logStr + "Not enough amount to pick. itemData=" + deliveryOrderLine.getItemData()
+									+ ", ordered amount=" + deliveryOrderLine.getAmount()
 									+ ", not available amount=" + remainingAmount);
 					throw new BusinessException(Wms2BundleResolver.class, "PickingGenerator.notEnoughAmount");
 				}
 			}
 
 			// Calculate new states
-			deliveryOrderPosition.setState(OrderState.PROCESSABLE);
+			deliveryOrderLine.setState(OrderState.PROCESSABLE);
 			if (deliveryOrder.getState() < OrderState.PROCESSABLE) {
 				deliveryOrder.setState(OrderState.PROCESSABLE);
 			}
-			if (deliveryOrderPosition.getPickedAmount().compareTo(BigDecimal.ZERO) > 0) {
-				deliveryOrderPosition.setState(OrderState.STARTED);
+			if (deliveryOrderLine.getPickedAmount().compareTo(BigDecimal.ZERO) > 0) {
+				deliveryOrderLine.setState(OrderState.STARTED);
 			}
 			if (deliveryOrder.getState() == OrderState.PENDING) {
 				deliveryOrder.setState(OrderState.PROCESSABLE);
@@ -145,8 +145,8 @@ public class PickingOrderLineGenerator {
 				}
 			}
 
-			if (deliveryOrderPosition.getState() != lineState) {
-				fireDeliveryOrderLineStateChangeEvent(deliveryOrderPosition, lineState);
+			if (deliveryOrderLine.getState() != lineState) {
+				fireDeliveryOrderLineStateChangeEvent(deliveryOrderLine, lineState);
 			}
 
 			pickList.addAll(newPickList);

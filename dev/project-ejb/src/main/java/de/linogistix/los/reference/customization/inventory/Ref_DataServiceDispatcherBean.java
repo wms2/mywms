@@ -191,7 +191,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		LocationType locType;
 
-		locType = locationTypeService.read(locTypeName);
+		locType = locationTypeService.readByName(locTypeName);
 		if (locType == null) {
 			logger.error("Unknown locTypeName: " + locTypeName + ". Try default");
 			locType = locationTypeService.getDefault();
@@ -301,7 +301,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		if (idat != null){
 			// first remove old assignments
-			List<FixAssignment> flList = fixedService.readList(idat, null, null, null, null);
+			List<FixAssignment> flList = fixedService.readByItemData(idat);
 			for( FixAssignment flOld : flList ) {
 				manager.remove(flOld);
 			}
@@ -416,7 +416,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		String unitLoadTypeName = dataRecord.get("lhm-typ");
 		if (unitLoadTypeName != null && unitLoadTypeName.length() > 0){
 			unitLoadTypeService.getDefault();
-			ulType = unitLoadTypeService.read(unitLoadTypeName);
+			ulType = unitLoadTypeService.readByName(unitLoadTypeName);
 			if( ulType == null ) {
 				logger.error("UnitLoadType " + unitLoadTypeName + " does not exist. => Skip.");
 				return;

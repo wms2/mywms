@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -333,7 +334,7 @@ public class PickingStockFinder {
 		}
 
 		List<Object[]> results = query.getResultList();
-		List<FixAssignment> fixList = fixService.readList(itemData, null, true, null, null);
+		List<FixAssignment> fixList = fixService.readList(itemData, null, true);
 		List<PickingStockUnit> stockList = new ArrayList<>(results.size());
 		for (Object[] result : results) {
 			long stockId = (long) result[0];

@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -87,6 +88,11 @@ public class StorageLocationEntityService {
 		return location;
 	}
 
+	/**
+	 * Reads a storage location
+	 * <p>
+	 * Searches in the attributes name and scanCode. Case sensitive and insensitive.
+	 */
 	public StorageLocation read(String name) {
 		if (StringUtils.isBlank(name)) {
 			return null;
@@ -148,35 +154,14 @@ public class StorageLocationEntityService {
 		return null;
 	}
 
-	public StorageLocation readByScancode(String code) {
-		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
-		jpql += " WHERE entity.barcode=:code";
-		jpql += " ORDER BY entity.name, entity.id";
-		Query query = manager.createQuery(jpql);
-		query.setParameter("code", code);
-		query.setMaxResults(1);
-		try {
-			StorageLocation location = (StorageLocation) query.getSingleResult();
-			return location;
-		} catch (NoResultException e) {
-		}
-
-		return null;
-	}
 
 	// -----------------------------------------------------------------------
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param client Optional
-	 * @param area   Optional
-	 * @param aisle  Optional
-	 * @param offset Optional
-	 * @param limit  Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<StorageLocation> readList(Client client, Area area, String rack, Integer offset, Integer limit) {
+	public List<StorageLocation> readList(Client client, Area area, String rack) {
 		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity WHERE 1=1 ";
 
 		if (client != null) {
@@ -192,12 +177,6 @@ public class StorageLocationEntityService {
 		jpql += " ORDER BY entity.name";
 
 		Query query = manager.createQuery(jpql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (client != null) {
 			query.setParameter("client", client);
 		}
@@ -211,7 +190,7 @@ public class StorageLocationEntityService {
 	}
 
 	/**
-	 * Get all StorageLocations next to each other in the given field. The locations
+	 * Read all StorageLocations next to each other in the given field. The locations
 	 * are ordered by location.positionX. Field criteria are location.field,
 	 * location.positionY, location.positionZ, location.locationCluster
 	 */

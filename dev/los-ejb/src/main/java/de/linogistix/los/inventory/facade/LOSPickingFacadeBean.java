@@ -326,7 +326,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "finishPickingUnitLoad ";
 		log.debug(logStr+"label="+label+", locationName="+locationName);
 		
-		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
+		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.warn(logStr+"PickingUnitLoad not found. label="+label);
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, label); 

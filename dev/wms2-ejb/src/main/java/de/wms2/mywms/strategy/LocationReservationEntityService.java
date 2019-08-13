@@ -100,7 +100,7 @@ public class LocationReservationEntityService {
 			throw new BusinessException(Wms2BundleResolver.class,
 					"LocationReserver.missingParameterLocationUnitLoad");
 		}
-		List<LocationReservation> reservations = readList(location, unitLoad, null, null);
+		List<LocationReservation> reservations = readList(location, unitLoad);
 		for (LocationReservation reservation : reservations) {
 			manager.removeValidated(reservation);
 		}
@@ -118,15 +118,9 @@ public class LocationReservationEntityService {
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param storageLocation Optional
-	 * @param unitLoad        Optional
-	 * @param offset          Optional
-	 * @param limit           Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<LocationReservation> readList(StorageLocation storageLocation, UnitLoad unitLoad, Integer offset,
-			Integer limit) {
+	public List<LocationReservation> readList(StorageLocation storageLocation, UnitLoad unitLoad) {
 		String jpql = "SELECT res FROM " + LocationReservation.class.getName() + " res where 1=1";
 		if (storageLocation != null) {
 			jpql += " and res.storageLocation=:storageLocation";
@@ -136,12 +130,6 @@ public class LocationReservationEntityService {
 		}
 		jpql += " order by res.storageLocation.name, res.unitLoad.labelId, res.id ";
 		Query query = manager.createQuery(jpql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (storageLocation != null) {
 			query.setParameter("storageLocation", storageLocation);
 		}

@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -18,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.strategy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -26,14 +26,11 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.StringUtils;
-
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
-import de.wms2.mywms.product.ItemDataNumber;
 
 /**
  * @author krane
@@ -75,11 +72,6 @@ public class FixAssignmentEntityService {
 	/**
 	 * Check whether an entry exists which is matching the given parameters. All
 	 * parameters are optional.
-	 * 
-	 * @param itemData
-	 *            Optional
-	 * @param location
-	 *            Optional
 	 */
 	public boolean exists(ItemData itemData, StorageLocation location) {
 		String hql = "SELECT entity.id FROM " + FixAssignment.class.getName() + " entity WHERE 1=1";
@@ -109,21 +101,9 @@ public class FixAssignmentEntityService {
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional. The result is ordered by itemData and orderIndex.
-	 * 
-	 * @param itemData
-	 *            Optional
-	 * @param location
-	 *            Optional
-	 * @param picking
-	 *            Optional
-	 * @param offset
-	 *            Optional
-	 * @param limit
-	 *            Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<FixAssignment> readList(ItemData itemData, StorageLocation location, Boolean picking, Integer offset,
-			Integer limit) {
+	public List<FixAssignment> readList(ItemData itemData, StorageLocation location, Boolean picking) {
 		String hql = "SELECT entity FROM " + FixAssignment.class.getName() + " entity WHERE 1=1";
 		if (itemData != null) {
 			hql += " and entity.itemData=:itemData";
@@ -136,12 +116,6 @@ public class FixAssignmentEntityService {
 		}
 		hql += " ORDER BY entity.itemData, entity.orderIndex";
 		Query query = manager.createQuery(hql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (itemData != null) {
 			query.setParameter("itemData", itemData);
 		}
@@ -152,34 +126,12 @@ public class FixAssignmentEntityService {
 		return query.getResultList();
 	}
 
-	/**
-	 * Search all fix assignments, that have a location or itemData with the given
-	 * code,
-	 * 
-	 */
-	@SuppressWarnings("unchecked")
-	public List<FixAssignment> readListByCode(String searchCode) {
-		if (StringUtils.isBlank(searchCode)) {
-			return new ArrayList<>();
-		}
-		String hql = "SELECT fix FROM " + FixAssignment.class.getName() + " fix ";
-		hql += " where exists( ";
-		hql += "   select 1 from " + ItemData.class.getName() + " itemData ";
-		hql += "   where fix.itemData=itemData and itemData.number=:code";
-		hql += " )";
-		hql += " or exists( ";
-		hql += "   select 1 from " + ItemDataNumber.class.getName() + " productCode ";
-		hql += "   where fix.itemData=productCode.itemData and productCode.productCode=:number";
-		hql += " )";
-		hql += " or exists( ";
-		hql += "   select 1 from " + StorageLocation.class.getName() + " location ";
-		hql += "   where fix.storageLocation=location and (location.name=:code or location.barcode=:code)";
-		hql += " )";
-		hql += " ORDER BY fix.itemData, fix.orderIndex";
-		Query query = manager.createQuery(hql);
-		query.setParameter("code", searchCode);
+	public List<FixAssignment> readByItemData(ItemData itemData) {
+		return readList(itemData, null, null);
+	}
 
-		return query.getResultList();
+	public List<FixAssignment> readByLocation(StorageLocation location) {
+		return readList(null, location, null);
 	}
 
 	/**
@@ -200,11 +152,6 @@ public class FixAssignmentEntityService {
 	/**
 	 * Read the first entry for the given parameters. All parameters are optional.
 	 * The result is ordered by itemData and orderIndex.
-	 * 
-	 * @param itemData
-	 *            Optional
-	 * @param location
-	 *            Optional
 	 */
 	public FixAssignment readFirst(ItemData itemData, StorageLocation location) {
 		String hql = "SELECT entity FROM " + FixAssignment.class.getName() + " entity WHERE 1=1";

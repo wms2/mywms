@@ -110,7 +110,7 @@ public class InventoryBusiness {
 	private ClientBusiness clientBusiness;
 
 	public void cleanupDeleted() throws BusinessException {
-		List<UnitLoad> unitLoads = unitLoadService.readList(null, null, null, StockState.DELETABLE, null, null, null);
+		List<UnitLoad> unitLoads = unitLoadService.readList(null, null, null, StockState.DELETABLE, null);
 		for (UnitLoad unitLoad : unitLoads) {
 			trashHandler.removeUnitLoad(unitLoad);
 		}
@@ -125,7 +125,7 @@ public class InventoryBusiness {
 		String logStr = "createUnitLoad ";
 		logger.log(Level.FINE, logStr + "label=" + label);
 
-		UnitLoad unitLoad = unitLoadService.read(label);
+		UnitLoad unitLoad = unitLoadService.readByLabel(label);
 		if (unitLoad != null) {
 			return unitLoad;
 		}
@@ -180,8 +180,7 @@ public class InventoryBusiness {
 				throw new BusinessException(Wms2BundleResolver.class, "Inventory.carrierNotOnFixLocation");
 			}
 
-			List<StockUnit> stocksOnUnitLoad = stockUnitService.readList(null, null, null, unitLoad, null, null, null,
-					null);
+			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stockUnit : stocksOnUnitLoad) {
 				if (!fixItemDatas.contains(stockUnit.getItemData())) {
 					logger.log(Level.SEVERE, logStr + "Wrong itemData for fix location. itemData="
@@ -307,8 +306,7 @@ public class InventoryBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Inventory.carrierMaxDepthExceeded");
 		}
 
-		List<StockUnit> stocksOnUnitLoad = stockUnitService.readList(null, null, null, unitLoad, null, null, null,
-				null);
+		List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 		for (StockUnit stock : stocksOnUnitLoad) {
 			int stockState = stock.getState();
 			if (stock.getState() < StockState.DELETABLE) {
@@ -427,8 +425,7 @@ public class InventoryBusiness {
 			fireLockChangeEvent(unitLoad, oldUnitLoadLock);
 		}
 		if (processStock) {
-			List<StockUnit> stocksOnUnitLoad = stockUnitService.readList(null, null, null, unitLoad, null, null, null,
-					null);
+			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stock : stocksOnUnitLoad) {
 				int oldStockLock = stock.getLock();
 				if (lock != oldStockLock) {
@@ -505,7 +502,7 @@ public class InventoryBusiness {
 			operator = userBusiness.getCurrentUser();
 		}
 
-		List<StockUnit> stockUnits = stockUnitService.readList(null, null, null, unitLoad, null, null, null, null);
+		List<StockUnit> stockUnits = stockUnitService.readByUnitLoad(unitLoad);
 		for (StockUnit stockUnit : stockUnits) {
 			Client oldClient = stockUnit.getClient();
 			if (client.equals(oldClient)) {
@@ -529,7 +526,7 @@ public class InventoryBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingUnitLoad");
 		}
 
-		List<StockUnit> stockUnits = stockUnitService.readList(null, null, null, unitLoad, null, null, null, null);
+		List<StockUnit> stockUnits = stockUnitService.readByUnitLoad(unitLoad);
 		for (StockUnit stockUnit : stockUnits) {
 			ItemData itemData = stockUnit.getItemData();
 			// For stocks of a not system clients itemData, only the owning
@@ -547,7 +544,7 @@ public class InventoryBusiness {
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.existsStockUnitReservation");
 			}
 			List<PickingOrderLine> pickList = pickingOrderLineEntityService.readList(stockUnit, null, null, null, null,
-					OrderState.PICKED, null, null);
+					OrderState.PICKED);
 			if (!pickList.isEmpty()) {
 				logger.log(Level.INFO, logStr + "There must be no picks on the stock unit. unitLoad=" + unitLoad);
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.existsStockUnitReservation");
@@ -565,7 +562,7 @@ public class InventoryBusiness {
 
 		List<StockUnit> stockUnits = new ArrayList<>();
 		for (UnitLoad unitLoad : unitLoads) {
-			stockUnits.addAll(stockUnitService.readList(null, null, null, unitLoad, null, null, null, null));
+			stockUnits.addAll(stockUnitService.readByUnitLoad(unitLoad));
 		}
 		for (StockUnit stockUnit : stockUnits) {
 			ItemData itemData = stockUnit.getItemData();
@@ -825,7 +822,7 @@ public class InventoryBusiness {
 		}
 
 		StorageLocation location = unitLoad.getStorageLocation();
-		List<FixAssignment> fixList = fixService.readList(null, location, null, null, null);
+		List<FixAssignment> fixList = fixService.readByLocation(location);
 		if (fixList.size() > 0) {
 			boolean valid = false;
 			for (FixAssignment fix : fixList) {
@@ -886,7 +883,7 @@ public class InventoryBusiness {
 
 		if (toUnitLoad.getUnitLoadType().isAggregateStocks() && amount.compareTo(BigDecimal.ZERO) > 0) {
 			List<StockUnit> addToStockList = stockService.readList(stock.getClient(), stock.getItemData(),
-					stock.getLot(), toUnitLoad, null, stock.getSerialNumber(), null, null);
+					stock.getLot(), toUnitLoad, null, stock.getSerialNumber(), null);
 			for (StockUnit addToStock : addToStockList) {
 				if (isSummableItem(stock, amount, addToStock, addToStock.getAmount())) {
 					int stockState = stock.getState();
@@ -1176,8 +1173,7 @@ public class InventoryBusiness {
 		}
 
 		int numStock = 0;
-		List<StockUnit> stocksOnUnitLoad = stockUnitService.readList(null, null, null, unitLoad, null, null, null,
-				null);
+		List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 		for (StockUnit stock : stocksOnUnitLoad) {
 
 			double itemWeight = 0.0;

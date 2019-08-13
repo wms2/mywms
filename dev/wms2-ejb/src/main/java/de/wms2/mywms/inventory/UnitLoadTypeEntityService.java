@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -62,7 +63,7 @@ public class UnitLoadTypeEntityService {
 		return type;
 	}
 
-	public UnitLoadType read(String name) {
+	public UnitLoadType readByName(String name) {
 		String jpql = "SELECT entity FROM " + UnitLoadType.class.getName() + " entity ";
 		jpql += " where entity.name=:name";
 		Query query = manager.createQuery(jpql);
@@ -104,7 +105,7 @@ public class UnitLoadTypeEntityService {
 					desc);
 		}
 
-		UnitLoadType type = read(name);
+		UnitLoadType type = readByName(name);
 		if (type != null) {
 			return type;
 		}
@@ -139,6 +140,10 @@ public class UnitLoadTypeEntityService {
 		}
 		type = createSystemUnitLoadType(0, "unitLoadTypeSystem");
 
+		type.setAggregateStocks(false);
+		type.setCalculateWeight(false);
+		type.setManageEmpties(false);
+
 		return type;
 	}
 
@@ -152,6 +157,10 @@ public class UnitLoadTypeEntityService {
 		}
 		type = createSystemUnitLoadType(1, "unitLoadTypeVirtual");
 
+		type.setAggregateStocks(true);
+		type.setCalculateWeight(false);
+		type.setManageEmpties(false);
+
 		return type;
 	}
 
@@ -163,7 +172,7 @@ public class UnitLoadTypeEntityService {
 		note = desc + '\n' + note;
 		logger.log(Level.WARNING, "create new system unit load type. id=" + id + ", name=" + name);
 
-		UnitLoadType unitLoadType = read(name);
+		UnitLoadType unitLoadType = readByName(name);
 		if (unitLoadType == null) {
 			unitLoadType = manager.createInstance(UnitLoadType.class);
 			unitLoadType.setName(name);

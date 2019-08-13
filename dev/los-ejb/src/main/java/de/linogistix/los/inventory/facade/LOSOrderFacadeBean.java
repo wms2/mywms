@@ -317,7 +317,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			PickingOrder po = manager.find(PickingOrder.class, poId);
 			if( po != null && po.getLines().size()==0 ) {
 				pickingOrderSetRemovable.add(po);
-				pickingUnitLoadSetRemovable.addAll( pickingUnitLoadService.getByPickingOrder(po) );
+				pickingUnitLoadSetRemovable.addAll( pickingUnitLoadService.readByPickingOrder(po) );
 			}
 		}
 
@@ -446,7 +446,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 		order.setPrio(prio);
 		
-		List<PickingOrder> poList = pickingOrderEntityService.readAllByDeliveryOrder(order);
+		List<PickingOrder> poList = pickingOrderEntityService.readByDeliveryOrder(order);
 		for( PickingOrder po : poList ) {
 			int prioOld = po.getPrio();
 			if( prio != prioOld ) {
@@ -480,7 +480,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		log.debug(logStr+"label="+label);
 
 
-		UnitLoad unitLoad = unitLoadService.read(label);
+		UnitLoad unitLoad = unitLoadService.readByLabel(label);
 		if( unitLoad == null ) {
 			String msg = "Unit load does not exist. label="+label;
 			log.error(logStr+msg);
@@ -505,7 +505,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			}
 			log.debug(logStr+"Order="+deliveryOrder.getOrderNumber());
 				
-			List<PickingOrder> pickOrderList = pickingOrderEntityService.readAllByDeliveryOrder(deliveryOrder);
+			List<PickingOrder> pickOrderList = pickingOrderEntityService.readByDeliveryOrder(deliveryOrder);
 			for( PickingOrder pickingOrder : pickOrderList ) {
 				if( pickingOrder.getState() >= State.FINISHED  ) {
 					continue;

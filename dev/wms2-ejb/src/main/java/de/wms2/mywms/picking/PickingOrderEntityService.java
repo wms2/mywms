@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -68,9 +69,9 @@ public class PickingOrderEntityService {
 		return order;
 	}
 
-	public PickingOrder read(String orderNumber) {
+	public PickingOrder readByOrderNumber(String orderNumber) {
 		String jpql = "SELECT entity from " + PickingOrder.class.getName() + " entity ";
-		jpql += " WHERE entity.number=:orderNumber";
+		jpql += " WHERE entity.orderNumber=:orderNumber";
 		Query query = manager.createQuery(jpql);
 		query.setParameter("orderNumber", orderNumber);
 		try {
@@ -81,7 +82,7 @@ public class PickingOrderEntityService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<PickingOrder> readAllByDeliveryOrder(DeliveryOrder deliveryOrder) {
+	public List<PickingOrder> readByDeliveryOrder(DeliveryOrder deliveryOrder) {
 		String jpql = "SELECT DISTINCT pick.pickingOrder FROM " + PickingOrderLine.class.getName() + " pick ";
 		jpql += " WHERE pick.deliveryOrderLine.deliveryOrder=:deliveryOrder";
 		Query query = manager.createQuery(jpql);
@@ -93,16 +94,9 @@ public class PickingOrderEntityService {
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param externalNumber Optional
-	 * @param minState       Optional
-	 * @param maxState       Optional
-	 * @param offset         Optional
-	 * @param limit          Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PickingOrder> readList(String externalNumber, Integer minState, Integer maxState, Integer offset,
-			Integer limit) {
+	public List<PickingOrder> readList(String externalNumber, Integer minState, Integer maxState) {
 		String jpql = "SELECT entity FROM ";
 		jpql += PickingOrder.class.getName() + " entity ";
 		jpql += "WHERE 1=1 ";
@@ -117,12 +111,6 @@ public class PickingOrderEntityService {
 		}
 		jpql += " order by entity.orderNumber ";
 		Query query = manager.createQuery(jpql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (minState != null) {
 			query.setParameter("minState", minState);
 		}

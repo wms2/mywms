@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -226,13 +227,13 @@ public class ReportBusiness {
 
 	public Document readSourceDocument(Report report) {
 		String documentNamePrefix = Report.class.getSimpleName() + ":" + report.getId() + "/source";
-		Document source = documentService.readFirst(documentNamePrefix);
+		Document source = documentService.readFirstByNamePrefix(documentNamePrefix);
 		return source;
 	}
 
 	public byte[] readJasperDocument(Report report) {
 		String documentName = Report.class.getSimpleName() + ":" + report.getId() + "/compiled";
-		Document compiled = documentService.read(documentName);
+		Document compiled = documentService.readByName(documentName);
 		if (compiled == null) {
 			return null;
 		}
@@ -248,7 +249,7 @@ public class ReportBusiness {
 		}
 
 		String documentName = Report.class.getSimpleName() + ":" + report.getId() + "/source/" + name;
-		documentService.deleteAll(documentName);
+		documentService.deleteByNamePrefix(documentName);
 		Document source = documentService.create(documentName, DocumentType.XML, data);
 		return source;
 	}
@@ -269,7 +270,7 @@ public class ReportBusiness {
 		num += documentService.delete(documentName);
 
 		String documentNamePrefix = Report.class.getSimpleName() + ":" + report.getId() + "/source/";
-		num += documentService.deleteAll(documentNamePrefix);
+		num += documentService.deleteByNamePrefix(documentNamePrefix);
 		return num;
 	}
 }

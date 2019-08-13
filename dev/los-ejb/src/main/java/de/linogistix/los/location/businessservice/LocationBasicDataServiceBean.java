@@ -193,7 +193,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	private Area createArea(Client client, String name) {
 		Area area = null; 
 		try {
-			area = areaService.read(name);
+			area = areaService.readByName(name);
 		} catch (Exception e) {}
 		if( area == null ) {
 			area = entityGenerator.generateEntity( Area.class );

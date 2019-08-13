@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -62,7 +63,7 @@ public class AreaEntityService {
 		return area;
 	}
 
-	public Area read(String name) {
+	public Area readByName(String name) {
 		String jpql = "SELECT entity FROM " + Area.class.getName() + " entity ";
 		jpql += " where entity.name=:name";
 		Query query = manager.createQuery(jpql);
@@ -103,7 +104,7 @@ public class AreaEntityService {
 			propertyBusiness.createOrUpdate(Wms2Properties.KEY_AREA_DEFAULT, name, Wms2Properties.GROUP_WMS, desc);
 		}
 
-		Area area = read(name);
+		Area area = readByName(name);
 		if (area != null) {
 			return area;
 		}
@@ -150,7 +151,7 @@ public class AreaEntityService {
 		String checkedName = name;
 		int i = 1;
 		while (true) {
-			area = read(checkedName);
+			area = readByName(checkedName);
 			if (area == null) {
 				break;
 			}

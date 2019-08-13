@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -52,7 +53,7 @@ public class DocumentBusiness {
 			return null;
 		}
 		String imageName = generateDocumentName(entityType, entityId, "image", null);
-		Document doc = documentService.read(imageName);
+		Document doc = documentService.readByName(imageName);
 		return doc;
 	}
 
@@ -101,7 +102,7 @@ public class DocumentBusiness {
 		}
 
 		String namePrefix = entityType.getSimpleName() + ":" + entityId.toString();
-		documentService.deleteAll(namePrefix);
+		documentService.deleteByNamePrefix(namePrefix);
 	}
 
 	/**

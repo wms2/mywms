@@ -49,7 +49,7 @@ public class QueryUnitLoadServiceBean
 		if (StringTools.isEmpty(ctxService.getCallerUserName())) {
 			throw new UnAuthorizedException();
 		}
-		UnitLoad ul = unitLoadService.read(label);
+		UnitLoad ul = unitLoadService.readByLabel(label);
 		if (ul == null) {
 			return null;
 		}
@@ -70,6 +70,6 @@ public class QueryUnitLoadServiceBean
         	queryClient = null;
         }
 
-		return unitLoadService.readList(queryClient, sl, null, null, null, null, null);
+		return unitLoadService.readList(queryClient, sl, null, null, null);
 	}
 }

@@ -98,7 +98,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		UnitLoad ul = null;
 		
 		try {
-			ul = unitLoadService.read(labelId);
+			ul = unitLoadService.readByLabel(labelId);
 		} catch (Exception e) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, labelId);
 		}

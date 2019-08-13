@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -47,7 +48,7 @@ public class DocumentEntityService {
 		return document;
 	}
 
-	public Document read(String name) {
+	public Document readByName(String name) {
 		String jpql = "SELECT entity FROM " + Document.class.getName() + " entity ";
 		jpql += " where entity.name=:name";
 		Query query = manager.createQuery(jpql);
@@ -60,7 +61,7 @@ public class DocumentEntityService {
 		return null;
 	}
 
-	public Document readFirst(String namePrefix) {
+	public Document readFirstByNamePrefix(String namePrefix) {
 		String jpql = "SELECT entity FROM " + Document.class.getName() + " entity ";
 		jpql += " where entity.name like :name";
 		jpql += " order by entity.id";
@@ -85,7 +86,7 @@ public class DocumentEntityService {
 		return num;
 	}
 
-	public int deleteAll(String namePrefix) {
+	public int deleteByNamePrefix(String namePrefix) {
 		String jpql = "delete FROM " + Document.class.getName() + " entity ";
 		jpql += " where entity.name like :name";
 		Query query = manager.createQuery(jpql);

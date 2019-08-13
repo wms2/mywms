@@ -505,7 +505,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		// Not finished unit loads on the users location are moved to CLEARING
 		User user = pickingOrder.getOperator();
 		if( user != null ) {
-			List<PickingUnitLoad> ulList = pickingUnitLoadService.getByPickingOrder(pickingOrder);
+			List<PickingUnitLoad> ulList = pickingUnitLoadService.readByPickingOrder(pickingOrder);
 			if( ulList != null && ulList.size()>0 ) {
 				log.debug(logStr+"Cleanup unit loads on users location. userName="+user.getName());
 				StorageLocation usersLocation = locationService.getCurrentUsersLocation();
@@ -551,7 +551,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		else if(pickingOrder.getOrderStrategy().isCreateShippingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < State.FINISHED) {
 			log.debug(logStr+"Create shipping order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
-			goodsOutGenerator.createOrder(deliveryOrder);
+//			goodsOutGenerator.createOrder(deliveryOrder);
 			deliveryOrder.setState(OrderState.SHIPPING);
 			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
 		}

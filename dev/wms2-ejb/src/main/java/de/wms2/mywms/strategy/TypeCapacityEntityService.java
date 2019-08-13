@@ -98,15 +98,9 @@ public class TypeCapacityEntityService {
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional. The result is ordered by orderIndex and locationType.
-	 * 
-	 * @param locationType Optional
-	 * @param unitLoadType Optional
-	 * @param offset       Optional
-	 * @param limit        Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<TypeCapacityConstraint> readList(LocationType locationType, UnitLoadType unitLoadType, Integer offset,
-			Integer limit) {
+	public List<TypeCapacityConstraint> readList(LocationType locationType, UnitLoadType unitLoadType) {
 		String hql = "SELECT entity FROM " + TypeCapacityConstraint.class.getName() + " entity WHERE 1=1";
 		if (locationType != null) {
 			hql += " and entity.locationType=:locationType";
@@ -117,12 +111,6 @@ public class TypeCapacityEntityService {
 		hql += " ORDER BY entity.orderIndex, entity.locationType, entity.id";
 
 		Query query = manager.createQuery(hql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (locationType != null) {
 			query.setParameter("locationType", locationType);
 		}

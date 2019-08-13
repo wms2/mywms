@@ -172,7 +172,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 				log.info(logStr+"No storage location found for code="+code);
 				throw new LOSExceptionRB("MsgLocationNotFound", this.getClass());
 			}
-			List<UnitLoad> unitLoadList = unitLoadService.readList(null, location, null, null, null, null, null);
+			List<UnitLoad> unitLoadList = unitLoadService.readByLocation(location);
 			if( unitLoadList.size()!=1) {
 				log.info(logStr+"More than one unit load on location, code="+code);
 				throw new LOSExceptionRB("MsgMoreThanOnUnitLoad", this.getClass());
@@ -182,7 +182,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		}
 		
 		log.debug(logStr+"Check unit load");
-		UnitLoad unitLoad = unitLoadService.read(code);
+		UnitLoad unitLoad = unitLoadService.readByLabel(code);
 		if( unitLoad != null ) {
 			// A different unit load has been scanned
 		

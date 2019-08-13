@@ -56,31 +56,28 @@ public class PickingUnitLoadEntityService {
 		return pickingUnitLoad;
 	}
 
-	public PickingUnitLoad getByLabel(String label) {
+	public PickingUnitLoad readFirstByLabel(String label) {
 		return readFirst(null, label, null, null);
 	}
 
-	public List<PickingUnitLoad> getByPickingOrder(PickingOrder pickingOrder) {
-		return readList(null, null, pickingOrder, null, null);
+	public PickingUnitLoad readFirstByUnitLoad(UnitLoad unitLoad) {
+		return readFirst(unitLoad, null, null, null);
 	}
 
-	public List<PickingUnitLoad> getByDeliveryOrder(DeliveryOrder order) {
-		return readList(null, order, null, null, null);
+	public List<PickingUnitLoad> readByPickingOrder(PickingOrder pickingOrder) {
+		return readList(null, null, pickingOrder);
+	}
+
+	public List<PickingUnitLoad> readByDeliveryOrder(DeliveryOrder order) {
+		return readList(null, order, null);
 	}
 
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param unitLoad      Optional
-	 * @param deliveryOrder Optional
-	 * @param pickingOrder  Optional
-	 * @param offset        Optional
-	 * @param limit         Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PickingUnitLoad> readList(UnitLoad unitLoad, DeliveryOrder deliveryOrder, PickingOrder pickingOrder,
-			Integer offset, Integer limit) {
+	public List<PickingUnitLoad> readList(UnitLoad unitLoad, DeliveryOrder deliveryOrder, PickingOrder pickingOrder) {
 
 		String jpql = " SELECT pickingUnitLoad FROM ";
 		jpql += PickingUnitLoad.class.getName() + " pickingUnitLoad ";
@@ -96,12 +93,6 @@ public class PickingUnitLoadEntityService {
 		}
 		jpql += " order by pickingUnitLoad.unitLoad.labelId, pickingUnitLoad.id";
 		Query query = manager.createQuery(jpql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (unitLoad != null) {
 			query = query.setParameter("unitLoad", unitLoad);
 		}
@@ -119,12 +110,6 @@ public class PickingUnitLoadEntityService {
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional. If no result is found an additional query for entities without
 	 * pickingOrder or deliveryOrder is done. The result is ordered by the state.
-	 * 
-	 * @param unitLoad      Optional
-	 * @param label         Optional
-	 * @param deliveryOrder Optional
-	 * @param pickingOrder  Optional
-	 * @return
 	 */
 	public PickingUnitLoad readFirst(UnitLoad unitLoad, String label, DeliveryOrder deliveryOrder,
 			PickingOrder pickingOrder) {

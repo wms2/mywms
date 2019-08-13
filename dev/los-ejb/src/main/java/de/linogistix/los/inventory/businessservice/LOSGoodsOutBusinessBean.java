@@ -180,7 +180,7 @@ public class LOSGoodsOutBusinessBean implements LOSGoodsOutBusiness {
 
 		pos.setOutState(LOSGoodsOutRequestPositionState.FINISHED);
 		
-		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.getByLabel(ul.getLabelId());
+		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.readFirstByUnitLoad(ul);
 		if( pickingUnitLoad != null ) {
 			int unitLoadStateOld = pickingUnitLoad.getState();
 			if( pickingUnitLoad.getState()<State.FINISHED ) {

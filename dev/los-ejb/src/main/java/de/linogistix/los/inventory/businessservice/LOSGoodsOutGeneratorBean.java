@@ -86,7 +86,7 @@ public class LOSGoodsOutGeneratorBean implements LOSGoodsOutGenerator {
 			}
 		}
 		
-		List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByDeliveryOrder(deliveryOrder);
+		List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.readByDeliveryOrder(deliveryOrder);
 		log.debug(logStr+"Found unit loads. num="+unitLoadList.size());
 
 		for( PickingUnitLoad unitLoad : unitLoadList ) {

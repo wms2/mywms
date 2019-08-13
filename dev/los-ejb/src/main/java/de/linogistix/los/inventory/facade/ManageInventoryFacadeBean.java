@@ -441,7 +441,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			throw new NullPointerException("Reference must not be null");
 
 		if (ref != null && ref.length() != 0) {
-			ul = unitLoadService.read(ref);
+			ul = unitLoadService.readByLabel(ref);
 			if (ul == null) {
 				log.warn("Unit load does not exist. create new. labelId=" + ref);
 				type = idat.getDefaultUnitLoadType();

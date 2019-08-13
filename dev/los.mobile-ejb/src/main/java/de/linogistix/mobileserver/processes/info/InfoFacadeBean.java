@@ -105,7 +105,7 @@ public class InfoFacadeBean implements InfoFacade {
 		log.info("readItemData itemNumber="+itemNumber);
 		ItemData item = queryItemData.getByItemNumber( itemNumber );
 		
-		List<FixAssignment> fixList = fixService.readList(item, null, null, null, null);
+		List<FixAssignment> fixList = fixService.readByItemData(item);
 
 		List<StockUnit> suList = queryStock.getListByItemData(item, true);
 		
@@ -177,7 +177,7 @@ public class InfoFacadeBean implements InfoFacade {
 	
 	public InfoUnitLoadTO readUnitLoad( String label ) {
 		log.info("readUnitLoad label="+label);
-		UnitLoad ul = unitLoadService.read(label);
+		UnitLoad ul = unitLoadService.readByLabel(label);
 		if( ul == null ) {
 			return null;
 		}
@@ -193,7 +193,7 @@ public class InfoFacadeBean implements InfoFacade {
 		HashSet<DeliveryOrder> pickSetUl = new HashSet<DeliveryOrder>();
 		DeliveryOrder deliveryOrder = null;
 		
-		PickingUnitLoad pul = pickinUnitLoadService.getByLabel(ul.getLabelId());
+		PickingUnitLoad pul = pickinUnitLoadService.readFirstByUnitLoad(ul);
 		if( pul != null ) {
 			orderSetUl.add( pul.getDeliveryOrder());
 		}

@@ -530,7 +530,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 		}
 
 		if (ul == null) {
-			ul = unitLoadService.read(pos.getUnitLoad());
+			ul = unitLoadService.readByLabel(pos.getUnitLoad());
 		}
 		UnitLoad ulNirwana = unitLoadService.getTrash();
 		if( ul != null && ul.equals(ulNirwana) ) {
@@ -639,7 +639,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 
 		if (ref != null && ref.length() != 0) {
 //			try {
-			ul = unitLoadService.read(ref);
+			ul = unitLoadService.readByLabel(ref);
 			if (ul != null) {
 				if( !sl.equals(ul.getStorageLocation()) ) {
 					logger.warn("UnitLoad not on location. label="+ul.getLabelId()+", location="+ul.getStorageLocation().getName()+", check location="+sl.getName());

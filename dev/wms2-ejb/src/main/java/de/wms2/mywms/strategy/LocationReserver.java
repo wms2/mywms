@@ -354,7 +354,7 @@ public class LocationReserver {
 
 			if (locationAllocation.compareTo(BigDecimal.ZERO) == 0) {
 				if (checkEmptyLocation && oldAllocation.compareTo(locationAllocation) != 0) {
-					List<UnitLoad> otherUnitLoads = unitLoadService.readList(null, location, null, null, null, null, null);
+					List<UnitLoad> otherUnitLoads = unitLoadService.readByLocation(location);
 					for (UnitLoad otherUnitLoad : otherUnitLoads) {
 						if (!otherUnitLoad.equals(unitLoad)) {
 							logger.log(Level.WARNING,
@@ -403,7 +403,7 @@ public class LocationReserver {
 		String logStr = "recalculateAllocation ";
 
 		Collection<UnitLoad> allocatingUnitLoads = reservationService.readReservingUnitLoadsByLocation(location);
-		Collection<UnitLoad> locationsUnitLoads = unitLoadService.readList(null, location, null, null, null, null, null);
+		Collection<UnitLoad> locationsUnitLoads = unitLoadService.readByLocation(location);
 		for (UnitLoad unitLoad : locationsUnitLoads) {
 			if (!allocatingUnitLoads.contains(unitLoad)) {
 				allocatingUnitLoads.add(unitLoad);

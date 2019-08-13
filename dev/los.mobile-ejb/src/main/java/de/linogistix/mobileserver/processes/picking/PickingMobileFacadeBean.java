@@ -218,11 +218,11 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		PickingUnitLoad pickingUnitLoad = null;
 		if( pickTo != null ) {
-			pickingUnitLoad = pickingUnitLoadService.getByLabel(pickTo.label);
+			pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(pickTo.label);
 			
 			if( pickingUnitLoad == null ) {
 				UnitLoad unitLoad = null;
-				unitLoad = unitLoadService.read(pickTo.label);
+				unitLoad = unitLoadService.readByLabel(pickTo.label);
 				if (unitLoad == null) {
 					UnitLoadType type = unitLoadTypeService.getDefault();
 					StorageLocation storageLocation = locationService.getCurrentUsersLocation();
@@ -246,7 +246,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		String logStr = "transferUnitLoad ";
 		
 		PickingUnitLoad pickingUnitLoad = null;
-		pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
+		pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.info(logStr+"unit load not found. Cannot transfer. label="+label);
 			return;
@@ -275,7 +275,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		for( int i = 0; i < 1000; i++ ) {
 			String label = sequenceService.generateUnitLoadLabelId(null, null);
 			UnitLoad ul = null;
-			ul = unitLoadService.read(label);
+			ul = unitLoadService.readByLabel(label);
 			if( ul == null ) {
 				return label;
 			}
@@ -296,7 +296,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		UnitLoad unitLoadNew = null;
 
-		unitLoadNew = unitLoadService.read(labelNew);
+		unitLoadNew = unitLoadService.readByLabel(labelNew);
 		if( unitLoadNew != null ) {
 			log.warn(logStr+"Unit load already exists. label="+labelNew);
 			throw new LOSExceptionRB( "UnitLoadAlreadyExists", this.getClass() );
@@ -308,7 +308,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		}
 		
 		UnitLoad unitLoad = null;
-		unitLoad = unitLoadService.read(labelOld);
+		unitLoad = unitLoadService.readByLabel(labelOld);
 		if( unitLoad == null )  { 
 			log.info(logStr+"Label does not exists => do not change. label="+labelOld);
 			return;
@@ -321,7 +321,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public PickingMobileUnitLoad createUnitLoad( String label, long pickingOrderId, int index ) throws FacadeException {
 		String logStr = "createUnitLoad ";
 		UnitLoad unitLoad = null;
-		unitLoad = unitLoadService.read(label);
+		unitLoad = unitLoadService.readByLabel(label);
 		if( unitLoad != null ) {
 			log.warn(logStr+"Unit load already exists. label="+label);
 			throw new LOSExceptionRB( "UnitLoadAlreadyExists", this.getClass() );
@@ -355,10 +355,10 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		PickingUnitLoad pickingUnitLoad = null;
 		UnitLoad unitLoad = null;
-		pickingUnitLoad = pickingUnitLoadService.getByLabel(label);
+		pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.info(logStr+"Picking unit load not found. Try LOSUnitLoad. label="+label);
-			unitLoad = unitLoadService.read(label);
+			unitLoad = unitLoadService.readByLabel(label);
 			if( unitLoad == null ) {
 				return true;
 			}
@@ -538,7 +538,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		PickingOrder order = null;
 		try {
 			order = pickingOrderService.get(orderId);
-			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByPickingOrder(order);
+			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
 			for( PickingUnitLoad unitLoad : unitLoadList ) {
 				if( unitLoad.getState() < State.FINISHED ) {
 					unitLoadUsable = unitLoad;
@@ -562,7 +562,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		List<PickingMobileUnitLoad> unitLoadUsableList = new ArrayList<PickingMobileUnitLoad>();
 		try {
 			order = pickingOrderService.get(orderId);
-			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.getByPickingOrder(order);
+			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
 			for( PickingUnitLoad unitLoad : unitLoadList ) {
 				log.debug(logStr+"Found unit load for order. unitload="+unitLoad+", state="+unitLoad.getState()+", order="+order);
 				if( unitLoad.getState() < State.FINISHED ) {
@@ -654,7 +654,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		String logStr = "changePickFromStockUnit ";
 		
 		UnitLoad unitLoadNew = null; 
-		unitLoadNew = unitLoadService.read(label);
+		unitLoadNew = unitLoadService.readByLabel(label);
 		if( unitLoadNew == null ) {
 			log.info(logStr+"No unit load found. label="+label);
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, label);
@@ -706,7 +706,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public void printLabel( String label, String printer ) throws FacadeException {
 		String logStr = "printLabel ";
 		UnitLoad unitLoad = null; 
-		unitLoad = unitLoadService.read(label);
+		unitLoad = unitLoadService.readByLabel(label);
 		if( unitLoad == null ) {
 			log.warn(logStr+"Cannot read unit load. label="+label);
 			throw new LOSExceptionRB("CannotReadUnitLoad", this.getClass());

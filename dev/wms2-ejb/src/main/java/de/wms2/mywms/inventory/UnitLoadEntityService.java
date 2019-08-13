@@ -30,7 +30,6 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
@@ -76,7 +75,7 @@ public class UnitLoadEntityService {
 		return unitLoad;
 	}
 
-	public UnitLoad read(String label) {
+	public UnitLoad readByLabel(String label) {
 		String jpql = "SELECT entity FROM " + UnitLoad.class.getName() + " entity ";
 		jpql += " WHERE entity.labelId=:label";
 		Query query = manager.createQuery(jpql);
@@ -88,7 +87,11 @@ public class UnitLoadEntityService {
 		return null;
 	}
 
-	public boolean exists(String label) {
+	public List<UnitLoad> readByLocation(StorageLocation location) {
+		return readList(null, location, null, null, null);
+	}
+
+	public boolean existsByLabel(String label) {
 		String jpql = "SELECT entity.id FROM " + UnitLoad.class.getName() + " entity";
 		jpql += " WHERE entity.labelId=:label";
 		Query query = manager.createQuery(jpql);
@@ -119,17 +122,10 @@ public class UnitLoadEntityService {
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param location      Optional
-	 * @param emptyUnitLoad Optional
-	 * @param minState      Optional
-	 * @param maxState      Optional
-	 * @param offset        Optional
-	 * @param limit         Optional
 	 */
 	@SuppressWarnings("unchecked")
 	public List<UnitLoad> readList(Client client, StorageLocation location, Boolean emptyUnitLoad, Integer minState,
-			Integer maxState, Integer offset, Integer limit) {
+			Integer maxState) {
 		String hql = "SELECT entity FROM " + UnitLoad.class.getName() + " entity WHERE 1=1";
 		if (client != null) {
 			hql += " and entity.client=:client";
@@ -154,12 +150,6 @@ public class UnitLoadEntityService {
 		hql += " order by entity.labelId";
 
 		Query query = manager.createQuery(hql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (client != null) {
 			query.setParameter("client", client);
 		}
@@ -182,21 +172,11 @@ public class UnitLoadEntityService {
 	 * @param location    Optional
 	 * @param reservation Optional
 	 */
-	public int readCount(StorageLocation location, String reservation) {
-		String hql = "SELECT count(*) FROM " + UnitLoad.class.getName() + " entity WHERE 1=1";
-		if (location != null) {
-			hql += " and entity.storageLocation=:location";
-		}
-		if (!StringUtils.isBlank(reservation)) {
-			hql += " and entity.reservation=:reservation";
-		}
+	public int count(StorageLocation location) {
+		String hql = "SELECT count(*) FROM " + UnitLoad.class.getName() + " entity";
+		hql += " where entity.storageLocation=:location";
 		Query query = manager.createQuery(hql);
-		if (location != null) {
-			query.setParameter("location", location);
-		}
-		if (!StringUtils.isBlank(reservation)) {
-			query.setParameter("reservation", reservation);
-		}
+		query.setParameter("location", location);
 		Long num = (Long) query.getSingleResult();
 		return num.intValue();
 	}
@@ -368,7 +348,7 @@ public class UnitLoadEntityService {
 
 		logger.log(Level.WARNING, logStr + "create new system UnitLoad. id=" + id + ", name=" + name);
 
-		UnitLoad unitLoad = read(name);
+		UnitLoad unitLoad = readByLabel(name);
 		if (unitLoad == null) {
 
 			Client systemClient = clientBusiness.getSystemClient();

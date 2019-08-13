@@ -156,7 +156,7 @@ public class ManageAdviceWSBean implements ManageAdviceWS {
 		if(req.getUnitLoadType() != null && req.getUnitLoadType().length() > 0){
 			
 			UnitLoadType ult = null;
-			ult = unitLoadTypeService.read(req.getUnitLoadType());
+			ult = unitLoadTypeService.readByName(req.getUnitLoadType());
 			if( ult == null ) {
 				throw new ManageAdviceWSFault(
 						ManageAdviceErrorCodes.ERROR_UNKNOWN_UNITLOADTYPE, 

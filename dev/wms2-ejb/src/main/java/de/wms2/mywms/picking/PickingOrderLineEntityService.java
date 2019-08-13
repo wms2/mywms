@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -39,23 +40,21 @@ public class PickingOrderLineEntityService {
 	@Inject
 	private PersistenceManager manager;
 
+	public List<PickingOrderLine> readByDeliveryOrderLine(DeliveryOrderLine deliveryOrderLine) {
+		return readList(null, null, null, deliveryOrderLine, null, null);
+	}
+
+	public List<PickingOrderLine> readByDeliveryOrder(DeliveryOrder deliveryOrder) {
+		return readList(null, null, deliveryOrder, null, null, null);
+	}
+
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param sourceStockUnit   Optional
-	 * @param pickingOrder      Optional
-	 * @param deliveryOrder     Optional
-	 * @param deliveryOrderLine Optional
-	 * @param stateMin          Optional
-	 * @param stateMax          Optional
-	 * @param offset            Optional
-	 * @param limit             Optional
 	 */
 	@SuppressWarnings("unchecked")
 	public List<PickingOrderLine> readList(StockUnit sourceStockUnit, PickingOrder pickingOrder,
-			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Integer stateMin,
-			Integer stateMax, Integer offset, Integer limit) {
+			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Integer stateMin, Integer stateMax) {
 
 		String jpql = " SELECT entity FROM " + PickingOrderLine.class.getName() + " entity ";
 		jpql += " WHERE 1=1";
@@ -79,12 +78,6 @@ public class PickingOrderLineEntityService {
 		}
 		jpql += " ORDER BY entity.id ";
 		Query query = manager.createQuery(jpql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (sourceStockUnit != null) {
 			query.setParameter("sourceStockUnit", sourceStockUnit);
 		}

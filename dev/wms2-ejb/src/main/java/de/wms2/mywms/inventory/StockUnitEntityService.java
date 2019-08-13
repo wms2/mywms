@@ -43,29 +43,20 @@ public class StockUnitEntityService {
 	private PersistenceManager manager;
 
 	public List<StockUnit> readByLocation(StorageLocation location) {
-		return readList(null, null, null, null, location, null, null, null);
+		return readList(null, null, null, null, location, null, null);
 	}
 
 	public List<StockUnit> readByUnitLoad(UnitLoad unitLoad) {
-		return readList(null, null, null, unitLoad, null, null, null, null);
+		return readList(null, null, null, unitLoad, null, null, null);
 	}
 
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param client       Optional
-	 * @param itemData     Optional
-	 * @param lotNumber    Optional
-	 * @param unitLoad     Optional
-	 * @param location     Optional
-	 * @param serialNumber Optional
-	 * @param offset       Optional
-	 * @param limit        Optional
 	 */
 	@SuppressWarnings("unchecked")
 	public List<StockUnit> readList(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad,
-			StorageLocation location, String serialNumber, Integer offset, Integer limit) {
+			StorageLocation location, String serialNumber, Integer limit) {
 		String hql = "SELECT stock, stock.unitLoad, stock.itemData FROM " + StockUnit.class.getName() + " stock";
 		hql += " WHERE 1=1";
 		if (client != null) {
@@ -89,9 +80,6 @@ public class StockUnitEntityService {
 		hql += " order by stock.id";
 
 		Query query = manager.createQuery(hql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
 		if (limit != null) {
 			query.setMaxResults(limit);
 		}
@@ -127,14 +115,6 @@ public class StockUnitEntityService {
 	/**
 	 * Checks whether an entity exists, which is matching the given criteria. All
 	 * parameters are optional.
-	 * 
-	 * @param client       Optional
-	 * @param itemData     Optional
-	 * @param lotNumber    Optional
-	 * @param unitLoad     Optional
-	 * @param location     Optional
-	 * @param serialNumber Optional
-	 * @return
 	 */
 	public boolean exists(Client client, ItemData itemData, String lotNumber, UnitLoad unitLoad,
 			StorageLocation location, String serialNumber) {
@@ -189,62 +169,4 @@ public class StockUnitEntityService {
 		return false;
 	}
 
-	/**
-	 * Select the number of entities matching the given criteria. All parameters are
-	 * optional.
-	 * 
-	 * @param client       Optional
-	 * @param itemData     Optional
-	 * @param lotNumber    Optional
-	 * @param unitLoad     Optional
-	 * @param location     Optional
-	 * @param serialNumber Optional
-	 * @return
-	 */
-	public int readCount(Client client, ItemData itemData, String lotNumber, UnitLoad unitLoad,
-			StorageLocation location, String serialNumber) {
-		String hql = "SELECT count(*) FROM " + StockUnit.class.getName() + " stock";
-		hql += " WHERE 1=1";
-		if (client != null) {
-			hql += " AND stock.client=:client";
-		}
-		if (itemData != null) {
-			hql += " AND stock.itemData=:itemData";
-		}
-		if (unitLoad != null) {
-			hql += " AND stock.unitLoad=:unitLoad";
-		}
-		if (location != null) {
-			hql += " AND stock.unitLoad.storageLocation=:location";
-		}
-		if (!StringUtils.isBlank(lotNumber)) {
-			hql += " AND stock.lot.name=:lotNumber";
-		}
-		if (!StringUtils.isBlank(serialNumber)) {
-			hql += " AND stock.serialNumber=:serial";
-		}
-
-		Query query = manager.createQuery(hql);
-		if (client != null) {
-			query = query.setParameter("client", client);
-		}
-		if (itemData != null) {
-			query = query.setParameter("itemData", itemData);
-		}
-		if (unitLoad != null) {
-			query = query.setParameter("unitLoad", unitLoad);
-		}
-		if (location != null) {
-			query = query.setParameter("location", location);
-		}
-		if (!StringUtils.isBlank(lotNumber)) {
-			query = query.setParameter("lotNumber", lotNumber);
-		}
-		if (!StringUtils.isBlank(serialNumber)) {
-			query = query.setParameter("serial", serialNumber);
-		}
-
-		Long num = (Long) query.getSingleResult();
-		return num.intValue();
-	}
 }

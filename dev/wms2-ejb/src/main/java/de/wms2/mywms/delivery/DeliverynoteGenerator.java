@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -89,11 +90,10 @@ public class DeliverynoteGenerator {
 			registerAmount(orderAmountMap, orderLine.getItemData(), orderLine.getPickedAmount());
 		}
 
-		List<PickingUnitLoad> pickingUnitLoads = pickingUnitLoadService.readList(null, order, null, null, null);
+		List<PickingUnitLoad> pickingUnitLoads = pickingUnitLoadService.readByDeliveryOrder(order);
 		for (PickingUnitLoad pickingUnitLoad : pickingUnitLoads) {
 			UnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
-			List<StockUnit> stocksOnUnitLoad = stockUnitService.readList(null, null, null, unitLoad, null, null,
-					null, null);
+			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stock : stocksOnUnitLoad) {
 				registerAmount(unitLoadAmountMap, stock.getItemData(), stock.getAmount());
 

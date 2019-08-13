@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -61,7 +62,7 @@ public class LocationTypeEntityService {
 		return type;
 	}
 
-	public LocationType read(String name) {
+	public LocationType readByName(String name) {
 		String jpql = "SELECT entity FROM " + LocationType.class.getName() + " entity ";
 		jpql += " where entity.name=:name";
 		Query query = manager.createQuery(jpql);
@@ -89,7 +90,7 @@ public class LocationTypeEntityService {
 					desc);
 		}
 
-		LocationType type = read(name);
+		LocationType type = readByName(name);
 		if (type != null) {
 			return type;
 		}
@@ -129,7 +130,7 @@ public class LocationTypeEntityService {
 		String checkedName = name;
 		int i = 1;
 		while (true) {
-			type = read(checkedName);
+			type = readByName(checkedName);
 			if (type == null) {
 				break;
 			}

@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -117,7 +118,7 @@ public class PackagingUnitEntityService {
 	 * the packingLevel and name.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PackagingUnit> readListByItemData(ItemData itemData) {
+	public List<PackagingUnit> readByItemData(ItemData itemData) {
 		String jpql = "SELECT packaging FROM " + PackagingUnit.class.getName() + " packaging ";
 		jpql += " WHERE packaging.itemData=:itemData";
 		jpql += " ORDER BY packaging.packingLevel, packaging.name";
@@ -141,46 +142,4 @@ public class PackagingUnitEntityService {
 		List<String> result = query.getResultList();
 		return result;
 	}
-
-	/**
-	 * Select a list of entities matching the given criteria. All parameters are
-	 * optional.<br>
-	 * The result is ordered by packingLevel.
-	 * 
-	 * @param name
-	 *            Optional
-	 * @param itemData
-	 *            Optional
-	 * @param offset
-	 *            Optional
-	 * @param limit
-	 *            Optional
-	 */
-	@SuppressWarnings("unchecked")
-	public List<PackagingUnit> readList(ItemData itemData, String name, Integer offset, Integer limit) {
-		String jpql = "SELECT entity FROM " + PackagingUnit.class.getName() + " entity ";
-		jpql += " WHERE 1=1 ";
-		if (itemData != null) {
-			jpql += " and entity.itemData=:itemData";
-		}
-		if (!StringUtils.isBlank(name)) {
-			jpql += " and entity.name=:name";
-		}
-		jpql += " ORDER BY entity.packingLevel, entity.name, entity.id";
-		Query query = manager.createQuery(jpql);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
-		if (itemData != null) {
-			query.setParameter("itemData", itemData);
-		}
-		if (!StringUtils.isBlank(name)) {
-			query.setParameter("name", name);
-		}
-		return query.getResultList();
-	}
-
 }

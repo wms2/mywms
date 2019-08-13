@@ -91,13 +91,12 @@ public class TrashHandler {
 				return false;
 			}
 
-			List<StockUnit> stocksOnUnitLoad = stockUnitService.readList(null, null, null, unitLoad, null, null, null,
-					null);
+			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stock : stocksOnUnitLoad) {
 				manager.remove(stock);
 			}
 
-			List<PickingUnitLoad> pickingUnitLoads = pickingUnitLoadService.readList(unitLoad, null, null, null, null);
+			List<PickingUnitLoad> pickingUnitLoads = pickingUnitLoadService.readList(unitLoad, null, null);
 			for (PickingUnitLoad pickingUnitLoad : pickingUnitLoads) {
 				manager.remove(pickingUnitLoad);
 			}
