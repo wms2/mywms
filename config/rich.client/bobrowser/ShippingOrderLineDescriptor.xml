@@ -13,7 +13,7 @@
 		</entry>
 
 		<entry>
-			<key>goodsOutRequest</key>
+			<key>shippingOrder</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -24,7 +24,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>source</key>
+			<key>packet</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -34,18 +34,27 @@
 			</value>
 		</entry>
 		<entry>
-			<key>outState</key>
+			<key>state</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
 				<position>3</position>
-				<typeHint>de.linogistix.los.location.model.LOSUnitLoad</typeHint>
 			</value>
 		</entry>
        
-		
+        <entry>
+			<key>finished</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
+            </value>
+        </entry>
+
 
     </descriptions>
     <groups>

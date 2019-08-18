@@ -14,7 +14,7 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
+import de.wms2.mywms.shipping.ShippingOrder;
 
 
 /**
@@ -25,6 +25,6 @@ import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
  *
  */
 @Remote
-public interface LOSGoodsOutRequestCRUDRemote extends BusinessObjectCRUDRemote<LOSGoodsOutRequest>{
+public interface LOSGoodsOutRequestCRUDRemote extends BusinessObjectCRUDRemote<ShippingOrder>{
 
 }

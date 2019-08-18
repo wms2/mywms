@@ -14,7 +14,7 @@ import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
 import de.linogistix.los.inventory.service.LOSPickingUnitLoadService;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 
 /**
@@ -22,13 +22,13 @@ import de.wms2.mywms.picking.PickingUnitLoad;
  *
  */
 @Stateless
-public class LOSPickingUnitLoadCRUDBean extends BusinessObjectCRUDBean<PickingUnitLoad> implements LOSPickingUnitLoadCRUDRemote {
+public class LOSPickingUnitLoadCRUDBean extends BusinessObjectCRUDBean<Packet> implements LOSPickingUnitLoadCRUDRemote {
 
 	@EJB 
 	LOSPickingUnitLoadService service;
 	
 	@Override
-	protected BasicService<PickingUnitLoad> getBasicService() {
+	protected BasicService<Packet> getBasicService() {
 		
 		return service;
 	}

@@ -41,11 +41,15 @@ public class PickingOrderLineEntityService {
 	private PersistenceManager manager;
 
 	public List<PickingOrderLine> readByDeliveryOrderLine(DeliveryOrderLine deliveryOrderLine) {
-		return readList(null, null, null, deliveryOrderLine, null, null);
+		return readList(null, null, null, deliveryOrderLine, null, null, null);
 	}
 
 	public List<PickingOrderLine> readByDeliveryOrder(DeliveryOrder deliveryOrder) {
-		return readList(null, null, deliveryOrder, null, null, null);
+		return readList(null, null, deliveryOrder, null, null, null, null);
+	}
+
+	public List<PickingOrderLine> readByPacket(Packet packet) {
+		return readList(null, null, null, null, packet, null, null);
 	}
 
 	/**
@@ -54,7 +58,7 @@ public class PickingOrderLineEntityService {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<PickingOrderLine> readList(StockUnit sourceStockUnit, PickingOrder pickingOrder,
-			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Integer stateMin, Integer stateMax) {
+			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Packet paket, Integer stateMin, Integer stateMax) {
 
 		String jpql = " SELECT entity FROM " + PickingOrderLine.class.getName() + " entity ";
 		jpql += " WHERE 1=1";

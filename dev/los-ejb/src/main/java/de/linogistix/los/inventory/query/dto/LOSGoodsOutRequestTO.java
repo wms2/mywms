@@ -9,95 +9,43 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.util.Date;
 
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.shipping.ShippingOrder;
 
-public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
+public class LOSGoodsOutRequestTO extends BODTO<ShippingOrder> {
 
 	private String number;
 	private String clientNumber;
-	private LOSGoodsOutRequestState outState = LOSGoodsOutRequestState.RAW;
-	private String outStateName;
+	private int state;
 	private String customerOrderNumber;
-	private String customerOrderExternalNumber;
-	private String customerOrderExternalId;
-    private String customerOrderCustomerNumber;
 	private Date shippingDate;
-	private int numPos;
 
 	private static final long serialVersionUID = 1L;
 
-	public LOSGoodsOutRequestTO( LOSGoodsOutRequest x ){
-		this(x.getId(), x.getVersion(), x.getNumber(), x.getNumber(), x.getOutState(), x.getClient().getNumber(), x.getCustomerOrder()==null?null:x.getCustomerOrder().getOrderNumber(), x.getShippingDate());
-	}
-	
+	public LOSGoodsOutRequestTO() {};
+
+	public LOSGoodsOutRequestTO(ShippingOrder shippingOrder) {
+		super(shippingOrder.getId(), shippingOrder.getVersion(), shippingOrder.getOrderNumber());
+		this.number =  shippingOrder.getOrderNumber();
+		this.clientNumber = shippingOrder.getClient().getNumber();
+		this.customerOrderNumber = (shippingOrder.getDeliveryOrder()==null?null:shippingOrder.getDeliveryOrder().getOrderNumber());
+		this.shippingDate = shippingOrder.getShippingDate();
+	};
 
 	public LOSGoodsOutRequestTO(
 			long id,
 			int version,
-			String name,
 			String number,
-			LOSGoodsOutRequestState outState,
+			int state,
 			String clientNumber, 
 			String customerOrderNumber,
 			Date shippingDate){
-		this(id, version, name, number, outState, clientNumber, customerOrderNumber, null, null, null, shippingDate, -1);
-	}
-
-	public LOSGoodsOutRequestTO(
-			long id,
-			int version,
-			String name,
-			String number,
-			LOSGoodsOutRequestState outState,
-			String clientNumber, 
-			String customerOrderNumber,
-			Date shippingDate,
-			int numPos){
-		this(id, version, name, number, outState, clientNumber, customerOrderNumber, null, null, null, shippingDate, numPos);
-	}
-
-	public LOSGoodsOutRequestTO(
-			long id,
-			int version,
-			String name,
-			String number,
-			LOSGoodsOutRequestState outState,
-			String clientNumber, 
-			String customerOrderNumber,
-			String customerOrderExternalNumber,
-			String customerOrderExternalId,
-		    String customerOrderCustomerNumber,
-			Date shippingDate){
-		this(id, version, name, number, outState, clientNumber, customerOrderNumber, customerOrderExternalNumber, customerOrderExternalId, customerOrderCustomerNumber, shippingDate, -1);
-	}
-
-	public LOSGoodsOutRequestTO(
-			long id,
-			int version,
-			String name,
-			String number,
-			LOSGoodsOutRequestState outState,
-			String clientNumber, 
-			String customerOrderNumber,
-			String customerOrderExternalNumber,
-			String customerOrderExternalId,
-		    String customerOrderCustomerNumber,
-			Date shippingDate,
-			int numPos){
-		super(id, version, name);
+		super(id, version, number);
 		this.number = number;
-		this.outState = outState; 
-		this.outStateName = outState.name(); 
+		this.state = state;
 		this.clientNumber = clientNumber;
 		this.customerOrderNumber = customerOrderNumber;
-		this.customerOrderExternalNumber = customerOrderExternalNumber;
-		this.customerOrderExternalId = customerOrderExternalId;
-		this.customerOrderCustomerNumber = customerOrderCustomerNumber;
 		this.shippingDate = shippingDate;
-		this.numPos = numPos;
-		setClassName(LOSGoodsOutRequest.class.getName());
 	}
 
 	public String getNumber() {
@@ -116,14 +64,6 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 		this.clientNumber = clientNumber;
 	}
 
-	public LOSGoodsOutRequestState getOutState() {
-		return outState;
-	}
-
-	public void setOutState(LOSGoodsOutRequestState outState) {
-		this.outState = outState;
-	}
-
 	public String getCustomerOrderNumber() {
 		return customerOrderNumber;
 	}
@@ -140,51 +80,11 @@ public class LOSGoodsOutRequestTO extends BODTO<LOSGoodsOutRequest> {
 		this.shippingDate = shippingDate;
 	}
 
-	public int getNumPos() {
-		return numPos;
-	}
-	public void setNumPos(int numPos) {
-		this.numPos = numPos;
+	public int getState() {
+		return state;
 	}
 
-
-	public String getOutStateName() {
-		return outStateName;
+	public void setState(int state) {
+		this.state = state;
 	}
-	public void setOutStateName(String outStateName) {
-		this.outStateName = outStateName;
-	}
-
-
-	public String getCustomerOrderExternalNumber() {
-		return customerOrderExternalNumber;
-	}
-
-
-	public void setCustomerOrderExternalNumber(String customerOrderExternalNumber) {
-		this.customerOrderExternalNumber = customerOrderExternalNumber;
-	}
-
-
-	public String getCustomerOrderExternalId() {
-		return customerOrderExternalId;
-	}
-
-
-	public void setCustomerOrderExternalId(String customerOrderExternalId) {
-		this.customerOrderExternalId = customerOrderExternalId;
-	}
-
-
-	public String getCustomerOrderCustomerNumber() {
-		return customerOrderCustomerNumber;
-	}
-
-
-	public void setCustomerOrderCustomerNumber(String customerOrderCustomerNumber) {
-		this.customerOrderCustomerNumber = customerOrderCustomerNumber;
-	}
-
-
-
 }

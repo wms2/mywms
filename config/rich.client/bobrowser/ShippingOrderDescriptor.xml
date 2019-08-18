@@ -13,7 +13,7 @@
 		</entry>
 
         <entry>
-            <key>number</key>
+            <key>orderNumber</key>
             <value>
                 <group>
                     <name>main</name>
@@ -33,7 +33,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>positions</key>
+			<key>lines</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -44,7 +44,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>outState</key>
+			<key>state</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -54,7 +54,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>customerOrder</key>
+			<key>deliveryOrder</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -75,7 +75,7 @@
 		</entry>
 
 		<entry>
-			<key>outLocation</key>
+			<key>destination</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -95,26 +95,47 @@
 			</value>
 		</entry>
 		<entry>
-			<key>courier</key>
+			<key>carrierName</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>true</hidden>
-				<position>12</position>
-			</value>
-		</entry>
-		<entry>
-			<key>groupName</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>true</hidden>
-				<position>13</position>
+				<position>21</position>
 			</value>
 		</entry>
 
+        <entry>
+			<key>prio</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>true</hidden>
+				<position>22</position>
+			</value>
+		</entry>
+
+        <entry>
+			<key>started</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
+        <entry>
+			<key>finished</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
+            </value>
+        </entry>
 
     </descriptions>
     <groups>

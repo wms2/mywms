@@ -11,12 +11,12 @@ import javax.ejb.Stateless;
 
 import org.mywms.service.BasicServiceBean;
 
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<PickingUnitLoad> implements LOSPickingUnitLoadService{
+public class LOSPickingUnitLoadServiceBean extends BasicServiceBean<Packet> implements LOSPickingUnitLoadService{
 }

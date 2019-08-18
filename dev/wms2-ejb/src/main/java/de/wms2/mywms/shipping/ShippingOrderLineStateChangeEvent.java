@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -16,25 +17,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package de.wms2.mywms.picking;
+package de.wms2.mywms.shipping;
 
 /**
- * This event fired when a picking unit load changes its state.
+ * This event fired when a picking order changes its state.
  * 
  * @author krane
  *
  */
-public class PickingUnitLoadStateChangeEvent {
-	private PickingUnitLoad pickingUnitLoad;
+public class ShippingOrderLineStateChangeEvent {
+	private ShippingOrderLine shippingOrderLine;
 	private int oldState;
 
-	public PickingUnitLoadStateChangeEvent(PickingUnitLoad pickingUnitLoad, int oldState) {
-		this.pickingUnitLoad = pickingUnitLoad;
+	public ShippingOrderLineStateChangeEvent(ShippingOrderLine shippingOrderLine, int oldState) {
+		this.shippingOrderLine = shippingOrderLine;
 		this.oldState = oldState;
 	}
 
-	public PickingUnitLoad getPickingUnitLoad() {
-		return pickingUnitLoad;
+	public ShippingOrderLine getShippingOrderLine() {
+		return shippingOrderLine;
 	}
 
 	public int getOldState() {

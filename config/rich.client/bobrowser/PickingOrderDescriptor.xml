@@ -44,7 +44,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>unitLoads</key>
+			<key>packets</key>
 			<value>
 				<group>
 					<name>main</name>

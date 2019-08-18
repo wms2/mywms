@@ -15,6 +15,8 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,6 +37,8 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
@@ -43,15 +47,15 @@ import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
+import de.wms2.mywms.picking.PacketStateChangeEvent;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.picking.PickingType;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 import de.wms2.mywms.strategy.OrderState;
-import de.wms2.mywms.strategy.OrderStrategy;
 
 /**
  * 
@@ -67,8 +71,6 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
  	@EJB
 	private LOSPickingPositionService pickingPositionService;
 	@EJB
-	private LOSGoodsOutGenerator goodsOutGenerator;
-	@EJB
 	private ContextService contextService;
 	
 	@EJB
@@ -83,11 +85,15 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	@Inject
 	private PickingOrderLineGenerator pickingPosGeneratorService;
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService pickingUnitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
+	@Inject
+	private Event<PacketStateChangeEvent> packetStateChangeEvent;
 
     public DeliveryOrder finishDeliveryOrder(DeliveryOrder deliveryOrder) throws FacadeException {
 		String logStr = "finishdeliveryOrder ";
@@ -128,7 +134,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		if( deliveryOrder.getState() != stateOld ) {
-			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, stateOld);
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, stateOld);
 		}
 		
     	return deliveryOrder;
@@ -220,7 +226,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( deliveryOrder.getState() != orderStateOld )  {
-			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, stateOld);
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, stateOld);
 		}
 
 		return deliveryOrderLine;
@@ -505,11 +511,11 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		// Not finished unit loads on the users location are moved to CLEARING
 		User user = pickingOrder.getOperator();
 		if( user != null ) {
-			List<PickingUnitLoad> ulList = pickingUnitLoadService.readByPickingOrder(pickingOrder);
+			List<Packet> ulList = pickingUnitLoadService.readByPickingOrder(pickingOrder);
 			if( ulList != null && ulList.size()>0 ) {
 				log.debug(logStr+"Cleanup unit loads on users location. userName="+user.getName());
 				StorageLocation usersLocation = locationService.getCurrentUsersLocation();
-				for( PickingUnitLoad unitLoad : ulList ) {
+				for( Packet unitLoad : ulList ) {
 					if( unitLoad.getUnitLoad().getStorageLocation().equals(usersLocation) ) {
 						inventoryBusiness.transferToClearing(unitLoad.getUnitLoad(), pickingOrder.getOrderNumber(),
 								pickingOrder.getOperator(), null);
@@ -547,27 +553,26 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		if( pickingOrder.getOrderStrategy().isCreatePackingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < OrderState.PACKED) {
 			log.debug(logStr+"Create packing order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
 			deliveryOrder.setState(OrderState.PACKING);
-			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, deliveryOrderStateOld);
 		}
 		else if(pickingOrder.getOrderStrategy().isCreateShippingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < State.FINISHED) {
 			log.debug(logStr+"Create shipping order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
-//			goodsOutGenerator.createOrder(deliveryOrder);
 			deliveryOrder.setState(OrderState.SHIPPING);
-			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, deliveryOrderStateOld);
 		}
 		else if(deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld<State.FINISHED) {
 			log.debug(logStr+"No goods out order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
 			deliveryOrder.setState(State.FINISHED);
-			manageOrderService.onDeliveryOrderStateChange(deliveryOrder, deliveryOrderStateOld);
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, deliveryOrderStateOld);
 		}
 	}
 	
 	
-	public void confirmPick(PickingOrderLine pick, PickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException {
+	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException {
 		confirmPick(pick, pickToUnitLoad, amountPicked, amountRemain, serialNoList, false);
 	}
 	
-	public void confirmPick(PickingOrderLine pick, PickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException {
+	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException {
 		String logStr = "confirmPick ";
 		if( pick == null ) {
 			log.error(logStr+"missing parameter pick");
@@ -726,11 +731,11 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				amountPosted = amountPosted.add(amountPicked);
 			}
 			pick.setState(State.PICKED);
-			pick.setPickToUnitLoad(pickToUnitLoad);
+			pick.setPacket(pickToUnitLoad);
 		}
 		else {
 			pick.setState(State.CANCELED);
-			pick.setPickToUnitLoad(null);
+			pick.setPacket(null);
 		}
 
 		pick.setPickedAmount(amountPosted);
@@ -766,7 +771,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		stateOld = pickToUnitLoad.getState();
 		if( stateOld < State.STARTED ) {
 			pickToUnitLoad.setState(State.STARTED);
-			manageOrderService.onPickingUnitLoadStateChange(pickToUnitLoad, stateOld);
+			firePacketStateChangeEvent(pickToUnitLoad, stateOld);
 		}
 		
 		// Check picking order state
@@ -834,7 +839,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		pick.setState(State.CANCELED);
 		pick.setPickedAmount(BigDecimal.ZERO);
 		pick.setPickFromStockUnit(null);
-		pick.setPickToUnitLoad(null);
+		pick.setPacket(null);
 		
 		DeliveryOrderLine deliveryOrderLine = pick.getDeliveryOrderLine();
 		if( deliveryOrderLine != null ) {
@@ -1056,38 +1061,22 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	}
 
 	
-	public PickingUnitLoad confirmPickingUnitLoad( PickingUnitLoad pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException {
+	public Packet confirmPickingUnitLoad( Packet pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException {
 		
 		UnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
 		if( ! unitLoad.getStorageLocation().equals(destination) ) {
 			// Transfer posting only necessary if location is changed
 			inventoryBusiness.transferUnitLoad(pickingUnitLoad.getUnitLoad(), destination, null, null, null);
 		}
-		
+
 		pickingUnitLoad.getUnitLoad().setState(StockState.PICKED);
 		int stateOld = pickingUnitLoad.getState();
-		if( state>0 && stateOld<state ) {
-			pickingUnitLoad.setState(state);
-			manageOrderService.onPickingUnitLoadStateChange(pickingUnitLoad, stateOld);
+		if( state < 0 ) {
+			state = State.PICKED;
 		}
-		
-		else if( state < 0 ) {
-			// automatically handling
-			OrderStrategy strat = null;
-			if (pickingUnitLoad.getPickingOrder() != null) {
-				strat = pickingUnitLoad.getPickingOrder().getOrderStrategy();
-			}
-			if( strat != null ) {
-				if (strat.isCreateShippingOrder() || strat.isCreatePackingOrder()) {
-					pickingUnitLoad.setState(State.PICKED);
-				}
-				else {
-					pickingUnitLoad.setState(State.FINISHED);
-				}
-				if( pickingUnitLoad.getState() != stateOld ) {
-					manageOrderService.onPickingUnitLoadStateChange(pickingUnitLoad, stateOld);
-				}
-			}
+		if( stateOld<state ) {
+			pickingUnitLoad.setState(state);
+			firePacketStateChangeEvent(pickingUnitLoad, stateOld);
 		}
 		
 		return pickingUnitLoad;
@@ -1171,6 +1160,34 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 	private void changeAmount( StockUnit stock, BigDecimal amount, String activityCode ) throws FacadeException {
 		inventoryBusiness.changeAmount(stock, amount, null, activityCode, null, null, true);
+	}
+
+	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder entity, int oldState) throws BusinessException {
+		try {
+			log.debug("Fire DeliveryOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
+			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
+	}
+
+	private void firePacketStateChangeEvent(Packet entity, int oldState) throws BusinessException {
+		try {
+			log.debug("Fire PacketStateChangeEvent. entity=" + entity + ", state=" + entity.getState() + ", oldState="
+					+ oldState);
+			packetStateChangeEvent.fire(new PacketStateChangeEvent(entity, oldState));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
 	}
 
 }	

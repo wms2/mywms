@@ -67,8 +67,8 @@ import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingType;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -116,7 +116,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
     protected EntityManager manager;
 
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService pickingUnitLoadService;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
 	@Inject
@@ -216,7 +216,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB("CannotReadCurrentPick", this.getClass());
 		}
 		
-		PickingUnitLoad pickingUnitLoad = null;
+		Packet pickingUnitLoad = null;
 		if( pickTo != null ) {
 			pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(pickTo.label);
 			
@@ -245,7 +245,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	public void transferUnitLoad(String label, String targetLocName, int state) throws FacadeException {
 		String logStr = "transferUnitLoad ";
 		
-		PickingUnitLoad pickingUnitLoad = null;
+		Packet pickingUnitLoad = null;
 		pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.info(logStr+"unit load not found. Cannot transfer. label="+label);
@@ -342,7 +342,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 		unitLoad = inventoryBusiness.createUnitLoad(pickingOrder.getClient(), label, type, storageLocation,
 				StockState.PICKED, pickingOrder.getOrderNumber(), null, null);
-		PickingUnitLoad pul = pickingUnitLoadService.create(unitLoad);
+		Packet pul = pickingUnitLoadService.create(unitLoad);
 		pul.setPickingOrder(pickingOrder);
 		pul.setPositionIndex(index);
 
@@ -353,7 +353,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		String logStr = "removeUnitLoadIfEmpty ";
 		
 		
-		PickingUnitLoad pickingUnitLoad = null;
+		Packet pickingUnitLoad = null;
 		UnitLoad unitLoad = null;
 		pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
 		if( pickingUnitLoad == null ) {
@@ -534,12 +534,12 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public PickingMobileUnitLoad readUnitLoad( long orderId ) {
 		String logStr = "readUnitLoad ";
-		PickingUnitLoad unitLoadUsable = null;
+		Packet unitLoadUsable = null;
 		PickingOrder order = null;
 		try {
 			order = pickingOrderService.get(orderId);
-			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
-			for( PickingUnitLoad unitLoad : unitLoadList ) {
+			List<Packet> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
+			for( Packet unitLoad : unitLoadList ) {
 				if( unitLoad.getState() < State.FINISHED ) {
 					unitLoadUsable = unitLoad;
 					break;
@@ -562,8 +562,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		List<PickingMobileUnitLoad> unitLoadUsableList = new ArrayList<PickingMobileUnitLoad>();
 		try {
 			order = pickingOrderService.get(orderId);
-			List<PickingUnitLoad> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
-			for( PickingUnitLoad unitLoad : unitLoadList ) {
+			List<Packet> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
+			for( Packet unitLoad : unitLoadList ) {
 				log.debug(logStr+"Found unit load for order. unitload="+unitLoad+", state="+unitLoad.getState()+", order="+order);
 				if( unitLoad.getState() < State.FINISHED ) {
 					unitLoadUsableList.add(new PickingMobileUnitLoad(unitLoad));

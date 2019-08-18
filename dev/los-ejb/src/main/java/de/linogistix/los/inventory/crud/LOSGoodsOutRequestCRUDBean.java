@@ -15,14 +15,10 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import org.mywms.service.BasicService;
-import org.mywms.service.ConstraintViolatedException;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.crud.BusinessObjectDeleteException;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
-import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
-import de.linogistix.los.runtime.BusinessObjectSecurityException;
+import de.wms2.mywms.shipping.ShippingOrder;
 
 
 
@@ -31,24 +27,14 @@ import de.linogistix.los.runtime.BusinessObjectSecurityException;
  *
  */
 @Stateless
-public class LOSGoodsOutRequestCRUDBean extends BusinessObjectCRUDBean<LOSGoodsOutRequest> implements LOSGoodsOutRequestCRUDRemote{
+public class LOSGoodsOutRequestCRUDBean extends BusinessObjectCRUDBean<ShippingOrder> implements LOSGoodsOutRequestCRUDRemote{
 
 	@EJB 
 	LOSGoodsOutRequestService service;
 	
 	@Override
-	protected BasicService<LOSGoodsOutRequest> getBasicService() {	
+	protected BasicService<ShippingOrder> getBasicService() {
 		return service;
 	}
 	
-	@Override
-	public void delete(LOSGoodsOutRequest entity)
-			throws BusinessObjectNotFoundException,
-			BusinessObjectDeleteException, BusinessObjectSecurityException {
-		try {
-			service.delete(entity);
-		} catch (ConstraintViolatedException e) {
-			throw new BusinessObjectDeleteException();
-		}
-	}
 }

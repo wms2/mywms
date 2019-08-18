@@ -336,8 +336,7 @@ public class PickingOrderGenerator {
 	 * If all deliveryOrders have only one destination, use that. Otherwise use the
 	 * destination of the strategy
 	 */
-	private StorageLocation calculateDestinationLocation(List<DeliveryOrder> deliveryOrders,
-			OrderStrategy strategy) {
+	private StorageLocation calculateDestinationLocation(List<DeliveryOrder> deliveryOrders, OrderStrategy strategy) {
 		StorageLocation destinationLocation = null;
 
 		for (DeliveryOrder deliveryOrder : deliveryOrders) {
@@ -358,9 +357,11 @@ public class PickingOrderGenerator {
 		return strategy.getDefaultDestination();
 	}
 
-	private void firePickingOrderStateChangeEvent(PickingOrder entity, int oldState) throws BusinessException {
+	private void firePickingOrderStateChangeEvent(PickingOrder pickingOrder, int oldState) throws BusinessException {
 		try {
-			pickingOrderStateChangeEvent.fire(new PickingOrderStateChangeEvent(entity, oldState));
+			logger.fine("Fire PickingOrderStateChangeEvent. pickingOrder=" + pickingOrder + ", state="
+					+ pickingOrder.getState() + ", oldState=" + oldState);
+			pickingOrderStateChangeEvent.fire(new PickingOrderStateChangeEvent(pickingOrder, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -370,9 +371,12 @@ public class PickingOrderGenerator {
 		}
 	}
 
-	private void firePickingLineStateChangeEvent(PickingOrderLine entity, int oldState) throws BusinessException {
+	private void firePickingLineStateChangeEvent(PickingOrderLine pickingOrderLine, int oldState)
+			throws BusinessException {
 		try {
-			pickingOrderLineStateChangeEvent.fire(new PickingOrderLineStateChangeEvent(entity, oldState));
+			logger.fine("Fire PickingOrderLineStateChangeEvent. pickingOrderLine=" + pickingOrderLine + ", state="
+					+ pickingOrderLine.getState() + ", oldState=" + oldState);
+			pickingOrderLineStateChangeEvent.fire(new PickingOrderLineStateChangeEvent(pickingOrderLine, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -382,9 +386,11 @@ public class PickingOrderGenerator {
 		}
 	}
 
-	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder entity, int oldState) throws BusinessException {
+	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder deliveryOrder, int oldState) throws BusinessException {
 		try {
-			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState));
+			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrder=" + deliveryOrder + ", state="
+					+ deliveryOrder.getState() + ", oldState=" + oldState);
+			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(deliveryOrder, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -394,10 +400,11 @@ public class PickingOrderGenerator {
 		}
 	}
 
-	private void firePickingOrderPrepareEvent(String id, List<PickingOrderLine> pickListForOrder,
-			StorageLocation location, Integer prio) throws BusinessException {
+	private void firePickingOrderPrepareEvent(String id, List<PickingOrderLine> picks, StorageLocation location,
+			Integer prio) throws BusinessException {
 		try {
-			pickingOrderPrepareEvent.fire(new PickingOrderPrepareEvent(id, pickListForOrder, location, prio));
+			logger.fine("Fire PickingOrderPrepareEvent. id=" + id + ", picks=" + picks);
+			pickingOrderPrepareEvent.fire(new PickingOrderPrepareEvent(id, picks, location, prio));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

@@ -74,7 +74,7 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 	private ItemData itemData;
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
-	private PickingUnitLoad pickToUnitLoad;
+	private Packet packet;
 
 	@Column(nullable = false)
 	private int state = OrderState.UNDEFINED;
@@ -170,12 +170,12 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	public PickingUnitLoad getPickToUnitLoad() {
-		return pickToUnitLoad;
+	public Packet getPacket() {
+		return packet;
 	}
 
-	public void setPickToUnitLoad(PickingUnitLoad pickToUnitLoad) {
-		this.pickToUnitLoad = pickToUnitLoad;
+	public void setPacket(Packet packet) {
+		this.packet = packet;
 	}
 
 	public int getState() {

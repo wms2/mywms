@@ -9,6 +9,7 @@ package de.linogistix.inventory.browser.masternode;
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
 import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.res.CommonBundleResolver;
+import de.linogistix.common.util.BundleResolve;
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutPositionTO;
@@ -48,7 +49,11 @@ public class BOLOSGoodsOutPositionMasterNode extends BOMasterNode {
             sheet.put(goodsOutNumber);
             BOMasterNodeProperty<String> locationName = new BOMasterNodeProperty<String>("locationName", String.class, to.getLocationName(), CommonBundleResolver.class);
             sheet.put(locationName);
-            BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("outState", String.class, "LOSGoodsOutRequestPositionState." + to.getOutState(), CommonBundleResolver.class, true);
+            String strState = BundleResolve.resolve(new Class[]{bo.getBundleResolver(),CommonBundleResolver.class},"state."+to.getState(), new Object[0], false);
+            if( strState == null || strState.length()==0 ) {
+                strState = String.valueOf(to.getState());
+            }
+            BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("state", String.class, strState, CommonBundleResolver.class);
             sheet.put(outState);
             
         }
@@ -60,7 +65,7 @@ public class BOLOSGoodsOutPositionMasterNode extends BOMasterNode {
 
         BOMasterNodeProperty<String> goodsOutNumber = new BOMasterNodeProperty<String>("goodsOutNumber", String.class, "", InventoryBundleResolver.class);
         BOMasterNodeProperty<String> locationName = new BOMasterNodeProperty<String>("locationName", String.class, "", CommonBundleResolver.class);
-        BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("outState", String.class, "", CommonBundleResolver.class);
+        BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("state", String.class, "", CommonBundleResolver.class);
         return new Property[]{goodsOutNumber, locationName, outState};
     }
 }

@@ -85,7 +85,7 @@ public class LOSGoodsReceiptPosition extends BasicClientAssignedEntity {
 	/**
 	 * {@link StockUnit} of this entity.
 	 * 
-	 * Might be null after parent {@link LOSGoodsReceipt} has been set to {@link LOSGoodsOutRequestState.FINISHED}!
+	 * Might be null after parent {@link LOSGoodsReceipt} has been set to FINISHED!
 	 * Information of StockUnit is therefore permanently stored in {@link LOSGoodsReceiptPosition.getStockUnitStr}
 	 */
 	@OneToOne

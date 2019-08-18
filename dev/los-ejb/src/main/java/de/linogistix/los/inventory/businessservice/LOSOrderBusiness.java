@@ -19,9 +19,9 @@ import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
-import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * Business service to handle goods out order operations.
@@ -140,8 +140,8 @@ public interface LOSOrderBusiness {
 	 * @param counted. If TRUE the stocktaking record for the location will be written. Only valid if amountRemain is set.
 	 * @throws FacadeException
 	 */
-	public void confirmPick(PickingOrderLine pick, PickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException;
-	public void confirmPick(PickingOrderLine pick, PickingUnitLoad pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException;
+	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException;
+	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException;
 	
 	/**
 	 * Cancellation of a single picking position.<br>
@@ -170,7 +170,7 @@ public interface LOSOrderBusiness {
 	 */
 	public PickingOrderLine changePickFromStockUnit(PickingOrderLine pick, StockUnit pickFromStockNew) throws FacadeException;
 
-	public PickingUnitLoad confirmPickingUnitLoad( PickingUnitLoad pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException;
+	public Packet confirmPickingUnitLoad( Packet pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException;
 
 	public PickingOrder recalculatePickingOrderState( PickingOrder pickingOrder ) throws FacadeException;
 

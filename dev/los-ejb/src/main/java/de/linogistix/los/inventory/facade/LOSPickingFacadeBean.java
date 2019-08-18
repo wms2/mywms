@@ -43,8 +43,8 @@ import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.user.UserBusiness;
 
@@ -78,7 +78,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	private UnitLoadTypeEntityService unitLoadTypeService;
 
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService pickingUnitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
 	@Inject
@@ -229,7 +229,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			orderBusiness.cancelPick(pick);
 			manager.remove(pick);
 		}
-		for( PickingUnitLoad ul : order.getUnitLoads() ) {
+		for( Packet ul : order.getPackets() ) {
 			manager.remove(ul);
 		}
 		manager.remove(order);
@@ -326,7 +326,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		String logStr = "finishPickingUnitLoad ";
 		log.debug(logStr+"label="+label+", locationName="+locationName);
 		
-		PickingUnitLoad pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
+		Packet pickingUnitLoad = pickingUnitLoadService.readFirstByLabel(label);
 		if( pickingUnitLoad == null ) {
 			log.warn(logStr+"PickingUnitLoad not found. label="+label);
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, label); 
@@ -374,7 +374,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		}
 		
 		UnitLoad ul = inventoryBusiness.createUnitLoad(order.getClient(), null, type, destination, StockState.PICKED, order.getOrderNumber(), null, null);
-		PickingUnitLoad pul = pickingUnitLoadService.create(ul);
+		Packet pul = pickingUnitLoadService.create(ul);
 		pul.setPickingOrder(order);
 		pul.setPositionIndex(-1);
 

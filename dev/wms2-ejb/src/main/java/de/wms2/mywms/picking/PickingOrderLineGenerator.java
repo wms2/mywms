@@ -121,8 +121,8 @@ public class PickingOrderLineGenerator {
 				if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
 					logger.log(Level.INFO,
 							logStr + "Not enough amount to pick. itemData=" + deliveryOrderLine.getItemData()
-									+ ", ordered amount=" + deliveryOrderLine.getAmount()
-									+ ", not available amount=" + remainingAmount);
+									+ ", ordered amount=" + deliveryOrderLine.getAmount() + ", not available amount="
+									+ remainingAmount);
 					throw new BusinessException(Wms2BundleResolver.class, "PickingGenerator.notEnoughAmount");
 				}
 			}
@@ -271,9 +271,11 @@ public class PickingOrderLineGenerator {
 		return PickingType.COMPLETE;
 	}
 
-	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder entity, int oldState) throws BusinessException {
+	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder deliveryOrder, int oldState) throws BusinessException {
 		try {
-			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState));
+			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrder=" + deliveryOrder + ", state="
+					+ deliveryOrder.getState() + ", oldState=" + oldState);
+			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(deliveryOrder, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -283,10 +285,12 @@ public class PickingOrderLineGenerator {
 		}
 	}
 
-	private void fireDeliveryOrderLineStateChangeEvent(DeliveryOrderLine entity, int oldState)
+	private void fireDeliveryOrderLineStateChangeEvent(DeliveryOrderLine deliveryOrderLine, int oldState)
 			throws BusinessException {
 		try {
-			deliveryOrderLineStateChangeEvent.fire(new DeliveryOrderLineStateChangeEvent(entity, oldState));
+			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrderLine=" + deliveryOrderLine + ", state="
+					+ deliveryOrderLine.getState() + ", oldState=" + oldState);
+			deliveryOrderLineStateChangeEvent.fire(new DeliveryOrderLineStateChangeEvent(deliveryOrderLine, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -296,9 +300,12 @@ public class PickingOrderLineGenerator {
 		}
 	}
 
-	private void firePickingOrderLineStateChangeEvent(PickingOrderLine entity, int oldState) throws BusinessException {
+	private void firePickingOrderLineStateChangeEvent(PickingOrderLine pickingOrderLine, int oldState)
+			throws BusinessException {
 		try {
-			pickingOrderLineStateChangeEvent.fire(new PickingOrderLineStateChangeEvent(entity, oldState));
+			logger.fine("Fire DeliveryOrderStateChangeEvent. pickingOrderLine=" + pickingOrderLine + ", state="
+					+ pickingOrderLine.getState() + ", oldState=" + oldState);
+			pickingOrderLineStateChangeEvent.fire(new PickingOrderLineStateChangeEvent(pickingOrderLine, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

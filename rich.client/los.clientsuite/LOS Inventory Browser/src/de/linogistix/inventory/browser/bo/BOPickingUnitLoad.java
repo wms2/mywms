@@ -24,7 +24,8 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.strategy.OrderState;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +76,9 @@ public class BOPickingUnitLoad extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-      PickingUnitLoad c;
+      Packet c;
     
-    c = new PickingUnitLoad();
+    c = new Packet();
     
     return c;
     
@@ -151,6 +152,7 @@ public class BOPickingUnitLoad extends BO {
             entryList.add(State.RAW);
             entryList.add(State.STARTED);
             entryList.add(State.PICKED);
+            entryList.add(OrderState.SHIPPING);
             entryList.add(State.FINISHED);
 
             return entryList;

@@ -20,7 +20,7 @@ import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.PickingOrderLine;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 /**
  * @author krane
@@ -105,7 +105,7 @@ public class LOSPickingPositionServiceBean extends BasicServiceBean<PickingOrder
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<PickingOrderLine> getByPickToUnitLoad(PickingUnitLoad pickToUnitLoad) {
+	public List<PickingOrderLine> getByPickToUnitLoad(Packet pickToUnitLoad) {
 
 		StringBuffer b = new StringBuffer();
 		Query query;

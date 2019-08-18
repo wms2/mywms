@@ -11,16 +11,10 @@ import javax.ejb.Local;
 
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSReplenishOrder;
-import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
-import de.wms2.mywms.picking.PickingUnitLoad;
 
 /**
  * User exits of goods out processes.
@@ -65,28 +59,6 @@ public interface ManageOrderService {
 	public void onPickingPositionStateChange(PickingOrderLine pick, int stateOld) throws FacadeException;
 	
 	/**
-	 * User exit. Is called when the state of a picking unit load changes.<br>
-	 * This method is only called, when the change is done by business-logic. 
-	 * The only change of the database field does not trigger this method.
-	 * 
-	 * @param unitLoad
-	 * @param stateOld
-	 * @throws FacadeException
-	 */
-	public void onPickingUnitLoadStateChange(PickingUnitLoad unitLoad, int stateOld) throws FacadeException;
-	
-	/**
-	 * User exit. Is called when the state of a customer order changes.<br>
-	 * This method is only called, when the change is done by business-logic. 
-	 * The only change of the database field does not trigger this method.
-	 * 
-	 * @param deliveryOrder
-	 * @param stateOld
-	 * @throws FacadeException
-	 */
-	public void onDeliveryOrderStateChange(DeliveryOrder deliveryOrder, int stateOld) throws FacadeException;
-
-	/**
 	 * User exit. Is called when the state of a customer order posiion changes.<br>
 	 * This method is only called, when the change is done by business-logic. 
 	 * The only change of the database field does not trigger this method.
@@ -97,28 +69,6 @@ public interface ManageOrderService {
 	 */
 	public void onDeliveryOrderLineStateChange(DeliveryOrderLine deliveryOrderLine, int stateOld) throws FacadeException;
 	
-	/**
-	 * User exit. Is called when the state of a shipping order changes.<br>
-	 * This method is only called, when the change is done by business-logic. 
-	 * The only change of the database field does not trigger this method.
-	 * 
-	 * @param goodsOutOrder
-	 * @param stateOld
-	 * @throws FacadeException
-	 */
-	public void onGoodsOutOrderStateChange(LOSGoodsOutRequest goodsOutOrder, LOSGoodsOutRequestState stateOld) throws FacadeException;
-	
-	/**
-	 * User exit. Is called when the state of a shipping position changes.<br>
-	 * This method is only called, when the change is done by business-logic. 
-	 * The only change of the database field does not trigger this method.
-	 * 
-	 * @param goodsOutPosition
-	 * @param stateOld
-	 * @throws FacadeException
-	 */
-	public void onGoodsOutPositionStateChange(LOSGoodsOutRequestPosition goodsOutPosition, LOSGoodsOutRequestPositionState stateOld) throws FacadeException;
-
 	/**
 	 * User exit. Is called before release of a picking order to process.<br>
 	 *  

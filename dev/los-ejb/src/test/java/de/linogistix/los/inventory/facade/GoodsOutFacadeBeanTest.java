@@ -9,17 +9,10 @@ package de.linogistix.los.inventory.facade;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
-import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.example.TopologyBeanTest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
@@ -27,6 +20,7 @@ import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.test.TestUtilities;
 import de.wms2.mywms.location.StorageLocation;
+import junit.framework.TestCase;
 
 /**
  *

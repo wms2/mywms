@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -24,168 +23,164 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
+import org.mywms.model.User;
 
-import de.linogistix.los.inventory.businessservice.LOSGoodsOutBusiness;
-import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
-import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
-import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
-import de.linogistix.los.util.BusinessObjectHelper;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.shipping.ShippingBusiness;
+import de.wms2.mywms.shipping.ShippingOrder;
+import de.wms2.mywms.shipping.ShippingOrderEntityService;
+import de.wms2.mywms.shipping.ShippingOrderLine;
+import de.wms2.mywms.shipping.ShippingOrderLineEntityService;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.user.UserBusiness;
+
 @Stateless
 public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
 	private static final Logger log = Logger.getLogger(LOSGoodsOutFacadeBean.class);
-
-	@EJB
-	private LOSGoodsOutBusiness outBusiness;
-	@EJB
-	private LOSGoodsOutGenerator outGenerator;
-	@EJB
-	private LOSGoodsOutRequestQueryRemote outQuery;
-	@EJB
-	private InventoryGeneratorService genService;
-	@EJB
-	private LOSCustomerOrderService orderService;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
 
 	@Inject
 	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private ShippingBusiness shippingBusiness;
+	@Inject
+	private ShippingOrderEntityService shippingOrderEntityService;
+	@Inject
+	private ShippingOrderLineEntityService shippingOrderLineEntityService;
+	@Inject
+	private UserBusiness UserBusiness;
 
 	@Override
-	public LOSGoodsOutRequest confirm(Long goodsOutId) throws FacadeException {
-		LOSGoodsOutRequest out = manager.find(LOSGoodsOutRequest.class, goodsOutId);
-		if( out == null ) {
-			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[]{});
+	public void confirm(Long goodsOutId) throws FacadeException {
+		ShippingOrder order = manager.find(ShippingOrder.class, goodsOutId);
+		if (order == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[] {});
 		}
-		out = outBusiness.finish(out,true);
-		return out;
-	}
-
-	@Override
-	public LOSGoodsOutRequest finish(Long orderId) throws FacadeException{	 	
-		LOSGoodsOutRequest out  = manager.find(LOSGoodsOutRequest.class, orderId);
-		out = outBusiness.finish(out);
-		return (LOSGoodsOutRequest)BusinessObjectHelper.eagerRead(out);
-	}
-
-	@Override
-	public LOSGoodsOutRequest finishOrder(Long goodsOutId) throws FacadeException {
-		LOSGoodsOutRequest out = manager.find(LOSGoodsOutRequest.class, goodsOutId);
-		if( out == null ) {
-			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[]{});
+		for (ShippingOrderLine line : order.getLines()) {
+			if (line.getState() < OrderState.FINISHED) {
+				shippingBusiness.confirmLine(line);
+			}
 		}
-		out = outBusiness.finishOrder(out);
-		return out;
+		shippingBusiness.finishOrder(order);
 	}
 
 	@Override
-	public LOSGoodsOutRequestPosition finishPosition(String labelId, Long orderId) throws FacadeException {
-		LOSGoodsOutRequestPosition ret;
+	public void finish(Long orderId) throws FacadeException {
+		ShippingOrder order = manager.find(ShippingOrder.class, orderId);
+		if (order == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[] {});
+		}
+		shippingBusiness.finishOrder(order);
+	}
+
+	@Override
+	public void finishOrder(Long goodsOutId) throws FacadeException {
+		ShippingOrder order = manager.find(ShippingOrder.class, goodsOutId);
+		if (order == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[] {});
+		}
+		shippingBusiness.finishOrder(order);
+	}
+
+	@Override
+	public void finishPosition(String labelId, Long orderId) throws FacadeException {
 		UnitLoad ul = null;
-		
+
 		try {
 			ul = unitLoadService.readByLabel(labelId);
 		} catch (Exception e) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, labelId);
 		}
-		
-		LOSGoodsOutRequest req = manager.find(LOSGoodsOutRequest.class, orderId);
-		ret = outBusiness.finishPosition(req, ul);
-		
-		return ret;
-	}
 
+		ShippingOrder req = manager.find(ShippingOrder.class, orderId);
+		if (req == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[] {});
+		}
+		ShippingOrderLine orderLine = shippingOrderLineEntityService.readFirst(req, ul);
+		if (orderLine == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, labelId);
+		}
+
+		shippingBusiness.confirmLine(orderLine);
+	}
 
 	@Override
 	public List<LOSGoodsOutRequestTO> getRaw() {
-		List<LOSGoodsOutRequestTO> out;
-		out = outBusiness.getRaw();
-		return out; 
+		User user = UserBusiness.getCurrentUser();
+		Client usersClient = user.getClient();
+
+		String hql = " SELECT entity, entity.lines.size FROM " + ShippingOrder.class.getSimpleName() + " entity ";
+		hql += " WHERE ( entity.state<=:processable";
+		hql += " or (entity.state>:processable and entity.state<:finished and entity.operator=:user) )";
+		if (!usersClient.isSystemClient()) {
+			hql += " AND entity.client=:client ";
+		}
+		hql += " ORDER BY entity.state desc, entity.orderNumber ";
+
+		Query query = manager.createQuery(hql);
+
+		query.setParameter("processable", OrderState.PROCESSABLE);
+		query.setParameter("finished", OrderState.FINISHED);
+		query.setParameter("user", user);
+		if (!usersClient.isSystemClient()) {
+			query.setParameter("client", usersClient);
+		}
+
+		List<Object[]> results = query.getResultList();
+		List<LOSGoodsOutRequestTO> dtos = new ArrayList<>(results.size());
+		for (Object[] result : results) {
+			ShippingOrder order = (ShippingOrder) result[0];
+			Integer numPos = (Integer) result[1];
+
+			LOSGoodsOutRequestTO orderDto = new LOSGoodsOutRequestTO();
+			orderDto.setClientNumber(order.getClient().getNumber());
+			orderDto.setNumber(order.getOrderNumber());
+//			orderDto.setNumPos(numPos);
+			orderDto.setShippingDate(order.getShippingDate());
+			orderDto.setState(order.getState());
+
+			dtos.add(orderDto);
+		}
+
+		return dtos;
 	}
 
 	@Override
-	public LOSGoodsOutRequest start(Long orderId) throws FacadeException {
-		LOSGoodsOutRequest req = manager.find(LOSGoodsOutRequest.class, orderId);
-		
-		req = outBusiness.accept(req);
-		
-		if (req.getPositions().size() < 1) { 
-			log.warn("No positions found: "  +req.toDescriptiveString() );
+	public void start(Long orderId) throws FacadeException {
+		ShippingOrder req = manager.find(ShippingOrder.class, orderId);
+
+		req = shippingBusiness.startOperation(req, null);
+
+		if (req.getLines().size() < 1) {
+			log.warn("No positions found: " + req.toDescriptiveString());
 		}
-		
-		if (!req.getOutState().equals(LOSGoodsOutRequestState.PROCESSING)){
+
+		if (req.getState() != OrderState.STARTED) {
 			log.error("Unexpected state: " + req.toDescriptiveString());
 		}
-		
-		return req;
 	}
 
-
 	@Override
-	public void cancel(Long orderId) throws FacadeException{
-		
-		LOSGoodsOutRequest req = manager.find(LOSGoodsOutRequest.class, orderId);
-		req = outBusiness.cancel(req);
-		
+	public void cancel(Long orderId) throws FacadeException {
+		ShippingOrder req = manager.find(ShippingOrder.class, orderId);
+		req = shippingBusiness.cancelOperation(req);
+
 		return;
 	}
-	
-//	@Override
-//	public LOSGoodsOutRequestPosition getNextPosition(LOSGoodsOutRequest currentOrder) throws FacadeException {
-//		StringBuffer b = new StringBuffer();
-//		Query query;
-//
-//		b.append(" SELECT pos FROM ");
-//		b.append(LOSGoodsOutRequestPosition.class.getName());
-//		b.append(" pos ");
-//		b.append(" WHERE pos.goodsOutRequest=:order ");
-//		b.append(" and pos.outState=:state ");
-//		b.append(" ORDER BY pos.source.storageLocation.name, pos.source.labelId");
-//
-//		query = manager.createQuery(b.toString());
-//		
-//		query.setParameter("order", currentOrder);
-//		query.setParameter("state", LOSGoodsOutRequestPositionState.RAW);
-//		query.setMaxResults(1);
-//		
-//		LOSGoodsOutRequestPosition pos = null;
-//		try {
-//			pos = (LOSGoodsOutRequestPosition)query.getSingleResult();
-//		}
-//		catch( NoResultException e ) {
-//			log.info("NOTHING FOUND for order " + currentOrder.getNumber());
-//		}
-//		
-//		if( pos != null ) {
-//			pos.getSource().getStorageLocation().getName();
-//		}
-//		return pos;
-//	}
 
-	
-	
 	@Override
 	public LOSGoodsOutTO load(String number) throws FacadeException {
-		LOSGoodsOutRequest req = null; 
-		try {
-			req = outQuery.queryByIdentity(number);
-		}
-		catch( BusinessObjectNotFoundException e) {}
-		if( req != null ) {
+		ShippingOrder req = shippingOrderEntityService.readByOrderNumber(number);
+		if (req != null) {
 			return getOrderInfo(req);
 		}
 		return null;
@@ -193,118 +188,106 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
 	@Override
 	public LOSGoodsOutTO getOrderInfo(Long orderId) throws FacadeException {
-		LOSGoodsOutRequest req = manager.find(LOSGoodsOutRequest.class, orderId);
+		ShippingOrder req = manager.find(ShippingOrder.class, orderId);
 		return getOrderInfo(req);
 	}
-	
-	@SuppressWarnings("unchecked")
-	private LOSGoodsOutTO getOrderInfo(LOSGoodsOutRequest order) throws FacadeException {
 
-		LOSGoodsOutTO to = new LOSGoodsOutTO( order );
-		
+	@SuppressWarnings("unchecked")
+	private LOSGoodsOutTO getOrderInfo(ShippingOrder order) throws FacadeException {
+		LOSGoodsOutTO to = new LOSGoodsOutTO(order);
+
 		StringBuffer b = new StringBuffer();
 		Query query;
 
 		b.append(" SELECT pos FROM ");
-		b.append(LOSGoodsOutRequestPosition.class.getName());
+		b.append(ShippingOrderLine.class.getName());
 		b.append(" pos ");
-		b.append(" WHERE pos.goodsOutRequest=:order ");
-		b.append(" and pos.outState=:state ");
-		b.append(" ORDER BY pos.source.storageLocation.name, pos.source.labelId");
+		b.append(" WHERE pos.shippingOrder=:order ");
+		b.append(" and pos.state<:state ");
+		b.append(" ORDER BY pos.packet.unitLoad.storageLocation.name, pos.packet.unitLoad.labelId");
 
 		query = manager.createQuery(b.toString());
-		
+
 		query.setParameter("order", order);
-		query.setParameter("state", LOSGoodsOutRequestPositionState.RAW);
+		query.setParameter("state", OrderState.FINISHED);
 
 		try {
-			List<LOSGoodsOutRequestPosition> posList = null;
+			List<ShippingOrderLine> posList = null;
 			posList = query.getResultList();
-			if( posList.size()>0 ) {
-				to.setNumPosOpen( posList.size() );
-				LOSGoodsOutRequestPosition next = posList.get(0);
-				to.setNextLocationName( next.getSource().getStorageLocation().getName() );
-				to.setNextUnitLoadLabelId( next.getSource().getLabelId() );
-			}
-			else {
+			if (posList.size() > 0) {
+				to.setNumPosOpen(posList.size());
+				ShippingOrderLine next = posList.get(0);
+				to.setNextLocationName(next.getPacket().getUnitLoad().getStorageLocation().getName());
+				to.setNextUnitLoadLabelId(next.getPacket().getUnitLoad().getLabelId());
+			} else {
 				to.setFinished(true);
 			}
+		} catch (NoResultException e) {
 		}
-		catch( NoResultException e ) {}
 
-		
 		b = new StringBuffer();
 		b.append(" SELECT count(*) FROM ");
-		b.append(LOSGoodsOutRequestPosition.class.getName());
+		b.append(ShippingOrderLine.class.getName());
 		b.append(" pos ");
-		b.append(" WHERE pos.goodsOutRequest=:order ");
-		b.append(" and pos.outState=:state ");
+		b.append(" WHERE pos.shippingOrder=:order ");
+		b.append(" and pos.state=:state ");
 
 		query = manager.createQuery(b.toString());
-		
+
 		query.setParameter("order", order);
-		query.setParameter("state", LOSGoodsOutRequestPositionState.FINISHED);
-		
+		query.setParameter("state", OrderState.FINISHED);
+
 		try {
-			Long numPosDone = (Long)query.getSingleResult();
+			Long numPosDone = (Long) query.getSingleResult();
 			to.setNumPosDone(numPosDone);
+		} catch (NoResultException e) {
 		}
-		catch( NoResultException e ) {}
 
 		return to;
 	}
 
 	@Override
-	public LOSGoodsOutRequest update(Long orderId, String comment) throws FacadeException {
-		LOSGoodsOutRequest req = manager.find(LOSGoodsOutRequest.class, orderId);
-		req.setAdditionalContent(comment);
-		return req;
-	}
-
-	@Override
 	public void remove(Long goodsOutId) throws FacadeException {
-		LOSGoodsOutRequest out = manager.find(LOSGoodsOutRequest.class, goodsOutId);
-		if( out == null ) {
-			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[]{});
+		ShippingOrder out = manager.find(ShippingOrder.class, goodsOutId);
+		if (out == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_GOODS_OUT, new Object[] {});
 		}
-		outBusiness.remove(out);
+		shippingBusiness.removeOrder(out);
 	}
 
 	@Override
 	public void createGoodsOutOrder(List<Long> pickingUnitLoadIdList) throws FacadeException {
 		String logStr = "createGoodsOutOrder ";
 		List<UnitLoad> ulList = new ArrayList<UnitLoad>();
+		List<Packet> packetList = new ArrayList<>();
 		DeliveryOrder deliveryOrder = null;
 		Set<DeliveryOrder> orderSet = new HashSet<>();
 		Client client = null;
-		for( Long id : pickingUnitLoadIdList ) {
-			PickingUnitLoad pul = manager.find(PickingUnitLoad.class, id);
-			if( pul != null ) {
+		for (Long id : pickingUnitLoadIdList) {
+			Packet pul = manager.find(Packet.class, id);
+			if (pul != null) {
+				packetList.add(pul);
 				ulList.add(pul.getUnitLoad());
 				client = pul.getClient();
 				orderSet.add(pul.getDeliveryOrder());
-			}
-			else {
-				log.warn(logStr+"Did not find unit load. id="+id);
+			} else {
+				log.warn(logStr + "Did not find unit load. id=" + id);
 			}
 		}
-		if( orderSet.size()==1 ) {
-			for( DeliveryOrder s : orderSet ) {
+		if (orderSet.size() == 1) {
+			for (DeliveryOrder s : orderSet) {
 				deliveryOrder = s;
-			}				
+			}
 		}
-		if( client == null ) {
-			log.warn(logStr+"No positions, no order");
+		if (client == null) {
+			log.warn(logStr + "No positions, no order");
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_CLIENT, "");
 		}
 
-		String shipmentNumber = genService.generateGoodsOutNumber(client);
-
-		LOSGoodsOutRequest out = outGenerator.createOrder(client, null, shipmentNumber, new Date(), null, null);
-		out.setCustomerOrder(deliveryOrder);
-		
-		for( UnitLoad unitLoad : ulList ) {
-			outGenerator.addPosition(out, unitLoad);
+		ShippingOrder shippingOrder = shippingBusiness.createOrder(client, null, null, new Date());
+		shippingOrder.setDeliveryOrder(deliveryOrder);
+		for(Packet packet : packetList) {
+			shippingBusiness.addLine(shippingOrder, packet);
 		}
 	}
 }

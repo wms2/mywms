@@ -9,7 +9,7 @@ package de.linogistix.los.inventory.facade;
 
 import java.io.Serializable;
 
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
+import de.wms2.mywms.shipping.ShippingOrder;
 
 public class LOSGoodsOutTO implements Serializable {
 
@@ -28,12 +28,11 @@ public class LOSGoodsOutTO implements Serializable {
 	private String orderNumber;
 	private Long orderId;
 	
-	public LOSGoodsOutTO( LOSGoodsOutRequest order ) {
+	public LOSGoodsOutTO( ShippingOrder order ) {
 		this.externalNumber = order.getExternalNumber();
-		this.courier = order.getCourier();
-		this.groupName = order.getGroupName();
+		this.courier = order.getCarrierName();
 		this.comment = order.getAdditionalContent();
-		this.orderNumber = order.getNumber();
+		this.orderNumber = order.getOrderNumber();
 		this.orderId = order.getId();
 	}
 

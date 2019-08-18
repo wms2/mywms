@@ -9,7 +9,7 @@ package de.linogistix.los.inventory.query.dto;
 
 import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.picking.PickingOrderLine;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 /**
  * @author krane
@@ -26,7 +26,7 @@ public class LOSPickingUnitLoadTO extends BODTO<PickingOrderLine>{
 	private String pickingOrderNumber;
 	private String customerOrderNumber;
 
-	public LOSPickingUnitLoadTO( PickingUnitLoad pickingUnitLoad ) {
+	public LOSPickingUnitLoadTO( Packet pickingUnitLoad ) {
 		super(pickingUnitLoad.getId(), pickingUnitLoad.getVersion(), pickingUnitLoad.getUnitLoad().getLabelId());
 
 		this.clientNumber = pickingUnitLoad.getClient().getNumber();

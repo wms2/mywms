@@ -403,9 +403,10 @@ public class UserBusiness {
 		}
 	}
 
-	private void fireUserLoginEvent(User entity, String agent) throws BusinessException {
+	private void fireUserLoginEvent(User user, String agent) throws BusinessException {
+		logger.fine("Fire UserLoginEvent. user=" + user + ", agent=" + agent);
 		try {
-			loginEvent.fire(new UserLoginEvent(entity, agent));
+			loginEvent.fire(new UserLoginEvent(user, agent));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -415,9 +416,10 @@ public class UserBusiness {
 		}
 	}
 
-	private void fireUserLogoutEvent(User entity, String agent) throws BusinessException {
+	private void fireUserLogoutEvent(User user, String agent) throws BusinessException {
 		try {
-			logoutEvent.fire(new UserLogoutEvent(entity, agent));
+			logger.fine("Fire UserLogoutEvent. user=" + user + ", agent=" + agent);
+			logoutEvent.fire(new UserLogoutEvent(user, agent));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

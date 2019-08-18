@@ -22,11 +22,13 @@ import de.linogistix.inventory.browser.masternode.BOLOSGoodsOutRequestMasterNode
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSGoodsOutRequestCRUDRemote;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
+import de.linogistix.los.model.Prio;
+import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.shipping.ShippingOrder;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,10 +82,10 @@ public class BOLOSGoodsOutRequest extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSGoodsOutRequest o;
+      ShippingOrder o;
     
-    o = new LOSGoodsOutRequest();
-    o.setNumber("");
+    o = new ShippingOrder();
+    o.setOrderNumber("");
     return o;
     
   }
@@ -143,6 +145,32 @@ public class BOLOSGoodsOutRequest extends BO {
            ExceptionAnnotator.annotate(ex);
            return new ArrayList();
         }
+    }
+    
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(State.RAW);
+            entryList.add(State.PROCESSABLE);
+            entryList.add(State.RESERVED);
+            entryList.add(State.STARTED);
+            entryList.add(State.FINISHED);
+            entryList.add(State.CANCELED);
+            entryList.add(State.DELETED);
+
+            return entryList;
+        }
+        if( "prio".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(Prio.LOW);
+            entryList.add(Prio.NORMAL);
+            entryList.add(Prio.HIGH);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
 
 }

@@ -38,8 +38,8 @@ import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.PickingOrder;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.report.ReportBusiness;
 
 
@@ -61,7 +61,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 	private EntityManager manager;
     
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService pickingUnitLoadService;
     @Inject
     private ReportBusiness reportBusiness;
 
@@ -72,7 +72,7 @@ public class LOSUnitLoadReportBean implements LOSUnitLoadReport {
 		
 		log.info(logStr+"Generate report for unitLoad="+unitLoad.getLabelId());
 		
-		PickingUnitLoad pul = pickingUnitLoadService.readFirstByUnitLoad(unitLoad);
+		Packet pul = pickingUnitLoadService.readFirstByUnitLoad(unitLoad);
 		
 		label = entityGenerator.generateEntity( PickReceipt.class );
 		label.setName( "LOS-"+unitLoad.getLabelId() );

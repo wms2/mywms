@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,21 +28,17 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.service.ClientService;
 
-import de.linogistix.los.inventory.businessservice.LOSGoodsOutGenerator;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.businessservice.LOSOrderGenerator;
 import de.linogistix.los.inventory.businessservice.StorageBusiness;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
-import de.linogistix.los.inventory.service.LOSGoodsOutRequestService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.inventory.service.QueryLotService;
@@ -53,24 +51,31 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.delivery.DeliverynoteGenerator;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.entity.GenericEntityService;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderEntityService;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.shipping.ShippingOrder;
+import de.wms2.mywms.shipping.ShippingOrderEntityService;
+import de.wms2.mywms.shipping.ShippingOrderLine;
+import de.wms2.mywms.shipping.ShippingOrderLineEntityService;
+import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 
@@ -112,13 +117,9 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@EJB
 	private LOSGoodsOutRequestPositionService outPosService;
 	@EJB
-	private LOSGoodsOutRequestService outService;
-	@EJB
 	private StorageBusiness storageBusiness;
 	@EJB
 	private LOSStorageRequestService storageService;
-	@EJB
-	private LOSGoodsOutGenerator goodsOutGenerator;
 	@EJB
 	private LOSUnitLoadReport unitLoadReport;
     @PersistenceContext(unitName = "myWMS")
@@ -127,7 +128,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
     @Inject
     private PickingOrderEntityService pickingOrderEntityService;
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService pickingUnitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
 	@Inject
@@ -136,6 +137,12 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private GenericEntityService entityService;
 	@Inject
 	private DeliverynoteGenerator deliverynoteGenerator;
+	@Inject
+	private ShippingOrderLineEntityService shippingOrderLineService;
+	@Inject
+	private ShippingOrderEntityService shippingOrderService;
+	@Inject
+	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
 
 	public DeliveryOrder order(
 			String clientNumber,
@@ -310,8 +317,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		
 		// 3. Find all LOSPickingOrder without position 
 		Set<PickingOrder> pickingOrderSetRemovable = new HashSet<PickingOrder>();
-		Set<PickingUnitLoad> pickingUnitLoadSetRemovable = new HashSet<PickingUnitLoad>();
-		Set<LOSGoodsOutRequest> goodsOutRequestSetRemovable = new HashSet<LOSGoodsOutRequest>();
+		Set<Packet> pickingUnitLoadSetRemovable = new HashSet<Packet>();
+		Set<ShippingOrder> goodsOutRequestSetRemovable = new HashSet<>();
 
 		for( Long poId : pickingOrderSet1 ) {
 			PickingOrder po = manager.find(PickingOrder.class, poId);
@@ -323,7 +330,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 
 		// 4. Remove all LOSPickingUnitLoad and LOSGoodsOutRequestPosition with removable LOSPickingOrder
-		for( PickingUnitLoad pul : pickingUnitLoadSetRemovable ) {
+		for( Packet pul : pickingUnitLoadSetRemovable ) {
 			UnitLoad ul = pul.getUnitLoad();
 			
 
@@ -332,9 +339,9 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				storageBusiness.removeStorageRequest(storageReq);
 			}
 			
-			List<LOSGoodsOutRequestPosition> outPosList = outPosService.getByUnitLoad(ul);
-			for( LOSGoodsOutRequestPosition outPos : outPosList ) {
-				goodsOutRequestSetRemovable.add(outPos.getGoodsOutRequest());
+			List<ShippingOrderLine> outPosList = shippingOrderLineService.readListByPacket(pul);
+			for( ShippingOrderLine outPos : outPosList ) {
+				goodsOutRequestSetRemovable.add(outPos.getShippingOrder());
 				manager.remove(outPos);
 			}
 			
@@ -353,19 +360,19 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		manager.flush();
 		
 		// 6. Remove empty shipping orders
-		for( LOSGoodsOutRequest outReq : goodsOutRequestSetRemovable ) {
-			if( outReq != null && outReq.getPositions().size()<=0 ) {
+		for( ShippingOrder outReq : goodsOutRequestSetRemovable ) {
+			if( outReq != null && outReq.getLines().size()<=0 ) {
 				manager.remove(outReq);
 			}
 		}
 		
 		// 7. Remove directly addressed shipping orders
-		List<LOSGoodsOutRequest> outList = outService.getByDeliveryOrder(order);
-		for( LOSGoodsOutRequest outReq : outList ) {
+		List<ShippingOrder> outList = shippingOrderService.readByDeliveryOrder(order);
+		for( ShippingOrder outReq : outList ) {
 			if( outReq == null ) {
 				continue;
 			}
-			for( LOSGoodsOutRequestPosition outPos : outReq.getPositions() ) {
+			for( ShippingOrderLine outPos : outReq.getLines() ) {
 				manager.remove(outPos);
 			}
 			manager.remove(outReq);
@@ -525,16 +532,32 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 			int stateOld = deliveryOrder.getState();
 			OrderStrategy strat = deliveryOrder.getOrderStrategy();
-			if( strat != null && strat.isCreateShippingOrder() ) {
-				goodsOutGenerator.createOrder(deliveryOrder);
-				deliveryOrder.setState(State.PICKED);
+			if( strat != null && strat.isCreatePackingOrder() ) {
+				deliveryOrder.setState(OrderState.PACKING);
+			}
+			else if( strat != null && strat.isCreateShippingOrder() ) {
+				deliveryOrder.setState(OrderState.SHIPPING);
 			}
 			else {
 				deliveryOrder.setState(State.FINISHED);
 			}
 			if( deliveryOrder.getState() != stateOld ) {
-				manageOrderService.onDeliveryOrderStateChange(deliveryOrder, stateOld);
+				fireDeliveryOrderStateChangeEvent(deliveryOrder, stateOld);
 			}
+		}
+	}
+
+	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder entity, int oldState) throws BusinessException {
+		try {
+			log.debug("Fire DeliveryOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
+			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
 		}
 	}
 

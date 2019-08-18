@@ -16,11 +16,11 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSGoodsOutFacade;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.shipping.ShippingOrder;
+import de.wms2.mywms.strategy.OrderState;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
@@ -73,21 +73,21 @@ public final class BOGoodsOutRemoveAction extends NodeAction {
             BODTO bodto = ((BOMasterNode)n).getEntity();
             if( bodto instanceof LOSGoodsOutRequestTO ) {
                 LOSGoodsOutRequestTO order = (LOSGoodsOutRequestTO)bodto;
-                if( order.getOutState() != LOSGoodsOutRequestState.FINISHED ) {
+                if( order.getState() < OrderState.FINISHED ) {
                     return false;
                 }
             }
             else {
 
                 LOSGoodsOutRequestQueryRemote goQuery;
-                LOSGoodsOutRequest r;
+                ShippingOrder r;
                 try {
                     goQuery = loc.getStateless(LOSGoodsOutRequestQueryRemote.class);
                     r = goQuery.queryById(((BOMasterNode)n).getEntity().getId());
                 } catch (Exception e) {
                     return false;
                 }
-                if( r.getOutState() != LOSGoodsOutRequestState.FINISHED ) {
+                if( r.getState() < OrderState.FINISHED ) {
                     return false;
                 }
             }

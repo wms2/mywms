@@ -11,7 +11,7 @@ package de.linogistix.los.inventory.query;
 import javax.ejb.Remote;
 
 import de.linogistix.los.query.BusinessObjectQueryRemote;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 
 /**
@@ -19,7 +19,7 @@ import de.wms2.mywms.picking.PickingUnitLoad;
  *
  */
 @Remote
-public interface LOSPickingUnitLoadQueryRemote extends BusinessObjectQueryRemote<PickingUnitLoad>{ 
+public interface LOSPickingUnitLoadQueryRemote extends BusinessObjectQueryRemote<Packet>{ 
 
 
 }

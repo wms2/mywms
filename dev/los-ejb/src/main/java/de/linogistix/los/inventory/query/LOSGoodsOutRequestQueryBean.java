@@ -12,21 +12,21 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.shipping.ShippingOrder;
+import de.wms2.mywms.strategy.OrderState;
 
 @Stateless
-public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGoodsOutRequest> implements
+public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<ShippingOrder> implements
 		LOSGoodsOutRequestQueryRemote {
 
 	
 	@Override
 	public String getUniqueNameProp() {
-		return "number";
+		return "orderNumber";
 	}
 	
 	@Override
@@ -42,32 +42,26 @@ public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGood
 	@Override
 	protected List<BODTOConstructorProperty> getBODTOConstructorProperties() {
 		List<BODTOConstructorProperty> propList = super.getBODTOConstructorProperties();
-		
+
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("number", false));
-		propList.add(new BODTOConstructorProperty("number", false));
-		propList.add(new BODTOConstructorProperty("outState", false));
+		propList.add(new BODTOConstructorProperty("orderNumber", false));
+		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
-		propList.add(new BODTOConstructorProperty("customerOrder.orderNumber", "co.orderNumber", BODTOConstructorProperty.JoinType.LEFT, "customerOrder as co"));
-		propList.add(new BODTOConstructorProperty("customerOrder.externalNumber", "co.externalNumber", BODTOConstructorProperty.JoinType.JOIN, "co"));
-		propList.add(new BODTOConstructorProperty("customerOrder.externalId", "co.externalId", BODTOConstructorProperty.JoinType.JOIN, "co"));
-		propList.add(new BODTOConstructorProperty("customerOrder.customerNumber", "co.customerNumber", BODTOConstructorProperty.JoinType.JOIN, "co"));
+		propList.add(new BODTOConstructorProperty("deliveryOrder.orderNumber", "co.orderNumber", BODTOConstructorProperty.JoinType.LEFT, "deliveryOrder as co"));
 		propList.add(new BODTOConstructorProperty("shippingDate", false));
-//		propList.add(new BODTOConstructorProperty("positions.size", false));
 		
 		return propList;
 		
 	}
-	
-	
+
     @Override
 	protected List<TemplateQueryWhereToken> getAutoCompletionTokens(String value) {
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
 		
 		
 		TemplateQueryWhereToken token;
-		token = new TemplateQueryWhereToken( TemplateQueryWhereToken.OPERATOR_LIKE, "number", value);
+		token = new TemplateQueryWhereToken( TemplateQueryWhereToken.OPERATOR_LIKE, "orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
@@ -75,7 +69,7 @@ public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGood
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
-		token = new TemplateQueryWhereToken( TemplateQueryWhereToken.OPERATOR_LIKE, "customerOrder.orderNumber", value);
+		token = new TemplateQueryWhereToken( TemplateQueryWhereToken.OPERATOR_LIKE, "deliveryOrder.orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
@@ -90,7 +84,7 @@ public class LOSGoodsOutRequestQueryBean extends BusinessObjectQueryBean<LOSGood
 		TemplateQueryWhereToken token;
 
 		if( "OPEN".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "outState", LOSGoodsOutRequestState.FINISHED);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.FINISHED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			token.setParameterName("finishedState");
 			ret.add(token);

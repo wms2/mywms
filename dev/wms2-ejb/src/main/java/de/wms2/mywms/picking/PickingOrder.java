@@ -105,7 +105,7 @@ public class PickingOrder extends BasicClientAssignedEntity {
 
 	@OneToMany(mappedBy = "pickingOrder")
 	@OrderBy("id")
-	private List<PickingUnitLoad> unitLoads;
+	private List<Packet> packets;
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private StorageLocation destination;
@@ -250,12 +250,12 @@ public class PickingOrder extends BasicClientAssignedEntity {
 		this.deliveryOrder = deliveryOrder;
 	}
 
-	public List<PickingUnitLoad> getUnitLoads() {
-		return unitLoads;
+	public List<Packet> getPackets() {
+		return packets;
 	}
 
-	public void setUnitLoads(List<PickingUnitLoad> unitLoads) {
-		this.unitLoads = unitLoads;
+	public void setPackets(List<Packet> packets) {
+		this.packets = packets;
 	}
 
 	public StorageLocation getDestination() {

@@ -30,8 +30,8 @@ import javax.inject.Inject;
 import javax.persistence.FlushModeType;
 
 import de.wms2.mywms.entity.PersistenceManager;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.strategy.LocationReservationEntityService;
 
 /**
@@ -47,7 +47,7 @@ public class TrashHandler {
 	@Inject
 	private StockUnitEntityService stockUnitService;
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService packetService;
 	@Inject
 	private LocationReservationEntityService reservationService;
 
@@ -96,9 +96,9 @@ public class TrashHandler {
 				manager.remove(stock);
 			}
 
-			List<PickingUnitLoad> pickingUnitLoads = pickingUnitLoadService.readList(unitLoad, null, null);
-			for (PickingUnitLoad pickingUnitLoad : pickingUnitLoads) {
-				manager.remove(pickingUnitLoad);
+			List<Packet> packets = packetService.readList(unitLoad, null, null);
+			for (Packet packet : packets) {
+				manager.remove(packet);
 			}
 
 			reservationService.remove(null, unitLoad);

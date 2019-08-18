@@ -9,6 +9,7 @@ package de.linogistix.inventory.browser.masternode;
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
 import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.res.CommonBundleResolver;
+import de.linogistix.common.util.BundleResolve;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
@@ -50,7 +51,11 @@ public class BOLOSGoodsOutRequestMasterNode extends BOMasterNode {
             sheet.put(customerOrderNumber);
 //            BOMasterNodeProperty<Integer> positionCount = new BOMasterNodeProperty<Integer>("numPos", Integer.class, to.getNumPos(), InventoryBundleResolver.class, true);
 //            sheet.put(positionCount);
-            BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("outStateName", String.class, "LOSGoodsOutRequestState." + to.getOutState().name(), CommonBundleResolver.class, true);
+            String strState = BundleResolve.resolve(new Class[]{bo.getBundleResolver(),CommonBundleResolver.class},"state."+to.getState(), new Object[0], false);
+            if( strState == null || strState.length()==0 ) {
+                strState = String.valueOf(to.getState());
+            }
+            BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("state", String.class, strState, CommonBundleResolver.class);
             sheet.put(outState);
             
         }
@@ -63,7 +68,7 @@ public class BOLOSGoodsOutRequestMasterNode extends BOMasterNode {
         BOMasterNodeProperty<String> client = new BOMasterNodeProperty<String>("clientNumber", String.class, "", InventoryBundleResolver.class);
         BOMasterNodeProperty<String> customerOrderNumber = new BOMasterNodeProperty<String>("customerOrderNumber", String.class, "", InventoryBundleResolver.class);
 //        BOMasterNodeProperty<Integer> positionCount = new BOMasterNodeProperty<Integer>("numPos", Integer.class, 0, InventoryBundleResolver.class);
-        BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("outStateName", String.class, "", CommonBundleResolver.class);
+        BOMasterNodeProperty<String> outState = new BOMasterNodeProperty<String>("state", String.class, "", CommonBundleResolver.class);
         return new Property[]{client, customerOrderNumber, outState};
         
     }

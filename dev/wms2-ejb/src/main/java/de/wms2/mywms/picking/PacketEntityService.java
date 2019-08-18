@@ -38,37 +38,37 @@ import de.wms2.mywms.inventory.UnitLoadPackageType;
  *
  */
 @Stateless
-public class PickingUnitLoadEntityService {
+public class PacketEntityService {
 
 	@Inject
 	private PersistenceManager manager;
 
-	public PickingUnitLoad create(UnitLoad unitLoad) {
-		PickingUnitLoad pickingUnitLoad = manager.createInstance(PickingUnitLoad.class);
-		pickingUnitLoad.setClient(unitLoad.getClient());
-		pickingUnitLoad.setUnitLoad(unitLoad);
+	public Packet create(UnitLoad unitLoad) {
+		Packet packet = manager.createInstance(Packet.class);
+		packet.setClient(unitLoad.getClient());
+		packet.setUnitLoad(unitLoad);
 
 		unitLoad.setPackageType(UnitLoadPackageType.MIXED_CONSOLIDATE);
 
-		manager.persist(pickingUnitLoad);
+		manager.persist(packet);
 		manager.flush();
 
-		return pickingUnitLoad;
+		return packet;
 	}
 
-	public PickingUnitLoad readFirstByLabel(String label) {
+	public Packet readFirstByLabel(String label) {
 		return readFirst(null, label, null, null);
 	}
 
-	public PickingUnitLoad readFirstByUnitLoad(UnitLoad unitLoad) {
+	public Packet readFirstByUnitLoad(UnitLoad unitLoad) {
 		return readFirst(unitLoad, null, null, null);
 	}
 
-	public List<PickingUnitLoad> readByPickingOrder(PickingOrder pickingOrder) {
+	public List<Packet> readByPickingOrder(PickingOrder pickingOrder) {
 		return readList(null, null, pickingOrder);
 	}
 
-	public List<PickingUnitLoad> readByDeliveryOrder(DeliveryOrder order) {
+	public List<Packet> readByDeliveryOrder(DeliveryOrder order) {
 		return readList(null, order, null);
 	}
 
@@ -77,21 +77,21 @@ public class PickingUnitLoadEntityService {
 	 * optional.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PickingUnitLoad> readList(UnitLoad unitLoad, DeliveryOrder deliveryOrder, PickingOrder pickingOrder) {
+	public List<Packet> readList(UnitLoad unitLoad, DeliveryOrder deliveryOrder, PickingOrder pickingOrder) {
 
-		String jpql = " SELECT pickingUnitLoad FROM ";
-		jpql += PickingUnitLoad.class.getName() + " pickingUnitLoad ";
+		String jpql = " SELECT packet FROM ";
+		jpql += Packet.class.getName() + " packet ";
 		jpql += " WHERE 1=1";
 		if (unitLoad != null) {
-			jpql += " and pickingUnitLoad.unitLoad=:unitLoad ";
+			jpql += " and packet.unitLoad=:unitLoad ";
 		}
 		if (pickingOrder != null) {
-			jpql += " and pickingUnitLoad.pickingOrder=:pickingOrder ";
+			jpql += " and packet.pickingOrder=:pickingOrder ";
 		}
 		if (deliveryOrder != null) {
-			jpql += " and pickingUnitLoad.deliveryOrder=:deliveryOrder ";
+			jpql += " and packet.deliveryOrder=:deliveryOrder ";
 		}
-		jpql += " order by pickingUnitLoad.unitLoad.labelId, pickingUnitLoad.id";
+		jpql += " order by packet.unitLoad.labelId, packet.id";
 		Query query = manager.createQuery(jpql);
 		if (unitLoad != null) {
 			query = query.setParameter("unitLoad", unitLoad);
@@ -111,25 +111,25 @@ public class PickingUnitLoadEntityService {
 	 * optional. If no result is found an additional query for entities without
 	 * pickingOrder or deliveryOrder is done. The result is ordered by the state.
 	 */
-	public PickingUnitLoad readFirst(UnitLoad unitLoad, String label, DeliveryOrder deliveryOrder,
+	public Packet readFirst(UnitLoad unitLoad, String label, DeliveryOrder deliveryOrder,
 			PickingOrder pickingOrder) {
 
-		String jpql = " SELECT pickingUnitLoad FROM ";
-		jpql += PickingUnitLoad.class.getName() + " pickingUnitLoad ";
+		String jpql = " SELECT packet FROM ";
+		jpql += Packet.class.getName() + " packet ";
 		jpql += " WHERE 1=1";
 		if (unitLoad != null) {
-			jpql += " and pickingUnitLoad.unitLoad=:unitLoad ";
+			jpql += " and packet.unitLoad=:unitLoad ";
 		}
 		if (!StringUtils.isEmpty(label)) {
-			jpql += " and pickingUnitLoad.unitLoad.labelId=:label";
+			jpql += " and packet.unitLoad.labelId=:label";
 		}
 		if (pickingOrder != null) {
-			jpql += " and pickingUnitLoad.pickingOrder=:pickingOrder ";
+			jpql += " and packet.pickingOrder=:pickingOrder ";
 		}
 		if (deliveryOrder != null) {
-			jpql += " and pickingUnitLoad.deliveryOrder=:deliveryOrder ";
+			jpql += " and packet.deliveryOrder=:deliveryOrder ";
 		}
-		jpql += " order by pickingUnitLoad.state, pickingUnitLoad.unitLoad.labelId, pickingUnitLoad.id ";
+		jpql += " order by packet.state, packet.unitLoad.labelId, packet.id ";
 
 		Query query = manager.createQuery(jpql);
 		query.setMaxResults(1);
@@ -147,28 +147,28 @@ public class PickingUnitLoadEntityService {
 		}
 
 		try {
-			PickingUnitLoad cart = (PickingUnitLoad) query.getSingleResult();
-			return cart;
+			Packet packet = (Packet) query.getSingleResult();
+			return packet;
 		} catch (NoResultException e) {
 		}
 
-		// try to find cart with not assigned requested order
-		jpql = " SELECT pickingUnitLoad FROM ";
-		jpql += PickingUnitLoad.class.getName() + " pickingUnitLoad ";
+		// try to find packet with not assigned requested order
+		jpql = " SELECT packet FROM ";
+		jpql += Packet.class.getName() + " packet ";
 		jpql += " WHERE 1=1";
 		if (unitLoad != null) {
-			jpql += " and pickingUnitLoad.unitLoad=:unitLoad ";
+			jpql += " and packet.unitLoad=:unitLoad ";
 		}
 		if (!StringUtils.isEmpty(label)) {
-			jpql += " and pickingUnitLoad.unitLoad.labelId=:label";
+			jpql += " and packet.unitLoad.labelId=:label";
 		}
 		if (pickingOrder != null) {
-			jpql += " and pickingUnitLoad.pickingOrder is null ";
+			jpql += " and packet.pickingOrder is null ";
 		}
 		if (deliveryOrder != null) {
-			jpql += " and pickingUnitLoad.deliveryOrder is null ";
+			jpql += " and packet.deliveryOrder is null ";
 		}
-		jpql += " order by pickingUnitLoad.state, pickingUnitLoad.id ";
+		jpql += " order by packet.state, packet.id ";
 
 		query = manager.createQuery(jpql);
 		query.setMaxResults(1);
@@ -180,12 +180,49 @@ public class PickingUnitLoadEntityService {
 		}
 
 		try {
-			PickingUnitLoad cart = (PickingUnitLoad) query.getSingleResult();
-			return cart;
+			Packet packet = (Packet) query.getSingleResult();
+			return packet;
 		} catch (NoResultException e) {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Select whether an entity matches the given criteria. All parameters are
+	 * optional.
+	 */
+	public boolean exists(DeliveryOrder deliveryOrder, Integer minState, Integer maxState) {
+		String queryStr = "SELECT entity.id FROM " + Packet.class.getName() + " entity " + "WHERE 1=1";
+		if (deliveryOrder != null) {
+			queryStr += " and entity.deliveryOrder=:deliveryOrder ";
+		}
+		if (minState != null) {
+			queryStr += " and entity.state>=:minState ";
+		}
+		if (maxState != null) {
+			queryStr += " and entity.state<=:maxState ";
+		}
+
+		Query query = manager.createQuery(queryStr);
+		query.setMaxResults(1);
+
+		if (deliveryOrder != null) {
+			query.setParameter("deliveryOrder", deliveryOrder);
+		}
+		if (minState != null) {
+			query.setParameter("minState", minState);
+		}
+		if (maxState != null) {
+			query.setParameter("maxState", maxState);
+		}
+
+		try {
+			query.getSingleResult();
+			return true;
+		} catch (NoResultException e) {
+		}
+		return false;
 	}
 
 }

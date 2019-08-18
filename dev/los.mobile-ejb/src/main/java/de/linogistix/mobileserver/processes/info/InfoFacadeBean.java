@@ -35,8 +35,8 @@ import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrderLine;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -69,7 +69,7 @@ public class InfoFacadeBean implements InfoFacade {
 	@Inject
 	private ClientBusiness clientService;
 	@Inject
-	private PickingUnitLoadEntityService pickinUnitLoadService;
+	private PacketEntityService pickinUnitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
 	@Inject
@@ -193,7 +193,7 @@ public class InfoFacadeBean implements InfoFacade {
 		HashSet<DeliveryOrder> pickSetUl = new HashSet<DeliveryOrder>();
 		DeliveryOrder deliveryOrder = null;
 		
-		PickingUnitLoad pul = pickinUnitLoadService.readFirstByUnitLoad(ul);
+		Packet pul = pickinUnitLoadService.readFirstByUnitLoad(ul);
 		if( pul != null ) {
 			orderSetUl.add( pul.getDeliveryOrder());
 		}

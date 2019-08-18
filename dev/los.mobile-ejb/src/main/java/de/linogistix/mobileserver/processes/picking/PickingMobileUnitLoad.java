@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 import de.linogistix.los.model.State;
 import de.wms2.mywms.picking.PickingOrder;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 
 /**
@@ -41,7 +41,7 @@ public class PickingMobileUnitLoad implements Serializable {
 		this.targetName = order.targetName;
 	}
 	
-	public PickingMobileUnitLoad(PickingUnitLoad unitLoad) {
+	public PickingMobileUnitLoad(Packet unitLoad) {
 		this.state = State.RAW;
 		if( unitLoad.getState() >= State.STARTED ) {
 			this.state = State.STARTED;

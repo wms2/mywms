@@ -38,12 +38,8 @@
                 <package>de.linogistix.los.inventory.exception</package>
                 <package>de.linogistix.los.inventory.facade</package>
                 <package>de.linogistix.los.inventory.model</package>
-                <package>de.linogistix.los.inventory.pick.crud</package>
                 <package>de.linogistix.los.inventory.pick.facade</package>
                 <package>de.linogistix.los.inventory.pick.model</package>
-                <package>de.linogistix.los.inventory.pick.query</package>
-                <package>de.linogistix.los.inventory.pick.query.dto</package>
-                <package>de.linogistix.los.inventory.pick.service</package>
                 <package>de.linogistix.los.inventory.query</package>
                 <package>de.linogistix.los.inventory.query.dto</package>
                 <package>de.linogistix.los.inventory.report</package>
@@ -100,6 +96,7 @@
                 <package>de.wms2.mywms.property</package>
                 <package>de.wms2.mywms.report</package>
                 <package>de.wms2.mywms.sequence</package>
+                <package>de.wms2.mywms.shipping</package>
                 <package>de.wms2.mywms.strategy</package>
                 <package>de.wms2.mywms.user</package>
                 <package>de.wms2.mywms.util</package>

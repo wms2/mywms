@@ -23,11 +23,13 @@ import de.linogistix.inventory.browser.masternode.BOLOSGoodsOutPositionMasterNod
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSGoodsOutRequestPositionCRUDRemote;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestPositionQueryRemote;
+import de.linogistix.los.model.Prio;
+import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.shipping.ShippingOrderLine;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +84,8 @@ public class BOLOSGoodsOutRequestPosition extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSGoodsOutRequestPosition o;
-    o = new LOSGoodsOutRequestPosition();
+      ShippingOrderLine o;
+    o = new ShippingOrderLine();
     return o;
     
   }
@@ -143,6 +145,30 @@ public class BOLOSGoodsOutRequestPosition extends BO {
            ExceptionAnnotator.annotate(ex);
            return new ArrayList();
         }
+    }
+    
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(State.RAW);
+            entryList.add(State.PROCESSABLE);
+            entryList.add(State.FINISHED);
+            entryList.add(State.CANCELED);
+            entryList.add(State.DELETED);
+
+            return entryList;
+        }
+        if( "prio".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(Prio.LOW);
+            entryList.add(Prio.NORMAL);
+            entryList.add(Prio.HIGH);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
  
 }

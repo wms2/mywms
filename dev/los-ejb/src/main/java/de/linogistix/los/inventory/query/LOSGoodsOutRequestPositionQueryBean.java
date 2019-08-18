@@ -12,27 +12,27 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutPositionTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.shipping.ShippingOrderLine;
+import de.wms2.mywms.strategy.OrderState;
 
 
 @Stateless
-public class LOSGoodsOutRequestPositionQueryBean extends BusinessObjectQueryBean<LOSGoodsOutRequestPosition> implements
+public class LOSGoodsOutRequestPositionQueryBean extends BusinessObjectQueryBean<ShippingOrderLine> implements
 		LOSGoodsOutRequestPositionQueryRemote {
 	
 	@Override
 	public String getUniqueNameProp() {
-		return "source.labelId";
+		return "packet.unitLoad.labelId";
 	}
 
 	private static final String[] dtoProps = new String[] { "id", "version",   
-		"outState",
-		"source.labelId",
-		"source.storageLocation.name",
-		"goodsOutRequest.number"};
+		"state",
+		"packet.unitLoad.labelId",
+		"packet.unitLoad.storageLocation.name",
+		"shippingOrder.orderNumber"};
 
 	@Override
 	protected String[] getBODTOConstructorProps() {
@@ -59,12 +59,12 @@ public class LOSGoodsOutRequestPositionQueryBean extends BusinessObjectQueryBean
 		name.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
 		TemplateQueryWhereToken unitLoad = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "source.labelId",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "packet.unitLoad.labelId",
 				value);
 		unitLoad.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
 		TemplateQueryWhereToken number = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "goodsOutRequest.number",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "shippingOrder.orderNumber",
 				value);
 		number.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
@@ -82,7 +82,7 @@ public class LOSGoodsOutRequestPositionQueryBean extends BusinessObjectQueryBean
 		TemplateQueryWhereToken token;
 
 		if( "OPEN".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "outState", LOSGoodsOutRequestPositionState.FINISHED);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.FINISHED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			token.setParameterName("finishedState");
 			ret.add(token);

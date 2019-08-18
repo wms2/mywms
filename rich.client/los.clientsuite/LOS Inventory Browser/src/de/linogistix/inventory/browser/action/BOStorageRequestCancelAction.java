@@ -15,7 +15,6 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.StorageFacade;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestState;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;

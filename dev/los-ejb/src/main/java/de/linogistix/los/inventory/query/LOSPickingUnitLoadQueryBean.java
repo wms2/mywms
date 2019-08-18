@@ -17,14 +17,14 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 /**
  * @author krane
  *
  */
 @Stateless
-public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<PickingUnitLoad> implements LOSPickingUnitLoadQueryRemote{
+public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<Packet> implements LOSPickingUnitLoadQueryRemote{
 	
 	@Override
 	public String getUniqueNameProp() {

@@ -44,8 +44,8 @@ import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoad;
-import de.wms2.mywms.picking.PickingUnitLoadEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.report.ReportBusiness;
@@ -65,7 +65,7 @@ public class DeliverynoteGenerator {
 	@Inject
 	private ReportBusiness reportBusiness;
 	@Inject
-	private PickingUnitLoadEntityService pickingUnitLoadService;
+	private PacketEntityService packetService;
 	@Inject
 	private SystemPropertyBusiness propertyBusiness;
 	@Inject
@@ -90,9 +90,9 @@ public class DeliverynoteGenerator {
 			registerAmount(orderAmountMap, orderLine.getItemData(), orderLine.getPickedAmount());
 		}
 
-		List<PickingUnitLoad> pickingUnitLoads = pickingUnitLoadService.readByDeliveryOrder(order);
-		for (PickingUnitLoad pickingUnitLoad : pickingUnitLoads) {
-			UnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
+		List<Packet> packets = packetService.readByDeliveryOrder(order);
+		for (Packet packet : packets) {
+			UnitLoad unitLoad = packet.getUnitLoad();
 			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stock : stocksOnUnitLoad) {
 				registerAmount(unitLoadAmountMap, stock.getItemData(), stock.getAmount());
@@ -123,7 +123,7 @@ public class DeliverynoteGenerator {
 			}
 		}
 
-		// Not all picking carts can be resolved. Compare the sum of the amounts with
+		// Not all picking packets can be resolved. Compare the sum of the amounts with
 		// the sum of the picked amounts of the delivery order lines and add the
 		// differences.
 		for (ItemData itemData : orderAmountMap.keySet()) {
@@ -137,7 +137,7 @@ public class DeliverynoteGenerator {
 			}
 
 			if (orderAmount.compareTo(unitLoadAmount) > 0) {
-				// More picked amount in order line than in cart
+				// More picked amount in order line than in packet
 				// Add difference to sheet
 				BigDecimal diffAmount = orderAmount.subtract(unitLoadAmount);
 
@@ -146,7 +146,7 @@ public class DeliverynoteGenerator {
 				registerItem(reportItemMap, key + "A", "A", itemData, diffAmount);
 
 			} else if (orderAmount.compareTo(unitLoadAmount) < 0) {
-				// more picked amount in cart than in order line
+				// more picked amount in packet than in order line
 				// Not possible
 				logger.log(Level.WARNING, logStr + "There is more amount in unit loads than order lines. itemData="
 						+ itemData + ", unitLoadAmount=" + unitLoadAmount + ", orderLineAmount=" + orderAmount);

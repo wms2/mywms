@@ -37,7 +37,7 @@ import de.wms2.mywms.strategy.OrderState;
  */
 @Entity
 @Table
-public class PickingUnitLoad extends BasicClientAssignedEntity {
+public class Packet extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)

@@ -89,8 +89,6 @@ public class InventoryBusiness {
 	@Inject
 	private Event<StockUnitTrashEvent> stockUnitTrashEvent;
 	@Inject
-	private Event<StockUnitChangeEvent> stockUnitChangeEvent;
-	@Inject
 	private Event<StockUnitChangeAmountEvent> stockUnitChangeAmountEvent;
 	@Inject
 	private Event<StockUnitStateChangeEvent> stockUnitStateChangeEvent;
@@ -544,13 +542,12 @@ public class InventoryBusiness {
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.existsStockUnitReservation");
 			}
 			List<PickingOrderLine> pickList = pickingOrderLineEntityService.readList(stockUnit, null, null, null, null,
-					OrderState.PICKED);
+					null, OrderState.PICKED);
 			if (!pickList.isEmpty()) {
 				logger.log(Level.INFO, logStr + "There must be no picks on the stock unit. unitLoad=" + unitLoad);
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.existsStockUnitReservation");
 			}
 		}
-
 	}
 
 	public Collection<Client> readClientRestrictions(Collection<UnitLoad> unitLoads) throws BusinessException {
@@ -1303,6 +1300,7 @@ public class InventoryBusiness {
 	private void fireUnitLoadTrashEvent(UnitLoad unitLoad, String activityCode, User operator, String note)
 			throws BusinessException {
 		try {
+			logger.fine("Fire UnitLoadTrashEvent. unitLoad=" + unitLoad);
 			unitLoadTrashEvent.fire(new UnitLoadTrashEvent(unitLoad, activityCode, operator, note));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -1313,10 +1311,11 @@ public class InventoryBusiness {
 		}
 	}
 
-	private void fireStockUnitTrashEvent(StockUnit stock, String activityCode, User operator, String note)
+	private void fireStockUnitTrashEvent(StockUnit stockUnit, String activityCode, User operator, String note)
 			throws BusinessException {
 		try {
-			stockUnitTrashEvent.fire(new StockUnitTrashEvent(stock, activityCode, operator, note));
+			logger.fine("Fire StockUnitTrashEvent. stockUnit=" + stockUnit);
+			stockUnitTrashEvent.fire(new StockUnitTrashEvent(stockUnit, activityCode, operator, note));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -1326,24 +1325,12 @@ public class InventoryBusiness {
 		}
 	}
 
-	private void fireStockUnitChangeEvent(StockUnit stock, BigDecimal amount, String lotNumber, String activityCode,
-			User operator, String note, boolean sendNotify) throws BusinessException {
-		try {
-			stockUnitChangeEvent
-					.fire(new StockUnitChangeEvent(stock, amount, lotNumber, activityCode, operator, note, sendNotify));
-		} catch (ObserverException ex) {
-			Throwable cause = ex.getCause();
-			if (cause != null && cause instanceof BusinessException) {
-				throw (BusinessException) cause;
-			}
-			throw ex;
-		}
-	}
-
-	private void fireStockUnitChangeAmountEvent(Client client, StockUnit stockUnit, BigDecimal amount,
+	private void fireStockUnitChangeAmountEvent(Client client, StockUnit stockUnit, BigDecimal oldAmount,
 			String activityCode, User operator, String note, boolean sendNotify) throws BusinessException {
 		try {
-			stockUnitChangeAmountEvent.fire(new StockUnitChangeAmountEvent(client, stockUnit, amount, activityCode,
+			logger.fine("Fire StockUnitChangeAmountEvent. stockUnit=" + stockUnit + ", amount=" + stockUnit.getAmount()
+					+ ", oldAmount=" + oldAmount);
+			stockUnitChangeAmountEvent.fire(new StockUnitChangeAmountEvent(client, stockUnit, oldAmount, activityCode,
 					operator, note, sendNotify));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -1356,6 +1343,8 @@ public class InventoryBusiness {
 
 	private void fireStockUnitStateChangeEvent(StockUnit entity, int oldState) throws BusinessException {
 		try {
+			logger.fine("Fire StockUnitStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
 			stockUnitStateChangeEvent.fire(new StockUnitStateChangeEvent(entity, oldState));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -1369,6 +1358,8 @@ public class InventoryBusiness {
 	private void fireUnitLoadTransferLocationEvent(UnitLoad unitLoad, StorageLocation source,
 			StorageLocation destination, String activityCode, User operator, String note) throws BusinessException {
 		try {
+			logger.fine("Fire UnitLoadTransferLocationEvent. unitLoad=" + unitLoad + ", source=" + source
+					+ ", destination=" + destination);
 			unitLoadTransferLocationEvent.fire(
 					new UnitLoadTransferLocationEvent(unitLoad, source, destination, activityCode, operator, note));
 		} catch (ObserverException ex) {
@@ -1382,6 +1373,8 @@ public class InventoryBusiness {
 
 	private void fireLockChangeEvent(BasicEntity entity, int oldLock) throws BusinessException {
 		try {
+			logger.fine(
+					"Fire LockChangeEvent. entity=" + entity + ", lock=" + entity.getLock() + ", oldLock=" + oldLock);
 			lockChangeEvent.fire(new LockChangeEvent(entity, oldLock));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -1395,6 +1388,7 @@ public class InventoryBusiness {
 	private void fireUnitLoadTransferCarrierEvent(UnitLoad unitLoad, UnitLoad destination, String activityCode,
 			User operator, String note) throws BusinessException {
 		try {
+			logger.fine("Fire UnitLoadTransferCarrierEvent. unitLoad=" + unitLoad + ", destination=" + destination);
 			transferCarrierEvent
 					.fire(new UnitLoadTransferCarrierEvent(unitLoad, destination, activityCode, operator, note));
 		} catch (ObserverException ex) {

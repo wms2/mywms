@@ -11,12 +11,12 @@ import javax.ejb.Local;
 
 import org.mywms.service.BasicService;
 
-import de.wms2.mywms.picking.PickingUnitLoad;
+import de.wms2.mywms.picking.Packet;
 
 /**
  * @author krane
  *
  */
 @Local
-public interface LOSPickingUnitLoadService extends BasicService<PickingUnitLoad>{
+public interface LOSPickingUnitLoadService extends BasicService<Packet>{
 }

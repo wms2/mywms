@@ -7,33 +7,32 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPositionState;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.shipping.ShippingOrderLine;
 
-public class LOSGoodsOutPositionTO extends BODTO<LOSGoodsOutRequestPosition> {
+public class LOSGoodsOutPositionTO extends BODTO<ShippingOrderLine> {
 
 	private static final long serialVersionUID = 1L;
 	
 	private String unitLoadLabel;
 	private String locationName;
-	private String outState;
+	private int state;
 	private String goodsOutNumber;
 	
 	
-	public LOSGoodsOutPositionTO(LOSGoodsOutRequestPosition x) {
-		this(x.getId(), x.getVersion(), x.getOutState(), x.getSource().getLabelId(), x.getSource().getStorageLocation().getName(), x.getGoodsOutRequest().getNumber());
+	public LOSGoodsOutPositionTO(ShippingOrderLine x) {
+		this(x.getId(), x.getVersion(), x.getState(), x.getPacket().getUnitLoad().getLabelId(), x.getPacket().getUnitLoad().getStorageLocation().getName(), x.getShippingOrder().getOrderNumber());
 	}
 	
 	public LOSGoodsOutPositionTO(Long id, int version,
-				LOSGoodsOutRequestPositionState outState,
+				int state,
 				String unitLoadLabel,
 				String locationName,
 				String goodsOutNumber) {
 		super(id, version, unitLoadLabel);
 		this.unitLoadLabel = unitLoadLabel;
 		this.locationName = locationName;
-		this.outState = outState.name();
+		this.state = state;
 		this.goodsOutNumber = goodsOutNumber;
 	}
 
@@ -53,12 +52,12 @@ public class LOSGoodsOutPositionTO extends BODTO<LOSGoodsOutRequestPosition> {
 		this.locationName = locationName;
 	}
 
-	public String getOutState() {
-		return outState;
+	public int getState() {
+		return state;
 	}
 
-	public void setOutState(String outState) {
-		this.outState = outState;
+	public void setState(int state) {
+		this.state = state;
 	}
 
 	public String getGoodsOutNumber() {

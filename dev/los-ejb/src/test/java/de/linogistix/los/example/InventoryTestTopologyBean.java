@@ -33,8 +33,6 @@ import de.linogistix.los.crud.BusinessObjectMergeException;
 import de.linogistix.los.crud.BusinessObjectModifiedException;
 import de.linogistix.los.inventory.customization.ManageUnitLoadAdviceService;
 import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequest;
-import de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition;
 import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
@@ -353,7 +351,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 		try {
 			initClient();
 
-			clearGoodsOutRequest();
 			clearPickingRequests();
 			clearOrderRequests();
 			clearStorageRequests();
@@ -553,38 +550,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 				manageUlAdviceService.deleteUnitLoadAdvice(u);
 			}
 			
-			em.flush();
-		} catch (Throwable e) {
-			log.error(e.getMessage(), e);
-			throw new InventoryTopologyException();
-		}
-	}
-
-	public void clearGoodsOutRequest() throws InventoryTopologyException {
-		initClient();
-		try {
-			QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-			TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			TemplateQueryWhereToken t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			TemplateQuery q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(LOSGoodsOutRequest.class);
-			List<LOSGoodsOutRequest> outs = outQuery.queryByTemplate(d, q);
-			for (LOSGoodsOutRequest o : outs) {
-				o = em.find(LOSGoodsOutRequest.class, o.getId());
-				for (LOSGoodsOutRequestPosition pos  :o.getPositions()){
-					pos = em.find(LOSGoodsOutRequestPosition.class, pos.getId());
-					em.remove(pos);
-				}
-				o = em.find(LOSGoodsOutRequest.class, o.getId());
-				em.remove(o);
-			}
 			em.flush();
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);

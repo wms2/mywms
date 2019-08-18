@@ -37,6 +37,7 @@ public class Wms2Properties {
 	public static final String KEY_UNITLOADTYPE_DEFAULT = "UNITLOADTYPE_DEFAULT";
 	public static final String KEY_AREA_DEFAULT = "AREA_DEFAULT";
 	public static final String KEY_REPORT_LOCALE = "REPORT_LOCALE";
+	public static final String KEY_SHIPPING_RENAME_UNITLOAD = "SHIPPING_RENAME_UNITLOAD";
 
 	/**
 	 * Names of system property groups
@@ -48,4 +49,8 @@ public class Wms2Properties {
 	public final static String GROUP_GENERAL = "GENERAL";
 	public final static String GROUP_WMS = "WMS";
 
+	/**
+	 * Names of sequences
+	 */
+	public static final String SEQ_SHIPPING_ORDER = "Shipment";
 }
