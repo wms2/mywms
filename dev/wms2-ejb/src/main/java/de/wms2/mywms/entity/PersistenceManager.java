@@ -42,6 +42,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
@@ -564,6 +565,13 @@ public class PersistenceManager {
 	 */
 	public Query createQuery(String arg0) {
 		return manager.createQuery(arg0);
+	}
+
+	/**
+	 * @see EntityManager#createQuery(String,Class<X>)
+	 */
+	public <X> TypedQuery<X> createQuery(String qlString, Class<X> resultClass) {
+		return manager.createQuery(qlString, resultClass);
 	}
 
 	/**
