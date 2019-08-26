@@ -551,7 +551,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		try {
 			log.debug("Fire DeliveryOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
 					+ ", oldState=" + oldState);
-			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState));
+			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

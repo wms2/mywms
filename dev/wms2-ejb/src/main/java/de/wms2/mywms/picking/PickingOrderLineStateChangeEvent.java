@@ -27,10 +27,12 @@ package de.wms2.mywms.picking;
 public class PickingOrderLineStateChangeEvent {
 	private PickingOrderLine pickingOrderLine;
 	private int oldState;
+	private int newState;
 
-	public PickingOrderLineStateChangeEvent(PickingOrderLine pickingOrderLine, int oldState) {
+	public PickingOrderLineStateChangeEvent(PickingOrderLine pickingOrderLine, int oldState, int newState) {
 		this.pickingOrderLine = pickingOrderLine;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public PickingOrderLine getPickingOrderLine() {
@@ -39,5 +41,9 @@ public class PickingOrderLineStateChangeEvent {
 
 	public int getOldState() {
 		return oldState;
+	}
+
+	public int getNewState() {
+		return newState;
 	}
 }

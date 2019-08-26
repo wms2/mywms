@@ -28,10 +28,12 @@ package de.wms2.mywms.shipping;
 public class ShippingOrderLineStateChangeEvent {
 	private ShippingOrderLine shippingOrderLine;
 	private int oldState;
+	private int newState;
 
-	public ShippingOrderLineStateChangeEvent(ShippingOrderLine shippingOrderLine, int oldState) {
+	public ShippingOrderLineStateChangeEvent(ShippingOrderLine shippingOrderLine, int oldState, int newState) {
 		this.shippingOrderLine = shippingOrderLine;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public ShippingOrderLine getShippingOrderLine() {
@@ -41,4 +43,9 @@ public class ShippingOrderLineStateChangeEvent {
 	public int getOldState() {
 		return oldState;
 	}
+
+	public int getNewState() {
+		return newState;
+	}
+
 }

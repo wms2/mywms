@@ -27,10 +27,12 @@ package de.wms2.mywms.inventory;
 public class StockUnitStateChangeEvent {
 	private StockUnit stock;
 	private int oldState;
+	private int newState;
 
-	public StockUnitStateChangeEvent(StockUnit stock, int oldState) {
+	public StockUnitStateChangeEvent(StockUnit stock, int oldState, int newState) {
 		this.stock = stock;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public StockUnit getStock() {
@@ -39,6 +41,10 @@ public class StockUnitStateChangeEvent {
 
 	public int getOldState() {
 		return oldState;
+	}
+
+	public int getNewState() {
+		return newState;
 	}
 
 }

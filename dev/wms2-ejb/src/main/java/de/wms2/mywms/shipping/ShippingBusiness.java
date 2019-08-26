@@ -529,7 +529,7 @@ public class ShippingBusiness {
 		try {
 			logger.fine("Fire ShippingOrderLineStateChangeEvent. shippingOrderLine=" + shippingOrderLine + ", state="
 					+ shippingOrderLine.getState() + ", oldState=" + oldState);
-			shippingOrderLineStateChangeEvent.fire(new ShippingOrderLineStateChangeEvent(shippingOrderLine, oldState));
+			shippingOrderLineStateChangeEvent.fire(new ShippingOrderLineStateChangeEvent(shippingOrderLine, oldState, shippingOrderLine.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -543,7 +543,7 @@ public class ShippingBusiness {
 		try {
 			logger.fine("Fire ShippingOrderStateChangeEvent. shippingOrder=" + shippingOrder + ", state="
 					+ shippingOrder.getState() + ", oldState=" + oldState);
-			shippingOrderStateChangeEvent.fire(new ShippingOrderStateChangeEvent(shippingOrder, oldState));
+			shippingOrderStateChangeEvent.fire(new ShippingOrderStateChangeEvent(shippingOrder, oldState, shippingOrder.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -557,7 +557,7 @@ public class ShippingBusiness {
 		try {
 			logger.fine("Fire StockUnitStateChangeEvent. stockUnit=" + stockUnit + ", state=" + stockUnit.getState()
 					+ ", oldState=" + oldState);
-			stockUnitStateChangeEvent.fire(new StockUnitStateChangeEvent(stockUnit, oldState));
+			stockUnitStateChangeEvent.fire(new StockUnitStateChangeEvent(stockUnit, oldState, stockUnit.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -571,7 +571,7 @@ public class ShippingBusiness {
 		try {
 			logger.fine("Fire PacketStateChangeEvent. packet=" + packet + ", state=" + packet.getState() + ", oldState="
 					+ oldState);
-			packetStateChangeEvent.fire(new PacketStateChangeEvent(packet, oldState));
+			packetStateChangeEvent.fire(new PacketStateChangeEvent(packet, oldState, packet.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

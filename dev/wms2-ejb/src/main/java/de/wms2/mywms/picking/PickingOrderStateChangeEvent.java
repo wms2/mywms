@@ -27,10 +27,12 @@ package de.wms2.mywms.picking;
 public class PickingOrderStateChangeEvent {
 	private PickingOrder pickingOrder;
 	private int oldState;
+	private int newState;
 
-	public PickingOrderStateChangeEvent(PickingOrder pickingOrder, int oldState) {
+	public PickingOrderStateChangeEvent(PickingOrder pickingOrder, int oldState, int newState) {
 		this.pickingOrder = pickingOrder;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public PickingOrder getPickingOrder() {
@@ -40,4 +42,9 @@ public class PickingOrderStateChangeEvent {
 	public int getOldState() {
 		return oldState;
 	}
+
+	public int getNewState() {
+		return newState;
+	}
+
 }

@@ -1345,7 +1345,7 @@ public class InventoryBusiness {
 		try {
 			logger.fine("Fire StockUnitStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
 					+ ", oldState=" + oldState);
-			stockUnitStateChangeEvent.fire(new StockUnitStateChangeEvent(entity, oldState));
+			stockUnitStateChangeEvent.fire(new StockUnitStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

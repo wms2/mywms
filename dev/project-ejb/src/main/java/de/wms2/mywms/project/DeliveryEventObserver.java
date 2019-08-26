@@ -63,8 +63,9 @@ public class DeliveryEventObserver {
 
 		DeliveryOrder deliveryOrder = event.getDeliveryOrder();
 		int oldState = event.getOldState();
-		if (oldState < OrderState.SHIPPING && deliveryOrder.getState() == OrderState.SHIPPING) {
-			logger.info("DeliveryOrder got state SHIPPING. deliveryOrder=" + deliveryOrder);
+		int newState = event.getNewState();
+		if (oldState < OrderState.SHIPPING && newState == OrderState.SHIPPING) {
+			logger.info("DeliveryOrder got state SHIPPING. deliveryOrder=" + deliveryOrder  + ", oldState=" + oldState + ", newState=" + newState);
 			ShippingOrder shippingOrder = shippingBusiness.createOrder(deliveryOrder);
 			if (shippingOrder != null) {
 				shippingBusiness.releaseOperation(shippingOrder);
@@ -78,9 +79,10 @@ public class DeliveryEventObserver {
 		}
 		Packet packet = event.getPacket();
 		int oldState = event.getOldState();
-		if (oldState < OrderState.PICKED && packet.getState() == OrderState.PICKED) {
-			logger.info("Packet got state PICKED. packet=" + packet + ", state=" + packet.getState() + ", oldState="
-					+ oldState);
+		int newState = event.getNewState();
+		if (oldState < OrderState.PICKED && newState == OrderState.PICKED) {
+			logger.info(
+					"Packet got state PICKED. packet=" + packet + ", oldState=" + oldState + ", newState=" + newState);
 			int currentPacketState = packet.getState();
 
 			// A packet has been picked
@@ -98,7 +100,7 @@ public class DeliveryEventObserver {
 			}
 		}
 
-		if (oldState < OrderState.PACKED && packet.getState() == OrderState.PACKED) {
+		if (oldState < OrderState.PACKED && newState == OrderState.PACKED) {
 			logger.info("Packet got state PACKED. packet=" + packet + ", state=" + packet.getState() + ", oldState="
 					+ oldState);
 			int currentPacketState = packet.getState();
@@ -131,7 +133,7 @@ public class DeliveryEventObserver {
 			}
 		}
 
-		if (oldState < OrderState.SHIPPED && packet.getState() == OrderState.SHIPPED) {
+		if (oldState < OrderState.SHIPPED && newState == OrderState.SHIPPED) {
 			logger.info("Packet got state SHIPPED. packet=" + packet + ", state=" + packet.getState() + ", oldState="
 					+ oldState);
 			int currentPacketState = packet.getState();
@@ -189,7 +191,7 @@ public class DeliveryEventObserver {
 		try {
 			logger.fine("Fire PacketStateChangeEvent. packet=" + packet + ", state=" + packet.getState() + ", oldState="
 					+ oldState);
-			packetStateChangeEvent.fire(new PacketStateChangeEvent(packet, oldState));
+			packetStateChangeEvent.fire(new PacketStateChangeEvent(packet, oldState, packet.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -201,9 +203,10 @@ public class DeliveryEventObserver {
 
 	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder deliveryOrder, int oldState) throws BusinessException {
 		try {
-			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrder=" + deliveryOrder + ", state=" + deliveryOrder.getState()
-					+ ", oldState=" + oldState);
-			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(deliveryOrder, oldState));
+			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrder=" + deliveryOrder + ", state="
+					+ deliveryOrder.getState() + ", oldState=" + oldState);
+			deliveryOrderStateChangeEvent
+					.fire(new DeliveryOrderStateChangeEvent(deliveryOrder, oldState, deliveryOrder.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

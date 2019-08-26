@@ -27,10 +27,12 @@ package de.wms2.mywms.delivery;
 public class DeliveryOrderStateChangeEvent {
 	private DeliveryOrder deliveryOrder;
 	private int oldState;
+	private int newState;
 
-	public DeliveryOrderStateChangeEvent(DeliveryOrder deliveryOrder, int oldState) {
+	public DeliveryOrderStateChangeEvent(DeliveryOrder deliveryOrder, int oldState, int newState) {
 		this.deliveryOrder = deliveryOrder;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public DeliveryOrder getDeliveryOrder() {
@@ -39,5 +41,9 @@ public class DeliveryOrderStateChangeEvent {
 
 	public int getOldState() {
 		return oldState;
+	}
+
+	public int getNewState() {
+		return newState;
 	}
 }

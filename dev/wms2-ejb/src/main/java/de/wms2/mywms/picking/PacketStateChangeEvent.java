@@ -28,10 +28,12 @@ package de.wms2.mywms.picking;
 public class PacketStateChangeEvent {
 	private Packet packet;
 	private int oldState;
+	private int newState;
 
-	public PacketStateChangeEvent(Packet packet, int oldState) {
+	public PacketStateChangeEvent(Packet packet, int oldState, int newState) {
 		this.packet = packet;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public Packet getPacket() {
@@ -40,5 +42,9 @@ public class PacketStateChangeEvent {
 
 	public int getOldState() {
 		return oldState;
+	}
+
+	public int getNewState() {
+		return newState;
 	}
 }

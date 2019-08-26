@@ -275,7 +275,8 @@ public class PickingOrderLineGenerator {
 		try {
 			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrder=" + deliveryOrder + ", state="
 					+ deliveryOrder.getState() + ", oldState=" + oldState);
-			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(deliveryOrder, oldState));
+			deliveryOrderStateChangeEvent
+					.fire(new DeliveryOrderStateChangeEvent(deliveryOrder, oldState, deliveryOrder.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -290,7 +291,7 @@ public class PickingOrderLineGenerator {
 		try {
 			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrderLine=" + deliveryOrderLine + ", state="
 					+ deliveryOrderLine.getState() + ", oldState=" + oldState);
-			deliveryOrderLineStateChangeEvent.fire(new DeliveryOrderLineStateChangeEvent(deliveryOrderLine, oldState));
+			deliveryOrderLineStateChangeEvent.fire(new DeliveryOrderLineStateChangeEvent(deliveryOrderLine, oldState, deliveryOrderLine.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -305,7 +306,8 @@ public class PickingOrderLineGenerator {
 		try {
 			logger.fine("Fire DeliveryOrderStateChangeEvent. pickingOrderLine=" + pickingOrderLine + ", state="
 					+ pickingOrderLine.getState() + ", oldState=" + oldState);
-			pickingOrderLineStateChangeEvent.fire(new PickingOrderLineStateChangeEvent(pickingOrderLine, oldState));
+			pickingOrderLineStateChangeEvent.fire(
+					new PickingOrderLineStateChangeEvent(pickingOrderLine, oldState, pickingOrderLine.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
