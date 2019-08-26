@@ -60,6 +60,7 @@ import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -111,6 +112,8 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private StockUnitEntityService stockUnitEntityService;
 
 	// --------------------------------------------------------------------------------------------
 
@@ -556,7 +559,7 @@ public class LOSGoodsReceiptComponentBean implements LOSGoodsReceiptComponent {
 				}
 			}
 			
-			if( ul.getStockUnitList().size() <= 1 ) {
+			if( stockUnitEntityService.existsByUnitLoad(ul)) {
 				logger.info("Remove UnitLoad " + ul.getLabelId());
 				inventoryBusiness.deleteUnitLoad(ul, r.getGoodsReceiptNumber(), null, null);
 			}

@@ -67,7 +67,9 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -132,6 +134,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private UnitLoadTypeEntityService unitLoadTypeService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private StockUnitEntityService stockUnitEntityService;
 
     //-----------------------------------------------------------------------
     // Query data for Process input to choose from
@@ -486,7 +490,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         else if( targetUnitLoad != null ) {
         	try {
-        		for(StockUnit stock:ul.getStockUnitList()) {
+        		for(StockUnit stock:stockUnitEntityService.readByUnitLoad(ul)) {
             		inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
             		inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), gr.getGoodsReceiptNumber(), null, null);
         		}
@@ -760,8 +764,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			// There is aready a unit load on the destination. => Add stock
 			
 			UnitLoad onDestination = targetLocation.getUnitLoads().get(0);
-			
-    		for(StockUnit stock:unitload.getStockUnitList()) {
+
+    		for(StockUnit stock:stockUnitEntityService.readByUnitLoad(unitload)) {
         		inventoryBusiness.checkTransferStock(stock, onDestination, null);
         		inventoryBusiness.transferStock(stock, onDestination, null, stock.getState(), activityCode, null, null);
     		}
@@ -912,6 +916,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
             throw new InventoryException(InventoryExceptionKey.CREATE_UNITLOAD, new Object[0]);
         }
         
+		ul.setState(StockState.ON_STOCK);
 		User operator = contextService.getCallersUser();
 		StockUnit su = inventoryBusiness.createStock(ul, idat, amount, lot, serialNumber, null, ul.getState(), null,
 				operator, null, true);
@@ -942,7 +947,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         else if( targetUnitLoad != null ) {
         	try {
-        		for(StockUnit stock:ul.getStockUnitList()) {
+        		for(StockUnit stock:stockUnitEntityService.readByUnitLoad(ul)) {
             		inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
             		inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), null, null, null);
         		}
