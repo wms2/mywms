@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.inventory.UnitLoadPackageType;
 
 /**
  * @author krane
@@ -47,8 +46,6 @@ public class PacketEntityService {
 		Packet packet = manager.createInstance(Packet.class);
 		packet.setClient(unitLoad.getClient());
 		packet.setUnitLoad(unitLoad);
-
-		unitLoad.setPackageType(UnitLoadPackageType.MIXED_CONSOLIDATE);
 
 		manager.persist(packet);
 		manager.flush();

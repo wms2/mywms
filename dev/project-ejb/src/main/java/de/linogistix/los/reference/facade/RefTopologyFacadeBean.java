@@ -54,7 +54,6 @@ import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
-import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
@@ -538,8 +537,6 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 			ul.setUnitLoadType(pickUlType);
 			ul.setStorageLocation(sl);
 		}
-		
-		ul.setPackageType(UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
 		
 		return fl;
 	}

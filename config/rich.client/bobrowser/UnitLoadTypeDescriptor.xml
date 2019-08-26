@@ -21,6 +21,36 @@
                 <position>1</position>
             </value>
         </entry>
+        <entry>
+            <key>aggregateStocks</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>2</position>
+            </value>
+        </entry>
+        <entry>
+            <key>calculateWeight</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
+        <entry>
+            <key>manageEmpties</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>4</position>
+            </value>
+        </entry>
 		<entry>
 			<key>height</key>
 			<value>

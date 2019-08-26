@@ -23,8 +23,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -72,12 +70,6 @@ public class UnitLoad extends BasicClientAssignedEntity {
 	@OneToMany(mappedBy = "unitLoad")
 	@Deprecated
 	private List<StockUnit> stockUnitList = new ArrayList<StockUnit>();
-
-	/**
-	 * @deprecated Will be replaced by flags in the UnitLoadType
-	 */
-	@Enumerated(EnumType.STRING)
-	private UnitLoadPackageType packageType = UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date stockTakingDate;
@@ -195,14 +187,6 @@ public class UnitLoad extends BasicClientAssignedEntity {
 
 	public void setStockUnitList(List<StockUnit> stockUnitList) {
 		this.stockUnitList = stockUnitList;
-	}
-
-	public UnitLoadPackageType getPackageType() {
-		return packageType;
-	}
-
-	public void setPackageType(UnitLoadPackageType packageType) {
-		this.packageType = packageType;
 	}
 
 	public Date getStockTakingDate() {

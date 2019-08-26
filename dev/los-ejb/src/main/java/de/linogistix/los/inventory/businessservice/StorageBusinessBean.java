@@ -34,8 +34,8 @@ import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
@@ -81,6 +81,8 @@ public class StorageBusinessBean implements StorageBusiness {
 	private LocationReserver locationReserver;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private StockUnitEntityService stockUnitEntityService;
 
 	public LOSStorageRequest getOrCreateStorageRequest(Client c, UnitLoad ul) throws FacadeException {
 		return getOrCreateStorageRequest(c, ul, false, null, null);
@@ -286,20 +288,6 @@ public class StorageBusinessBean implements StorageBusiness {
 
 		req.setRequestState(LOSStorageRequestState.TERMINATED);
 
-		
-		// TODO make choosable from gui
-		switch(destination.getPackageType()){
-		case OF_SAME_LOT: 
-			destination.setPackageType(UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
-			manager.flush();
-			break;
-		case OF_SAME_LOT_CONSOLIDATE:
-		case CONTAINER:
-			break;
-		default:
-			throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_CONSTRAINT_VIOLATED, destination.getLabelId());
-		}
-		
 		for(StockUnit stock:from.getStockUnitList()) {
 			inventoryBusiness.transferStock(stock, destination, null, stock.getState(), req.getNumber(), null, null);
 		}
@@ -308,7 +296,7 @@ public class StorageBusinessBean implements StorageBusiness {
 		locationReserver.deallocateLocation(orig, from);
 		
 		// if UnitLoad empty, send to nirwana
-		if (req.getUnitLoad().getStockUnitList().isEmpty()) {
+		if(!stockUnitEntityService.existsByUnitLoad(req.getUnitLoad())){
 			UnitLoad u = manager.find(UnitLoad.class, req.getUnitLoad().getId());
 			inventoryBusiness.deleteUnitLoad(u, req.getNumber(), null, null);
 		}

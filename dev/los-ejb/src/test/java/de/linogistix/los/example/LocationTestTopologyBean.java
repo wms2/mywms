@@ -57,7 +57,6 @@ import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.inventory.UnitLoadPackageType;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
@@ -487,7 +486,6 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 					ul.setClient(TESTCLIENT);
 					ul.setLabelId(locName);
 					ul.setUnitLoadType(DUMMY_KOMM_ULTYPE);
-					ul.setPackageType(UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
 					ul.setStorageLocation(rl);
 					em.persist(ul);
 				}
@@ -539,7 +537,6 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 					ul.setClient(TESTMANDANT);
 					ul.setLabelId(locName);
 					ul.setType(DUMMY_KOMM_ULTYPE);
-					ul.setPackageType(UnitLoadPackageType.OF_SAME_LOT_CONSOLIDATE);
 					ul.setStorageLocation(rl);
 					em.persist(ul);
 				}
