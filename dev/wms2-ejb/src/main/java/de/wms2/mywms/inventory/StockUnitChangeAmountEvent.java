@@ -33,17 +33,19 @@ import org.mywms.model.User;
 public class StockUnitChangeAmountEvent {
 	private StockUnit stock;
 	private BigDecimal oldAmount;
+	private BigDecimal newAmount;
 	private boolean sendNotify;
 	private String activityCode;
 	private User operator;
 	private String note;
 	private Client client;
 
-	public StockUnitChangeAmountEvent(Client client, StockUnit stock, BigDecimal oldAmount, String activityCode,
-			User operator, String note, boolean sendNotify) {
+	public StockUnitChangeAmountEvent(Client client, StockUnit stock, BigDecimal oldAmount, BigDecimal newAmount,
+			String activityCode, User operator, String note, boolean sendNotify) {
 		this.client = client;
 		this.stock = stock;
 		this.oldAmount = oldAmount;
+		this.newAmount = newAmount;
 		this.sendNotify = sendNotify;
 		this.activityCode = activityCode;
 		this.operator = operator;
@@ -56,6 +58,10 @@ public class StockUnitChangeAmountEvent {
 
 	public BigDecimal getOldAmount() {
 		return oldAmount;
+	}
+
+	public BigDecimal getNewAmount() {
+		return newAmount;
 	}
 
 	public boolean isSendNotify() {

@@ -37,6 +37,7 @@ import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.delivery.DeliveryOrderLineStateChangeEvent;
 import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
@@ -54,6 +55,8 @@ import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingOrderLineStateChangeEvent;
+import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
 import de.wms2.mywms.picking.PickingType;
 import de.wms2.mywms.strategy.OrderState;
 
@@ -93,7 +96,13 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	@Inject
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
 	@Inject
+	private Event<DeliveryOrderLineStateChangeEvent> deliveryOrderLineStateChangeEvent;
+	@Inject
 	private Event<PacketStateChangeEvent> packetStateChangeEvent;
+	@Inject
+	private Event<PickingOrderLineStateChangeEvent> pickingOrderLineStateChangeEvent;
+	@Inject
+	private Event<PickingOrderStateChangeEvent> pickingOrderStateChangeEvent;
 
     public DeliveryOrder finishDeliveryOrder(DeliveryOrder deliveryOrder) throws FacadeException {
 		String logStr = "finishdeliveryOrder ";
@@ -120,7 +129,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				else {
 					pos.setState(State.CANCELED);
 				}
-				manageOrderService.onDeliveryOrderLineStateChange(pos, posStateOld);
+				fireDeliveryOrderLineStateChangeEvent(pos, posStateOld);
 			}
 			if( pos.getState() != State.CANCELED ) {
 				hasOnlyCanceledPos = false;
@@ -193,7 +202,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( deliveryOrderLine.getState() != stateOld )  {
-			manageOrderService.onDeliveryOrderLineStateChange(deliveryOrderLine, stateOld);
+			fireDeliveryOrderLineStateChangeEvent(deliveryOrderLine, stateOld);
 		}
 
 		if( deliveryOrderLine.getState()>=State.PENDING && deliveryOrder.getState()<State.PICKED ) {
@@ -260,7 +269,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		pickingOrder.setState(State.PROCESSABLE);
 		
-		manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+		firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 
 		return pickingOrder;
 	}
@@ -285,7 +294,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		pickingOrder.setOperator(null);
 		
 		if( pickingOrder.getState() != stateOld )  {
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 
 		return pickingOrder;
@@ -338,7 +347,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		if( pickingOrder.getState() != stateOld )  {
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 
 		return pickingOrder;
@@ -370,7 +379,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( pickingOrder.getState() != stateOld )  {
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 
 		return pickingOrder;
@@ -407,7 +416,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			}
 			
 			pick.setState(State.PROCESSABLE);
-			manageOrderService.onPickingPositionStateChange(pick, pickStateOld);
+			firePickingOrderLineStateChangeEvent(pick, pickStateOld);
 		}
 		List<PickingOrderLine> openPickList = new ArrayList<PickingOrderLine>();
 		
@@ -423,7 +432,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 					pick.setPickingOrder(null);
 					if( pickStateOld >= State.PROCESSABLE) {
 						pick.setState(State.ASSIGNED);
-						manageOrderService.onPickingPositionStateChange(pick, pickStateOld);
+						firePickingOrderLineStateChangeEvent(pick, pickStateOld);
 						openPickList.add(pick);
 					}
 				}
@@ -465,7 +474,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( pickingOrder.getState() != stateOld )  {
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 
 		checkCreateGoodsOutOrder(pickingOrder);
@@ -525,7 +534,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}		
 
 		if( pickingOrder.getState() != stateOld )  {
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 		
 		checkCreateGoodsOutOrder(pickingOrder);
@@ -764,7 +773,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( pick.getState() != stateOld )  {
-			manageOrderService.onPickingPositionStateChange(pick, stateOld);
+			firePickingOrderLineStateChangeEvent(pick, stateOld);
 		}
 
 		
@@ -785,7 +794,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		stateOld = pickingOrder.getState();
 		if( allPicksDone && stateOld < State.PICKED ) {
 			pickingOrder.setState(State.PICKED);
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 		
 
@@ -871,7 +880,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( pick.getState() != stateOld )  {
-			manageOrderService.onPickingPositionStateChange(pick, stateOld);
+			firePickingOrderLineStateChangeEvent(pick, stateOld);
 		}
 
 		
@@ -886,7 +895,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		stateOld = pickingOrder.getState();
 		if( allPicksDone && stateOld < State.PICKED ) {
 			pickingOrder.setState(State.PICKED);
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 	}
 
@@ -918,7 +927,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		pick.setState(State.ASSIGNED);
 		
-		manageOrderService.onPickingPositionStateChange(pick, stateOld);
+		firePickingOrderLineStateChangeEvent(pick, stateOld);
 	}
 
 	/**
@@ -948,7 +957,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		pick.setPickFromStockUnit(null);
 		
 		if( pick.getState() != stateOld )  {
-			manageOrderService.onPickingPositionStateChange(pick, stateOld);
+			firePickingOrderLineStateChangeEvent(pick, stateOld);
 		}
 		
 		if( pick.getDeliveryOrderLine() != null ) {
@@ -1139,7 +1148,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 		if( pickingOrder.getState() != stateOld )  {
-			manageOrderService.onPickingOrderStateChange(pickingOrder, stateOld);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 		return pickingOrder;
 	}
@@ -1176,6 +1185,22 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 	}
 
+	private void fireDeliveryOrderLineStateChangeEvent(DeliveryOrderLine entity, int oldState)
+			throws BusinessException {
+		try {
+			log.debug("Fire DeliveryOrderLineStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
+			deliveryOrderLineStateChangeEvent
+					.fire(new DeliveryOrderLineStateChangeEvent(entity, oldState, entity.getState()));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
+	}
+
 	private void firePacketStateChangeEvent(Packet entity, int oldState) throws BusinessException {
 		try {
 			log.debug("Fire PacketStateChangeEvent. entity=" + entity + ", state=" + entity.getState() + ", oldState="
@@ -1190,4 +1215,33 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 	}
 
-}	
+	private void firePickingOrderLineStateChangeEvent(PickingOrderLine entity, int oldState) throws BusinessException {
+		try {
+			log.debug("Fire PickingOrderLineStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
+			pickingOrderLineStateChangeEvent
+					.fire(new PickingOrderLineStateChangeEvent(entity, oldState, entity.getState()));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
+	}
+
+	private void firePickingOrderStateChangeEvent(PickingOrder entity, int oldState) throws BusinessException {
+		try {
+			log.debug("Fire PickingOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
+			pickingOrderStateChangeEvent.fire(new PickingOrderStateChangeEvent(entity, oldState, entity.getState()));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
+	}
+
+}

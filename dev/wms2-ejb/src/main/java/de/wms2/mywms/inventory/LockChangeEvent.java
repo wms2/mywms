@@ -24,10 +24,12 @@ import org.mywms.model.BasicEntity;
 public class LockChangeEvent {
 	private BasicEntity entity;
 	private int oldLock;
+	private int newLock;
 
-	public LockChangeEvent(BasicEntity entity, int oldLock) {
+	public LockChangeEvent(BasicEntity entity, int oldLock, int newLock) {
 		this.entity = entity;
 		this.oldLock = oldLock;
+		this.newLock = newLock;
 	}
 
 	public BasicEntity getEntity() {
@@ -36,6 +38,10 @@ public class LockChangeEvent {
 
 	public int getOldLock() {
 		return oldLock;
+	}
+
+	public int getNewLock() {
+		return newLock;
 	}
 
 }

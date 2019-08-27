@@ -13,6 +13,8 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,6 +34,7 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -43,6 +46,7 @@ import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
@@ -83,6 +87,8 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private Event<PickingOrderStateChangeEvent> pickingOrderStateChangeEvent;
 
 	public void changePickingOrderPrio( long orderId, int prio ) throws FacadeException {
 		String logStr = "changePickingOrderPrio ";
@@ -147,7 +153,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		}
 		
 		if( order.getState() != stateOld ) {
-			manageOrderService.onPickingOrderStateChange(order, stateOld);
+			firePickingOrderStateChangeEvent(order, stateOld);
 		}
 	}
 	
@@ -208,7 +214,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		}
 		
 		if( order.getState() != stateOld ) {
-			manageOrderService.onPickingOrderStateChange(order, stateOld);
+			firePickingOrderStateChangeEvent(order, stateOld);
 		}
 	}
 
@@ -386,5 +392,19 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		orderBusiness.confirmPickingUnitLoad(pul, destination, State.PICKED);
 		orderBusiness.finishPickingOrder(order);
 
+	}
+
+	private void firePickingOrderStateChangeEvent(PickingOrder entity, int oldState) throws BusinessException {
+		try {
+			log.debug("Fire PickingOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
+					+ ", oldState=" + oldState);
+			pickingOrderStateChangeEvent.fire(new PickingOrderStateChangeEvent(entity, oldState, entity.getState()));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
 	}
 }

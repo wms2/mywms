@@ -1330,8 +1330,8 @@ public class InventoryBusiness {
 		try {
 			logger.fine("Fire StockUnitChangeAmountEvent. stockUnit=" + stockUnit + ", amount=" + stockUnit.getAmount()
 					+ ", oldAmount=" + oldAmount);
-			stockUnitChangeAmountEvent.fire(new StockUnitChangeAmountEvent(client, stockUnit, oldAmount, activityCode,
-					operator, note, sendNotify));
+			stockUnitChangeAmountEvent.fire(new StockUnitChangeAmountEvent(client, stockUnit, oldAmount,
+					stockUnit.getAmount(), activityCode, operator, note, sendNotify));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -1375,7 +1375,7 @@ public class InventoryBusiness {
 		try {
 			logger.fine(
 					"Fire LockChangeEvent. entity=" + entity + ", lock=" + entity.getLock() + ", oldLock=" + oldLock);
-			lockChangeEvent.fire(new LockChangeEvent(entity, oldLock));
+			lockChangeEvent.fire(new LockChangeEvent(entity, oldLock, entity.getLock()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
