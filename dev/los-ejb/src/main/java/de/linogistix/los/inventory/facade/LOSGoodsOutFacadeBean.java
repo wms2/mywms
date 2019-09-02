@@ -7,8 +7,8 @@
  */
 package de.linogistix.los.inventory.facade;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +20,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
@@ -29,8 +30,11 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
+import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.shipping.ShippingBusiness;
 import de.wms2.mywms.shipping.ShippingOrder;
@@ -58,6 +62,8 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 	private ShippingOrderLineEntityService shippingOrderLineEntityService;
 	@Inject
 	private UserBusiness UserBusiness;
+	@Inject
+	private StorageLocationEntityService locationService;
 
 	@Override
 	public void confirm(Long goodsOutId) throws FacadeException {
@@ -67,7 +73,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		}
 		for (ShippingOrderLine line : order.getLines()) {
 			if (line.getState() < OrderState.FINISHED) {
-				shippingBusiness.confirmLine(line);
+				shippingBusiness.confirmLine(line, null);
 			}
 		}
 		shippingBusiness.finishOrder(order);
@@ -92,7 +98,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 	}
 
 	@Override
-	public void finishPosition(String labelId, Long orderId) throws FacadeException {
+	public void finishPosition(String labelId, Long orderId, String destination) throws FacadeException {
 		UnitLoad ul = null;
 
 		try {
@@ -110,7 +116,15 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, labelId);
 		}
 
-		shippingBusiness.confirmLine(orderLine);
+		StorageLocation location = null;
+		if(!StringUtils.isBlank(destination)) {
+			location = locationService.read(destination);
+			if (location == null) {
+				throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, labelId);
+			}
+		}
+
+		shippingBusiness.confirmLine(orderLine, location);
 	}
 
 	@Override
@@ -175,6 +189,14 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		req = shippingBusiness.cancelOperation(req);
 
 		return;
+	}
+
+	@Override
+	public void cancelLine(List<Long> lineIdList) throws FacadeException {
+		for (Long id : lineIdList) {
+			ShippingOrderLine line = manager.find(ShippingOrderLine.class, id);
+			shippingBusiness.removeLine(line);
+		}
 	}
 
 	@Override
@@ -267,11 +289,23 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 			Packet pul = manager.find(Packet.class, id);
 			if (pul != null) {
 				packetList.add(pul);
-				ulList.add(pul.getUnitLoad());
 				client = pul.getClient();
 				orderSet.add(pul.getDeliveryOrder());
 			} else {
-				log.warn(logStr + "Did not find unit load. id=" + id);
+				UnitLoad unitLoad = manager.find(UnitLoad.class, id);
+				if (unitLoad != null) {
+					for(StockUnit stockUnit:unitLoad.getStockUnitList()) {
+						if(stockUnit.getReservedAmount()!=null && stockUnit.getReservedAmount().compareTo(BigDecimal.ZERO)>0) {
+							log.warn(logStr + "There is reserved amount on a unitLoad. Cannot create shipping order. unitLoad="+unitLoad);
+							throw new InventoryException(InventoryExceptionKey.STOCKUNIT_HAS_RESERVATION, "");
+						}
+					}
+					ulList.add(unitLoad);
+					client = unitLoad.getClient();
+				}
+				else {
+					log.warn(logStr + "Did not find unit load. id=" + id);
+				}
 			}
 		}
 		if (orderSet.size() == 1) {
@@ -284,10 +318,14 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_CLIENT, "");
 		}
 
-		ShippingOrder shippingOrder = shippingBusiness.createOrder(client, null, null, new Date());
+		ShippingOrder shippingOrder = shippingBusiness.createOrder(client);
 		shippingOrder.setDeliveryOrder(deliveryOrder);
+		shippingOrder.setState(OrderState.PROCESSABLE);
 		for(Packet packet : packetList) {
 			shippingBusiness.addLine(shippingOrder, packet);
+		}
+		for(UnitLoad unitLoad : ulList) {
+			shippingBusiness.addLine(shippingOrder, unitLoad);
 		}
 	}
 }

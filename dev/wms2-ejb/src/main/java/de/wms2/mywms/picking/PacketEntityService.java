@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.strategy.OrderState;
 
 /**
  * @author krane
@@ -53,20 +54,26 @@ public class PacketEntityService {
 		return packet;
 	}
 
+	/**
+	 * Read one packet for the label. Only not shipped packets are queried.
+	 */
 	public Packet readFirstByLabel(String label) {
-		return readFirst(null, label, null, null);
+		return readFirst(null, label, null, null, OrderState.SHIPPED-1);
 	}
 
+	/**
+	 * Read one packet for the unit load. Only not shipped packets are queried.
+	 */
 	public Packet readFirstByUnitLoad(UnitLoad unitLoad) {
-		return readFirst(unitLoad, null, null, null);
+		return readFirst(unitLoad, null, null, null, OrderState.SHIPPED-1);
 	}
 
 	public List<Packet> readByPickingOrder(PickingOrder pickingOrder) {
-		return readList(null, null, pickingOrder);
+		return readList(null, null, pickingOrder, null);
 	}
 
 	public List<Packet> readByDeliveryOrder(DeliveryOrder order) {
-		return readList(null, order, null);
+		return readList(null, order, null, null);
 	}
 
 	/**
@@ -74,7 +81,7 @@ public class PacketEntityService {
 	 * optional.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Packet> readList(UnitLoad unitLoad, DeliveryOrder deliveryOrder, PickingOrder pickingOrder) {
+	public List<Packet> readList(UnitLoad unitLoad, DeliveryOrder deliveryOrder, PickingOrder pickingOrder, Integer maxState) {
 
 		String jpql = " SELECT packet FROM ";
 		jpql += Packet.class.getName() + " packet ";
@@ -88,6 +95,9 @@ public class PacketEntityService {
 		if (deliveryOrder != null) {
 			jpql += " and packet.deliveryOrder=:deliveryOrder ";
 		}
+		if (maxState != null) {
+			jpql += " and packet.state<=:maxState ";
+		}
 		jpql += " order by packet.unitLoad.labelId, packet.id";
 		Query query = manager.createQuery(jpql);
 		if (unitLoad != null) {
@@ -99,17 +109,19 @@ public class PacketEntityService {
 		if (deliveryOrder != null) {
 			query = query.setParameter("deliveryOrder", deliveryOrder);
 		}
+		if (maxState != null) {
+			query = query.setParameter("maxState", maxState);
+		}
 
 		return query.getResultList();
 	}
 
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
-	 * optional. If no result is found an additional query for entities without
-	 * pickingOrder or deliveryOrder is done. The result is ordered by the state.
+	 * optional.
 	 */
 	public Packet readFirst(UnitLoad unitLoad, String label, DeliveryOrder deliveryOrder,
-			PickingOrder pickingOrder) {
+			PickingOrder pickingOrder, Integer maxState) {
 
 		String jpql = " SELECT packet FROM ";
 		jpql += Packet.class.getName() + " packet ";
@@ -125,6 +137,9 @@ public class PacketEntityService {
 		}
 		if (deliveryOrder != null) {
 			jpql += " and packet.deliveryOrder=:deliveryOrder ";
+		}
+		if (maxState != null) {
+			jpql += " and packet.state<=:maxState ";
 		}
 		jpql += " order by packet.state, packet.unitLoad.labelId, packet.id ";
 
@@ -142,38 +157,8 @@ public class PacketEntityService {
 		if (deliveryOrder != null) {
 			query = query.setParameter("deliveryOrder", deliveryOrder);
 		}
-
-		try {
-			Packet packet = (Packet) query.getSingleResult();
-			return packet;
-		} catch (NoResultException e) {
-		}
-
-		// try to find packet with not assigned requested order
-		jpql = " SELECT packet FROM ";
-		jpql += Packet.class.getName() + " packet ";
-		jpql += " WHERE 1=1";
-		if (unitLoad != null) {
-			jpql += " and packet.unitLoad=:unitLoad ";
-		}
-		if (!StringUtils.isEmpty(label)) {
-			jpql += " and packet.unitLoad.labelId=:label";
-		}
-		if (pickingOrder != null) {
-			jpql += " and packet.pickingOrder is null ";
-		}
-		if (deliveryOrder != null) {
-			jpql += " and packet.deliveryOrder is null ";
-		}
-		jpql += " order by packet.state, packet.id ";
-
-		query = manager.createQuery(jpql);
-		query.setMaxResults(1);
-		if (unitLoad != null) {
-			query = query.setParameter("unitLoad", unitLoad);
-		}
-		if (!StringUtils.isEmpty(label)) {
-			query = query.setParameter("label", label);
+		if (maxState != null) {
+			query = query.setParameter("maxState", maxState);
 		}
 
 		try {

@@ -31,6 +31,5 @@ public class LOSInventoryPropertyKey {
 
 	public static final String GOODS_RECEIPT_PRINTER = "GOODS_RECEIPT_PRINTER_NAME";
 
-	public static final String SHIPPING_RENAME_UNITLOAD = "SHIPPING_RENAME_UNITLOAD";
 	public static final String SHIPPING_LOCATION = "SHIPPING_LOCATION";
 }

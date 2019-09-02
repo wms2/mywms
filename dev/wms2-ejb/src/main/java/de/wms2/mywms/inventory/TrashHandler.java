@@ -29,7 +29,12 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.FlushModeType;
 
+import de.wms2.mywms.advice.Advice;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.strategy.LocationReservationEntityService;
@@ -50,6 +55,8 @@ public class TrashHandler {
 	private PacketEntityService packetService;
 	@Inject
 	private LocationReservationEntityService reservationService;
+	@Inject
+	private GenericEntityService genericService;
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean removeStockUnit(StockUnit entity) {
@@ -68,8 +75,7 @@ public class TrashHandler {
 
 			return true;
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE,
-					logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
 		}
 		return false;
 	}
@@ -96,7 +102,7 @@ public class TrashHandler {
 				manager.remove(stock);
 			}
 
-			List<Packet> packets = packetService.readList(unitLoad, null, null);
+			List<Packet> packets = packetService.readList(unitLoad, null, null, null);
 			for (Packet packet : packets) {
 				manager.remove(packet);
 			}
@@ -108,12 +114,75 @@ public class TrashHandler {
 
 			return true;
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE,
-					logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
 		}
 
 		return false;
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean removeGoodsReceipt(GoodsReceipt goodsReceipt) {
+		String logStr = "removeGoodsReceipt ";
+		logger.log(Level.FINE, logStr + "goodsReceipt=" + goodsReceipt);
+		try {
+			manager.setFlushMode(FlushModeType.COMMIT);
+			goodsReceipt = manager.reload(goodsReceipt, false);
+			if (goodsReceipt == null) {
+				logger.log(Level.WARNING, logStr + "GoodsReceipt is already deleted. Cannot remove.");
+				return false;
+			}
+
+			List<GoodsReceiptLine> lines = goodsReceipt.getLines();
+			for (GoodsReceiptLine line : lines) {
+				manager.remove(line);
+			}
+			manager.remove(goodsReceipt);
+			manager.flush();
+
+			return true;
+		} catch (Throwable t) {
+			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+		}
+
+		return false;
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean removeAdvice(Advice advice) {
+		String logStr = "removeAdvice ";
+		logger.log(Level.FINE, logStr + "advice=" + advice);
+		try {
+			advice = manager.reload(advice, false);
+			if (advice == null) {
+				logger.log(Level.WARNING, logStr + "Advice is already deleted. Cannot remove.");
+				return false;
+			}
+
+			List<AdviceLine> lines = advice.getLines();
+			for (AdviceLine line : lines) {
+				if (genericService.existsReference(GoodsReceipt.class, "adviceLines", line)) {
+					logger.log(Level.FINE, logStr
+							+ "Advice is referenced by GoodsReceipt.assignedAdvices. Do not remove. advice=" + advice);
+					return false;
+				}
+
+				if (genericService.exists(GoodsReceiptLine.class, "adviceLine", line)) {
+					logger.log(Level.FINE, logStr
+							+ "Advice is referenced by GoodsReceipt.assignedAdvices. Do not remove. advice=" + advice);
+					return false;
+				}
+				manager.remove(line);
+			}
+
+			manager.remove(advice);
+			manager.flush();
+
+			return true;
+		} catch (Throwable t) {
+			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+		}
+
+		return false;
+	}
 
 }

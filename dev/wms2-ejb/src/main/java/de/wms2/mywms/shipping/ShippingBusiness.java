@@ -28,6 +28,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 
@@ -41,6 +42,7 @@ import de.wms2.mywms.inventory.StockUnitStateChangeEvent;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.picking.PacketStateChangeEvent;
@@ -85,6 +87,10 @@ public class ShippingBusiness {
 	private SystemPropertyBusiness propertyBusiness;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private PacketEntityService packetEntityService;
+	@Inject
+	private StorageLocationEntityService locationService;
 
 	/**
 	 * Release shipping order for operation
@@ -321,6 +327,13 @@ public class ShippingBusiness {
 
 		shippingOrder.setState(OrderState.CANCELED);
 		for (ShippingOrderLine line : shippingOrder.getLines()) {
+			Packet packet = line.getPacket();
+			if (packet != null && packet.getPickingOrder() == null && packet.getDeliveryOrder() == null
+					&& packet.getUnitLoad().getState() == StockState.PICKED) {
+				// This line has been manual created. Remove line and packet and reactivate unit
+				// load
+				removeLine(line);
+			}
 			int lineState = line.getState();
 
 			if (lineState < OrderState.FINISHED) {
@@ -336,11 +349,10 @@ public class ShippingBusiness {
 			fireShippingOrderStateChangeEvent(shippingOrder, orderState);
 		}
 
-		// TODO krane shipping. add event listener to for callback to customer order
 		return shippingOrder;
 	}
 
-	public ShippingOrderLine confirmLine(ShippingOrderLine line) throws BusinessException {
+	public ShippingOrderLine confirmLine(ShippingOrderLine line, StorageLocation destination) throws BusinessException {
 		ShippingOrder shippingOrder = line.getShippingOrder();
 		Client client = shippingOrder.getClient();
 		Packet packet = line.getPacket();
@@ -373,7 +385,6 @@ public class ShippingBusiness {
 		if (packetStateOld < OrderState.SHIPPED) {
 			packet.setState(OrderState.SHIPPED);
 			firePacketStateChangeEvent(packet, packetStateOld);
-			// TODO krane shipping. add event listener to for callback to customer order
 		}
 
 		boolean rename = propertyBusiness.getBoolean(Wms2Properties.KEY_SHIPPING_RENAME_UNITLOAD, client, null, false);
@@ -384,7 +395,9 @@ public class ShippingBusiness {
 			}
 		}
 
-		StorageLocation destination = shippingOrder.getDestination();
+		if (destination == null) {
+			destination = shippingOrder.getDestination();
+		}
 		if (destination != null) {
 			inventoryBusiness.transferUnitLoad(unitLoad, destination, shippingOrder.getOrderNumber(), null, null);
 		}
@@ -393,15 +406,6 @@ public class ShippingBusiness {
 			fireShippingOrderLineStateChangeEvent(line, oldLineState);
 		}
 
-		return line;
-	}
-
-	/**
-	 * Cancellation of a single picking position
-	 * <p>
-	 * The picking order is not affected or recalculated!
-	 */
-	public ShippingOrderLine cancelLine(ShippingOrderLine line) throws BusinessException {
 		return line;
 	}
 
@@ -437,16 +441,11 @@ public class ShippingBusiness {
 			}
 
 			if (shippingOrder == null) {
+				shippingOrder = createOrder(deliveryOrder.getClient());
 				shippingOrder = manager.createInstance(ShippingOrder.class);
-				shippingOrder.setClient(deliveryOrder.getClient());
-				shippingOrder.setOrderNumber(sequenceBusiness.readNextValue(Wms2Properties.SEQ_SHIPPING_ORDER));
-				shippingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
 				shippingOrder.setDeliveryOrder(deliveryOrder);
-				shippingOrder.setState(OrderState.CREATED);
-				manager.persist(shippingOrder);
-				manager.flush();
-
-				fireShippingOrderStateChangeEvent(shippingOrder, -1);
+				shippingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
+				shippingOrder.setState(OrderState.PROCESSABLE);
 			}
 
 			ShippingOrderLine line = null;
@@ -463,31 +462,31 @@ public class ShippingBusiness {
 		return shippingOrder;
 	}
 
-	public ShippingOrder createOrder(Client client, String externalNumber, StorageLocation destination,
-			Date shippingDate) throws BusinessException {
-		String logStr = "createOrder ";
-		logger.fine(logStr + "Create shipment for shipment number=" + externalNumber);
+	public ShippingOrder createOrder(Client client) throws BusinessException {
+		StorageLocation destination = null;
+		String destinationName = propertyBusiness.getString(Wms2Properties.KEY_SHIPPING_LOCATION, client, null,
+				null);
+		if (!StringUtils.isBlank(destinationName)) {
+			destination = locationService.readByName(destinationName);
+		}
 
-		ShippingOrder shipment = null;
+		ShippingOrder shippingOrder = manager.createInstance(ShippingOrder.class);
+		shippingOrder.setClient(client);
+		shippingOrder.setOrderNumber(sequenceBusiness.readNextValue(Wms2Properties.SEQ_SHIPPING_ORDER));
+		shippingOrder.setShippingDate(new Date());
+		shippingOrder.setDestination(destination);
+		shippingOrder.setState(OrderState.PROCESSABLE);
 
-		shipment = manager.createInstance(ShippingOrder.class);
-
-		shipment.setClient(client);
-		shipment.setOrderNumber(sequenceBusiness.readNextValue(Wms2Properties.SEQ_SHIPPING_ORDER));
-		shipment.setShippingDate(shippingDate);
-		shipment.setExternalNumber(externalNumber);
-		shipment.setDestination(destination);
-
-		manager.persist(shipment);
+		manager.persist(shippingOrder);
 		manager.flush();
 
-		fireShippingOrderStateChangeEvent(shipment, -1);
+		fireShippingOrderStateChangeEvent(shippingOrder, -1);
 
-		return shipment;
+		return shippingOrder;
 	}
 
 	public ShippingOrderLine addLine(ShippingOrder order, Packet packet) throws BusinessException {
-		String logStr = "addPosition ";
+		String logStr = "addLine ";
 		List<ShippingOrder> orders = shippingOrderService.readByPacket(packet);
 
 		for (ShippingOrder affectedOrder : orders) {
@@ -505,6 +504,42 @@ public class ShippingBusiness {
 		manager.persistValidated(pos);
 
 		return pos;
+	}
+
+	public ShippingOrderLine addLine(ShippingOrder order, UnitLoad unitLoad) throws BusinessException {
+		Packet packet = packetEntityService.readFirstByUnitLoad(unitLoad);
+		if (packet == null) {
+			packet = packetEntityService.create(unitLoad);
+			packet.setState(OrderState.SHIPPING);
+		}
+		if (unitLoad.getState() < StockState.PICKED) {
+			unitLoad.setState(OrderState.PICKED);
+		}
+		return addLine(order, packet);
+	}
+
+	public void removeLine(ShippingOrderLine line) throws BusinessException {
+		// reset stock state for manual created shipping orders
+		Packet packet = line.getPacket();
+		ShippingOrder shippingOrder = line.getShippingOrder();
+
+		int orderLineState = line.getState();
+		line.setState(OrderState.DELETABLE);
+		fireShippingOrderLineStateChangeEvent(line, orderLineState);
+
+		manager.removeValidated(line);
+
+		if (shippingOrder.getLines().size() == 1) {
+			// remove empty order
+			manager.removeValidated(shippingOrder);
+		}
+
+		if (packet.getPickingOrder() == null && packet.getDeliveryOrder() == null
+				&& packet.getUnitLoad().getState() == StockState.PICKED) {
+			packet.getUnitLoad().setState(StockState.ON_STOCK);
+			manager.removeValidated(packet);
+		}
+
 	}
 
 	public void removeOrder(ShippingOrder shippingOrder) throws BusinessException {
@@ -529,7 +564,8 @@ public class ShippingBusiness {
 		try {
 			logger.fine("Fire ShippingOrderLineStateChangeEvent. shippingOrderLine=" + shippingOrderLine + ", state="
 					+ shippingOrderLine.getState() + ", oldState=" + oldState);
-			shippingOrderLineStateChangeEvent.fire(new ShippingOrderLineStateChangeEvent(shippingOrderLine, oldState, shippingOrderLine.getState()));
+			shippingOrderLineStateChangeEvent.fire(
+					new ShippingOrderLineStateChangeEvent(shippingOrderLine, oldState, shippingOrderLine.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
@@ -543,7 +579,8 @@ public class ShippingBusiness {
 		try {
 			logger.fine("Fire ShippingOrderStateChangeEvent. shippingOrder=" + shippingOrder + ", state="
 					+ shippingOrder.getState() + ", oldState=" + oldState);
-			shippingOrderStateChangeEvent.fire(new ShippingOrderStateChangeEvent(shippingOrder, oldState, shippingOrder.getState()));
+			shippingOrderStateChangeEvent
+					.fire(new ShippingOrderStateChangeEvent(shippingOrder, oldState, shippingOrder.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

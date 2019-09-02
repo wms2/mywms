@@ -40,18 +40,18 @@ public interface LOSGoodsOutFacade {
 	List<LOSGoodsOutRequestTO> getRaw();
 	
 	/**
-	 * Start the operating of one LOSGoodsOutRequest
+	 * Start the operating of one order
 	 * @return LOSGoodsOutRequest that has been chosen
 	 */
 	void start(Long orderId) throws FacadeException;
 	
 	/**
-	 * finish one LOSGoodsOutRequestPosition by scanning the included {@link UnitLoad} labelId
+	 * finish one line by scanning the included {@link UnitLoad} labelId
 	 * @param labelId
 	 * @return
 	 * @throws FacadeException
 	 */
-	void finishPosition(String labelId, Long orderId) throws FacadeException;
+	void finishPosition(String labelId, Long orderId, String destination) throws FacadeException;
 	
 	/**
 	 * finishes the LOSGoodsOutRequest. All LOSGoodsOutRequestPosition have to be finished before.
@@ -78,12 +78,15 @@ public interface LOSGoodsOutFacade {
 	void confirm(Long goodsOutId) throws FacadeException;
 
 	/**
-	 * Cancels the LOSGoodsOutRequest. Resets the state.
-	 * @param pickingRequest
+	 * Cancels the order. Resets the state.
 	 */
 	void cancel(Long orderId) throws FacadeException;
-	
-	
+
+	/**
+	 * Cancels the order lines.
+	 */
+	void cancelLine(List<Long> lineIdList) throws FacadeException;
+
 	public LOSGoodsOutTO load(String number) throws FacadeException;
 	
 	public LOSGoodsOutTO getOrderInfo(Long orderId) throws FacadeException;

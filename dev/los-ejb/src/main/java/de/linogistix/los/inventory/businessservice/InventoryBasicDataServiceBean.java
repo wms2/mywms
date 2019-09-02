@@ -30,6 +30,8 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.util.Wms2Constants;
+import de.wms2.mywms.util.Wms2Properties;
 
 
 /**
@@ -72,8 +74,8 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_RECEIPT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescDEFAULT_GOODS_RECEIPT_LOCATION_NAME", locale), false);
 //		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.DEFAULT_GOODS_OUT_LOCATION_NAME, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescPDEFAULT_GOODS_OUT_LOCATION_NAME", locale), false, false);
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER, null, LOSCommonPropertyKey.PROPERTY_GROUP_CLIENT, resolve("PropertyDescGOODS_RECEIPT_PRINTER", locale), false);
-		propertyService.createSystemProperty(sys, null, LOSGoodsReceiptComponent.GR_LIMIT_AMOUNT_TO_NOTIFIED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGR_LIMIT_AMOUNT_TO_NOTIFIED", locale), false);
-		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_RENAME_UNITLOAD, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_RENAME_UNITLOAD", locale), false);
+		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescGR_LIMIT_AMOUNT_TO_NOTIFIED", locale), false);
+		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_SHIPPING_RENAME_UNITLOAD, "false", LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_RENAME_UNITLOAD", locale), false);
 		propertyService.createSystemProperty(sys, null, LOSInventoryPropertyKey.SHIPPING_LOCATION, null, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescSHIPPING_LOCATION", locale), false);
 
 		ItemUnit pce = unitService.getDefault();

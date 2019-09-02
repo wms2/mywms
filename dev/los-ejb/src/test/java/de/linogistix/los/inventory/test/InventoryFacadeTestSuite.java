@@ -11,7 +11,6 @@ package de.linogistix.los.inventory.test;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import de.linogistix.los.inventory.example.TopologyBeanTest;
-import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacadeBeanTest;
 import de.linogistix.los.inventory.facade.ManageInventoryFacadeBeanTest;
 import de.linogistix.los.inventory.facade.OrderFacadeBeanTest;
 import de.linogistix.los.inventory.facade.StorageFacadeBeanTest;
@@ -31,7 +30,6 @@ public class InventoryFacadeTestSuite extends TestSuite {
 		//$JUnit-BEGIN$
 		suite.addTestSuite(TopologyBeanTest.class);
 		suite.addTestSuite(ManageInventoryFacadeBeanTest.class);
-        suite.addTestSuite(LOSGoodsReceiptFacadeBeanTest.class);
         suite.addTestSuite(StorageFacadeBeanTest.class);
         suite.addTestSuite(OrderFacadeBeanTest.class);
 //        suite.addTestSuite(PickOrderFacadeBeanTest.class);
