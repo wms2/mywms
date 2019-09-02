@@ -19,11 +19,12 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSAdviceCRUDRemote;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.strategy.OrderState;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,9 +80,9 @@ public class BOLOSAdvice extends BO {
     }
 
     public BasicEntity initEntityTemplate() {
-        LOSAdvice c;
+        AdviceLine c;
 
-        c = new LOSAdvice();
+        c = new AdviceLine();
 
         return c;
 
@@ -138,7 +139,20 @@ public class BOLOSAdvice extends BO {
 
     @Override
     protected String[] initIdentifiableProperties() {
-        return new String[]{"adviceNumber"};
+        return new String[]{"lineNumber"};
+    }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(OrderState.CREATED);
+            entryList.add(OrderState.STARTED);
+            entryList.add(OrderState.FINISHED);
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
 
 }

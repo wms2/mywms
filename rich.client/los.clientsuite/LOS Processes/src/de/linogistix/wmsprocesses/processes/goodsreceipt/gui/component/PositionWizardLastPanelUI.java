@@ -31,17 +31,10 @@ public class PositionWizardLastPanelUI extends AbstractPositionWizardLastPanelUI
             getSameTextField().setText("" + model.sameCount);
             getSameTextField().setEnabled(true);
         }
-        
-        if (model.type != null ){
-            getTypeComboBox().setSelectedItem(new TypeEntry(model.type));
-        }
     }
 
     void implStoreSettings(Object settings) {
         //
     }
-    
-    JComboBox getTypeComboBox(){
-        return jComboBoxType;
-    }
+
 }

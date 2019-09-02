@@ -23,7 +23,9 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -36,6 +38,7 @@ import javax.inject.Inject;
 import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.mywms.model.BasicEntity;
 import org.mywms.model.Client;
 import org.mywms.model.User;
@@ -667,6 +670,47 @@ public class InventoryBusiness {
 	// ***********************************************************************
 	// Stock handling
 	// ***********************************************************************
+	public void checkCreateStockUnit(ItemData itemData, BigDecimal amount, Lot lot, String serialNumber)
+			throws BusinessException {
+		String logStr = "checkCreateStockUnit ";
+
+		if (lot == null && itemData.isLotMandatory()) {
+			logger.log(Level.INFO, logStr + "Missing Lot. product=" + itemData);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLot");
+		}
+
+		if (itemData.isLotMandatory() && lot.getBestBeforeEnd() != null) {
+			Integer shelflife = itemData.getShelflife();
+			if (shelflife != null) {
+				Date min = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), shelflife);
+				if (lot.getBestBeforeEnd().compareTo(min) < 0) {
+					logger.log(Level.WARNING, logStr + "Not enough shelflife. itemData=" + itemData + ", shelflife="
+							+ shelflife + ", min best-before=" + min + ", best-before=" + lot.getBestBeforeEnd());
+					throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidShelfLife",
+							new Object[] { shelflife });
+				}
+			}
+		}
+
+		if (amount == null) {
+			logger.log(Level.INFO, logStr + "no amount given");
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingAmount");
+		}
+
+		if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+			logger.log(Level.INFO, logStr + "zero or negative amount given");
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidAmount");
+		}
+
+		if (!StringUtils.isBlank(serialNumber)) {
+			if (stockService.exists(null, itemData, null, null, null, serialNumber)) {
+				logger.log(Level.INFO,
+						logStr + "Serial-No already exists. product=" + itemData + ", serial=" + serialNumber);
+				throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueSerial");
+			}
+		}
+	}
+
 	public StockUnit createStock(UnitLoad unitLoad, ItemData itemData, BigDecimal amount, Lot lot, String serialNumber,
 			PackagingUnit packagingUnit, int state, String activityCode, User operator, String note, boolean sendNotify)
 			throws BusinessException {

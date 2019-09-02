@@ -8,12 +8,7 @@
 package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder;
 
 import de.linogistix.common.gui.component.other.NumericDocument;
-import de.linogistix.inventory.browser.bo.BOStockUnit;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
-import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFormattedTextField;
 import org.openide.util.NbBundle;
 
@@ -30,47 +25,9 @@ public abstract class AbstractPositionWizardLastPanelUI extends javax.swing.JPan
 
         sameLabel.setText(
                 NbBundle.getMessage(WMSProcessesBundleResolver.class, "GoodsreceiptCenterPanel.sameLabels")); // NOI18N
-
-        typeLabel.setText(
-                NbBundle.getMessage(WMSProcessesBundleResolver.class, "GoodsreceiptCenterPanel.receiptType")); // NOI18N
     }
 
     private void postInit() {
-    }
-
-    protected ComboBoxModel initComboBoxTypeModel() {
-        DefaultComboBoxModel m = new DefaultComboBoxModel();
-        for (LOSGoodsReceiptType t : LOSGoodsReceiptType.values()) {
-            m.addElement(new TypeEntry(t));
-        }
-        return m;
-    }
-
-    public static final class TypeEntry {
-
-        public LOSGoodsReceiptType type;
-
-        public TypeEntry(LOSGoodsReceiptType type) {
-            this.type = type;
-        }
-
-        @Override
-        public String toString() {
-            return NbBundle.getMessage(de.linogistix.common.res.CommonBundleResolver.class, type.toString());
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) return false;
-            if (! (obj instanceof TypeEntry)) return false;
-            if(this == obj) return true;
-            if (this.type == ((TypeEntry)obj).type) return true;
-            else return false;
-            
-            
-        }
-        
-        
     }
 
     public void clear() {
@@ -90,8 +47,6 @@ public abstract class AbstractPositionWizardLastPanelUI extends javax.swing.JPan
         sameFormattedTextField1 = new javax.swing.JFormattedTextField();
         sameFormattedTextField1.setDocument(new NumericDocument());
         sameLabel = new javax.swing.JLabel();
-        typeLabel = new javax.swing.JLabel();
-        jComboBoxType = new javax.swing.JComboBox();
 
         setPreferredSize(new java.awt.Dimension(250, 110));
         setLayout(new java.awt.GridBagLayout());
@@ -120,24 +75,6 @@ public abstract class AbstractPositionWizardLastPanelUI extends javax.swing.JPan
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         add(sameLabel, gridBagConstraints);
-
-        typeLabel.setText("Receipt type"); // NOI18N
-        typeLabel.setMaximumSize(new java.awt.Dimension(2147483647, 2147483647));
-        typeLabel.setMinimumSize(new java.awt.Dimension(61, 22));
-        typeLabel.setPreferredSize(new java.awt.Dimension(61, 22));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
-        add(typeLabel, gridBagConstraints);
-
-        jComboBoxType.setModel(initComboBoxTypeModel());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
-        add(jComboBoxType, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
 private void sameFormattedTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sameFormattedTextField1ActionPerformed
@@ -145,10 +82,8 @@ private void sameFormattedTextField1ActionPerformed(java.awt.event.ActionEvent e
 }//GEN-LAST:event_sameFormattedTextField1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JLabel infoLabel;
-    protected javax.swing.JComboBox jComboBoxType;
     protected javax.swing.JFormattedTextField sameFormattedTextField1;
     private javax.swing.JLabel sameLabel;
-    private javax.swing.JLabel typeLabel;
     // End of variables declaration//GEN-END:variables
 
     public JFormattedTextField getSameTextField(){

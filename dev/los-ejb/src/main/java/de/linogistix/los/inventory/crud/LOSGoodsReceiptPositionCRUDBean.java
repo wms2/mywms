@@ -17,8 +17,8 @@ import javax.ejb.Stateless;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.service.LOSGoodsReceiptPositionService;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 
 
 
@@ -27,13 +27,13 @@ import de.linogistix.los.inventory.service.LOSGoodsReceiptPositionService;
  *
  */
 @Stateless
-public class LOSGoodsReceiptPositionCRUDBean extends BusinessObjectCRUDBean<LOSGoodsReceiptPosition> implements LOSGoodsReceiptPositionCRUDRemote{
+public class LOSGoodsReceiptPositionCRUDBean extends BusinessObjectCRUDBean<GoodsReceiptLine> implements LOSGoodsReceiptPositionCRUDRemote{
 
 	@EJB 
 	LOSGoodsReceiptPositionService service;
 
     @Override
-    protected BasicService<LOSGoodsReceiptPosition> getBasicService() {
+    protected BasicService<GoodsReceiptLine> getBasicService() {
         return service;
     }
 	

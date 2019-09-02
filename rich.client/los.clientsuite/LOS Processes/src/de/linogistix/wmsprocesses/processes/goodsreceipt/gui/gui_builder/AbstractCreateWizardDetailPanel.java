@@ -7,6 +7,7 @@
  */
 package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder;
 
+import de.linogistix.common.gui.component.controls.LOSComboBox;
 import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 
@@ -32,6 +33,7 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         goodsReceiptPanel = new javax.swing.JPanel();
+        orderTypeField = new LOSComboBox();
         clientComboBoxPanel = new javax.swing.JPanel();
         delivererTextfield = new javax.swing.JTextField();
         delivererLabel = new javax.swing.JLabel();
@@ -39,11 +41,19 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         externNumberTextfield = new javax.swing.JTextField();
         datePanel = new LOSDateFormattedTextField();
         gateComboBox = new de.linogistix.common.gui.component.controls.LOSComboBox();
+        senderField = new javax.swing.JTextField();
+        senderLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.BorderLayout());
 
-        goodsReceiptPanel.setBorder(null);
         goodsReceiptPanel.setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        goodsReceiptPanel.add(orderTypeField, gridBagConstraints);
 
         clientComboBoxPanel.setLayout(new java.awt.BorderLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -56,7 +66,7 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         delivererTextfield.setColumns(12);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         goodsReceiptPanel.add(delivererTextfield, gridBagConstraints);
 
@@ -65,7 +75,7 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         delivererLabel.setMaximumSize(new java.awt.Dimension(150, 14));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         goodsReceiptPanel.add(delivererLabel, gridBagConstraints);
@@ -73,7 +83,7 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         externNumberLabel.setText(org.openide.util.NbBundle.getMessage(WMSProcessesBundleResolver.class, "AbstractCenterPanel.externNumberLabel.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         goodsReceiptPanel.add(externNumberLabel, gridBagConstraints);
@@ -81,12 +91,12 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         externNumberTextfield.setColumns(12);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         goodsReceiptPanel.add(externNumberTextfield, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
@@ -95,10 +105,25 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
         gateComboBox.setTitle("Gate");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         goodsReceiptPanel.add(gateComboBox, gridBagConstraints);
+
+        senderField.setColumns(12);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        goodsReceiptPanel.add(senderField, gridBagConstraints);
+
+        senderLabel.setText("Sender");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        goodsReceiptPanel.add(senderLabel, gridBagConstraints);
 
         add(goodsReceiptPanel, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
@@ -113,6 +138,12 @@ public class AbstractCreateWizardDetailPanel extends javax.swing.JPanel {
     protected javax.swing.JTextField externNumberTextfield;
     protected de.linogistix.common.gui.component.controls.LOSComboBox gateComboBox;
     private javax.swing.JPanel goodsReceiptPanel;
+    private javax.swing.JPanel orderTypeField;
+    protected javax.swing.JTextField senderField;
+    private javax.swing.JLabel senderLabel;
     // End of variables declaration//GEN-END:variables
 
+    public LOSComboBox getOrderTypeField(){
+        return (LOSComboBox) orderTypeField;
+    }
 }

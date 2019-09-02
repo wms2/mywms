@@ -13,8 +13,6 @@ import javax.ejb.Local;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.wms2.mywms.inventory.UnitLoadType;
 
 /**
@@ -25,17 +23,8 @@ import de.wms2.mywms.inventory.UnitLoadType;
 public interface InventoryGeneratorService {
      
     
-    /**
-     * Generates a unique number for a {@link LOSGoodsReceipt}
-     * @param c the Client 
-     */
     public String generateGoodsReceiptNumber(Client c);
     
-    /**
-     * Generates a unique number for a {@link LOSAdvice}
-     * @param c
-     * @return
-     */
     public String generateAdviceNumber(Client c);
     
     public String generateUnitLoadAdviceNumber(Client c);

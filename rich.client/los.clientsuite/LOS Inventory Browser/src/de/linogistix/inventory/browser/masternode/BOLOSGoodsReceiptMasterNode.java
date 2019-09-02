@@ -45,7 +45,7 @@ public class BOLOSGoodsReceiptMasterNode extends BOMasterNode {
             sheet.put(deliveryNoteNumber);
             BOMasterNodeProperty<Date> receiptDate = new BOMasterNodeProperty<Date>("receiptDate", Date.class, to.getReceiptDate(), CommonBundleResolver.class);
             sheet.put(receiptDate);
-            BOMasterNodeProperty<String> receiptState = new BOMasterNodeProperty<String>("receiptState",String.class, "LOSGoodsReceiptState." + to.getReceiptState(), CommonBundleResolver.class, true);
+            BOMasterNodeProperty<String> receiptState = new BOMasterNodeProperty<String>("state",String.class, "state." + to.getState(), CommonBundleResolver.class, true);
             sheet.put(receiptState);
         }
         return new PropertySet[]{sheet};
@@ -59,7 +59,7 @@ public class BOLOSGoodsReceiptMasterNode extends BOMasterNode {
             
             BOMasterNodeProperty<Date> receiptDate = new BOMasterNodeProperty<Date>("receiptDate", Date.class, new Date(), CommonBundleResolver.class);
             
-            BOMasterNodeProperty<String> receiptState = new BOMasterNodeProperty<String>("receiptState",String.class, "", CommonBundleResolver.class);
+            BOMasterNodeProperty<String> receiptState = new BOMasterNodeProperty<String>("state",String.class, "", CommonBundleResolver.class);
             
         BOMasterNodeProperty[] props = new BOMasterNodeProperty[]{
             clientNumber, deliveryNoteNumber, receiptDate, receiptState

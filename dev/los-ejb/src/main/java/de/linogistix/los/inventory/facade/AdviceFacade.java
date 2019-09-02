@@ -10,14 +10,15 @@ package de.linogistix.los.inventory.facade;
 import javax.ejb.Remote;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.exception.BusinessException;
 
 @Remote
 public interface AdviceFacade {
 
-    public void removeAdvise(BODTO<LOSAdvice> adv) throws InventoryException;
+    public void removeAdvise(BODTO<AdviceLine> adv) throws BusinessException;
     
-    public void finishAdvise(BODTO<LOSAdvice> adv) throws InventoryException;
+    public void finishAdvise(BODTO<AdviceLine> adv) throws InventoryException, BusinessException;
     
 }

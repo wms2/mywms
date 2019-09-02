@@ -9,9 +9,9 @@ package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 
 import de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSTextField;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardSUPanelUI;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
@@ -37,7 +37,7 @@ public class PositionWizardSUPanelUI extends AbstractPositionWizardSUPanelUI
     private LOSTextField itemDataField = null;
 
     private JLabel itemDataNameLabel = new JLabel();
-    private LOSGoodsReceipt gr;
+    private GoodsReceipt gr;
 
     public PositionWizardSUPanelUI(PropertyChangeListener delegateTo) {
         super();
@@ -259,7 +259,7 @@ public class PositionWizardSUPanelUI extends AbstractPositionWizardSUPanelUI
         // if an advice is selected, init from advice
         if (wm.selectedAdvice != null) {
 
-            adviceField.setText(wm.selectedAdvice.getAdviceNumber());
+            adviceField.setText(wm.selectedAdvice.getLineNumber());
 
             ItemData item = wm.selectedAdvice.getItemData();
 
@@ -291,7 +291,7 @@ public class PositionWizardSUPanelUI extends AbstractPositionWizardSUPanelUI
         }
     }
 
-    void setGoodsREceipt(LOSGoodsReceipt gr) {
+    void setGoodsREceipt(GoodsReceipt gr) {
         if (this.gr == null) {
             this.gr = gr;
             postInit();

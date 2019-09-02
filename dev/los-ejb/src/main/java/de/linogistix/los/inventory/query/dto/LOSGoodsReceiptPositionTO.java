@@ -10,17 +10,16 @@ package de.linogistix.los.inventory.query.dto;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 
-public class LOSGoodsReceiptPositionTO extends BODTO<LOSGoodsReceiptPosition> {
+public class LOSGoodsReceiptPositionTO extends BODTO<GoodsReceiptLine> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	public String orderReference;
+
 	public BigDecimal amount;
 	public String itemData;
 	public String lot;
@@ -28,46 +27,24 @@ public class LOSGoodsReceiptPositionTO extends BODTO<LOSGoodsReceiptPosition> {
 	public int qaLock;
 	public String unitLoad;
 	public Date created;
-	
-	public LOSGoodsReceiptPositionTO(LOSGoodsReceiptPosition x)	{
-		this(x.getId(), x.getVersion(), x.getPositionNumber(), x.getOrderReference(), x.getAmount(), x.getItemData(), x.getLot(), x.getScale(), x.getOperator()==null?null:x.getOperator().getName(), x.getQaLock(), x.getUnitLoad(), x.getCreated());
+
+	public LOSGoodsReceiptPositionTO(GoodsReceiptLine x) {
+		this(x.getId(), x.getVersion(), x.getLineNumber(), x.getAmount(),
+				x.getItemData() == null ? null : x.getItemData().getNumber(), x.getLotNumber(),
+				x.getOperator() == null ? null : x.getOperator().getName(), x.getLockType(), x.getUnitLoadLabel(),
+				x.getCreated());
 	}
-	
-	public LOSGoodsReceiptPositionTO(Long id, int version, 
-					String positionNumber,
-					String orderReference,
-					BigDecimal amount,
-					String itemData, 
-					String lot,
-					int scale,
-					String operatorName,
-					int qaLock,
-					String unitLoad,
-					Date created) 
-	{
+
+	public LOSGoodsReceiptPositionTO(Long id, int version, String positionNumber, BigDecimal amount, String itemData,
+			String lot, String operatorName, int qaLock, String unitLoad, Date created) {
 		super(id, version, positionNumber);
-		this.orderReference = orderReference;
 		this.amount = amount;
 		this.itemData = itemData;
 		this.lot = lot;
-		try {
-			this.amount = amount.setScale(scale);
-		}
-		catch( Throwable t ) {
-			this.amount = amount;
-		}
 		this.operatorName = operatorName;
 		this.qaLock = qaLock;
 		this.unitLoad = unitLoad;
 		this.created = created;
-	}
-
-	public String getOrderReference() {
-		return orderReference;
-	}
-
-	public void setOrderReference(String orderReference) {
-		this.orderReference = orderReference;
 	}
 
 	public BigDecimal getAmount() {

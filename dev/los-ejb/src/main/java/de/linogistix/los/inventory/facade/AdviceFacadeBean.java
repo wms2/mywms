@@ -7,69 +7,63 @@
  */
 package de.linogistix.los.inventory.facade;
 
-import java.util.Date;
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 
-import de.linogistix.los.inventory.businessservice.LOSAdviceBusiness;
-import de.linogistix.los.inventory.businessservice.LOSGoodsReceiptComponent;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSAdviceState;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
-import de.linogistix.los.inventory.service.LOSGoodsReceiptService;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.advice.AdviceBusiness;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptBusiness;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptEntityService;
+import de.wms2.mywms.strategy.OrderState;
 
 @Stateless
 public class AdviceFacadeBean implements AdviceFacade {
 	Logger log = Logger.getLogger(AdviceFacadeBean.class);
 
-	@EJB
-	private LOSAdviceBusiness adviceBusiness;
-	
-	@EJB
-	private LOSGoodsReceiptComponent grComponent;
-	
-	@EJB
-	private LOSGoodsReceiptService grService;
-	
+	@Inject
+	private GoodsReceiptEntityService goodsReceiptService;
+	@Inject
+	private GoodsReceiptBusiness goodsReceiptBusiness;
+	@Inject
+	private AdviceBusiness adviceBusiness;
+
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
-	
-	public void removeAdvise(BODTO<LOSAdvice> adv) throws InventoryException {
+
+	public void removeAdvise(BODTO<AdviceLine> adv) throws BusinessException {
 		log.debug("removeAdvise Start advId=" + adv.getId());
-		LOSAdvice adv2 = manager.find(LOSAdvice.class, adv.getId());
-		
-		
-		// Find GoodsReceipts with this advice
-		List<LOSGoodsReceipt> grList = grService.getByAdvice(adv2);
-		for( LOSGoodsReceipt gr : grList ) {
-			grComponent.removeAssignedAdvice(adv2, gr);
+		AdviceLine adv2 = manager.find(AdviceLine.class, adv.getId());
+
+		List<GoodsReceipt> goodsReceipts = goodsReceiptService.readByAdviceLine(adv2);
+		for (GoodsReceipt goodsReceipt : goodsReceipts) {
+			goodsReceiptBusiness.removeAssignedAdviceLine(goodsReceipt, adv2);
 		}
-		adviceBusiness.removeAdvise(adv2.getClient(), adv2);
+		adviceBusiness.removeOrder(adv2.getAdvice());
 	}
 
-	public void finishAdvise(BODTO<LOSAdvice> adv) throws InventoryException {
+	public void finishAdvise(BODTO<AdviceLine> adv) throws InventoryException, BusinessException {
 		log.debug("finishAdvise Start advId=" + adv.getId());
-		LOSAdvice adv2 = manager.find(LOSAdvice.class, adv.getId());
-		
-		// Find GoodsReceipts with this advice
-		List<LOSGoodsReceipt> grList = grService.getByAdvice(adv2);
-		for( LOSGoodsReceipt gr : grList ) {
-			if( gr.getReceiptState() != LOSGoodsReceiptState.CANCELED &&  gr.getReceiptState() != LOSGoodsReceiptState.FINISHED ) {
-				throw new InventoryException(InventoryExceptionKey.GOODS_RECEIPT_NOT_FINISHED, gr.getGoodsReceiptNumber());
+		AdviceLine adv2 = manager.find(AdviceLine.class, adv.getId());
+
+		List<GoodsReceipt> goodsReceipts = goodsReceiptService.readByAdviceLine(adv2);
+		for (GoodsReceipt goodsReceipt : goodsReceipts) {
+			if (goodsReceipt.getState() < OrderState.FINISHED) {
+				throw new InventoryException(InventoryExceptionKey.GOODS_RECEIPT_NOT_FINISHED,
+						goodsReceipt.getOrderNumber());
 			}
 		}
-		adv2.setAdviceState(LOSAdviceState.FINISHED);
-		adv2.setFinishDate(new Date());
+		adv2.setState(OrderState.FINISHED);
 	}
-	
+
 }

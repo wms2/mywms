@@ -20,17 +20,16 @@ import org.mywms.model.Client;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.product.ItemDataNumber;
 
 @Stateless
 public class QueryGoodsReceiptServiceBean 
-		implements QueryGoodsReceiptService, QueryGoodsReceiptServiceRemote 
+		implements QueryGoodsReceiptServiceRemote 
 {
 
 	@EJB
@@ -41,37 +40,12 @@ public class QueryGoodsReceiptServiceBean
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.linogistix.los.inventory.service.QueryGoodsReceiptService#getById(long)
-	 */
-	public LOSGoodsReceipt getById(long id) throws UnAuthorizedException, EntityNotFoundException {
-
-        LOSGoodsReceipt gr = manager.find(LOSGoodsReceipt.class, id);
-        
-        if(gr == null){
-        	throw new EntityNotFoundException(
-                    ServiceExceptionKey.NO_ENTITY_WITH_ID);
-            
-        }
-        
-        Client callersClient = ctxService.getCallersClient();
-        
-        if (!callersClient.isSystemClient() 
-        	&& !gr.getClient().equals(callersClient))
-        {
-        	throw new UnAuthorizedException();
-        }
-                
-        return gr;
-    }
-	
-	/*
-	 * (non-Javadoc)
 	 * @see de.linogistix.los.inventory.service.QueryGoodsReceiptService#fetchEager(long)
 	 */
 	@SuppressWarnings("unused")
-	public LOSGoodsReceipt fetchEager(long id) throws UnAuthorizedException, EntityNotFoundException {
+	public GoodsReceipt fetchEager(long id) throws UnAuthorizedException, EntityNotFoundException {
 
-        LOSGoodsReceipt gr = manager.find(LOSGoodsReceipt.class, id);
+		GoodsReceipt gr = manager.find(GoodsReceipt.class, id);
         
         if(gr == null){
         	throw new EntityNotFoundException(
@@ -88,101 +62,35 @@ public class QueryGoodsReceiptServiceBean
         }
         
         // undo lazy initialization
-        for(LOSGoodsReceiptPosition p:gr.getPositionList());
+        for(GoodsReceiptLine p:gr.getLines());
         
-        for(LOSAdvice ad:gr.getAssignedAdvices());
+        for(AdviceLine ad:gr.getAdviceLines());
         
         gr.getClient().getName();
         
         return gr;
     }
-	
-	/*
-	 * (non-Javadoc)
-	 * @see de.linogistix.los.inventory.service.QueryGoodsReceiptService#getListByStates(de.linogistix.los.inventory.model.LOSGoodsReceiptState[])
-	 */
-	@SuppressWarnings("unchecked")
-	public List<LOSGoodsReceipt> getListByStates(LOSGoodsReceiptState... states) {
-		
-		Client callersClient = ctxService.getCallersClient();
-		
-		StringBuffer qstr = new StringBuffer();
-        qstr.append("SELECT gr FROM ");
-        qstr.append(LOSGoodsReceipt.class.getSimpleName()+" gr ");
-        
-        String conj = "WHERE ";
-        
-        if(states.length>0){
-			qstr.append(conj+"( gr.receiptState=:s0 ");
-			conj = "AND ";
-		}
-		
-		for(int i=1;i<states.length;i++){
-			qstr.append(" OR gr.receiptState=:s"+i);
-		}
-		
-		if(states.length>0){
-			qstr.append(" )");
-		}
-		
-		if (!callersClient.isSystemClient()) {
-            qstr.append(conj+"gr.client = :cl ");
-        }
-		
-		Query query = manager.createQuery(qstr.toString());
-        
-		int y = 0;
-		for(LOSGoodsReceiptState s:states){
-			query.setParameter("s"+y, s);
-			y++;
-		}
-		
-		if (!callersClient.isSystemClient()) {
-        	query.setParameter("cl", callersClient);
-        }
-		
-		return query.getResultList();
-	}
 
 	@SuppressWarnings("unchecked")
-	public List<GoodsReceiptTO> getDtoListByStates(LOSGoodsReceiptState... states) {
+	public List<GoodsReceiptTO> getDtoListByStates(int minState, int maxState) {
 		
 		Client callersClient = ctxService.getCallersClient();
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT new de.linogistix.los.inventory.service.dto.GoodsReceiptTO(");
-        qstr.append("gr.id, gr.goodsReceiptNumber, gr.forwarder, gr.deliveryNoteNumber) ");
-        qstr.append("FROM "+LOSGoodsReceipt.class.getSimpleName()+" gr ");
-        
-        String conj = "WHERE ";
-        
-        if(states.length>0){
-			qstr.append(conj+"( gr.receiptState=:s0 ");
-			conj = "AND ";
-		}
-		
-		for(int i=1;i<states.length;i++){
-			qstr.append(" OR gr.receiptState=:s"+i);
-		}
-		
-		if(states.length>0){
-			qstr.append(" )");
-		}
+        qstr.append("gr.id, gr.orderNumber, gr.carrierName, gr.deliveryNoteNumber) ");
+        qstr.append("FROM "+GoodsReceipt.class.getSimpleName()+" gr ");
+        qstr.append("WHERE gr.state>=:minState and gr.state<=:maxState");
 		
 		if (!callersClient.isSystemClient()) {
-            qstr.append(conj+"gr.client = :cl ");
+            qstr.append(" and gr.client = :cl ");
         }
 		
-		qstr.append(" ORDER BY gr.goodsReceiptNumber");
+		qstr.append(" ORDER BY gr.orderNumber");
 		
 		Query query = manager.createQuery(qstr.toString());
-        
-		int y = 0;
-		for(LOSGoodsReceiptState s:states){
-			query.setParameter("s"+y, s);
-			y++;
-		}
-		
+		query.setParameter("minState", minState);
+		query.setParameter("maxState", maxState);
 		if (!callersClient.isSystemClient()) {
         	query.setParameter("cl", callersClient);
         }
@@ -191,52 +99,33 @@ public class QueryGoodsReceiptServiceBean
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<GoodsReceiptTO> getOpenDtoListByCode(String code, boolean limitAmountToNotified, LOSGoodsReceiptState... states) {
+	public List<GoodsReceiptTO> getOpenDtoListByCode(String code, boolean limitAmountToNotified, int minState, int maxState) {
 		Client callersClient = ctxService.getCallersClient();
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT distinct new de.linogistix.los.inventory.service.dto.GoodsReceiptTO(");
         qstr.append("gr.id, gr.goodsReceiptNumber, gr.forwarder, gr.deliveryNoteNumber) ");
-        qstr.append("FROM "+LOSGoodsReceipt.class.getSimpleName()+" gr ");
-        qstr.append(" join gr.assignedAdvices adv");
-        qstr.append(" WHERE ( gr.goodsReceiptNumber like :code or gr.deliveryNoteNumber like :code or adv.externalAdviceNumber like :code or adv.adviceNumber like :code or adv.itemData.number like :code or adv.itemData.id = ANY(");
+        qstr.append("FROM "+GoodsReceipt.class.getSimpleName()+" gr ");
+        qstr.append(" join gr.adviceLines adv");
+        qstr.append(" WHERE ( gr.orderNumber like :code or gr.deliveryNoteNumber like :code or adv.externalNumber like :code or adv.orderNumber like :code or adv.itemData.number like :code or adv.itemData.id = ANY(");
         qstr.append(" select idn.itemData.id from "+ItemDataNumber.class.getSimpleName()+" idn where idn.number like :code) ) ");
 
         if( limitAmountToNotified ) {
-        	qstr.append(" and adv.receiptAmount < adv.notifiedAmount ");
+        	qstr.append(" and adv.confirmedAmount < adv.Amount ");
         }
 
-        String conj = " and ";
-        
-        if(states.length>0){
-			qstr.append(conj+"( gr.receiptState=:s0 ");
-			conj = "AND ";
-		}
-		
-		for(int i=1;i<states.length;i++){
-			qstr.append(" OR gr.receiptState=:s"+i);
-		}
-		
-		if(states.length>0){
-			qstr.append(" )");
-		}
-		
+        qstr.append(" and gr.state>=:minState and gr.state<=:maxState");
+
 		if (!callersClient.isSystemClient()) {
-            qstr.append(conj+"gr.client = :cl ");
+            qstr.append(" and gr.client = :cl ");
         }
-		
-		qstr.append(" ORDER BY gr.goodsReceiptNumber");
+
+		qstr.append(" ORDER BY gr.orderNumber");
 		
 		Query query = manager.createQuery(qstr.toString());
-        
-		int y = 0;
-		for(LOSGoodsReceiptState s:states){
-			query.setParameter("s"+y, s);
-			y++;
-		}
-		
+		query.setParameter("minState", minState);
+		query.setParameter("maxState", maxState);
 		query.setParameter("code", code);
-		
 		if (!callersClient.isSystemClient()) {
         	query.setParameter("cl", callersClient);
         }

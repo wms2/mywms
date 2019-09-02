@@ -10,10 +10,10 @@ package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 import de.linogistix.common.bobrowser.bo.BOEntityNode;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.browser.masternode.BOLOSAdviceMasterNode;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import java.beans.IntrospectionException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +32,7 @@ class GoodsReceiptNode extends AbstractNode {
 
     GoodsReceiptNodeChildren children;
 
-    public GoodsReceiptNode(LOSGoodsReceipt r) throws IntrospectionException {
+    public GoodsReceiptNode(GoodsReceipt r) throws IntrospectionException {
         super(new GoodsReceiptNodeChildren(r));
         children = (GoodsReceiptNodeChildren) getChildren();
     }
@@ -63,31 +63,30 @@ class GoodsReceiptNode extends AbstractNode {
         return (AssignedAdvicesRoot) nodes[1];
     }
 
-    LOSGoodsReceipt getGoodsReceipt() {
+    GoodsReceipt getGoodsReceipt() {
         return this.children.r;
     }
 
-    static class GoodsReceiptNodeChildren extends Children.Keys<LOSGoodsReceipt> {
+    static class GoodsReceiptNodeChildren extends Children.Keys<GoodsReceipt> {
 
-        LOSGoodsReceipt r;
+        GoodsReceipt r;
 
-        GoodsReceiptNodeChildren(LOSGoodsReceipt r) {
+        GoodsReceiptNodeChildren(GoodsReceipt r) {
             this.r = r;
         }
 
         @Override
-        protected Node[] createNodes(LOSGoodsReceipt arg0) {
+        protected Node[] createNodes(GoodsReceipt arg0) {
             try {
                 BOEntityNode entityNode = new BOEntityNode(arg0);
 
                 List<LOSAdviceTO> l = new ArrayList<LOSAdviceTO>();
-                for (LOSAdvice adv : arg0.getAssignedAdvices()) {
+                for (AdviceLine adv : arg0.getAdviceLines()) {
                     LOSAdviceTO to = new LOSAdviceTO(adv);
                     l.add(to);
                 }
                 AssignedAdvicesRoot adviceRoot = new AssignedAdvicesRoot(l);
-
-                List<LOSGoodsReceiptPosition> posList = arg0.getPositionList();
+                List<GoodsReceiptLine> posList = arg0.getLines();
                 Collections.sort(posList, new GoodsReceiptPositionComparator());
                 PositionsRoot posRoot = new PositionsRoot(posList);
 
@@ -176,12 +175,12 @@ class GoodsReceiptNode extends AbstractNode {
 
         PositionsChildren children;
 
-        public PositionsRoot(List<LOSGoodsReceiptPosition> positions) {
+        public PositionsRoot(List<GoodsReceiptLine> positions) {
             super(new PositionsChildren(positions));
             children = (PositionsChildren) getChildren();
         }
 
-        public void addPosition(LOSGoodsReceiptPosition pos) {
+        public void addPosition(GoodsReceiptLine pos) {
             if (children.positions.contains(pos)) {
                 //
             } else {
@@ -191,7 +190,7 @@ class GoodsReceiptNode extends AbstractNode {
             }
         }
 
-        public void removePosition(LOSGoodsReceiptPosition pos) {
+        public void removePosition(GoodsReceiptLine pos) {
             if (children.positions.contains(pos)) {
                 //
             } else {
@@ -201,17 +200,17 @@ class GoodsReceiptNode extends AbstractNode {
         }
     }
 
-    static class PositionsChildren extends Children.Keys<LOSGoodsReceiptPosition> {
+    static class PositionsChildren extends Children.Keys<GoodsReceiptLine> {
 
-        List<LOSGoodsReceiptPosition> positions;
+        List<GoodsReceiptLine> positions;
 
-        public PositionsChildren(List<LOSGoodsReceiptPosition> positions) {
+        public PositionsChildren(List<GoodsReceiptLine> positions) {
             this.positions = positions;
             
         }
 
         @Override
-        protected Node[] createNodes(LOSGoodsReceiptPosition pos) {
+        protected Node[] createNodes(GoodsReceiptLine pos) {
 
             GoodsReceiptPositiontNode m = new GoodsReceiptPositiontNode(pos, null);
             return new Node[]{m};
@@ -232,18 +231,18 @@ class GoodsReceiptNode extends AbstractNode {
         }
     }
     
-    private static class GoodsReceiptPositionComparator implements Comparator<LOSGoodsReceiptPosition> {
+    private static class GoodsReceiptPositionComparator implements Comparator<GoodsReceiptLine> {
 
-        public int compare(LOSGoodsReceiptPosition pos1, LOSGoodsReceiptPosition pos2) {
+        public int compare(GoodsReceiptLine pos1, GoodsReceiptLine pos2) {
 
-            if(pos1.getPositionNumber().length() < pos2.getPositionNumber().length()){
+            if(pos1.getLineNumber().length() < pos2.getLineNumber().length()){
                 return -1;
             }
-            else if(pos1.getPositionNumber().length() > pos2.getPositionNumber().length()){
+            else if(pos1.getLineNumber().length() > pos2.getLineNumber().length()){
                 return 1;
             }
             else {
-                return pos1.getPositionNumber().compareTo(pos2.getPositionNumber());
+                return pos1.getLineNumber().compareTo(pos2.getLineNumber());
             }
 
         }

@@ -28,6 +28,7 @@ import de.linogistix.los.inventory.model.StockUnitLabel;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.document.DocumentType;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.report.ReportBusiness;
@@ -59,7 +60,7 @@ public class LOSStockUnitLabelReportBean implements LOSStockUnitLabelReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public Document generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException {
+	public Document generateStockUnitLabel(UnitLoad unitLoad) throws BusinessException {
 		String logStr = "generateStockUnitLabel ";
 		StockUnitLabel label = null;
 		

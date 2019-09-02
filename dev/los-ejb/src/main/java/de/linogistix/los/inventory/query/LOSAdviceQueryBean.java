@@ -15,44 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
-import javax.persistence.Query;
 
-import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSAdviceState;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
-import de.linogistix.los.query.OrderByToken;
 import de.linogistix.los.query.QueryDetail;
-import de.linogistix.los.query.TemplateQuery;
 import de.linogistix.los.query.TemplateQueryWhereToken;
-import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
-import de.linogistix.los.query.exception.BusinessObjectQueryException;
-import de.linogistix.los.runtime.BusinessObjectSecurityException;
-import de.linogistix.los.util.BusinessObjectHelper;
+import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.OrderState;
 
 /**
  * 
  * @author <a href"
  */
 @Stateless
-public class LOSAdviceQueryBean extends BusinessObjectQueryBean<LOSAdvice>
+public class LOSAdviceQueryBean extends BusinessObjectQueryBean<AdviceLine>
 		implements LOSAdviceQueryRemote {
-	
-	private static final Logger log = Logger.getLogger(LOSAdviceQueryBean.class);
 	
 	@Override
 	public String getUniqueNameProp() {
-		return "adviceNumber";
+		return "lineNumber";
 	}
 
 	@Override
@@ -71,35 +59,22 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<LOSAdvice>
 		
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("adviceNumber", false));
-		propList.add(new BODTOConstructorProperty("client.number", false));
-		propList.add(new BODTOConstructorProperty("adviceState", false));
-		propList.add(new BODTOConstructorProperty("receiptAmount", false));
-		propList.add(new BODTOConstructorProperty("notifiedAmount", false));
+		propList.add(new BODTOConstructorProperty("lineNumber", false));
+		propList.add(new BODTOConstructorProperty("state", false));
+		propList.add(new BODTOConstructorProperty("amount", false));
+		propList.add(new BODTOConstructorProperty("confirmedAmount", false));
 
 		propList.add(new BODTOConstructorProperty("itemData.number", false));
 		propList.add(new BODTOConstructorProperty("itemData.name", false));
 		propList.add(new BODTOConstructorProperty("itemData.scale", false));
-		propList.add(new BODTOConstructorProperty("lot.name", null, BODTOConstructorProperty.JoinType.LEFT, "lot"));
-		propList.add(new BODTOConstructorProperty("expectedDelivery", false));
+		propList.add(new BODTOConstructorProperty("lotNumber", false));
+		propList.add(new BODTOConstructorProperty("advice.client.number", false));
+		propList.add(new BODTOConstructorProperty("advice.deliveryDate", false));
 		
 		return propList;
 	}
 
-	public List<BODTO<LOSAdvice>>  queryGoodsToCome(QueryDetail qd) throws BusinessObjectNotFoundException, BusinessObjectQueryException{
-		TemplateQuery q;
-
-		q = new TemplateQuery();
-		q.addWhereToken(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "", LOSAdviceState.FINISHED));
-		q.addWhereToken(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "", LOSAdviceState.OVERLOAD));
-		
-		return queryByTemplateHandles(qd, q);
-
-		
-		
-	}
-
-	public LOSResultList<BODTO<LOSAdvice>> autoCompletionByClientLotItemdata(
+	public LOSResultList<BODTO<AdviceLine>> autoCompletionByClientLotItemdata(
                                                                 String exp,
 								BODTO<Client> client, 
 								BODTO<ItemData> item, 
@@ -146,87 +121,27 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<LOSAdvice>
 		itemName.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(itemName);
 		
-		TemplateQueryWhereToken clientNumber = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "client.number",
-				value);
-		clientNumber.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		ret.add(clientNumber);
-		
 		TemplateQueryWhereToken lot = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "lot.name",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lotNumber",
 				value);
 		lot.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(lot);
 		
 		TemplateQueryWhereToken reqid = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "adviceNumber",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lineNumber",
 				value);
 		reqid.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(reqid);
 
 		TemplateQueryWhereToken extNo = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "externalAdviceNumber",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "externalNumber",
 				value);
 		extNo.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(extNo);
 		
-		TemplateQueryWhereToken extId = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "externalId",
-				value);
-		extId.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		ret.add(extId);
-		
 		return ret;
 	}
 
-	@SuppressWarnings("unchecked")
-	public LOSResultList<BODTO<LOSAdvice>> queryByAssingigGoodsReceipt(BODTO<LOSGoodsReceipt> gr, QueryDetail detail) {
-		LOSGoodsReceipt goodsReceipt = manager.find(LOSGoodsReceipt.class, gr.getId());
-		
-		StringBuffer s= new StringBuffer();
-		s.append("SELECT new ");
-		s.append(LOSAdviceTO.class.getName());
-		s.append("(");
-		s.append("adv");
-		s.append(")");
-		s.append(" FROM ");
-		s.append(LOSAdvice.class.getSimpleName());
-		s.append(" adv, ");
-		s.append(LOSGoodsReceipt.class.getSimpleName());
-		s.append(" gr ");
-		s.append(" WHERE ");
-		s.append(" adv in elements(gr.assignedAdvices) ");
-		s.append(" AND gr = :gr ");
-		int i=0;
-		if (detail.getOrderBy() != null){
-			for (OrderByToken tok : detail.getOrderBy()){
-				if (i==0) {
-					s.append(" ORDER BY ");
-					s.append(tok.getAttribute() + " " + (tok.isAscending()?"ASC":"DESC"));
-				} else{
-					s.append(" AND " + tok.getAttribute() + " " + (tok.isAscending()?"ASC":"DESC"));
-				}
-				i++;
-			}
-		}
-		String st = s.toString();
-		
-		log.info(st);
-		
-		Query query = manager.createQuery(st);
-		query.setParameter("gr", goodsReceipt);
-		query.setMaxResults(detail.getMaxResults());
-		query.setFirstResult(detail.getStartResultIndex());
-		
-		List<BODTO<LOSAdvice>> ret = query.getResultList();
-
-		LOSResultList<BODTO<LOSAdvice>> lsoResultList = new LOSResultList<BODTO<LOSAdvice>>(ret);
-		lsoResultList.setResultSetSize(detail.getMaxResults());
-		lsoResultList.setStartResultIndex(detail.getStartResultIndex());
-		
-		return lsoResultList;
-	}
-	
     @Override
 	protected List<TemplateQueryWhereToken> getFilterTokens(String filterString) {
 
@@ -234,17 +149,8 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<LOSAdvice>
 		TemplateQueryWhereToken token;
 
 		if( "OPEN".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "adviceState", LOSAdviceState.RAW);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.FINISHED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("state1");
-			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "adviceState", LOSAdviceState.GOODS_TO_COME);
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("state2");
-			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "adviceState", LOSAdviceState.PROCESSING);
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("state3");
 			ret.add(token);
 		}
 		
@@ -255,19 +161,4 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<LOSAdvice>
 		return clientService.isSingleClient();
 	}
 	
-	
-	@Override
-	public LOSAdvice queryById(Long ID) throws BusinessObjectNotFoundException, BusinessObjectSecurityException {
-		LOSAdvice advice= super.queryById(ID);
-
-		for(LOSGoodsReceiptPosition receiptLine : advice.getGrPositionList()) {
-			BusinessObjectHelper.eagerRead(receiptLine);
-		}
-
-		List<LOSGoodsReceiptPosition> grPositionList = new ArrayList<>(advice.getGrPositionList().size());
-		grPositionList.addAll(advice.getGrPositionList());
-		advice.setGrPositionList(grPositionList);
-		
-		return advice;
-	}
 }

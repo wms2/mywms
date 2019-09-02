@@ -11,14 +11,14 @@
 
 package de.linogistix.los.inventory.crud;
 
-import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.service.LOSGoodsReceiptService;
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import org.mywms.service.BasicService;
+
+import de.linogistix.los.crud.BusinessObjectCRUDBean;
+import de.linogistix.los.inventory.service.LOSGoodsReceiptService;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 
 
 
@@ -27,13 +27,13 @@ import org.mywms.service.BasicService;
  *
  */
 @Stateless
-public class LOSGoodsReceiptCRUDBean extends BusinessObjectCRUDBean<LOSGoodsReceipt> implements LOSGoodsReceiptCRUDRemote {
+public class LOSGoodsReceiptCRUDBean extends BusinessObjectCRUDBean<GoodsReceipt> implements LOSGoodsReceiptCRUDRemote {
 
 	@EJB 
 	LOSGoodsReceiptService service;
 
     @Override
-    protected BasicService<LOSGoodsReceipt> getBasicService() {
+    protected BasicService<GoodsReceipt> getBasicService() {
         return service;
     }
 	

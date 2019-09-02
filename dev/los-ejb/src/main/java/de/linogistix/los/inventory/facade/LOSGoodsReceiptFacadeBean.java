@@ -15,9 +15,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
@@ -30,18 +28,10 @@ import org.mywms.service.EntityNotFoundException;
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
-import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.businessservice.LOSGoodsReceiptComponent;
 import de.linogistix.los.inventory.crud.StockUnitCRUDRemote;
-import de.linogistix.los.inventory.customization.ManageReceiptService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.exception.InventoryTransferException;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
@@ -55,18 +45,20 @@ import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.ClientQueryRemote;
-import de.linogistix.los.query.QueryDetail;
-import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
-import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.linogistix.los.report.ReportException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
-import de.linogistix.los.util.BusinessObjectHelper;
-import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.document.Document;
+import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptBusiness;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
@@ -79,6 +71,7 @@ import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
+import de.wms2.mywms.strategy.OrderState;
 
 @Stateless
 public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
@@ -121,11 +114,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private QueryClientService queryClientService;
 	@EJB
 	private LOSPrintService printService;
-	@EJB
-	private ManageReceiptService manageGrService;
 	
-    @PersistenceContext(unitName = "myWMS")
-    protected EntityManager manager;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
 	@Inject
@@ -136,16 +125,20 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private InventoryBusiness inventoryBusiness;
 	@Inject
 	private StockUnitEntityService stockUnitEntityService;
+	@Inject
+	private GoodsReceiptBusiness goodsReceiptBusiness;
+	@Inject
+	private LotEntityService lotEntityService;
+	@Inject
+	private PersistenceManager manager;
 
     //-----------------------------------------------------------------------
     // Query data for Process input to choose from
     //----------------------------------------------------------------------
-    public List<BODTO<Client>> getAllowedClients() throws BusinessObjectQueryException {
-        return clientQuery.queryAllHandles(new QueryDetail(0, Integer.MAX_VALUE, "name", true));
-    }
 
+	@Override
     public List<BODTO<StorageLocation>> getGoodsReceiptLocations() throws LOSLocationException {
-        List<StorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
+        List<StorageLocation> sls = locationService.getForGoodsIn(null);
         List<BODTO<StorageLocation>> ret = new ArrayList<BODTO<StorageLocation>>();
         for (StorageLocation sl : sls) {
             ret.add(new BODTO<StorageLocation>(sl.getId(), sl.getVersion(), sl.getName()));
@@ -154,535 +147,139 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         return ret;
     }
 
-    public List<BODTO<Lot>> getAllowedLots(String lotExp, BODTO<Client> client, BODTO<ItemData> idat) {
-        try {
-
-            Client c;
-            
-            if (client == null) {
-                throw new NullPointerException("Client must not be null");
-            }
-            c = manager.find(Client.class, client.getId());
-            if (idat != null) {
-            	BODTO<Client> cTO = new BODTO<Client>(c.getId(), c.getVersion(), c.getNumber());
-                return lotQuery.autoCompletionByClientAndItemData(lotExp, cTO, idat);
-            } else {
-                return lotQuery.autoCompletion(lotExp, c);
-            }
-
-        } catch (Throwable ex) {
-            logger.error(ex.getMessage(), ex);
-            return new ArrayList<BODTO<Lot>>();
-        }
-
-    }
-
-    public List<BODTO<ItemData>> getAllowedItemData(String exp, BODTO<Client> client, BODTO<Lot> lot) {
-        try {
-
-            Client c;
-            Lot l;
-            List<BODTO<ItemData>> ret;
-
-            c = manager.find(Client.class, client.getId());
-
-            if (lot != null) {
-                l = manager.find(Lot.class, lot.getId());
-                ret = new ArrayList<BODTO<ItemData>>();
-                ret.add(new BODTO<ItemData>(l.getItemData().getId(), l.getItemData().getVersion(), l.getItemData().getNumber()));
-                return ret;
-            } else {
-                return itemQuery.autoCompletion(exp, c);
-            }
-
-        } catch (Throwable ex) {
-            logger.error(ex.getMessage(), ex);
-            return new ArrayList<BODTO<ItemData>>();
-        }
-
-    }
-
-    public List<LOSAdvice> getAllowedAdvices(String exp, BODTO<Client> client, BODTO<Lot> lot, BODTO<ItemData> idat) throws InventoryException {
-        Lot l = null; 
-        ItemData i = null;
-        Client c;
-        if (lot != null){
-            l = manager.find(Lot.class, lot.getId());
-        }
-        if (idat != null){
-            i = manager.find(ItemData.class, idat.getId());
-        }
-        
-        c = manager.find(Client.class, client.getId());
-        
-        return receiptComponent.getSuitableLOSAdvice(exp, c, l, i);
-
-    }
 
     //------------------------------------------------------------------------
     // Receive Entity data from database
     //------------------------------------------------------------------------
-    /**
-     * eagerly fetches pos.
-     * 
-     * @param number
-     * @return
-     */
-    public LOSGoodsReceipt getGoodsReceipt(LOSGoodsReceipt lazy) {
-        try {
-            LOSGoodsReceipt gr = qrQuery.queryById(lazy.getId());
-            List<LOSGoodsReceiptPosition> l = gr.getPositionList();
-            for (LOSGoodsReceiptPosition p : l) {
-            	BusinessObjectHelper.eagerRead(p);
-            }
-            return gr;
-        } catch (BusinessObjectNotFoundException ex) {
-            logger.error(ex, ex);
-            return lazy;
-        } catch (BusinessObjectSecurityException ex) {
-            logger.error(ex, ex);
-            return lazy;
-        }
-
-
-    }
+	public GoodsReceipt getGoodsReceipt(GoodsReceipt lazy) {
+		return manager.eagerRead(manager.reload(GoodsReceipt.class, lazy.getId()), false);
+	}
 
     //------------------------------------------------------------------------
     // Process
     //-----------------------------------------------------------------------
-    public LOSGoodsReceipt createGoodsReceipt(BODTO<Client> client, String licencePlate, String driverName, String forwarder, String deliveryNoteNumber, Date receiptDate, BODTO<StorageLocation> goodsInLocation, String additionalContent) {
-        LOSGoodsReceipt r;
-        StorageLocation sl = manager.find(StorageLocation.class, goodsInLocation.getId());
-        Client c = manager.find(Client.class, client.getId());
+    public GoodsReceipt createGoodsReceipt(BODTO<Client> clientDto, String forwarder, String senderName, String deliveryNoteNumber, Date receiptDate,
+			BODTO<StorageLocation> goodsInLocation, String additionalContent, int orderType) {
+        GoodsReceipt goodsReceipt;
+        StorageLocation location = manager.find(StorageLocation.class, goodsInLocation.getId());
+        Client client = manager.find(Client.class, clientDto.getId());
 
-        r = receiptComponent.createGoodsReceipt(c, licencePlate, driverName, forwarder, deliveryNoteNumber, receiptDate);
-        r.setAdditionalContent(additionalContent);
-        r.setGoodsInLocation(sl);
+        goodsReceipt = goodsReceiptBusiness.createOrder(client, location);
+        goodsReceipt.setAdditionalContent(additionalContent);
+        goodsReceipt.setSenderName(senderName);
+        goodsReceipt.setCarrierName(forwarder);
+        goodsReceipt.setDeliveryNoteNumber(deliveryNoteNumber);
+        goodsReceipt.setOrderType(orderType);
+        goodsReceipt.setReceiptDate(receiptDate);
 
-        return r;
+        return goodsReceipt;
     }
-    
-    
 
-    public LOSGoodsReceiptPosition createGoodsReceiptPosition(
+    public GoodsReceiptLine createGoodsReceiptLine(
             BODTO<Client> client,
-            LOSGoodsReceipt gr,
-            BODTO<Lot> batch,
-            BODTO<ItemData> item,
-            String unitLoadLabel,
-            BODTO<UnitLoadType> unitLoadType,
-            BigDecimal amount,
-            BODTO<LOSAdvice> advice) throws FacadeException, ReportException {
-    	return createGoodsReceiptPosition(client, 
-    			gr, batch, item, unitLoadLabel, unitLoadType, amount,
-    			advice,
-    			LOSGoodsReceiptType.INTAKE,
-    			BusinessObjectLockState.NOT_LOCKED.getLock(), "");
-    }
-    	
-    public LOSGoodsReceiptPosition createGoodsReceiptPosition(
-            BODTO<Client> client,
-            LOSGoodsReceipt gr,
+            GoodsReceipt gr,
             BODTO<Lot> batch,
             BODTO<ItemData> item,
             String unitLoadLabel,
             BODTO<UnitLoadType> unitLoadType, 
             BigDecimal amount,
-            BODTO<LOSAdvice> advice,
-            LOSGoodsReceiptType receiptType,
+            BODTO<AdviceLine> advice,
             int lock,
             String lockCause) throws FacadeException, ReportException {
-        return createGoodsReceiptPosition(
+        return createGoodsReceiptLine(
                 client, gr, batch,item, unitLoadLabel, unitLoadType, amount, advice,
-                receiptType, lock, lockCause, null, null, null, null);
-
+                lock, lockCause, null, null, null, null);
     }
 
-    public LOSGoodsReceiptPosition createGoodsReceiptPosition(
-            BODTO<Client> client,
-            LOSGoodsReceipt gr,
-            BODTO<Lot> batch,
-            BODTO<ItemData> item,
+
+    public GoodsReceiptLine createGoodsReceiptLine(
+            BODTO<Client> clientDto,
+            GoodsReceipt goodsReceiptDto,
+            BODTO<Lot> lotDto,
+            BODTO<ItemData> itemDataDto,
             String unitLoadLabel,
-            BODTO<UnitLoadType> unitLoadType, 
+            BODTO<UnitLoadType> unitLoadTypeDto, 
             BigDecimal amount,
-            BODTO<LOSAdvice> advice,
-            LOSGoodsReceiptType receiptType,
+            BODTO<AdviceLine> adviceDto,
             int lock,
             String lockCause, String serialNumber, String targetLocationName, String targetUnitLoadName, String printer) throws FacadeException, ReportException {
 
-        LOSGoodsReceiptPosition pos;
-        UnitLoad ul;
-        
-        Client c = manager.find(Client.class, client.getId());
-        LOSGoodsReceipt goodsReceipt = manager.find(LOSGoodsReceipt.class, gr.getId());
-        Lot lot;
-        ItemData idat = manager.find(ItemData.class, item.getId());
-        StorageLocation sl = manager.find(StorageLocation.class, gr.getGoodsInLocation().getId());
-        
-        UnitLoadType ulType;
-        
-        if (unitLoadType != null){
-        	ulType = manager.find(UnitLoadType.class, unitLoadType.getId());
-        } else{
-        	ulType = unitLoadTypeService.getDefault();
-        }
-                
-        if (idat == null){
-        	throw new NullPointerException("" + item.getName());
-        }
-        
-        if (sl == null){
-        	throw new NullPointerException("" + gr.getGoodsInLocation().getName());
-        }
-        
-        if (ulType == null){
-        	throw new NullPointerException("" + unitLoadType.getName());
-        }
-        
-        if (batch != null){
-        	lot = manager.find(Lot.class, batch.getId());
-        	if (lot == null){
-        		throw new NullPointerException("" + batch.getName());
-            }
-        } else if (idat.isLotMandatory()){
-        	throw new InventoryException(InventoryExceptionKey.LOT_MANDATORY, idat.getNumber());
-        } else{
-        	lot = null;
-        }
-        
-        boolean printLabel = true;
-        boolean isFixedLocation = false;
-        StorageLocation targetLocation = null;
-        UnitLoad targetUnitLoad = null;
-        if( targetLocationName != null && targetLocationName.length()>0 ) {
-        	try {
-				targetLocation = locationService.read(targetLocationName);
-			} catch (Exception e) {
-			}
-			if( targetLocation == null ) {
-				throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, targetLocationName);
-			}
-			
-			// Check, whether the target location is a fixed assigned location.
-			// On this locations a special handling is needed, which the posting methods do not know??
-			FixAssignment fix = fixService.readFirst(null, targetLocation);
-			if( fix != null ) {
-				if( ! fix.getItemData().equals(idat) ) {
-					logger.error("Cannot store item data="+ idat.getNumber()+" on fixed location for item data="+fix.getItemData().getNumber());
-					throw new InventoryException(InventoryExceptionKey.WRONG_ITEMDATA, new Object[]{idat.getNumber(),fix.getItemData().getNumber()});
-				}
-				printLabel = false;
-				isFixedLocation = true;
-			}
-        }
-        if( targetUnitLoadName != null && targetUnitLoadName.length()>0 ) {
-			targetUnitLoad = unitLoadService.readByLabel(targetUnitLoadName);
-			if( targetUnitLoad == null ) {
-				throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
-			}
-        }
-        
-        
-        BODTO<StorageLocation> sldto = new BODTO<StorageLocation>(sl.getId(), sl.getVersion(), sl.toUniqueString());
-        BODTO<UnitLoadType> ultTO = new BODTO<UnitLoadType>(ulType.getId(), ulType.getVersion(), ulType.getName());
-        
-        
-        boolean printLabelAutomatically = propertyService.getBooleanDefault(c, null, LOSInventoryPropertyKey.PRINT_GOODS_RECEIPT_LABEL, false);
-        if( ! printLabelAutomatically ) {
-        	printLabel = false;
-        }
-        
-        try {
-	        if (unitLoadLabel != null && unitLoadLabel.length() > 0) {
-	        	
-	        	printLabel = false;
-	        	
-        		ul = unitLoadService.readByLabel(unitLoadLabel);
-        		if(ul!=null) {
-	        		throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_EXISTS, 
-	        									 new Object[]{unitLoadLabel}); 
-	        		
-	        	} else { 
-	        		BODTO<UnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, unitLoadLabel);
-	                ul = manager.find(UnitLoad.class, unitLoad.getId()); 
-	        	}
-	        } 
-	        else {
-		        if( targetUnitLoad != null ) {
-		        	printLabel = false;
-		        }
-		        
-	        	// do not use the label twice
-	        	String label = null;
-	        	int i = 0;
-	        	while( i++ < 100 ) {
-	        		label = genService.generateUnitLoadLabelId(c, ulType);
-        			UnitLoad test = unitLoadService.readByLabel(label);
-					if (test == null) {
-						break;
-					}
-	        		logger.info("UnitLoadLabel " + label + " already exists. Try the next");
-	        	}
+        GoodsReceipt goodsReceipt = manager.find(GoodsReceipt.class, goodsReceiptDto.getId());
+        ItemData itemData = manager.find(ItemData.class, itemDataDto.getId());
+		Lot lot = (lotDto == null ? null : manager.find(Lot.class, lotDto.getId()));
+		AdviceLine adviceLine = (adviceDto == null ? null : manager.find(AdviceLine.class, adviceDto.getId()));
+		UnitLoadType unitLoadType = (adviceDto == null ? null : manager.find(UnitLoadType.class, unitLoadTypeDto.getId()));
+       
+    	return goodsReceiptBusiness.receiveStock(goodsReceipt, adviceLine, unitLoadLabel, unitLoadType, itemData, null, amount, lot, serialNumber, lock, lockCause, null, null);
+    }
 
-            	BODTO<UnitLoad> unitLoad = getOrCreateUnitLoad(client, sldto, ultTO, label);
-                ul = manager.find(UnitLoad.class, unitLoad.getId());
-	
-	        }     
-	        
-        } catch (InventoryException ex){
-        	throw ex;
-        } catch (Throwable ex) {
-            logger.error(ex, ex);
-            throw new InventoryException(InventoryExceptionKey.CREATE_UNITLOAD, new Object[0]);
-        }
-        
-        pos = receiptComponent.createGoodsReceiptPosition(c, goodsReceipt, "", amount, receiptType, lockCause);
-        StockUnit su = receiptComponent.receiveStock(pos, lot, idat, amount, null, ul, serialNumber);
-        
-        if (!pos.getItemData().equals(idat.getNumber())){
-        	throw new IllegalArgumentException("Item Data has not been set");
-        }
-        
-        su = manager.find(su.getClass(), su.getId());
-        
-        if(lock > 0){
-        
-	        try {
-				suCrud.lock(su, lock, lockCause);
-			} catch (BusinessObjectSecurityException e1) {
-				logger.error(e1.getMessage(), e1);
-				throw new InventoryException(InventoryExceptionKey.STOCKUNIT_CONSTRAINT_VIOLATED, su.toUniqueString());
-			}
-	        
-	        pos.setQaLock(lock);
-        }
-        
-        manager.flush();
-        manager.merge(pos);
-        
-        if (advice != null){
-        	LOSAdvice a = manager.find(LOSAdvice.class, advice.getId());
-        	receiptComponent.assignAdvice(a, pos);
-        } else if (idat.isAdviceMandatory()){
-        	throw new InventoryException(InventoryExceptionKey.ADVICE_MANDATORY, idat.getNumber());
-        } else{
-        	//ok
-        }
-        
-        if (gr.getReceiptState() == LOSGoodsReceiptState.RAW){
-			receiptComponent.acceptGoodsReceipt(gr);
+	public GoodsReceiptLine createGoodsReceiptLineAndLot(BODTO<Client> clientDto, GoodsReceipt goodsReceipt,
+			String lotName, Date validFrom, Date validTo, BODTO<ItemData> itemDataDto, String unitLoadLabel,
+			BODTO<UnitLoadType> unitLoadTypeDto, BigDecimal amount, BODTO<AdviceLine> adviceDto, int lock,
+			String lockCause) throws FacadeException, ReportException {
+
+		ItemData itemData = manager.find(ItemData.class, itemDataDto.getId());
+
+		Lot lot = lotEntityService.read(itemData, lotName);
+		if (lot == null) {
+			lot = lotEntityService.create(itemData, lotName, new Date());
+			lot.setUseNotBefore(validFrom);
+			lot.setBestBeforeEnd(validTo);
+		} else {
+			logger.warn("Lot already exists. Will tak eexisting " + lot.toDescriptiveString());
 		}
-        
-        if( targetLocation != null ) {
-    		try {
-	    		if( isFixedLocation ) {
-	    			putOnFixedAssigned( contextService.getCallerUserName(), gr.getGoodsReceiptNumber(), ul, targetLocation);
-	    		}
-	    		else {
-					inventoryBusiness.checkTransferUnitLoad(ul, targetLocation, true);
-					inventoryBusiness.transferUnitLoad(ul, targetLocation, gr.getGoodsReceiptNumber(), null, null);
-	    		}
-			} catch (FacadeException e) {
-				logger.error("Error in Transfer to target="+targetLocation.getName());
-				throw e;
-			}
-        }
-        else if( targetUnitLoad != null ) {
-        	try {
-        		for(StockUnit stock:stockUnitEntityService.readByUnitLoad(ul)) {
-            		inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
-            		inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), gr.getGoodsReceiptNumber(), null, null);
-        		}
-				ul = targetUnitLoad;
-			} catch (FacadeException e) {
-				logger.error("Error in Transfer to target="+targetUnitLoadName);
-				throw e;
-			}
-        }
-        
-        if(printLabel){
-        	if( printer == null ) {
-	            printer = propertyService.getString(c, null, LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER);
-        	}
-        	
-            Document label = suLabelReport.generateStockUnitLabel(ul);
-        	printService.print(printer, label.getData(), label.getDocumentType());
-        }
-	        
-		manageGrService.onGoodsReceiptPositionCollected(pos);
+		BODTO<Lot> lotDto = new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.toUniqueString());
 
-        return pos;
+		return createGoodsReceiptLine(clientDto, goodsReceipt, lotDto, itemDataDto, unitLoadLabel, unitLoadTypeDto,
+				amount, adviceDto, lock, lockCause);
+	}
+    	
+
+    public void acceptGoodsReceipt(GoodsReceipt goodsReceipt) throws InventoryException, BusinessException {
+    	goodsReceipt = manager.find(GoodsReceipt.class, goodsReceipt.getId());
+
+        if (goodsReceipt == null) {
+            throw new InventoryException(InventoryExceptionKey.CREATE_GOODSRECEIPT, "");
+        }
+
+        goodsReceiptBusiness.releaseOperation(goodsReceipt, null, null, null);
     }
 
-    public LOSGoodsReceiptPosition createGoodsReceiptPositionAndLot(
-            BODTO<Client> client,
-            LOSGoodsReceipt gr,
-            String lotName,
-            Date validFrom,
-            Date validTo,
-            boolean expireLot,
-            BODTO<ItemData> item,
-            String unitLoadLabel,
-            BODTO<UnitLoadType> unitLoadType,
-            BigDecimal amount,
-            BODTO<LOSAdvice> advice,
-            LOSGoodsReceiptType receiptType,
-            int lock,
-            String lockCause) throws FacadeException, ReportException {
-    	
-    	Lot l;
-    	BODTO<Lot> lot;
-    	Client c;
-    	ItemData idat;
-    	
-    	c = manager.find(Client.class, client.getId());
-    	idat = manager.find(ItemData.class, item.getId());
-    	
-    	
-    	try {
-			l = lotService.getByNameAndItemData(c, lotName, idat.getNumber());
-		} catch (EntityNotFoundException e) {
-			l = null;
-		}
-
-    	if (l != null){
-    		logger.error("Lot already exists. Will tak eexisting " + l.toDescriptiveString());
-    		lot = new BODTO<Lot>(l.getId(), l.getVersion(), l.toUniqueString());
-    	} else{
-    		lot = manageInventoryFacade.createLot(client, item, lotName, validFrom, validTo, expireLot);
-    	}
-    	
-    	return createGoodsReceiptPosition(client, 
-    			gr, lot, item, unitLoadLabel, unitLoadType, amount,
-    			advice, receiptType, lock, lockCause
-    			);
-    }
-    
-    /**
-     * 
-     * @param c
-     * @param sl
-     * @param type
-     * @param ref if null, take a generated labelId
-     * @return
-     * @throws de.linogistix.los.location.exception.LOSLocationException
-     */
-    public BODTO<UnitLoad> getOrCreateUnitLoad(BODTO<Client> c,
-            BODTO<StorageLocation> sl, BODTO<UnitLoadType> type, String ref) throws FacadeException {
-
-        UnitLoad ul;
-        Client cl;
-        if (c != null){
-            cl = manager.find(Client.class, c.getId());
-        } else{
-          
-            cl = clientQuery.getSystemClient();
-           
-        }
-
-        if (cl == null) {
-            throw new NullPointerException("Client must not be null");
-        }
-        if (sl == null) {
-            throw new NullPointerException("StorageLocation must not be null");
-        }
-        if (type == null) {
-            throw new NullPointerException("UnitLoadType must not be null");
-        }
-        UnitLoadType ulType = manager.find(UnitLoadType.class, type.getId());
-        if (ref == null) {
-        	ref = genService.generateUnitLoadLabelId(cl, ulType);
-        }
-
-        StorageLocation storLoc = manager.find(StorageLocation.class, sl.getId());
-
-        ul = receiptComponent.getOrCreateUnitLoad(cl, storLoc, ulType, ref);
-        
-        return new BODTO<UnitLoad>(ul.getId(), ul.getVersion(), ul.getLabelId());
-    }
-
-    public BODTO<UnitLoadType> getUnitLoadType(BODTO<StorageLocation> sl) {
-        StorageLocation storLoc = manager.find(StorageLocation.class, sl.getId());
-        UnitLoadType type;
-        if (storLoc.getCurrentTypeCapacityConstraint() != null){
-        	type = storLoc.getCurrentTypeCapacityConstraint().getUnitLoadType();
-        } else{
-        	
-			type = unitLoadTypeService.getDefault();
-			if (type == null ) throw new RuntimeException("Default unit load type not found ");
-			
-        }
-        return new BODTO<UnitLoadType>(type.getId(), type.getVersion(), type.getName());
-    }
-
-    public void cancelGoodsReceipt(LOSGoodsReceipt r) throws FacadeException {
-        r = manager.find(LOSGoodsReceipt.class, r.getId());
-        receiptComponent.cancel(r);
-    }
-
-    public void acceptGoodsReceipt(LOSGoodsReceipt r) throws InventoryException {
-    	LOSGoodsReceipt foundGr = manager.find(r.getClass(), r.getId());
+    public void finishGoodsReceipt(GoodsReceipt r) throws InventoryException, BusinessException {
+    	GoodsReceipt foundGr = manager.find(GoodsReceipt.class, r.getId());
 
         if (foundGr == null) {
-            throw new InventoryException(InventoryExceptionKey.CREATE_GOODSRECEIPT, r.getGoodsReceiptNumber());
+            throw new InventoryException(InventoryExceptionKey.CREATE_GOODSRECEIPT, r.getOrderNumber());
         }
 
-        receiptComponent.acceptGoodsReceipt(foundGr);
-
-    }
-
-    public void finishGoodsReceipt(LOSGoodsReceipt r) throws InventoryException, InventoryTransferException {
-    	LOSGoodsReceipt foundGr = manager.find(r.getClass(), r.getId());
-
-        if (foundGr == null) {
-            throw new InventoryException(InventoryExceptionKey.CREATE_GOODSRECEIPT, r.getGoodsReceiptNumber());
-        }
-
-        receiptComponent.finishGoodsReceipt(foundGr);
-
+        goodsReceiptBusiness.finishOrder(foundGr);
     }
     
-    public void assignLOSAdvice(LOSAdvice adv, LOSGoodsReceiptPosition pos) throws FacadeException {
-
-        if (adv == null) {
-            throw new InventoryException(InventoryExceptionKey.POSITION_NO_ADVICE, new Object[]{pos.getPositionNumber()});
-        }
-
-        LOSAdvice advice = manager.find(LOSAdvice.class, adv.getId());
-        LOSGoodsReceiptPosition position = manager.find(LOSGoodsReceiptPosition.class, pos.getId());
-        receiptComponent.assignAdvice(advice, position);
+    public void removeGoodsReceiptLine(GoodsReceiptLine goodsReceiptLine) throws InventoryException, FacadeException {
+    	goodsReceiptLine = manager.find(GoodsReceiptLine.class, goodsReceiptLine.getId());
+        goodsReceiptBusiness.removeGoodsReceiptLineWithStocks(goodsReceiptLine);
     }
 
-    public void removeGoodsReceiptPosition(LOSGoodsReceipt r, LOSGoodsReceiptPosition pos) throws InventoryException, FacadeException {
-        pos = manager.find(LOSGoodsReceiptPosition.class, pos.getId());
-        r = manager.find(LOSGoodsReceipt.class, r.getId());
-        receiptComponent.remove(r, pos);
+	public void assignAdvice(BODTO<AdviceLine> adviceLineDto, GoodsReceipt goodsReceipt) throws BusinessException {
+		AdviceLine adviceLine = manager.find(AdviceLine.class, adviceLineDto.getId());
+		goodsReceipt = manager.find(GoodsReceipt.class, goodsReceipt.getId());
 
-    }
-
-    /** assignes an advice {@link LOSAdvice} to  the {@link LOSGoodsReceipt}*/
-	public void assignLOSAdvice(BODTO<LOSAdvice> to, LOSGoodsReceipt r)
-			throws InventoryException {
-		LOSAdvice adv = manager.find(LOSAdvice.class, to.getId());
-		r = manager.find(LOSGoodsReceipt.class, r.getId());
-		receiptComponent.assignAdvice(adv, r);
-		if (r.getReceiptState() == LOSGoodsReceiptState.RAW){
-			receiptComponent.acceptGoodsReceipt(r);
+		goodsReceiptBusiness.assignAdviceLine(goodsReceipt, adviceLine);
+		if (goodsReceipt.getState() < OrderState.RELEASED) {
+			goodsReceiptBusiness.releaseOperation(goodsReceipt, null, null, null);
 		}
 	}
 
-	/** removes an advice {@link LOSAdvice} from  the {@link LOSGoodsReceipt}*/
-	public void removeAssigendLOSAdvice(BODTO<LOSAdvice> to, LOSGoodsReceipt r)
-			throws InventoryException {
-		LOSAdvice adv = manager.find(LOSAdvice.class, to.getId());
-		receiptComponent.removeAssignedAdvice(adv, r);
-		
+	public void removeAssigendAdvice(BODTO<AdviceLine> adviceLineDto, GoodsReceipt goodsReceipt)
+			throws BusinessException {
+		AdviceLine adviceLine = manager.find(AdviceLine.class, adviceLineDto.getId());
+		goodsReceipt = manager.find(GoodsReceipt.class, goodsReceipt.getId());
+		goodsReceiptBusiness.removeAssignedAdviceLine(goodsReceipt, adviceLine);
 	}
 
-	public Lot createLot(Client client, String lotName, ItemData item, Date validTo) 
+	@Override
+	public Lot createLot(String lotName, ItemData item, Date validTo) 
 	{
-		client = manager.merge(client);
 		item = manager.merge(item);
 		
 		Lot lot = queryLotService.getByNameAndItemData(lotName, item);
@@ -691,49 +288,40 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			return lot;
 		}
 		else{
-			lot = lotService.create(client, item, lotName, new Date(), null, validTo);
+			lot = lotService.create(item.getClient(), item, lotName, new Date(), null, validTo);
 			return lot;
 		}
 	}
 
-	public void createStockUnitLabel(LOSGoodsReceipt rec, String printer) 	throws FacadeException {
-		rec = manager.find(LOSGoodsReceipt.class, rec.getId());
-		for( LOSGoodsReceiptPosition pos : rec.getPositionList() ) {
-			createStockUnitLabel(pos, printer);
+	public void createStockUnitLabel(GoodsReceipt goodsReceipt, String printer) 	throws FacadeException {
+		goodsReceipt = manager.find(GoodsReceipt.class, goodsReceipt.getId());
+		for( GoodsReceiptLine line:goodsReceipt.getLines() ) {
+			createStockUnitLabel(line, printer);
 		}
 	}
 	
-	public Document createStockUnitLabel(LOSGoodsReceiptPosition pos, String printer) 	throws FacadeException {
+	private Document createStockUnitLabel(GoodsReceiptLine goodsReceiptLine, String printer) throws FacadeException {
 		String logStr = "createStockUnitLabel ";
 
-		pos = manager.find(LOSGoodsReceiptPosition.class, pos.getId());
-
-		StockUnit stock = pos.getStockUnit();
-
-		if( stock == null ) {
-			String s = pos.getStockUnitStr();
-			if( !StringTools.isEmpty(s) ) {
-				try {
-					Long l = Long.valueOf(s);
-					stock = manager.find(StockUnit.class, l);
-				}
-				catch( Throwable t ) {}
-			}
+		StockUnit stock = null;
+		if (goodsReceiptLine.getStockUnitId() != null) {
+			stock = manager.find(StockUnit.class, goodsReceiptLine.getStockUnitId());
 		}
-		if( stock == null ) {
-			logger.info(logStr+"Position has no stock unit. => Cannot print label");
+		if (stock == null) {
+			logger.info(logStr + "Position has no stock unit. => Cannot print label");
 			throw new InventoryException(InventoryExceptionKey.GRPOS_HAS_NO_STOCK, "");
 		}
-		
+
 		UnitLoad unitLoad = stock.getUnitLoad();
-		
-    	Document label = suLabelReport.generateStockUnitLabel(unitLoad);
-    	printService.print(printer, label.getData(), label.getDocumentType());
-    	
+
+		Document label = suLabelReport.generateStockUnitLabel(unitLoad);
+		printService.print(printer, label.getData(), label.getDocumentType());
+
 		return label;
-		
+
 	}
 
+	@Override
 	public boolean checkSerialNumber(String serialNo, ItemData itemData) {
 		if( itemData.getSerialNoRecordType() != SerialNoRecordType.ALWAYS_RECORD ) {
 			return true;
@@ -754,7 +342,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 
 	
 	
-	protected void putOnFixedAssigned( String userName, String activityCode, UnitLoad unitload, StorageLocation targetLocation) throws InventoryException,
+	private void putOnFixedAssigned( String userName, String activityCode, UnitLoad unitload, StorageLocation targetLocation) throws InventoryException,
 			FacadeException {
 		
 		// To picking? (implicitly if virtual ul type)
@@ -779,6 +367,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		}
 	}
 
+	@Override
 	public void createStock(
 		    String clientNumber,
 		    String lotName,
@@ -790,7 +379,6 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		    String serialNumber, 
 		    String targetLocationName, 
 		    String targetUnitLoadName) throws FacadeException {
-
         UnitLoad ul;
         
         Client client = null;
@@ -816,7 +404,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         	ulType = unitLoadTypeService.getDefault();
         }
                 
-        List<StorageLocation> sls = receiptComponent.getGoodsReceiptLocations();
+        List<StorageLocation> sls = locationService.getForGoodsIn(null);
         StorageLocation sl = null;
         if( sls.size()<1 ) {
         	throw new InventoryException(InventoryExceptionKey.NO_GOODS_RECEIPT_LOCATION, "");
@@ -964,6 +552,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 
 	}
 
+	@Override
 	public String getOldestLocationToAdd( ItemData itemData, Lot lot ) throws FacadeException {
 		Client callersClient = contextService.getCallersClient();
 
@@ -1021,5 +610,4 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         
         return (String)oa[0];
 	}
-
 }

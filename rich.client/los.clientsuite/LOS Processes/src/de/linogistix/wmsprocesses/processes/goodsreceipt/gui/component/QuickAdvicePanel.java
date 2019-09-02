@@ -32,7 +32,7 @@ public class QuickAdvicePanel extends AbstractQuickAdvicePanel{
             this.clientCombo.setEnabled(false);
             this.clientCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "Client"));
 
-            this.itemDataCombo.setBoClass(Client.class);
+            this.itemDataCombo.setBoClass(ItemData.class);
             this.itemDataCombo.setComboBoxModel(new ItemDataComboBoxModel());
             this.itemDataCombo.initAutofiltering();
             this.itemDataCombo.setEnabled(true);

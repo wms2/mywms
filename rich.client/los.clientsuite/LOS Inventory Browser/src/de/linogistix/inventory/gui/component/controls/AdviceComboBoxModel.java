@@ -9,11 +9,11 @@ package de.linogistix.inventory.gui.component.controls;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBoxModel;
 import de.linogistix.common.services.J2EEServiceLocator;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
+import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import org.mywms.model.Client;
@@ -23,7 +23,7 @@ import org.openide.util.Lookup;
  *
  * @author Jordan
  */
-public class AdviceComboBoxModel extends BOAutoFilteringComboBoxModel<LOSAdvice>{
+public class AdviceComboBoxModel extends BOAutoFilteringComboBoxModel<AdviceLine>{
 
     private LOSAdviceQueryRemote adviceQuery; 
     
@@ -34,14 +34,14 @@ public class AdviceComboBoxModel extends BOAutoFilteringComboBoxModel<LOSAdvice>
     private BODTO<Lot> lotTO = null;
     
     public AdviceComboBoxModel() throws Exception {
-        super(LOSAdvice.class);
+        super(AdviceLine.class);
         
         J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
         adviceQuery = loc.getStateless(LOSAdviceQueryRemote.class);
     }
     
     @Override
-    public LOSResultList<BODTO<LOSAdvice>> getResults(String searchString, QueryDetail detail) {
+    public LOSResultList<BODTO<AdviceLine>> getResults(String searchString, QueryDetail detail) {
         
         return adviceQuery.autoCompletionByClientLotItemdata(searchString, clientTO, itemDataTO, lotTO, detail);
         

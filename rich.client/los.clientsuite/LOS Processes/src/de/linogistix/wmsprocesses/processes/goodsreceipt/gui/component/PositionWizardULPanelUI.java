@@ -9,7 +9,6 @@ package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.services.J2EEServiceLocatorException;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardULPanelUI;
@@ -36,10 +35,6 @@ public class PositionWizardULPanelUI extends AbstractPositionWizardULPanelUI imp
     @Override
     protected void postInit() {
         super.postInit();
-        
-        for (LOSGoodsReceiptType type : LOSGoodsReceiptType.values()) {
-            getGoodsReceiptTypeComboBox().addItem(new TypeEntry(type));
-        }
         
         unitLoadLabelTextField.addItemChangeListener(this);
         
@@ -79,14 +74,6 @@ public class PositionWizardULPanelUI extends AbstractPositionWizardULPanelUI imp
            unitLoadLabelTextField.setEnabled(false);
            propertyChange(null);
        }  
-    }
-    
-    public LOSGoodsReceiptType getSelectedGoodsReceiptType(){
-        return ((TypeEntry)getGoodsReceiptTypeComboBox().getSelectedItem()).type;
-    }
-    
-    public void setSelectedGoodsReceiptType(LOSGoodsReceiptType sel){
-        getGoodsReceiptTypeComboBox().setSelectedItem(new TypeEntry(sel));
     }
     
     // ------------------------------------------------------------------------
@@ -143,30 +130,6 @@ public class PositionWizardULPanelUI extends AbstractPositionWizardULPanelUI imp
     public void propertyChange(PropertyChangeEvent evt) {       
         
         if (delegateTo != null) delegateTo.propertyChange(evt);
-    }
-    
-    public static final class TypeEntry {
-
-        public LOSGoodsReceiptType type;
-
-        public TypeEntry(LOSGoodsReceiptType type) {
-            this.type = type;
-        }
-
-        @Override
-        public String toString() {
-            return NbBundle.getMessage(de.linogistix.common.res.CommonBundleResolver.class, type.toString());
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) return false;
-            if (! (obj instanceof TypeEntry)) return false;
-            if(this == obj) return true;
-            if (this.type == ((TypeEntry)obj).type) return true;
-            else return false; 
-            
-        }        
     }
     
 }

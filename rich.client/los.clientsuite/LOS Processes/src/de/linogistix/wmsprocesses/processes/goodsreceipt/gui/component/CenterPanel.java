@@ -25,10 +25,6 @@ import de.linogistix.inventory.browser.masternode.BOLOSAdviceMasterNode;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
@@ -37,8 +33,12 @@ import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.OrderState;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -78,7 +78,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     Lookup lookup;
     private boolean initialized;
     private BOAutoFilteringComboBox<Client> clientComboBox = null;
-    private BOAutoFilteringComboBox<LOSGoodsReceipt> goodsReceiptComboBox = null;
+    private BOAutoFilteringComboBox<GoodsReceipt> goodsReceiptComboBox = null;
     private BODTO<Client> myClient;
     private BODTO<StorageLocation> defaultLocation = null;
     
@@ -108,9 +108,9 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     }
 
     //------------------------------------------------------------------------
-    public BOAutoFilteringComboBox<LOSGoodsReceipt> getGoodsReceiptComboBox() {
+    public BOAutoFilteringComboBox<GoodsReceipt> getGoodsReceiptComboBox() {
         if (goodsReceiptComboBox == null) {
-            goodsReceiptComboBox = new BOAutoFilteringComboBox<LOSGoodsReceipt>(LOSGoodsReceipt.class);
+            goodsReceiptComboBox = new BOAutoFilteringComboBox<GoodsReceipt>(GoodsReceipt.class);
             goodsreceiptComboPanel.add(goodsReceiptComboBox, BorderLayout.CENTER);
             goodsReceiptComboBox.addItemChangeListener(new PropertyChangeListener() {
 
@@ -201,7 +201,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
                         
-                        LOSGoodsReceipt gr = getGoodsReceiptComboBox().getSelectedAsEntity();
+                        GoodsReceipt gr = getGoodsReceiptComboBox().getSelectedAsEntity();
                         
                         checkState_RemovePositionButton(gr);
                     }
@@ -228,7 +228,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
                         
-                        LOSGoodsReceipt gr = getGoodsReceiptComboBox().getSelectedAsEntity();
+                        GoodsReceipt gr = getGoodsReceiptComboBox().getSelectedAsEntity();
                         
                         checkState_RemoveAdviceButton(gr);
                         checkState_AddPositionButton(gr);
@@ -241,7 +241,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
     public void checkState_AllButtons(){
         
-        LOSGoodsReceipt gr = getGoodsReceiptComboBox().getSelectedAsEntity();
+        GoodsReceipt gr = getGoodsReceiptComboBox().getSelectedAsEntity();
         
         checkState_EditButton(gr);
         checkState_FinishButton(gr);
@@ -253,14 +253,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         
     }
     
-    private void checkState_EditButton(LOSGoodsReceipt gr){
+    private void checkState_EditButton(GoodsReceipt gr){
         
         if(gr == null){
             editButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED
-                || gr.getReceiptState() == LOSGoodsReceiptState.TRANSFER)
-        {
+        else if(gr.getState() >= OrderState.FINISHED){
             editButton.setEnabled(false);
         }
         else{
@@ -268,13 +266,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         }
     }
     
-    private void checkState_FinishButton(LOSGoodsReceipt gr){
+    private void checkState_FinishButton(GoodsReceipt gr){
         
         if(gr == null){
             finishButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED)
-        {
+        else if(gr.getState() == OrderState.FINISHED){
             finishButton.setEnabled(false);
         }
         else{
@@ -282,14 +279,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         }
     }
     
-    private void checkState_AddAdviceButton(LOSGoodsReceipt gr){
+    private void checkState_AddAdviceButton(GoodsReceipt gr){
                 
         if(gr == null){
             addAdviceButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED
-                || gr.getReceiptState() == LOSGoodsReceiptState.TRANSFER)
-        {
+        else if(gr.getState() >= OrderState.FINISHED){
             addAdviceButton.setEnabled(false);
         }
         else{
@@ -298,14 +293,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         
     }
     
-    private void checkState_RemoveAdviceButton(LOSGoodsReceipt gr){
+    private void checkState_RemoveAdviceButton(GoodsReceipt gr){
               
         if(gr == null){
             removeAdviceButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED
-                || gr.getReceiptState() == LOSGoodsReceiptState.TRANSFER)
-        {
+        else if(gr.getState() >= OrderState.FINISHED){
             removeAdviceButton.setEnabled(false);
         }
         else if( adviceManager == null ) {
@@ -323,14 +316,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         
     }
 
-    private void checkState_AddQuickAdiceButton(LOSGoodsReceipt gr){
+    private void checkState_AddQuickAdiceButton(GoodsReceipt gr){
 
         if(gr == null){
             quickAdviceButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED
-                || gr.getReceiptState() == LOSGoodsReceiptState.TRANSFER)
-        {
+        else if(gr.getState() >= OrderState.FINISHED){
             quickAdviceButton.setEnabled(false);
         }
         else{
@@ -340,14 +331,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     }
 
     
-    private void checkState_AddPositionButton(LOSGoodsReceipt gr){
+    private void checkState_AddPositionButton(GoodsReceipt gr){
                
         if(gr == null){
             addPositionButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED
-                || gr.getReceiptState() == LOSGoodsReceiptState.TRANSFER)
-        {
+        else if(gr.getState() >= OrderState.FINISHED){
             addPositionButton.setEnabled(false);
         }
         else {
@@ -361,14 +350,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         }
     }
     
-    private void checkState_RemovePositionButton(LOSGoodsReceipt gr){
+    private void checkState_RemovePositionButton(GoodsReceipt gr){
                 
         if(gr == null){
             removePositionButton.setEnabled(false);
         }
-        else if(gr.getReceiptState() == LOSGoodsReceiptState.FINISHED
-                || gr.getReceiptState() == LOSGoodsReceiptState.TRANSFER)
-        {
+        else if(gr.getState() >= OrderState.FINISHED) {
             removePositionButton.setEnabled(false);
         }
         else {
@@ -383,7 +370,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 else {
                     if(selNodes[0] instanceof GoodsReceiptPositiontNode){
                         GoodsReceiptPositiontNode grPosNode = (GoodsReceiptPositiontNode) selNodes[0];
-                        if(grPosNode.pos.getState() != LOSGoodsReceiptState.RAW){
+                        if(grPosNode.pos.getState() >= OrderState.PROCESSABLE){
                             removePositionButton.setEnabled(false);
                         }
                         else{
@@ -404,7 +391,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         
         topComponentPanel.controller.reloadGoodsReceipt();
         
-        LOSGoodsReceipt gr = this.topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
+        GoodsReceipt gr = this.topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
                 
         if(adviceSelectionDialog == null){
             adviceSelectionDialog = new BOMultiSelectionChooser(BOLOSAdviceSelection.class);
@@ -422,8 +409,8 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 List<BODTO> dtoList = adviceSelectionDialog.getSelectedValues();
                 for(BODTO dto:dtoList){
                     try {
-                        LOSAdvice adv = topComponentPanel.controller.getAdvice(dto.getId());
-                        if(!gr.getAssignedAdvices().contains(adv)){
+                        AdviceLine adv = topComponentPanel.controller.getAdvice(dto.getId());
+                        if(!gr.getAdviceLines().contains(adv)){
                             LOSAdviceTO to = new LOSAdviceTO(adv);
                             topComponentPanel.controller.addAssignedAdvice(to);
                         }
@@ -457,7 +444,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
             try {
                 // Read the client from the GoodsReceipt
                 BODTO<Client> grClient = null;
-                LOSGoodsReceipt gr = this.topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
+                GoodsReceipt gr = this.topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
                 if( gr != null ) {
                     Client c = gr.getClient();
                     grClient = new BODTO<Client>(c.getId(), c.getVersion(), c.toUniqueString());
@@ -478,13 +465,13 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 if (w.getValue().equals(NotifyDescriptor.OK_OPTION)) {
                     CursorControl.showWaitCursor();
 
-                    BODTO<LOSAdvice> advice = new BODTO<LOSAdvice>(w.model.selectedAdvice.getId(), w.model.selectedAdvice.getVersion(), w.model.selectedAdvice.getAdviceNumber());
+                    BODTO<AdviceLine> advice = new BODTO<AdviceLine>(w.model.selectedAdvice.getId(), w.model.selectedAdvice.getVersion(), w.model.selectedAdvice.getLineNumber());
 
                     for (int i=0;i<w.model.sameCount;i++){
                     
                         if (w.model.createLot() && i==0){ // create lot just once!
 
-                            LOSGoodsReceiptPosition grPos;
+                            GoodsReceiptLine grPos;
                             grPos = topComponentPanel.controller.createPositionAndLot(
                                                             w.model.client,
                                                             w.model.lotStr,
@@ -496,13 +483,9 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                                             w.model.ulType,
                                                             w.model.amount,
                                                             advice,
-                                                            w.model.type,
                                                             w.model.lock,
                                                             w.model.info
                                                             );
-                            
-                            Lot lot = grPos.getStockUnit().getLot();
-                            w.model.lot = new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.getName());
                             
                         } else{
 
@@ -514,7 +497,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                 w.model.ulType,
                                 w.model.amount,
                                 advice,
-                                w.model.type,
                                 w.model.lock,
                                 w.model.info
                                 );
@@ -568,7 +550,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
         for (Node n : wePosManager.getSelectedNodes()){
             try {
-                LOSGoodsReceiptPosition p = (LOSGoodsReceiptPosition) ((GoodsReceiptPositiontNode)n).pos;
+                GoodsReceiptLine p = (GoodsReceiptLine) ((GoodsReceiptPositiontNode)n).pos;
                 topComponentPanel.controller.removePosition(p);
 
             } catch (Throwable ex) {
@@ -634,7 +616,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                         w.externNumber,
                         w.date,
                         w.gate,
-                        w.info);
+                        w.info, w.orderType, w.senderName);
                 
                 // Do not change the client of the user
                 //myClient = w.client;
@@ -653,7 +635,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     @Override
     protected void editButtonActionPerformedListener(ActionEvent evt) {
         try {
-            LOSGoodsReceipt r = topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
+            GoodsReceipt r = topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
             
             if (r == null) return;
             
@@ -661,11 +643,12 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
             w.client = new BODTO<Client>(r.getClient().getId(), r.getVersion(), r.getClient().toUniqueString());
             w.allowChangeOfClient = false;
             w.date = r.getReceiptDate();
-            w.deliverer = r.getForwarder();
-            w.gate = new BODTO<StorageLocation>(r.getGoodsInLocation().getId(), r.getGoodsInLocation().getVersion(), r.getGoodsInLocation().toUniqueString());
+            w.deliverer = r.getCarrierName();
+            w.gate = new BODTO<StorageLocation>(r.getStorageLocation().getId(), r.getStorageLocation().getVersion(), r.getStorageLocation().toUniqueString());
             w.externNumber = r.getDeliveryNoteNumber();
             w.info = r.getAdditionalContent();
-            
+            w.orderType = r.getOrderType();
+            w.senderName = r.getSenderName();
             Dialog d = DialogDisplayer.getDefault().createDialog(w);
             d.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
             d.setVisible(true);
@@ -679,7 +662,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                         w.externNumber,
                         w.date,
                         w.gate,
-                        w.info);
+                        w.info, w.orderType, w.senderName);
             }
 
             checkState_AllButtons();
@@ -738,7 +721,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
         topComponentPanel.controller.reloadGoodsReceipt();
 
-        LOSGoodsReceipt gr = this.topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
+        GoodsReceipt gr = this.topComponentPanel.controller.goodsReceiptNode.getGoodsReceipt();
 
         if(quickAdviceDialog == null){
             quickAdviceDialog = new QuickAdviceDialog();
@@ -755,8 +738,8 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 BODTO dto = createAdvice(quickAdviceDialog.getClientNumber(), quickAdviceDialog.getItemData(), quickAdviceDialog.getAmount(), null, quickAdviceDialog.getComment());
 
                 try {
-                    LOSAdvice adv = topComponentPanel.controller.getAdvice(dto.getId());
-                    if(!gr.getAssignedAdvices().contains(adv)){
+                    AdviceLine adv = topComponentPanel.controller.getAdvice(dto.getId());
+                    if(!gr.getAdviceLines().contains(adv)){
                         LOSAdviceTO to = new LOSAdviceTO(adv);
                         topComponentPanel.controller.addAssignedAdvice(to);
                     }
@@ -791,8 +774,8 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 return null;
             } else{
                 // TODO: fetch the last one. This is WRONG!!!
-                BODTO<LOSAdvice> dto;
-                LOSResultList<BODTO<LOSAdvice>> l = losAdviceQueryRemote.queryAllHandles(new QueryDetail(0, 1, "created", false));
+                BODTO<AdviceLine> dto;
+                LOSResultList<BODTO<AdviceLine>> l = losAdviceQueryRemote.queryAllHandles(new QueryDetail(0, 1, "created", false));
                 dto = l.get(0);
                 return dto;
             }

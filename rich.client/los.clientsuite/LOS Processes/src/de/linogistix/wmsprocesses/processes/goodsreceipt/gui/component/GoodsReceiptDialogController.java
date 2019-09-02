@@ -12,7 +12,6 @@ import de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField;
 import de.linogistix.inventory.gui.component.controls.AdviceComboBoxModel;
 import de.linogistix.inventory.gui.component.controls.ItemDataComboBoxModel;
 import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.query.dto.LotTO;
 import de.linogistix.los.query.BODTO;
 import java.beans.PropertyChangeEvent;

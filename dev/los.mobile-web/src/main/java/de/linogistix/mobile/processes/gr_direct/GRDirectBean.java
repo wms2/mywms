@@ -28,12 +28,7 @@ import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.UnAuthorizedException;
-import de.linogistix.los.inventory.businessservice.LOSGoodsReceiptComponent;
 import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacade;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.service.QueryAdviceServiceRemote;
 import de.linogistix.los.inventory.service.QueryGoodsReceiptServiceRemote;
@@ -54,6 +49,8 @@ import de.linogistix.los.util.DateHelper;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -61,6 +58,8 @@ import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.util.Wms2Properties;
 /*
  * TODO krane
  * Storage on fixed location. Do not suggest it, when receiving a different lot
@@ -128,12 +127,12 @@ public class GRDirectBean extends BasicDialogBean {
 	protected String currentUlLabel;
 	protected boolean currentUlLabelSelected;
 	protected BigDecimal currentAmount;
-	protected LOSAdvice currentAdvice;
+	protected AdviceLine currentAdvice;
 	protected Lot currentLot;
 	protected ItemData currentItemData;
 	protected UnitLoadType currentUnitLoadType;
 	protected int currentAmountOfProcessedUnitLoads = 0;
-	protected LOSGoodsReceipt currentGoodsReceipt;
+	protected GoodsReceipt currentGoodsReceipt;
 	protected String currentSerialNo;
 	protected String currentAddLocation;
 		
@@ -204,7 +203,7 @@ public class GRDirectBean extends BasicDialogBean {
 		collectLotAlways = propertyService.getBooleanDefault(getWorkstationName(), GRD_COLLECT_LOT_ALWAYS, collectLotAlways);
 		log.info(GRD_COLLECT_LOT_ALWAYS+"="+collectLotAlways);
 		
-		limitAmountToNotified = propertyService.getBooleanDefault(getWorkstationName(), LOSGoodsReceiptComponent.GR_LIMIT_AMOUNT_TO_NOTIFIED, limitAmountToNotified);
+		limitAmountToNotified = propertyService.getBooleanDefault(getWorkstationName(), Wms2Properties.KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED, limitAmountToNotified);
 		log.info("GR_LIMIT_AMOUNT_TO_NOTIFIED="+limitAmountToNotified );
 	}
 	public String getNavigationKey() {
@@ -359,7 +358,7 @@ public class GRDirectBean extends BasicDialogBean {
 		if( code.length() > 0 ) {
 			
 			List<GoodsReceiptTO> grList;
-			grList = queryGoodsReceiptService.getOpenDtoListByCode(code, limitAmountToNotified, LOSGoodsReceiptState.RAW, LOSGoodsReceiptState.ACCEPTED);
+			grList = queryGoodsReceiptService.getOpenDtoListByCode(code, limitAmountToNotified, OrderState.CREATED, OrderState.STARTED);
 			if( grList.size() == 0 ) {
 				JSFHelper.getInstance().message( resolve("MsgNothingFound") );
 				return "";
@@ -383,7 +382,7 @@ public class GRDirectBean extends BasicDialogBean {
 		try {
 			currentGoodsReceipt = queryGoodsReceiptService.fetchEager(selectedGoodsReceiptId);
 			
-			if(currentGoodsReceipt.getAssignedAdvices().size() == 0){
+			if(currentGoodsReceipt.getAdviceLines().size() == 0){
 				JSFHelper.getInstance().message( resolve("MsgNoAdviceAssigned") );
 				return "";
 			}
@@ -400,7 +399,7 @@ public class GRDirectBean extends BasicDialogBean {
 
 		// Try to identify the advice with the given code
 		if( code.length() > 0 ) {
-			List<LOSAdvice> adList;
+			List<AdviceLine> adList;
 			adList = queryAdviceService.getListByGoodsReceipCode( currentGoodsReceipt, code, limitAmountToNotified );
 			if( adList.size() == 1 ) {
 				selectedAdviceId = adList.get(0).getId();
@@ -423,7 +422,7 @@ public class GRDirectBean extends BasicDialogBean {
 			goodsReceiptList = new ArrayList<SelectItem>();
 		
 			List<GoodsReceiptTO> grList;
-			grList = queryGoodsReceiptService.getDtoListByStates(LOSGoodsReceiptState.RAW, LOSGoodsReceiptState.ACCEPTED);
+			grList = queryGoodsReceiptService.getDtoListByStates(OrderState.CREATED, OrderState.STARTED);
 			
 			for(GoodsReceiptTO gr:grList){
 				String label = gr.getGoodsReceiptNo()+" / "+gr.getSuplier()+" / "+gr.getDeliveryNoteNo();
@@ -461,7 +460,7 @@ public class GRDirectBean extends BasicDialogBean {
 		
 		if( code.length() > 0 ) {
 			
-			List<LOSAdvice> adList;
+			List<AdviceLine> adList;
 			adList = queryAdviceService.getListByGoodsReceipCode( currentGoodsReceipt, code, limitAmountToNotified );
 			if( adList.size() == 0 ) {
 				JSFHelper.getInstance().message( resolve("MsgNothingFound") );
@@ -469,8 +468,8 @@ public class GRDirectBean extends BasicDialogBean {
 			}
 			adviceList = new ArrayList<SelectItem>();
 			if( adList.size() != 1 ) {
-				for(LOSAdvice ad:adList){
-					String label = ad.getItemData().getNumber()+" / "+(ad.getLot() == null ? " --- / " : ad.getLot().getName()+" / ")+ad.getNotifiedAmount();
+				for(AdviceLine ad:adList){
+					String label = ad.getItemData().getNumber()+" / "+(ad.getLotNumber() == null ? " --- / " : ad.getLotNumber()+" / ")+ad.getAmount();
 					adviceList.add(new SelectItem(ad.getId(), label));
 				}
 				return"";
@@ -529,15 +528,15 @@ public class GRDirectBean extends BasicDialogBean {
 				return adviceList;
 			}
 			
-			List<LOSAdvice> adList = currentGoodsReceipt.getAssignedAdvices();
+			List<AdviceLine> adList = currentGoodsReceipt.getAdviceLines();
 		
-			for(LOSAdvice ad:adList){
+			for(AdviceLine ad:adList){
 				if( limitAmountToNotified ) {
-					if( ad.getNotifiedAmount().compareTo(ad.getReceiptAmount()) <= 0 ) {
+					if( ad.getAmount().compareTo(ad.getConfirmedAmount()) <= 0 ) {
 						continue;
 					}
 				}
-				String label = ad.getItemData().getNumber()+" / "+(ad.getLot() == null ? " --- / " : ad.getLot().getName()+" / ")+ad.getNotifiedAmount();
+				String label = ad.getItemData().getNumber()+" / "+(ad.getLotNumber() == null ? " --- / " : ad.getLotNumber()+" / ")+ad.getConfirmedAmount();
 				adviceList.add(new SelectItem(ad.getId(), label));
 			}
 		}
@@ -679,7 +678,7 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 		
 		if(code.length() == 0){
-			if(currentItemData.getResidualTermOfUsageGI() > 0){
+			if(currentItemData.getShelflife() > 0){
 				JSFHelper.getInstance().message( resolve("MsgEnterLotDate") );
 				return "";
 			}
@@ -693,14 +692,14 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 			
 		// Check if the valid period of received goods is long enough
-		if(currentItemData.getResidualTermOfUsageGI() > 0){
+		if(currentItemData.getShelflife() > 0){
 			
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DAY_OF_YEAR, currentItemData.getResidualTermOfUsageGI());
+			cal.add(Calendar.DAY_OF_YEAR, currentItemData.getShelflife());
 			Date minimumValidTo = cal.getTime();
 			
 			if(minimumValidTo.after(currentLotDate)){
-				JSFHelper.getInstance().message( resolve("MsgLotNotValid", ""+currentItemData.getResidualTermOfUsageGI() ) ); 
+				JSFHelper.getInstance().message( resolve("MsgLotNotValid", ""+currentItemData.getShelflife() ) ); 
 				return "";
 			}
 		}
@@ -712,7 +711,6 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 
 		currentLot = goodsReceiptFacade.createLot(
-				currentItemData.getClient(), 
 				inputLotName, 
 				currentItemData, 
 				currentLotDate);
@@ -806,10 +804,10 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 
 		if( currentAdvice != null ) {
-			BigDecimal amount = currentAdvice.getNotifiedAmount().subtract(currentAmount).subtract(currentAdvice.getReceiptAmount());
+			BigDecimal amount = currentAdvice.getAmount().subtract(currentAmount).subtract(currentAdvice.getConfirmedAmount());
 			if( BigDecimal.ZERO.compareTo(amount) > 0 ) {
 				if( limitAmountToNotified ) {
-					log.error("Amount is limited to notifiedAmount="+currentAdvice.getNotifiedAmount()+". receiptAmount="+currentAdvice.getReceiptAmount()+", enteredAmount="+currentAmount);
+					log.error("Amount is limited to notifiedAmount="+currentAdvice.getAmount()+". receiptAmount="+currentAdvice.getConfirmedAmount()+", enteredAmount="+currentAmount);
 					JSFHelper.getInstance().message( resolve("MsgAmountLimited") );
 					currentAmount = BigDecimal.ZERO;
 					return "";
@@ -1208,9 +1206,9 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 		
 		ItemData item = currentAdvice.getItemData();
-		int lock = (int)propertyService.getLongDefault(currentAdvice.getClient(), getWorkstationName(), LOSInventoryPropertyKey.GOODS_IN_DEFAULT_LOCK, 0);
-
 		Client cl = currentGoodsReceipt.getClient();
+		int lock = (int)propertyService.getLongDefault(cl, getWorkstationName(), LOSInventoryPropertyKey.GOODS_IN_DEFAULT_LOCK, 0);
+
 		
 		String printer = propertyService.getStringDefault(null, getWorkstationName(), LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER, LOSPrintService.NO_PRINTER);
 
@@ -1220,7 +1218,7 @@ public class GRDirectBean extends BasicDialogBean {
 				lotTo = new BODTO<Lot>(currentLot.getId(), currentLot.getVersion(), currentLot.getName());
 			}
 
-			goodsReceiptFacade.createGoodsReceiptPosition(
+			goodsReceiptFacade.createGoodsReceiptLine(
 										new BODTO<Client>(cl.getId(), cl.getVersion(), cl.getNumber()), 
 										currentGoodsReceipt, 
 										lotTo, 
@@ -1228,11 +1226,10 @@ public class GRDirectBean extends BasicDialogBean {
 										currentUlLabel,
 										new BODTO<UnitLoadType>(currentUnitLoadType.getId(), currentUnitLoadType.getVersion(), currentUnitLoadType.getName()),
 										currentAmount,
-										new BODTO<LOSAdvice>(currentAdvice.getId(), currentAdvice.getVersion(), currentAdvice.getAdviceNumber()),
-										LOSGoodsReceiptType.INTAKE,
+										new BODTO<AdviceLine>(currentAdvice.getId(), currentAdvice.getVersion(), currentAdvice.getLineNumber()),
 										lock, null, currentSerialNo, targetLocName, targetUlName,
 										printer );
-			
+
 			
 			currentAmountOfProcessedUnitLoads++;
 			
@@ -1272,7 +1269,7 @@ public class GRDirectBean extends BasicDialogBean {
 		return currentAdvice != null;
 	}
 	public String getAdviceLot() {
-		return currentAdvice == null ? null : currentAdvice.getLot() == null ? null : currentAdvice.getLot().getName();
+		return currentAdvice == null ? null : currentAdvice.getLotNumber();
 	}
 	
 	public String getInputCode() {
@@ -1282,7 +1279,7 @@ public class GRDirectBean extends BasicDialogBean {
 		this.inputCode = inputCode;
 	}
 	public String getOrderNo() {
-		return currentGoodsReceipt == null ? "" : currentGoodsReceipt.getGoodsReceiptNumber();
+		return currentGoodsReceipt == null ? "" : currentGoodsReceipt.getOrderNumber();
 	}
 
 	public String getItemDataNumber() {
@@ -1297,7 +1294,7 @@ public class GRDirectBean extends BasicDialogBean {
 		if( currentAdvice == null ) {
 			return "";
 		}
-		return "" + currentAdvice.getReceiptAmount() + " / " + currentAdvice.getNotifiedAmount() + " "+ currentAdvice.getItemData().getItemUnit();
+		return "" + currentAdvice.getAmount() + " / " + currentAdvice.getConfirmedAmount() + " "+ currentAdvice.getItemData().getItemUnit();
 	}
 
 	public String getAmount() {
@@ -1348,7 +1345,7 @@ public class GRDirectBean extends BasicDialogBean {
 	}
 	
 	public String getDeliverer() {
-		return currentGoodsReceipt == null ? "" : currentGoodsReceipt.getForwarder();
+		return currentGoodsReceipt == null ? "" : currentGoodsReceipt.getCarrierName();
 	}
 	public String getDeliveryNote() {
 		return currentGoodsReceipt == null ? "" : currentGoodsReceipt.getDeliveryNoteNumber();

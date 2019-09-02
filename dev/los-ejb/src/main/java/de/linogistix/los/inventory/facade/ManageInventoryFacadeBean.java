@@ -27,12 +27,10 @@ import org.mywms.model.Client;
 import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
-import de.linogistix.los.inventory.businessservice.LOSAdviceBusiness;
 import de.linogistix.los.inventory.customization.ManageItemDataService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.exception.InventoryTransactionException;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
@@ -41,6 +39,8 @@ import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.advice.Advice;
+import de.wms2.mywms.advice.AdviceBusiness;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
@@ -90,9 +90,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
     private LOSLotService lotService;
 	
     @EJB
-    private LOSAdviceBusiness goodsAdvice;
-	
-    @EJB
     private ContextService contextService;
     
     @EJB
@@ -126,6 +123,8 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private AdviceBusiness adviceBusiness;
 
 	/* 
 	 * @see ManageInventoryRemote#createItemData(java.lang.String, java.lang.String)
@@ -261,7 +260,10 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				lotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
-			goodsAdvice.goodsAdvise(c, itemData, batch, amount, expireBatch, expectedDelivery, "");
+			Advice advice = adviceBusiness.createOrder(c, null);
+			advice.setDeliveryDate(expectedDelivery);
+
+			adviceBusiness.addOrderLine(advice, itemData, batchRef, amount, 1);
 			
 			return true;
 		
@@ -316,9 +318,12 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				lotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
-			LOSAdvice adv = goodsAdvice.goodsAdvise(c, itemData, batch, amount, expireBatch, expectedDelivery, requestID);
-			adv.setAdditionalContent(comment);
+			Advice advice = adviceBusiness.createOrder(c, requestID);
+			advice.setDeliveryDate(expectedDelivery);
+			advice.setAdditionalContent(comment);
 			
+			adviceBusiness.addOrderLine(advice, itemData, batchRef, amount, 1);
+
 			return true;
 			
 		} catch (Throwable t){

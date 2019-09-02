@@ -12,6 +12,7 @@ import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
+import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardLotPanelUI;
@@ -34,6 +35,7 @@ public class PositionWizardLotPanelUI extends AbstractPositionWizardLotPanelUI{
     private PropertyChangeListener delegateTo;
     
     private ItemDataQueryRemote itemQueryRemote;
+    private LotQueryRemote lotQueryRemote;
     
     public PositionWizardLotPanelUI(PropertyChangeListener delegate){
         
@@ -75,9 +77,11 @@ public class PositionWizardLotPanelUI extends AbstractPositionWizardLotPanelUI{
         }
         else if (wm.selectedAdvice != null){
             ItemData item;
-            if(wm.selectedAdvice.getLot() != null){
-                
-                Lot lot = wm.selectedAdvice.getLot();
+            Lot lot = null;
+            if(wm.selectedAdvice.getLotNumber() != null){
+                lot = lotQueryRemote.queryByNameAndItemData(wm.selectedAdvice.getLotNumber(), wm.selectedAdvice.getItemData());
+            }
+            if(lot!=null) {
                 item = lot.getItemData();
                 BODTO<Lot> lotTO = new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.getName());
                 getLotComboBox().addItem(lotTO);

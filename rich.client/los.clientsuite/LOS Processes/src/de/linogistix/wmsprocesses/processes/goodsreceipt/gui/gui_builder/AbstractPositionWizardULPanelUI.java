@@ -41,9 +41,6 @@ public abstract class AbstractPositionWizardULPanelUI extends javax.swing.JPanel
     protected void postInit(){
         unitLoadLabelTextFieldPanel.add(getUnitLoadLabelTextField(), BorderLayout.CENTER);
         unitLoadTypeComboBoxPanel.add(getUnitLoadTypeComboBox(), BorderLayout.WEST);       
-        
-        getGoodsReceiptTypeComboBox().setTitle(
-                NbBundle.getMessage(WMSProcessesBundleResolver.class, "GoodsreceiptCenterPanel.receiptType"));
     }
 
     //------------------------------------------------------------------------
@@ -71,10 +68,6 @@ public abstract class AbstractPositionWizardULPanelUI extends javax.swing.JPanel
         return unitLoadLabelTextField;
     }
 
-    public LOSComboBox getGoodsReceiptTypeComboBox(){
-        return (LOSComboBox) goodsReceiptTypeComboBox;
-    }
-   
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -87,7 +80,6 @@ public abstract class AbstractPositionWizardULPanelUI extends javax.swing.JPanel
         java.awt.GridBagConstraints gridBagConstraints;
 
         identifyULButtonGroup = new javax.swing.ButtonGroup();
-        goodsReceiptTypeComboBox = new LOSComboBox();
         unitLoadPanel = new javax.swing.JPanel();
         infoLabel = new javax.swing.JLabel();
         unitLoadLabelTextFieldPanel = new javax.swing.JPanel();
@@ -97,13 +89,6 @@ public abstract class AbstractPositionWizardULPanelUI extends javax.swing.JPanel
 
         setPreferredSize(new java.awt.Dimension(520, 126));
         setLayout(new java.awt.GridBagLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 20, 0);
-        add(goodsReceiptTypeComboBox, gridBagConstraints);
 
         unitLoadPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -175,7 +160,6 @@ private void identifyULButtonItemStateChanged(java.awt.event.ItemEvent evt) {//G
 }//GEN-LAST:event_identifyULButtonItemStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel goodsReceiptTypeComboBox;
     protected javax.swing.JRadioButton identifyULButton;
     private javax.swing.ButtonGroup identifyULButtonGroup;
     protected javax.swing.JLabel infoLabel;

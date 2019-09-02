@@ -37,7 +37,9 @@ public class Wms2Properties {
 	public static final String KEY_UNITLOADTYPE_DEFAULT = "UNITLOADTYPE_DEFAULT";
 	public static final String KEY_AREA_DEFAULT = "AREA_DEFAULT";
 	public static final String KEY_REPORT_LOCALE = "REPORT_LOCALE";
+	public static final String KEY_SHIPPING_LOCATION = "SHIPPING_LOCATION";
 	public static final String KEY_SHIPPING_RENAME_UNITLOAD = "SHIPPING_RENAME_UNITLOAD";
+	public static final String KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED = "GOODS_RECEIPT_LIMIT_AMOUNT_TO_NOTIFIED";
 
 	/**
 	 * Names of system property groups

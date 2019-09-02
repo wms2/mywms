@@ -13,11 +13,11 @@ package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.product.ItemData;
 import java.awt.event.ActionEvent;
@@ -53,7 +53,7 @@ public class PositionWizard extends WizardDescriptor implements ActionListener, 
      * Creates a new instance of OrderByWizard
      */
     @SuppressWarnings("unchecked")
-    public PositionWizard(BODTO<Client> clientTO, LOSGoodsReceipt gr, LOSAdviceTO selectedAdvice, boolean isSingleUnitLoad, int defaultLock) throws InstantiationException {
+    public PositionWizard(BODTO<Client> clientTO, GoodsReceipt gr, LOSAdviceTO selectedAdvice, boolean isSingleUnitLoad, int defaultLock) throws InstantiationException {
         super(createPanels());
         goodsInDefaultLock = defaultLock;
 

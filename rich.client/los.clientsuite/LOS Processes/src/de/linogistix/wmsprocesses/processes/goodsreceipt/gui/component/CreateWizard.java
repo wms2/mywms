@@ -58,6 +58,10 @@ public class CreateWizard extends WizardDescriptor implements ActionListener, Ch
     
     boolean allowChangeOfClient = true;
     
+    int orderType;
+
+    String senderName;
+
     /**
      * Creates a new instance of OrderByWizard
      */

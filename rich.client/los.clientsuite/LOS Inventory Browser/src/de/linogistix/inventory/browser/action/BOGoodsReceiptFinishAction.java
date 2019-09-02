@@ -26,8 +26,8 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacade;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
 import org.openide.DialogDisplayer;
@@ -99,7 +99,7 @@ public final class BOGoodsReceiptFinishAction extends NodeAction {
                 node = (BOMasterNode)n;
                 
                 LOSGoodsReceiptQueryRemote goodsReceiptQuery = loc.getStateless(LOSGoodsReceiptQueryRemote.class);
-                LOSGoodsReceipt goodsReceipt = goodsReceiptQuery.queryById(node.getEntity().getId());
+                GoodsReceipt goodsReceipt = goodsReceiptQuery.queryById(node.getEntity().getId());
                 LOSGoodsReceiptFacade goodsReceiptFacade = loc.getStateless(LOSGoodsReceiptFacade.class);
                 goodsReceiptFacade.finishGoodsReceipt(goodsReceipt);
             }

@@ -16,6 +16,7 @@ import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacade;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractCreateWizardDetailPanel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptType;
 import de.wms2.mywms.location.StorageLocation;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
@@ -66,8 +67,14 @@ public class CreateWizardDetailPanelUI extends AbstractCreateWizardDetailPanel i
         //
     }
 
-    void initValues(BODTO<Client> client,BODTO<StorageLocation> gate, Date date, String deliverer, String externNumber ) {
+    void initValues(BODTO<Client> client,BODTO<StorageLocation> gate, Date date, String deliverer, String externNumber, int orderType, String senderName ) {
         LOSGoodsReceiptFacade goodsReceiptFacade;
+        
+        getOrderTypeField().addItem(new CreateWizardDetailPanelUI.TypeEntry(GoodsReceiptType.NORMAL));
+        getOrderTypeField().addItem(new CreateWizardDetailPanelUI.TypeEntry(GoodsReceiptType.RETOUR));
+        getOrderTypeField().setTitle(
+                NbBundle.getMessage(WMSProcessesBundleResolver.class, "CreateWizardDetailPanel.orderType"));
+        getOrderTypeField().setSelectedItem(new CreateWizardDetailPanelUI.TypeEntry(orderType));
         
         clear();
         try{
@@ -81,6 +88,7 @@ public class CreateWizardDetailPanelUI extends AbstractCreateWizardDetailPanel i
         if (client != null) clientComboBox.addItem(client);
         if (date != null) setDate(date);
         if (deliverer != null) setDeliverer(deliverer);
+        if (senderName != null) setSenderName(senderName);
         if (externNumber != null) setExternNumber(externNumber);
          try{
             getGateComboBox().removeAllItems();
@@ -106,17 +114,28 @@ public class CreateWizardDetailPanelUI extends AbstractCreateWizardDetailPanel i
         delivererTextfield.setText(deliverer);
     }
 
+    void setSenderName(String senderName) {
+        senderField.setText(senderName);
+    }
+
     void setExternNumber(String externNumber) {
         externNumberTextfield.setText(externNumber);
     }
 
-   
+    public int getOrderType(){
+        return ((CreateWizardDetailPanelUI.TypeEntry)getOrderTypeField().getSelectedItem()).type;
+    }
+
     boolean validateClient() {
         return clientComboBox.getSelectedItem() != null;
     }
     
     String getDeliverer(){
         return delivererTextfield.getText();
+    }
+
+    String getSenderName(){
+        return senderField.getText();
     }
     
     String getExternNumber(){
@@ -146,5 +165,27 @@ public class CreateWizardDetailPanelUI extends AbstractCreateWizardDetailPanel i
         externNumberTextfield.setText("");
     }
 
+    
+    public static final class TypeEntry {
 
+        public int type;
+
+        public TypeEntry(int type) {
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return NbBundle.getMessage(de.linogistix.common.res.CommonBundleResolver.class, "orderType."+type);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) return false;
+            if (! (obj instanceof TypeEntry)) return false;
+            if(this == obj) return true;
+            if (this.type == ((TypeEntry)obj).type) return true;
+            else return false; 
+        }        
+    }
 }

@@ -42,4 +42,5 @@ public interface LotQueryRemote extends BusinessObjectQueryRemote<Lot> {
 	
 	public Lot queryByNameAndItemData(Client c, String lotName, ItemData idat) throws BusinessObjectNotFoundException;
 
+	Lot queryByNameAndItemData(String lotName, ItemData itemData);
 }

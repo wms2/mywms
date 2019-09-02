@@ -117,7 +117,9 @@ final public class CreateWizardDetailPanel implements WizardDescriptor.Validatin
                 wizard.gate,
                 wizard.date,
                 wizard.deliverer,
-                wizard.externNumber);
+                wizard.externNumber,
+                wizard.orderType,
+                wizard.senderName);
     }
 
     /** Provides the wizard panel with the opportunity to update the
@@ -137,7 +139,8 @@ final public class CreateWizardDetailPanel implements WizardDescriptor.Validatin
         wizard.deliverer = ui.getDeliverer();
         wizard.externNumber = ui.getExternNumber();
         wizard.date = ui.getDate();
-
+        wizard.orderType=ui.getOrderType();
+        wizard.senderName=ui.getSenderName();
     }
 
     public boolean isFinishPanel() {

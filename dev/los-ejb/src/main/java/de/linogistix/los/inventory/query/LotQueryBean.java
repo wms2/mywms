@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
@@ -35,6 +36,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.product.ItemData;
 
 /**
@@ -57,7 +59,9 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 	
 	@EJB
 	LOSLotService losLotService;
-	
+	@Inject
+	private LotEntityService lotEntityService;
+
 	
 	/**
 	 * In contrast to myWMS model we regard the name of a lot as unique.
@@ -212,7 +216,10 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 			throw new BusinessObjectNotFoundException();
 		}
 	}
-	
+	public Lot queryByNameAndItemData(String lotName, ItemData itemData) {
+		return lotEntityService.read(itemData, lotName);
+	}
+
     @Override
 	protected List<TemplateQueryWhereToken> getFilterTokens(String filterString) {
 

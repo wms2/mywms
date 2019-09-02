@@ -20,7 +20,6 @@ import org.mywms.model.Client;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
@@ -29,7 +28,7 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 
 /**
- * Facade for managing {@link ItemData}, {@link LOSAdvice} and {@link StockUnit} in the warehouse.
+ * Facade for managing item data, advice and stock unit in the warehouse.
  * 
  * @author trautm
  *

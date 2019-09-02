@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.example.TopologyBeanTest;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.query.LOSGoodsOutRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.location.query.LOSUnitLoadQueryRemote;
@@ -32,7 +31,6 @@ import junit.framework.TestCase;
     public LOSGoodsReceiptFacade bean;
     protected TopologyBeanTest topology;
     
-    public LOSGoodsReceipt GR;
     
     BODTO<Client> cdto;
     BODTO<StorageLocation> goodsInLocation;

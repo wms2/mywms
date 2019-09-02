@@ -10,15 +10,16 @@ package de.linogistix.los.inventory.query.dto;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSAdviceState;
-import de.linogistix.los.query.BODTO;
+import org.mywms.model.Client;
 
-public class LOSAdviceTO extends BODTO<LOSAdvice> {
+import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.advice.AdviceLine;
+
+public class LOSAdviceTO extends BODTO<AdviceLine> {
 
 	private static final long serialVersionUID = 1L;
 
-	public String state;
+	public int state;
 
 	public BigDecimal receiptAmount;
 
@@ -37,46 +38,44 @@ public class LOSAdviceTO extends BODTO<LOSAdvice> {
 	public LOSAdviceTO() {
 	}
 
-	public LOSAdviceTO(Long id, int version, String name, String client,
-			LOSAdviceState state, BigDecimal amount, BigDecimal notifiedAmount,
-			String itemNumber, String itemName, int scale, String lot, Date date) {
+	public LOSAdviceTO(Long id, int version, String name, 
+			int state, BigDecimal amount, BigDecimal confirmedAmount,
+			String itemNumber, String itemName, int scale, String lot, String client, Date expectedDelivery) {
 		super(id, version, name);
-		this.state = state.name();
-		this.receiptAmount = amount.setScale(scale);
-		this.notifiedAmount = notifiedAmount.setScale(scale);
+		this.state = state;
+		this.notifiedAmount = amount.setScale(scale);
+		this.receiptAmount = confirmedAmount.setScale(scale);
 		this.itemData = itemNumber;
 		this.itemDataName = itemName;
 		this.lot = lot;
 		this.client = client;
-		this.expectedDelivery = date;
-		setClassName(LOSAdvice.class.getName());
+		this.expectedDelivery = expectedDelivery;
+		setClassName(AdviceLine.class.getName());
 	}
 
-	public LOSAdviceTO(LOSAdvice adv) {
-		super(adv.getId(), adv.getVersion(), adv.getAdviceNumber() );
-		this.state = adv.getAdviceState().toString();
-		this.receiptAmount = adv.getReceiptAmount().setScale(adv.getItemData().getScale());
-		this.notifiedAmount = adv.getNotifiedAmount().setScale(adv.getItemData().getScale());
+	public LOSAdviceTO(AdviceLine adv) {
+		super(adv.getId(), adv.getVersion(), adv.getLineNumber() );
+		this.state = adv.getState();
+		this.receiptAmount = adv.getAmount().setScale(adv.getItemData().getScale());
+		this.notifiedAmount = adv.getConfirmedAmount().setScale(adv.getItemData().getScale());
 		this.itemData = adv.getItemData().getNumber();;
 		this.itemDataName = adv.getItemData().getName();;
 
-		if (adv.getLot() != null) {
-			this.lot = adv.getLot().getName();
-		}
-		this.client = adv.getClient().getNumber();
-		this.expectedDelivery = adv.getExpectedDelivery();
-		setClassName(LOSAdvice.class.getName());
+		this.lot = adv.getLotNumber();
+		this.client = adv.getAdvice().getClient().getNumber();
+		this.expectedDelivery = adv.getAdvice().getDeliveryDate();
+		setClassName(AdviceLine.class.getName());
 	}
 
 	public LOSAdviceTO(Long id, int version, String name) {
 		super(id, version, name);
 	}
 
-	public String getState() {
+	public int getState() {
 		return state;
 	}
 
-	public void setState(String state) {
+	public void setState(int state) {
 		this.state = state;
 	}
 

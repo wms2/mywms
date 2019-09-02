@@ -109,9 +109,6 @@ final public class PositionWizardULPanel implements WizardDescriptor.ValidatingP
         if (wizard.model.ulType != null){
            getPanelUI().setUnitLoadType(wizard.model.ulType);
         }
-        if(wizard.model.type != null){
-            getPanelUI().setSelectedGoodsReceiptType(wizard.model.type);
-        }
         getPanelUI().setSingleUnitLoad(wizard.model.isSingleUnitLoad);
         if(wizard.model.isSingleUnitLoad) {
             SwingUtilities.invokeLater(new Runnable() {
@@ -137,7 +134,6 @@ final public class PositionWizardULPanel implements WizardDescriptor.ValidatingP
         wizard.model.isSingleUnitLoad = getPanelUI().isSingleUnitLoad();
         wizard.model.unitLoadLabelId = getPanelUI().getUnitLoadLabel();
         wizard.model.ulType = getPanelUI().getUnitLoadType();
-        wizard.model.type = getPanelUI().getSelectedGoodsReceiptType();
     }
 
     public void validate() throws WizardValidationException {

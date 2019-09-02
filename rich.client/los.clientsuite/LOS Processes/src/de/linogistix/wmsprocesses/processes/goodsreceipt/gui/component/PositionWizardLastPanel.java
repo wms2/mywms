@@ -10,8 +10,6 @@
  */
 package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 
-import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
-import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardLastPanelUI.TypeEntry;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.event.ChangeListener;
@@ -122,7 +120,6 @@ final public class PositionWizardLastPanel implements WizardDescriptor.Validatin
         this.wizard = (PositionWizard) settings;
         getPanelUI().implStoreSettings(settings);
         wizard.model.sameCount = Integer.parseInt(getPanelUI().getSameTextField().getText());
-        wizard.model.type = ((TypeEntry) (getPanelUI().getTypeComboBox().getSelectedItem())).type;
     }
 
     public boolean isFinishPanel() {

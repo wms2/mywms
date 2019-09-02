@@ -11,10 +11,10 @@
 
 package de.linogistix.los.inventory.crud;
 
-import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSAdvice;
-
 import javax.ejb.Remote;
+
+import de.linogistix.los.crud.BusinessObjectCRUDRemote;
+import de.wms2.mywms.advice.AdviceLine;
 
 
 /**
@@ -25,6 +25,6 @@ import javax.ejb.Remote;
  *
  */
 @Remote
-public interface LOSAdviceCRUDRemote extends BusinessObjectCRUDRemote<LOSAdvice>{
+public interface LOSAdviceCRUDRemote extends BusinessObjectCRUDRemote<AdviceLine>{
 
 }

@@ -375,12 +375,12 @@ public class PersistenceManager {
 
 		entity = (ENTITY_TYPE) manager.find(getDerivedType(entity.getClass()), entity.getId());
 		if (entity == null) {
-			logger.log(Level.WARNING, logStr + "Cannot read entity. entity="+entity);
+			logger.log(Level.WARNING, logStr + "Cannot read entity. entity=" + entity);
 			throw new BusinessException(BundleResolver.class, "PeristenceManager.cannotReadEntity");
 		}
 
 		if (checkVersion && entity.getVersion() != version) {
-			logger.log(Level.WARNING, logStr + "Object version has changed. entity="+entity);
+			logger.log(Level.WARNING, logStr + "Object version has changed. entity=" + entity);
 			throw new BusinessException(BundleResolver.class, "Validator.versionConflict");
 		}
 
@@ -506,6 +506,10 @@ public class PersistenceManager {
 	public <ENTITY_TYPE> ENTITY_TYPE eagerRead(ENTITY_TYPE entity, boolean readReferencedEntities) {
 		String logStr = "eagerRead ";
 
+		if (entity == null) {
+			return null;
+		}
+
 		Class<?> actuClass = entity.getClass();
 		while (!actuClass.equals(Object.class) && !actuClass.equals(BasicEntity.class)) {
 
@@ -612,14 +616,14 @@ public class PersistenceManager {
 	/**
 	 * @see EntityManager#contains(Object)
 	 */
-    public boolean contains(Object entity) {
+	public boolean contains(Object entity) {
 		return manager.contains(entity);
 	}
 
 	/**
 	 * @see EntityManager#contains(Object)
 	 */
-    public <T> T merge(T entity) {
+	public <T> T merge(T entity) {
 		return manager.merge(entity);
 	}
 

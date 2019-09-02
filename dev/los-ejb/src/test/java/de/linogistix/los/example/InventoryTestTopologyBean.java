@@ -32,9 +32,6 @@ import de.linogistix.los.crud.BusinessObjectExistsException;
 import de.linogistix.los.crud.BusinessObjectMergeException;
 import de.linogistix.los.crud.BusinessObjectModifiedException;
 import de.linogistix.los.inventory.customization.ManageUnitLoadAdviceService;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
@@ -355,9 +352,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			clearOrderRequests();
 			clearStorageRequests();
 			clearUnitloadAdvices();
-			clearGoodsReceipts();
 			clearOrderStrat();
-			clearAdvices();
 			
 			clearStockUnits();
 			
@@ -368,87 +363,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			
 		} catch (InventoryTopologyException ex) {
 			throw ex;
-		} catch (Throwable e) {
-			log.error(e.getMessage(), e);
-			throw new InventoryTopologyException();
-		}
-	}
-
-	public void clearAdvices() throws InventoryTopologyException {
-		initClient();
-		try {
-			QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-			TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			TemplateQueryWhereToken t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			TemplateQuery q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(LOSAdvice.class);
-
-			List<LOSAdvice> l = adQuery.queryByTemplate(d, q);
-			for (LOSAdvice a : l) {
-				a = em.find(LOSAdvice.class, a.getId());
-				em.remove(a);
-			}
-			em.flush();
-		} catch (Throwable e) {
-			log.error(e.getMessage(), e);
-			throw new InventoryTopologyException();
-		}
-
-	}
-
-	public void clearGoodsReceipts() throws InventoryTopologyException {
-		initClient();
-		try {
-			
-			QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-			TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			TemplateQueryWhereToken t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");
-			t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			TemplateQuery q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(LOSGoodsReceiptPosition.class);
-
-			List<LOSGoodsReceiptPosition> l = goodsRecPosQuery.queryByTemplate(d, q);
-			for (LOSGoodsReceiptPosition pp : l) {
-				pp = em.find(LOSGoodsReceiptPosition.class, pp.getId());
-					em.remove(pp);
-			}
-			
-			//--------------
-			
-			d = new QueryDetail(0, Integer.MAX_VALUE);
-			t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");
-			t2.setParameterName("client2");t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(LOSGoodsReceipt.class);
-
-			List<LOSGoodsReceipt> re = goodsRecQuery.queryByTemplate(d, q);
-			for (LOSGoodsReceipt u : re) {
-				u = em.find(LOSGoodsReceipt.class, u.getId());
-				em.remove(u);
-			}
-			em.flush();
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
 			throw new InventoryTopologyException();

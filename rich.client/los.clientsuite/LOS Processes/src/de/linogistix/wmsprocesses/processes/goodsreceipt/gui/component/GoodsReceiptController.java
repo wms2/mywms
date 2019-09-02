@@ -17,13 +17,7 @@ import de.linogistix.common.util.GraphicUtil;
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.inventory.crud.LOSGoodsReceiptCRUDRemote;
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.exception.InventoryTransferException;
 import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacade;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptType;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
@@ -36,6 +30,10 @@ import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
@@ -82,7 +80,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
     void addAssignedAdvice(LOSAdviceTO adv) {
                 
         try {
-            goodsReceiptFacade.assignLOSAdvice(adv, goodsReceiptNode.getGoodsReceipt());
+            goodsReceiptFacade.assignAdvice(adv, goodsReceiptNode.getGoodsReceipt());
             reloadGoodsReceipt();
             updateAdviceView();
         } catch (FacadeException ex) {
@@ -98,20 +96,18 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             String labelId,
             BODTO<UnitLoadType> ulType, 
             BigDecimal amount,
-            BODTO<LOSAdvice> adv,
-            LOSGoodsReceiptType type,
+            BODTO<AdviceLine> adv,
             int lock,
             String info) throws FacadeException {
         
             
-            goodsReceiptFacade.createGoodsReceiptPosition(client, 
+            goodsReceiptFacade.createGoodsReceiptLine(client, 
                     this.goodsReceiptNode.getGoodsReceipt(),
                     lot,
                     item,
                     labelId, 
                     ulType,
                     amount, adv, 
-                    type,
                     lock, 
                     info
                     );
@@ -122,7 +118,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             goodsReceiptFacade.acceptGoodsReceipt(this.goodsReceiptNode.getGoodsReceipt());
     }
     
-    LOSGoodsReceiptPosition createPositionAndLot(
+    GoodsReceiptLine createPositionAndLot(
             BODTO<Client> client,
             String lotName,
             Date validFrom,
@@ -132,23 +128,20 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             String labelId,
             BODTO<UnitLoadType> ulType, 
             BigDecimal amount,
-            BODTO<LOSAdvice> adv,
-            LOSGoodsReceiptType type,
+            BODTO<AdviceLine> adv,
             int lock,
             String info) throws FacadeException {
         
-            LOSGoodsReceiptPosition grPos;
-            grPos = goodsReceiptFacade.createGoodsReceiptPositionAndLot(client, 
+            GoodsReceiptLine grPos;
+            grPos = goodsReceiptFacade.createGoodsReceiptLineAndLot(client, 
                                         this.goodsReceiptNode.getGoodsReceipt(),
                                         lotName,
                                         validFrom,
                                         validTo,
-                                        expireLot,
                                         item,
                                         labelId, 
                                         ulType,
                                         amount, adv, 
-                                        type,
                                         lock, 
                                         info
                                         );
@@ -159,22 +152,23 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         
     }
 
-    void edit(BODTO<Client> client, String string, String string0, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info) throws FacadeException {
+    void edit(BODTO<Client> client, String string, String string0, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info, int orderType, String senderName) throws FacadeException {
         
         LOSGoodsReceiptCRUDRemote crud = loc.getStateless(LOSGoodsReceiptCRUDRemote.class);
         ClientQueryRemote clQuery = loc.getStateless(ClientQueryRemote.class);
         LOSStorageLocationQueryRemote slQuery = loc.getStateless(LOSStorageLocationQueryRemote.class);
         
-        LOSGoodsReceipt r = goodsReceiptNode.getGoodsReceipt();
+        GoodsReceipt r = goodsReceiptNode.getGoodsReceipt();
         Client cl = clQuery.queryById(client.getId());
         
         
         r.setClient(cl);
         r.setDeliveryNoteNumber(externNumber);
-        r.setForwarder(deliverer);
-        r.setReceiptDate(date);
-        r.setGoodsInLocation(slQuery.queryById(gate.getId()));
+        r.setCarrierName(deliverer);
+        r.setStorageLocation(slQuery.queryById(gate.getId()));
         r.setAdditionalContent(info);
+        r.setOrderType(orderType);
+        r.setSenderName(senderName);
         
         crud.update(r);
         reloadGoodsReceipt();
@@ -182,10 +176,10 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
     
     void removeAssignedAdvice(LOSAdviceTO adv) {
         try {
-            goodsReceiptFacade.removeAssigendLOSAdvice(adv, goodsReceiptNode.getGoodsReceipt());
+            goodsReceiptFacade.removeAssigendAdvice(adv, goodsReceiptNode.getGoodsReceipt());
             this.goodsReceiptNode.removeAssignedAdvice(adv);
             updateAdviceView();
-        } catch (InventoryException ex) {
+        } catch (BusinessException ex) {
             ExceptionAnnotator.annotate(ex);
         }
     }
@@ -213,13 +207,13 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         }
     }
 
-    void createGoodsReceipt(BODTO<Client> client, String licence, String driver, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info) {
+    void createGoodsReceipt(BODTO<Client> client, String licence, String driver, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info, int orderType, String senderName) {
         if( goodsReceiptFacade == null ) {
             log.info("Facade not loaded");
             init();
         }
         
-        LOSGoodsReceipt r = goodsReceiptFacade.createGoodsReceipt(client, licence, driver, deliverer, externNumber, date, gate, info);
+        GoodsReceipt r = goodsReceiptFacade.createGoodsReceipt(client, senderName, deliverer, externNumber, date, gate, info, orderType);
         
         try {
             if (r != null) {
@@ -261,7 +255,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         }
     }
     
-    LOSAdvice getAdvice(Long id) throws BusinessObjectNotFoundException, BusinessObjectSecurityException {
+    AdviceLine getAdvice(Long id) throws BusinessObjectNotFoundException, BusinessObjectSecurityException {
         return adviceQuery.queryById(id);
     }
 
@@ -286,29 +280,13 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             return;
         }
 
-        LOSGoodsReceipt gr = null;
+        GoodsReceipt gr = null;
         
         try {
-            gr = this.goodsReceiptNode.getGoodsReceipt();
-            gr.setReceiptState(LOSGoodsReceiptState.TRANSFER);
-            goodsReceiptCrud.update(gr);
-            
-            gr = goodsReceiptQuery.queryById(gr.getId());
-
             goodsReceiptFacade.finishGoodsReceipt(gr);
             
         } catch (InventoryException ex) {
             ExceptionAnnotator.annotate(ex);
-            
-            gr.setReceiptState(LOSGoodsReceiptState.ACCEPTED);
-            try {
-                goodsReceiptCrud.update(gr);
-            } catch (Exception ex1) {
-                ex1.printStackTrace();
-            } 
-                        
-        } catch(InventoryTransferException ite){
-            ExceptionAnnotator.annotate(ite);
         } catch(Exception e){
             ExceptionAnnotator.annotate(e);
         }
@@ -327,7 +305,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         }
 
         try {
-            LOSGoodsReceipt gr = this.goodsReceiptNode.getGoodsReceipt();
+            GoodsReceipt gr = this.goodsReceiptNode.getGoodsReceipt();
             if( gr == null ) {
                 return;
             }
@@ -370,9 +348,9 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
 //        }
 //    }
 
-    void removePosition(LOSGoodsReceiptPosition p) {
+    void removePosition(GoodsReceiptLine p) {
         try{
-            goodsReceiptFacade.removeGoodsReceiptPosition(goodsReceiptNode.getGoodsReceipt(), p);
+            goodsReceiptFacade.removeGoodsReceiptLine(p);
             
             reloadGoodsReceipt();
             
@@ -397,7 +375,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         if( goodsReceiptNode == null ) {
             return;
         }
-        LOSGoodsReceipt gr = goodsReceiptFacade.getGoodsReceipt(goodsReceiptNode.getGoodsReceipt());
+        GoodsReceipt gr = goodsReceiptFacade.getGoodsReceipt(goodsReceiptNode.getGoodsReceipt());
         try{
             goodsReceiptNode = new GoodsReceiptNode(gr);
         } catch (Throwable t){
@@ -436,11 +414,11 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
     }
 
     protected void onGoodsReceiptChanged(PropertyChangeEvent evt) {
-        BODTO<LOSGoodsReceipt> to;
-        to = (BODTO<LOSGoodsReceipt>) evt.getNewValue();
+        BODTO<GoodsReceipt> to;
+        to = (BODTO<GoodsReceipt>) evt.getNewValue();
 //        log.info("onGoodsReceiptChanged");
         try {
-            LOSGoodsReceipt goodsReceipt = null;
+            GoodsReceipt goodsReceipt = null;
             if (to != null) {
                 goodsReceipt = goodsReceiptQuery.queryById(to.getId());
             }
@@ -510,9 +488,9 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
     private void switchCreated() {
         log.info("switchCreation");
 
-        LOSGoodsReceipt gr = this.goodsReceiptNode.getGoodsReceipt();
+        GoodsReceipt gr = this.goodsReceiptNode.getGoodsReceipt();
         
-        BODTO<LOSGoodsReceipt> to = new BODTO<LOSGoodsReceipt>(gr.getId(), gr.getVersion(), gr.toUniqueString());
+        BODTO<GoodsReceipt> to = new BODTO<GoodsReceipt>(gr.getId(), gr.getVersion(), gr.toUniqueString());
         topComponent.centerPanel.getGoodsReceiptComboBox().addItem(to);
         
         topComponent.centerPanel.getClientTextfield().setText(gr.getClient().toUniqueString());
@@ -520,20 +498,20 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         
         topComponent.centerPanel.getAdviceTabelPanel().setEnabled(true);
 
-        topComponent.centerPanel.getLocationTextfield().setText(gr.getGoodsInLocation().toUniqueString());
+        topComponent.centerPanel.getLocationTextfield().setText(gr.getStorageLocation().toUniqueString());
         topComponent.centerPanel.getLocationTextfield().setEditable(false);
 
         topComponent.centerPanel.getInfoTextArea().setText(gr.getAdditionalContent());
         topComponent.centerPanel.getInfoTextArea().setEditable(false);
 
-        topComponent.centerPanel.getDelivererTextField().setText(gr.getForwarder());
+        topComponent.centerPanel.getDelivererTextField().setText(gr.getCarrierName());
         topComponent.centerPanel.getDelivererTextField().setEditable(false);
 
         topComponent.centerPanel.getExternNumberTextField().setText(gr.getDeliveryNoteNumber());
         topComponent.centerPanel.getExternNumberTextField().setEditable(false);
 
         topComponent.centerPanel.getStateTextField().setText(NbBundle.getMessage(
-                CommonBundleResolver.class,gr.getReceiptState().getClass().getSimpleName() + "." + gr.getReceiptState().name()));
+                CommonBundleResolver.class,"state." + gr.getState()));
         topComponent.centerPanel.getStateTextField().setEditable(false);
 
         topComponent.centerPanel.getDateTextField().setText(new SimpleDateFormat("dd.MM.yyyy").format(gr.getReceiptDate()));
@@ -572,27 +550,27 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             return;
         }
         
-        LOSGoodsReceipt gr = this.goodsReceiptNode.getGoodsReceipt();
+        GoodsReceipt gr = this.goodsReceiptNode.getGoodsReceipt();
 
         topComponent.centerPanel.getClientTextfield().setText(gr.getClient().toUniqueString());
         topComponent.centerPanel.getClientTextfield().setEditable(false); 
         
         topComponent.centerPanel.getAdviceTabelPanel().setEnabled(true);
 
-        topComponent.centerPanel.getLocationTextfield().setText(gr.getGoodsInLocation().toUniqueString());
+        topComponent.centerPanel.getLocationTextfield().setText(gr.getStorageLocation().toUniqueString());
         topComponent.centerPanel.getLocationTextfield().setEditable(false);
 
         topComponent.centerPanel.getInfoTextArea().setText(gr.getAdditionalContent());
         topComponent.centerPanel.getInfoTextArea().setEditable(false);
 
-        topComponent.centerPanel.getDelivererTextField().setText(gr.getForwarder());
+        topComponent.centerPanel.getDelivererTextField().setText(gr.getCarrierName());
         topComponent.centerPanel.getDelivererTextField().setEditable(false);
 
         topComponent.centerPanel.getExternNumberTextField().setText(gr.getDeliveryNoteNumber());
         topComponent.centerPanel.getExternNumberTextField().setEditable(false);
         
         topComponent.centerPanel.getStateTextField().setText(NbBundle.getMessage(
-                CommonBundleResolver.class,gr.getReceiptState().getClass().getSimpleName() + "." + gr.getReceiptState().name()));
+                CommonBundleResolver.class,"state." + gr.getState()));
         topComponent.centerPanel.getStateTextField().setEditable(false);
 
         topComponent.centerPanel.getDateTextField().setText(new SimpleDateFormat("dd.MM.yyyy").format(gr.getReceiptDate()));
@@ -612,7 +590,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
 
     public void addSelection(BODTO selectedValue) throws VetoException {
         try {
-            goodsReceiptFacade.assignLOSAdvice(selectedValue, goodsReceiptNode.getGoodsReceipt());
+            goodsReceiptFacade.assignAdvice(selectedValue, goodsReceiptNode.getGoodsReceipt());
             reloadGoodsReceipt();
         } catch (FacadeException ex) {
             ExceptionAnnotator.annotate(ex);
@@ -622,9 +600,9 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
 
     public void removeSelection(BODTO selectedValue) throws VetoException {
         try {
-            goodsReceiptFacade.removeAssigendLOSAdvice(selectedValue, goodsReceiptNode.getGoodsReceipt());
+            goodsReceiptFacade.removeAssigendAdvice(selectedValue, goodsReceiptNode.getGoodsReceipt());
             this.goodsReceiptNode.removeAssignedAdvice((LOSAdviceTO) selectedValue);
-        } catch (InventoryException ex) {
+        } catch (BusinessException ex) {
             ExceptionAnnotator.annotate(ex);
             throw new VetoException();
         }

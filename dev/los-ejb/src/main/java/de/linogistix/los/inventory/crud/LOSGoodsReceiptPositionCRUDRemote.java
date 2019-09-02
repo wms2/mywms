@@ -14,7 +14,7 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 
 
 /**
@@ -25,6 +25,6 @@ import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
  *
  */
 @Remote
-public interface LOSGoodsReceiptPositionCRUDRemote extends BusinessObjectCRUDRemote<LOSGoodsReceiptPosition>{
+public interface LOSGoodsReceiptPositionCRUDRemote extends BusinessObjectCRUDRemote<GoodsReceiptLine>{
 
 }

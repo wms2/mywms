@@ -11,14 +11,14 @@
 
 package de.linogistix.los.inventory.crud;
 
-import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.service.QueryAdviceService;
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import org.mywms.service.BasicService;
+
+import de.linogistix.los.crud.BusinessObjectCRUDBean;
+import de.linogistix.los.inventory.service.QueryAdviceService;
+import de.wms2.mywms.advice.AdviceLine;
 
 
 
@@ -27,13 +27,13 @@ import org.mywms.service.BasicService;
  *
  */
 @Stateless
-public class LOSAdviceCRUDBean extends BusinessObjectCRUDBean<LOSAdvice> implements LOSAdviceCRUDRemote {
+public class LOSAdviceCRUDBean extends BusinessObjectCRUDBean<AdviceLine> implements LOSAdviceCRUDRemote {
 
 	@EJB 
 	QueryAdviceService service;
 	
 	@Override
-	protected BasicService<LOSAdvice> getBasicService() {
+	protected BasicService<AdviceLine> getBasicService() {
 		
 		return service;
 	}

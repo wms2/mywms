@@ -12,6 +12,7 @@ import javax.ejb.Local;
 import org.mywms.facade.FacadeException;
 
 import de.wms2.mywms.document.Document;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.UnitLoad;
 
 /**
@@ -30,6 +31,6 @@ public interface LOSStockUnitLabelReport {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public Document generateStockUnitLabel(UnitLoad unitLoad) throws FacadeException;
+	public Document generateStockUnitLabel(UnitLoad unitLoad) throws BusinessException;
 	
 }

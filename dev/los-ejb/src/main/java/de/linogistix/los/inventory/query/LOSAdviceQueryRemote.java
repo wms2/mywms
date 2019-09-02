@@ -12,21 +12,15 @@
 package de.linogistix.los.inventory.query;
 
 
-import java.util.List;
-
 import javax.ejb.Remote;
 
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSAdviceState;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
-import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
-import de.linogistix.los.query.exception.BusinessObjectQueryException;
+import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 
@@ -36,31 +30,13 @@ import de.wms2.mywms.product.ItemData;
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Remote
-public interface LOSAdviceQueryRemote extends BusinessObjectQueryRemote<LOSAdvice>{ 
+public interface LOSAdviceQueryRemote extends BusinessObjectQueryRemote<AdviceLine>{ 
   
-	/**
-	 * Returns DTO of those {@link LOSAdvice} that are not finished yet, i.e. in {@link LOSAdviceState#FINISHED}
-	 * @return
-	 * @throws BusinessObjectNotFoundException
-	 * @throws BusinessObjectQueryException
-	 */
-	public List<BODTO<LOSAdvice>>  queryGoodsToCome(QueryDetail qd) 
-		throws BusinessObjectNotFoundException, BusinessObjectQueryException;
-	
-	public LOSResultList<BODTO<LOSAdvice>> autoCompletionByClientLotItemdata(
+	public LOSResultList<BODTO<AdviceLine>> autoCompletionByClientLotItemdata(
                                                             String exp,
                                                             BODTO<Client> client, 
                                                             BODTO<ItemData> item,
                                                             BODTO<Lot> lot,
                                                             QueryDetail detail);
-	/**
-	 * Retuns list of BODTO<LOSAdvice> that are assigned to given {@link LOSGoodsReceipt}.
-	 * 
-	 * @param gr
-	 * @param detail
-	 * @return list of BODTO<LOSAdvice> that are assigned to given {@link LOSGoodsReceipt}.
-	 */
-//	public LOSResultList<BODTO<LOSAdvice>> queryByAssingigGoodsReceipt(BODTO<LOSGoodsReceipt> gr, QueryDetail detail);
-	
 	public boolean hasSingleClient();
 }

@@ -17,17 +17,17 @@ import de.linogistix.common.bobrowser.query.gui.component.BOQueryComponentProvid
 import de.linogistix.common.bobrowser.query.gui.component.DefaultBOQueryComponentProvider;
 import de.linogistix.common.bobrowser.query.gui.component.TemplateQueryWizardProvider;
 import de.linogistix.inventory.browser.masternode.BOLOSGoodsReceiptPositionMasterNode;
-import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSGoodsReceiptPositionCRUDRemote;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptPositionQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
+import de.wms2.mywms.strategy.OrderState;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +81,10 @@ public class BOLOSGoodsReceiptPosition extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSGoodsReceiptPosition o;
+      GoodsReceiptLine o;
     
-    o = new LOSGoodsReceiptPosition();
-    o.setPositionNumber("123");
+    o = new GoodsReceiptLine();
+    o.setLineNumber("123");
     
     return o;
     
@@ -105,7 +105,7 @@ public class BOLOSGoodsReceiptPosition extends BO {
   
     @Override
   public Class initBundleResolver() {
-    return CommonBundleResolver.class;
+    return InventoryBundleResolver.class;
   }
   
     @Override
@@ -148,6 +148,20 @@ public class BOLOSGoodsReceiptPosition extends BO {
     @Override
     protected Class<? extends Node> initBoMasterNodeType() {
         return BOLOSGoodsReceiptPositionMasterNode.class;
+    }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(OrderState.CREATED);
+            entryList.add(OrderState.STARTED);
+            entryList.add(OrderState.FINISHED);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
   
 }

@@ -15,8 +15,8 @@ import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.los.inventory.facade.AdviceFacade;
-import de.linogistix.los.inventory.model.LOSAdvice;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.advice.AdviceLine;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
@@ -88,7 +88,7 @@ public final class BOAdviceRemoveAction extends NodeAction {
                 if (!(n instanceof BOMasterNode)) {
                     log.warning("Not a BOMasterNodeType: " + n.toString());
                 }
-                BODTO<LOSAdvice> adviceTo = (((BOMasterNode)n).getEntity());
+                BODTO<AdviceLine> adviceTo = (((BOMasterNode)n).getEntity());
                 facade.removeAdvise(adviceTo);
             }
         } catch (FacadeException ex) {

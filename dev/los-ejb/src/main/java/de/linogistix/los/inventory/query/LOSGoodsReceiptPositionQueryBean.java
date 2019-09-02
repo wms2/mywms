@@ -16,23 +16,19 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptState;
 import de.linogistix.los.inventory.query.dto.LOSGoodsReceiptPositionTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
-import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
-import de.linogistix.los.runtime.BusinessObjectSecurityException;
-import de.linogistix.los.util.BusinessObjectHelper;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
+import de.wms2.mywms.strategy.OrderState;
 
 /**
  *
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Stateless
-public class LOSGoodsReceiptPositionQueryBean extends BusinessObjectQueryBean<LOSGoodsReceiptPosition> implements LOSGoodsReceiptPositionQueryRemote{
+public class LOSGoodsReceiptPositionQueryBean extends BusinessObjectQueryBean<GoodsReceiptLine> implements LOSGoodsReceiptPositionQueryRemote{
 
 	@Override
 	protected String[] getBODTOConstructorProps() {
@@ -41,7 +37,7 @@ public class LOSGoodsReceiptPositionQueryBean extends BusinessObjectQueryBean<LO
 	
 	@Override
 	public String getUniqueNameProp() {
-        return "positionNumber";
+        return "lineNumber";
 	}
 	
 	@Override
@@ -55,17 +51,15 @@ public class LOSGoodsReceiptPositionQueryBean extends BusinessObjectQueryBean<LO
 		
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("positionNumber", false));
-		propList.add(new BODTOConstructorProperty("orderReference", false));
+		propList.add(new BODTOConstructorProperty("lineNumber", false));
 		propList.add(new BODTOConstructorProperty("amount", false));
-		propList.add(new BODTOConstructorProperty("itemData", false));
-		propList.add(new BODTOConstructorProperty("lot", false));
-		propList.add(new BODTOConstructorProperty("scale", false));
-		propList.add(new BODTOConstructorProperty("operator.name", null, BODTOConstructorProperty.JoinType.LEFT, "operator"));
-		propList.add(new BODTOConstructorProperty("qaLock", false));
-		propList.add(new BODTOConstructorProperty("unitLoad", false));
+		propList.add(new BODTOConstructorProperty("itemData.name", "itemData.name", BODTOConstructorProperty.JoinType.LEFT, "itemData as itemData"));
+		propList.add(new BODTOConstructorProperty("lotNumber", false));
+		propList.add(new BODTOConstructorProperty("operator.name", "operator.name", BODTOConstructorProperty.JoinType.LEFT, "operator as operator"));
+		propList.add(new BODTOConstructorProperty("lockType", false));
+		propList.add(new BODTOConstructorProperty("unitLoadLabel", false));
 		propList.add(new BODTOConstructorProperty("created", false));
-		
+
 		return propList;
 		
 	}
@@ -75,29 +69,21 @@ public class LOSGoodsReceiptPositionQueryBean extends BusinessObjectQueryBean<LO
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
 		
 		TemplateQueryWhereToken positionNumber = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "positionNumber",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lineNumber",
 				value);
 		positionNumber.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		
-		TemplateQueryWhereToken orderReference = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "orderReference",
-				value);
-		orderReference.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		
+		ret.add(positionNumber);
+
 		TemplateQueryWhereToken itemData = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "itemData",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "itemData.name",
 				value);
 		itemData.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		
+		ret.add(itemData);
+
 		TemplateQueryWhereToken lot = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "lot",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lotNumber",
 				value);
 		lot.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		
-		
-		ret.add(positionNumber);
-		ret.add(orderReference);
-		ret.add(itemData);
 		ret.add(lot);
 		
 		
@@ -112,32 +98,12 @@ public class LOSGoodsReceiptPositionQueryBean extends BusinessObjectQueryBean<LO
 		TemplateQueryWhereToken token;
 
 		if( "OPEN".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "goodsReceipt.receiptState", LOSGoodsReceiptState.RAW);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.FINISHED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("rawState");
-			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "goodsReceipt.receiptState", LOSGoodsReceiptState.ACCEPTED);
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("acceptState");
 			ret.add(token);
 		}
 		
 		return ret;
 	}
     
-	@Override
-	public LOSGoodsReceiptPosition queryById(Long ID) throws BusinessObjectNotFoundException, BusinessObjectSecurityException {
-		LOSGoodsReceiptPosition position = super.queryById(ID);
-
-		LOSAdvice advice = position.getRelatedAdvice();
-		if (advice != null) {
-			BusinessObjectHelper.eagerRead(advice);
-			
-			for(LOSGoodsReceiptPosition receiptLine : advice.getGrPositionList()) {
-				BusinessObjectHelper.eagerRead(receiptLine);
-			}
-		}
-
-		return position;
-	}
 }

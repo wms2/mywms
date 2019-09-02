@@ -11,8 +11,10 @@ import de.linogistix.common.bobrowser.bo.BOMasterNode.BOMasterNodeProperty;
 import de.linogistix.common.bobrowser.bo.editor.PropertyRW;
 import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
+import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.product.ItemData;
 import java.math.BigDecimal;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -39,13 +41,13 @@ class GoodsReceiptPositiontNode extends AbstractNode {
     BOMasterNodeProperty itemData;
     BOMasterNodeProperty<String> state;
     BOMasterNodeProperty<BigDecimal> amount;
-    LOSGoodsReceiptPosition pos;
+    GoodsReceiptLine pos;
 
    
-    public GoodsReceiptPositiontNode(LOSGoodsReceiptPosition pos, LOSAdvice advice) {
+    public GoodsReceiptPositiontNode(GoodsReceiptLine pos, AdviceLine advice) {
         super(Children.LEAF);
         this.pos = pos;
-        this.setName(pos.getPositionNumber());
+        this.setName(pos.getLineNumber());
     }
 
     @Override
@@ -53,17 +55,12 @@ class GoodsReceiptPositiontNode extends AbstractNode {
         if (sheet == null) {
             sheet = new Sheet.Set();
 
-            unitLoad = new BOMasterNodeProperty<String>("unitLoad", String.class, UNITLOAD, "",pos.getUnitLoad());
-            lot = new BOMasterNodeProperty<String>("lot", String.class, LOT, "", pos.getLot());
-            itemData = new BOMasterNodeProperty<String>("itemData", String.class, ITEM, "",  pos.getItemData());
+            unitLoad = new BOMasterNodeProperty<String>("unitLoad", String.class, UNITLOAD, "",pos.getUnitLoadLabel());
+            lot = new BOMasterNodeProperty<String>("lot", String.class, LOT, "", pos.getLotNumber());
+            itemData = new BOMasterNodeProperty<ItemData>("itemData", ItemData.class, ITEM, "", pos.getItemData());
 //            amount = new PropertyRW<BigDecimal>("amount", BigDecimal.class, AMOUNT, pos.getAmount());
             amount = new BOMasterNodeProperty<BigDecimal>("amount", BigDecimal.class, AMOUNT, "", pos.getAmount());
-            if(pos.getState() != null){
-                state = new BOMasterNodeProperty<String>("state", String.class, STATE, "", NbBundle.getMessage(CommonBundleResolver.class,"LOSGoodsReceiptState."+pos.getState().name()));
-            }
-            else{
-                state = new BOMasterNodeProperty<String>("state", String.class, STATE, "", "");
-            }
+            state = new BOMasterNodeProperty<String>("state", String.class, STATE, "", NbBundle.getMessage(CommonBundleResolver.class,"state."+pos.getState()));
             
             sheet.put(unitLoad);
             sheet.put(lot);

@@ -9,6 +9,7 @@ package de.linogistix.inventory.browser.masternode;
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
 
 import de.linogistix.common.bobrowser.bo.BO;
+import de.linogistix.common.res.CommonBundleResolver;
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.model.LOSAdviceState;
@@ -44,25 +45,6 @@ public class BOLOSAdviceMasterNode extends BOMasterNode {
     }
 
     @Override
-    public String getHtmlDisplayName() {
-        String ret = getDisplayName();
-        GregorianCalendar now = new GregorianCalendar();
-        GregorianCalendar today = new GregorianCalendar(now.get(Calendar.YEAR),now.get(Calendar.MONTH),now.get(Calendar.DAY_OF_MONTH));
-        if(to.state != null){    
-            if (to.state.equals(LOSAdviceState.FINISHED.toString())) {
-                ret = "<font color=\"#C0C0C0\"><s>" + ret + "</s></font>";
-            } 
-            else if (to.state.equals(LOSAdviceState.OVERLOAD.toString())) {
-                ret = "<font color=\"#000000\"><s>" + ret + "</s></font>";
-            } 
-            else if (to.expectedDelivery != null && to.expectedDelivery.before(today.getTime())) {
-                ret = "<font color=\"#FF0000\">" + ret + "</font>";
-            }
-        }
-        return ret;
-    }
-
-    @Override
     public PropertySet[] getPropertySets() {
 
         if (sheet == null) {
@@ -85,9 +67,8 @@ public class BOLOSAdviceMasterNode extends BOMasterNode {
             BOMasterNodeProperty<BigDecimal> notifiedAmount;
             notifiedAmount = new BOMasterNodeProperty<BigDecimal>("notifiedAmount", BigDecimal.class, to.notifiedAmount, InventoryBundleResolver.class);
             sheet.put(notifiedAmount);
-            BOMasterNodeProperty<Date> expDelivery;
-            expDelivery = new BOMasterNodeProperty<Date>("expectedDelivery",Date.class, to.expectedDelivery, InventoryBundleResolver.class);
-            sheet.put(expDelivery);
+            BOMasterNodeProperty<Date> delivery = new BOMasterNodeProperty<Date>("delivery", Date.class, to.expectedDelivery, CommonBundleResolver.class);
+            sheet.put(delivery);
         }
         return new PropertySet[]{sheet};
     }
@@ -112,11 +93,10 @@ public class BOLOSAdviceMasterNode extends BOMasterNode {
         BOMasterNodeProperty<BigDecimal> notifiedAmount;
         notifiedAmount = new BOMasterNodeProperty<BigDecimal>("notifiedAmount", BigDecimal.class, new BigDecimal(0), InventoryBundleResolver.class);
 
-        BOMasterNodeProperty<Date> expDelivery;
-        expDelivery = new BOMasterNodeProperty<Date>("expectedDelivery", Date.class, new Date(), InventoryBundleResolver.class);
+        BOMasterNodeProperty<Date> delivery = new BOMasterNodeProperty<Date>("delivery", Date.class, new Date(), CommonBundleResolver.class);
 
         BOMasterNodeProperty[] props = new BOMasterNodeProperty[]{
-            client, itemData, itemDataName, lot, notifiedAmount, receiptAmount, expDelivery
+            client, itemData, itemDataName, lot, notifiedAmount, receiptAmount, delivery
         };
 
         return props;

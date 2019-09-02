@@ -16,18 +16,19 @@ import de.linogistix.common.bobrowser.query.gui.component.AutoCompletionQueryFil
 import de.linogistix.common.bobrowser.query.gui.component.BOQueryComponentProvider;
 import de.linogistix.common.bobrowser.query.gui.component.DefaultBOQueryComponentProvider;
 import de.linogistix.common.bobrowser.query.gui.component.TemplateQueryWizardProvider;
-import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.browser.masternode.BOLOSGoodsReceiptMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSGoodsReceiptCRUDRemote;
-import de.linogistix.los.inventory.model.LOSGoodsReceipt;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptType;
+import de.wms2.mywms.strategy.OrderState;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,10 +83,10 @@ public class BOLOSGoodsReceipt extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSGoodsReceipt o;
+    GoodsReceipt o;
     
-    o = new LOSGoodsReceipt();
-    o.setGoodsReceiptNumber("Template");
+    o = new GoodsReceipt();
+    o.setOrderNumber("Template");
     return o;
     
   }
@@ -104,7 +105,7 @@ public class BOLOSGoodsReceipt extends BO {
   }
   
   protected Class initBundleResolver() {
-    return CommonBundleResolver.class;
+    return InventoryBundleResolver.class;
   }
   
   protected String[] initIdentifiableProperties() {
@@ -145,6 +146,27 @@ public class BOLOSGoodsReceipt extends BO {
     @Override
     protected Class<? extends Node> initBoMasterNodeType() {
         return BOLOSGoodsReceiptMasterNode.class;
+    }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(OrderState.CREATED);
+            entryList.add(OrderState.STARTED);
+            entryList.add(OrderState.FINISHED);
+
+            return entryList;
+        }
+        if( "orderType".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(GoodsReceiptType.NORMAL);
+            entryList.add(GoodsReceiptType.RETOUR);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
 
 }

@@ -35,9 +35,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 	
 	private String externalNumber;
 	
-	@ManyToOne(optional=true)
-	private LOSAdvice relatedAdvice;
-	
 	@Enumerated(EnumType.STRING)
 	@Column(nullable=false)
 	private LOSAdviceType adviceType;
@@ -74,14 +71,6 @@ public class LOSUnitLoadAdvice extends BasicClientAssignedEntity {
 
 	public void setExternalNumber(String externalAdviceNumber) {
 		this.externalNumber = externalAdviceNumber;
-	}
-
-	public LOSAdvice getRelatedAdvice() {
-		return relatedAdvice;
-	}
-
-	public void setRelatedAdvice(LOSAdvice relatedAdvice) {
-		this.relatedAdvice = relatedAdvice;
 	}
 
 	public LOSAdviceType getAdviceType() {

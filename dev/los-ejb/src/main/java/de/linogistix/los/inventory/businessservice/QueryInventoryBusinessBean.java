@@ -26,14 +26,15 @@ import org.mywms.model.Client;
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSAdvice;
-import de.linogistix.los.inventory.model.LOSAdviceState;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
+import de.wms2.mywms.advice.Advice;
+import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.strategy.OrderState;
 
 /**
  * Inventory relevant business operations
@@ -343,22 +344,23 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append("SELECT NEW ");
 		b.append(AdviseLotResult.class.getName());
 		b.append("(");
-		b.append("client.number, item.number, item.scale, item.itemUnit.name, ad.notifiedAmount, ad.receiptAmount, lot.name");
+		b.append("client.number, item.number, item.scale, item.itemUnit.name, ad.amount, ad.confirmedAmount, ad.lotNumber");
 		b.append(")");
 		b.append(" FROM ");
-		b.append(LOSAdvice.class.getSimpleName()+" ad, ");
+		b.append(Advice.class.getSimpleName()+" adv, ");
+		b.append(AdviceLine.class.getSimpleName()+" ad, ");
 		b.append(Client.class.getSimpleName()+" client, ");
 		b.append(ItemData.class.getSimpleName()+" item ");
-		b.append("LEFT OUTER JOIN ad.lot as lot ");
-		b.append(" WHERE client = :client and ad.client=client and item=ad.itemData");
+		b.append(" WHERE client = :client and adv.client=client and ad.advice=adv and item=ad.itemData");
 		
 		if (lot != null) {
-			b.append(" AND lot = :lot ");
+			b.append(" AND lotNumber = :lotNumber ");
 		} 
 		if (idat != null) {
 			b.append(" AND item = :idat ");
 		}
-		b.append(" AND ad.adviceState IN ( :rawState, :goodsToComeState, :processingState ) ");
+		b.append(" AND ad.state<:finished ");
+		b.append(" AND adv.state<:finished ");
 
 		log.debug(logStr+"QUERY="+b.toString());
 
@@ -366,15 +368,13 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		query = query.setParameter("client", c);
 
 		if (lot != null) {
-			query = query.setParameter("lot", lot);
+			query = query.setParameter("lotNumber", lot.getName());
 		}
 		if (idat != null) {
 			query = query.setParameter("idat", idat);
 		}
 
-		query = query.setParameter("rawState", LOSAdviceState.RAW);
-		query = query.setParameter("goodsToComeState", LOSAdviceState.GOODS_TO_COME);
-		query = query.setParameter("processingState", LOSAdviceState.PROCESSING);
+		query = query.setParameter("finished", OrderState.FINISHED);
 		
 		List<AdviseLotResult> adList = query.getResultList();
 		

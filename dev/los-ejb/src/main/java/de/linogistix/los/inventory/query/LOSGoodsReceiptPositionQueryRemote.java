@@ -12,16 +12,16 @@
 package de.linogistix.los.inventory.query;
 
 
-import de.linogistix.los.inventory.model.LOSGoodsReceiptPosition;
-import de.linogistix.los.query.BusinessObjectQueryRemote;
-
 import javax.ejb.Remote;
+
+import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 
 /**
  *
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Remote
-public interface LOSGoodsReceiptPositionQueryRemote extends BusinessObjectQueryRemote<LOSGoodsReceiptPosition>{ 
+public interface LOSGoodsReceiptPositionQueryRemote extends BusinessObjectQueryRemote<GoodsReceiptLine>{ 
   
 }
