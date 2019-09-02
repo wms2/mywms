@@ -34,7 +34,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             <h:form id="Form" styleClass="form" >
                 <%-- Page Title--%>
                 <p class="pageheader">
-                	<h:outputText id="pagetitle" value="#{bundle.TitleUnitload} (#{ShippingBean.numPosDone + 1}/#{ShippingBean.numPos})" styleClass="pagetitle"/>
+                	<h:outputText id="pagetitle" value="#{bundle.TitleDestination} (#{ShippingBean.numPosDone + 1}/#{ShippingBean.numPos})" styleClass="pagetitle"/>
 	                <h:graphicImage id="logo" url="/pics/logo.gif" styleClass="logo"/>
                	</p>
 
@@ -76,7 +76,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                             	<h:outputLabel id="ulLabel" value="#{bundle.LabelNextUnitLoad}:" styleClass="param" /> 
                             </td>
                             <td nowrap="nowrap">
-                              	<h:outputLabel id="ulData" value="#{ShippingBean.nextUnitLoadLabel}" styleClass="labelBold" />
+                              	<h:outputLabel id="ulData" value="#{ShippingBean.nextUnitLoadLabel}" styleClass="label" />
                             </td>
                         </tr>
 						<tr>
@@ -84,19 +84,19 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                             	<h:outputLabel id="destinationLabel" value="#{bundle.LabelDestination}:" styleClass="param" /> 
                             </td>
                             <td nowrap="nowrap">
-                              	<h:outputLabel id="destinationData" value="#{ShippingBean.destination}" styleClass="label" />
+                              	<h:outputLabel id="destinationData" value="#{ShippingBean.destination}" styleClass="labelBold" />
                             </td>
                         </tr>
                         <tr><td>&#160;</td></tr>
                         <tr>
                             <td colspan="2">
-                            	<h:outputLabel id="input1Label" value="#{bundle.LabelEnterUnitLoad}" styleClass="label" />
+                            	<h:outputLabel id="input1Label" value="#{bundle.LabelEnterLocation}" styleClass="label" />
                             </td>
                         </tr>
 						<tr>
                             <td colspan="2">
                                	<h:inputText id="input1" 
-                             			 value="#{ShippingBean.inputUnitLoadLabel}" 
+                             			 value="#{ShippingBean.inputDestination}" 
                              			 styleClass="input" /> 
                             </td>
                         </tr>
@@ -110,7 +110,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 <div class="buttonbar">  
 	                    <h:commandButton id="BUTTON_CONTINUE" 
 		                				 value="#{bundle.LabelContinue}" 
-		                				 action="#{ShippingBean.processEnterUnitLoad}" 
+		                				 action="#{ShippingBean.processEnterDestination}" 
 		                				 styleClass="commandButton"  />
 	                    <h:commandButton id="BUTTON_INFO" 
 		                				 value="#{bundle.LabelInfo}" 

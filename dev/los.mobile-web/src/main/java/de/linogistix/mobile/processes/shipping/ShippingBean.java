@@ -22,6 +22,7 @@ import de.linogistix.los.inventory.facade.LOSGoodsOutFacade;
 import de.linogistix.los.inventory.facade.LOSGoodsOutTO;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
 import de.linogistix.los.util.StringTools;
+import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
 
@@ -32,14 +33,27 @@ import de.linogistix.mobile.common.system.JSFHelper;
 public class ShippingBean extends BasicDialogBean {
 	private static final Logger log = Logger.getLogger(ShippingBean.class);
 
+	/**
+	 * SystemProperty. Enable input of destination location
+	 */
+	public static final String SHIPPING_SCAN_DESTINATION = "SHIPPING_SCAN_DESTINATION";
+	protected boolean scanDestination = false;
+
 	protected LOSGoodsOutFacade goFacade;
 	protected LOSGoodsOutTO currentOrderTO = null;
 	protected String inputUnitLoadLabel = "";
+	protected String inputDestination = "";
 	protected List<SelectItem> orderList = null; 
-	
+	protected LOSSystemPropertyServiceRemote propertyService;
+
 	public ShippingBean() {
 		super();
 		goFacade = super.getStateless(LOSGoodsOutFacade.class);
+		propertyService = super.getStateless(LOSSystemPropertyServiceRemote.class);
+
+		scanDestination = propertyService.getBooleanDefault(getWorkstationName(), SHIPPING_SCAN_DESTINATION, scanDestination);
+		log.info(SHIPPING_SCAN_DESTINATION+"="+scanDestination);
+
 	}
 	
 	public String getNavigationKey() {
@@ -55,6 +69,7 @@ public class ShippingBean extends BasicDialogBean {
 	 */
 	protected void init() {
 		inputUnitLoadLabel = "";
+		inputDestination = "";
 		currentOrderTO = null;
 		orderList = null;
 	}
@@ -107,8 +122,12 @@ public class ShippingBean extends BasicDialogBean {
 			return ShippingNavigation.SHIPPING_SCAN_UNITLOAD.toString();
 		}
 		
+		if (scanDestination) {
+			return ShippingNavigation.SHIPPING_SCAN_DESTINATION.toString();
+		}
+
 		try {
-			goFacade.finishPosition(inputUnitLoadLabel, currentOrderTO.getOrderId());
+			goFacade.finishPosition(inputUnitLoadLabel, currentOrderTO.getOrderId(), null);
 		} catch (FacadeException e) {
 			JSFHelper.getInstance().message(e.getLocalizedMessage(getLocale()));
 			return "";
@@ -130,6 +149,45 @@ public class ShippingBean extends BasicDialogBean {
 		return ShippingNavigation.SHIPPING_SCAN_UNITLOAD.toString();
 	}
 	
+	public String processEnterDestination() {
+		if (currentOrderTO == null) {
+			JSFHelper.getInstance().message(resolve("MsgOrderNotLoaded"));
+			return ShippingNavigation.SHIPPING_SELECT_ORDER.toString();
+		}
+
+		if (inputDestination == null) {
+			JSFHelper.getInstance().message(resolve("MsgEnterDestination"));
+			return ShippingNavigation.SHIPPING_SCAN_DESTINATION.toString();
+		}
+		inputDestination = inputDestination.trim();
+		if (inputDestination.length() == 0) {
+			JSFHelper.getInstance().message(resolve("MsgEnterDestination"));
+			return ShippingNavigation.SHIPPING_SCAN_DESTINATION.toString();
+		}
+
+		try {
+			goFacade.finishPosition(inputUnitLoadLabel, currentOrderTO.getOrderId(), inputDestination);
+		} catch (FacadeException e) {
+			JSFHelper.getInstance().message(e.getLocalizedMessage(getLocale()));
+			return "";
+		}
+
+		inputUnitLoadLabel = "";
+
+		try {
+			currentOrderTO = goFacade.getOrderInfo(currentOrderTO.getOrderId());
+			if (currentOrderTO.isFinished()) {
+				goFacade.finish(currentOrderTO.getOrderId());
+				return ShippingNavigation.SHIPPING_SHOW_SUMMARY.toString();
+			}
+		} catch (FacadeException e) {
+			JSFHelper.getInstance().message(e.getLocalizedMessage(getLocale()));
+			return "";
+		}
+
+		return ShippingNavigation.SHIPPING_SCAN_UNITLOAD.toString();
+	}
+
 	public String processCancelUnitLoad() {
 		if( currentOrderTO == null ) {
 			JSFHelper.getInstance().message(resolve("MsgOrderNotLoaded"));
@@ -239,6 +297,20 @@ public class ShippingBean extends BasicDialogBean {
 		this.inputUnitLoadLabel = inputUnitLoadLabel;
 	}
 
+	public String getInputDestination() {
+		return inputDestination;
+	}
+
+	public void setInputDestination(String inputDestination) {
+		this.inputDestination = inputDestination;
+	}
+
+	public String getDestination() {
+		if( currentOrderTO == null ) {
+			return "";
+		}
+		return currentOrderTO.getDestination();
+	}
 
 	protected ResourceBundle getResourceBundle() {
 		ResourceBundle bundle;

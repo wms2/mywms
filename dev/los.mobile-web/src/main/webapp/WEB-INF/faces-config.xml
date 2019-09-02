@@ -261,6 +261,26 @@
 	<navigation-rule>
 		<from-view-id>/pages/processes/shipping/ScanUnitLoad.jsp</from-view-id>
 		<navigation-case>
+			<from-outcome>SHIPPING_SCAN_DESTINATION</from-outcome>
+			<to-view-id>/pages/processes/shipping/ScanDestination.jsp</to-view-id>
+		</navigation-case>                
+		<navigation-case>
+			<from-outcome>SHIPPING_SHOW_INFO</from-outcome>
+			<to-view-id>/pages/processes/shipping/ShowInfo.jsp</to-view-id>
+		</navigation-case>                
+		<navigation-case>
+			<from-outcome>SHIPPING_SHOW_SUMMARY</from-outcome>
+			<to-view-id>/pages/processes/shipping/ShowSummary.jsp</to-view-id>
+		</navigation-case>                
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/pages/processes/shipping/ScanDestination.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>SHIPPING_SCAN_UNITLOAD</from-outcome>
+			<to-view-id>/pages/processes/shipping/ScanUnitLoad.jsp</to-view-id>
+		</navigation-case>                
+		<navigation-case>
 			<from-outcome>SHIPPING_SHOW_INFO</from-outcome>
 			<to-view-id>/pages/processes/shipping/ShowInfo.jsp</to-view-id>
 		</navigation-case>                

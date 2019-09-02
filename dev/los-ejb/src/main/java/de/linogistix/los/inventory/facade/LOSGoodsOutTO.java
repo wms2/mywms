@@ -27,6 +27,7 @@ public class LOSGoodsOutTO implements Serializable {
 	private String comment;
 	private String orderNumber;
 	private Long orderId;
+	private String destination;
 	
 	public LOSGoodsOutTO( ShippingOrder order ) {
 		this.externalNumber = order.getExternalNumber();
@@ -34,6 +35,7 @@ public class LOSGoodsOutTO implements Serializable {
 		this.comment = order.getAdditionalContent();
 		this.orderNumber = order.getOrderNumber();
 		this.orderId = order.getId();
+		this.destination = (order.getDestination() == null ? null : order.getDestination().getName());
 	}
 
 
@@ -123,6 +125,14 @@ public class LOSGoodsOutTO implements Serializable {
 	}
 	public void setOrderId(Long orderId) {
 		this.orderId = orderId;
+	}
+
+
+	public String getDestination() {
+		return destination;
+	}
+	public void setDestination(String destination) {
+		this.destination = destination;
 	}
 	
 }
