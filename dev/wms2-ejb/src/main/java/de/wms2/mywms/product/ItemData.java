@@ -56,6 +56,9 @@ public class ItemData extends BasicClientAssignedEntity {
 	@Column(unique = true, nullable = false)
 	private String number = null;
 
+	@Column(nullable = false)
+	private int state = ItemDataState.ACTIVE;
+
 	/**
 	 * The name of the entity.
 	 * <p>
@@ -187,7 +190,7 @@ public class ItemData extends BasicClientAssignedEntity {
 		if (number != null) {
 			return number;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	@PreUpdate

@@ -167,7 +167,7 @@ public class StorageLocation extends BasicClientAssignedEntity {
 		if (name != null) {
 			return name;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	@PrePersist

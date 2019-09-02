@@ -91,7 +91,7 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 		if (number != null) {
 			return number;
 		}
-		return toString();
+		return toUniqueString();
 	}
 
 	public String getNumber() {

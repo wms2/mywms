@@ -116,7 +116,7 @@ public class UnitLoad extends BasicClientAssignedEntity {
 		if (labelId != null) {
 			return labelId;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public void setStorageLocation(StorageLocation storageLocation) {

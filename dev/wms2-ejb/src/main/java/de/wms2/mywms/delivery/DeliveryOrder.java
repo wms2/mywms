@@ -147,7 +147,7 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 		if (orderNumber != null) {
 			return orderNumber;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	@PreUpdate

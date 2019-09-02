@@ -167,7 +167,7 @@ public class PickingOrder extends BasicClientAssignedEntity {
 		if (orderNumber != null) {
 			return orderNumber;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public String getOrderNumber() {

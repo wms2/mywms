@@ -128,7 +128,7 @@ public class OrderStrategy extends BasicClientAssignedEntity {
 		if (name != null) {
 			return name;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public String getName() {

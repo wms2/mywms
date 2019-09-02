@@ -45,6 +45,7 @@ public class Lot extends BasicClientAssignedEntity {
 	private String name;
 
 	@Column(nullable = false, name = "lot_date")
+	// TODO krane rename attribute
 	@Temporal(TemporalType.DATE)
 	private Date date;
 
@@ -101,7 +102,7 @@ public class Lot extends BasicClientAssignedEntity {
 		if (name != null) {
 			return name;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public String getName() {

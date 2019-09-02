@@ -68,7 +68,7 @@ public class Packet extends BasicClientAssignedEntity {
 		if (unitLoad != null) {
 			return unitLoad.getLabelId();
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public UnitLoad getUnitLoad() {

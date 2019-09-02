@@ -110,7 +110,7 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 		if (lineNumber != null) {
 			return lineNumber;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	@PreUpdate
