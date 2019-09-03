@@ -428,15 +428,21 @@ public class InventoryBusiness {
 		if (processStock) {
 			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stock : stocksOnUnitLoad) {
-				int oldStockLock = stock.getLock();
-				if (lock != oldStockLock) {
-					stock.setLock(lock);
-					fireLockChangeEvent(stock, oldStockLock);
-				}
+				addStockUnitLock(stock, lock);
 			}
 		}
 
 		return unitLoad;
+	}
+
+	public StockUnit addStockUnitLock(StockUnit stockUnit, int lock) throws BusinessException {
+		int oldStockLock = stockUnit.getLock();
+		if (lock != oldStockLock) {
+			stockUnit.setLock(lock);
+			fireLockChangeEvent(stockUnit, oldStockLock);
+		}
+
+		return stockUnit;
 	}
 
 	/**

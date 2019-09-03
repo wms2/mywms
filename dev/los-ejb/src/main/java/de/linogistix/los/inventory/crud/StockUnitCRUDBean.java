@@ -17,8 +17,10 @@ import java.util.logging.Logger;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.mywms.facade.FacadeException;
+import org.mywms.model.User;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
@@ -26,12 +28,13 @@ import de.linogistix.los.crud.BusinessObjectCreationException;
 import de.linogistix.los.crud.BusinessObjectExistsException;
 import de.linogistix.los.crud.BusinessObjectMergeException;
 import de.linogistix.los.crud.BusinessObjectModifiedException;
-import de.linogistix.los.entityservice.BusinessObjectLockService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
+import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.PackagingUnit;
@@ -46,9 +49,11 @@ public class StockUnitCRUDBean extends BusinessObjectCRUDBean<StockUnit> impleme
 
 	@EJB
 	StockUnitService service;
-
 	@EJB
-	BusinessObjectLockService lockService;
+	private ContextService context;
+
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	@Override
 	protected BasicService<StockUnit> getBasicService() {
@@ -58,9 +63,18 @@ public class StockUnitCRUDBean extends BusinessObjectCRUDBean<StockUnit> impleme
 
 	@Override
 	public void lock(StockUnit entity, int lock, String lockCause) throws BusinessObjectSecurityException {
+		if (!context.checkClient(entity)) {
+			User user = context.getCallersUser();
+			throw new BusinessObjectSecurityException(user);
+		}
 
-		lockService.lock(entity, lock, lockCause);
-
+		try {
+			inventoryBusiness.addStockUnitLock(entity, lock);
+		} catch (FacadeException e) {
+			// Sorry for special exceptions. The real cause will be hidden
+			logger.log(Level.SEVERE, "EXCEPTION="+e.getClass().getSimpleName()+", "+e.getMessage(), e);
+			throw new BusinessObjectSecurityException(null);
+		}
 	}
 
 	@Override

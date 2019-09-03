@@ -525,7 +525,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 		UnitLoad ul = manager.find(UnitLoad.class, ulTO.getId());
 		
 		if (removeSuLock){
-			su.setLock(0);
+			inventoryBusiness.addStockUnitLock(su,  0);
 		}
 		
 		if (removeSuReservation){
