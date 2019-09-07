@@ -12,14 +12,11 @@ import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.res.CommonBundleResolver;
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
-import de.linogistix.los.inventory.model.LOSAdviceState;
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
 import de.linogistix.los.query.BODTO;
 import java.beans.IntrospectionException;
 import java.math.BigDecimal;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import org.openide.nodes.Node.PropertySet;
 import org.openide.nodes.Sheet;
 

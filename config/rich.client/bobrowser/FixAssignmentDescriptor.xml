@@ -27,7 +27,7 @@
                 <group>
                     <name>main</name>
                 </group>
-                <hidden>true</hidden>
+                <hidden>false</hidden>
                 <position>3</position>
             </value>
         </entry>
@@ -47,7 +47,7 @@
                 <group>
                     <name>main</name>
                 </group>
-                <hidden>true</hidden>
+                <hidden>false</hidden>
                 <position>5</position>
             </value>
         </entry>

@@ -96,6 +96,7 @@
                 <package>de.wms2.mywms.picking</package>
                 <package>de.wms2.mywms.product</package>
                 <package>de.wms2.mywms.property</package>
+                <package>de.wms2.mywms.replenish</package>
                 <package>de.wms2.mywms.report</package>
                 <package>de.wms2.mywms.sequence</package>
                 <package>de.wms2.mywms.shipping</package>
