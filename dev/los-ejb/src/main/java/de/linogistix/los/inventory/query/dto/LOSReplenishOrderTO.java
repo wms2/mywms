@@ -9,16 +9,15 @@ package de.linogistix.los.inventory.query.dto;
 
 import java.math.BigDecimal;
 
-import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.query.BODTO;
-import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.replenish.ReplenishOrder;
 
 /**
  * @author krane
  *
  */
-public class LOSReplenishOrderTO extends BODTO<LOSReplenishOrder>{
+public class LOSReplenishOrderTO extends BODTO<ReplenishOrder>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,11 +36,11 @@ public class LOSReplenishOrderTO extends BODTO<LOSReplenishOrder>{
 	}
 	
 
-	public LOSReplenishOrderTO(Long id, int version, String number, int state, int prio, ItemData item, StockUnit stock, String destinationName, BigDecimal amount, String clientNumber){
+	public LOSReplenishOrderTO(Long id, int version, String number, int state, int prio, ItemData item, String sourceLocationName, String destinationName, BigDecimal amount, String clientNumber){
 		super(id, version, number);
 		this.number = number;
 		this.clientNumber = clientNumber;
-		this.sourceLocationName = stock.getUnitLoad().getStorageLocation().getName();
+		this.sourceLocationName = sourceLocationName;
 		this.destinationLocationName = destinationName;
 		this.state = state;
 		this.prio = prio;

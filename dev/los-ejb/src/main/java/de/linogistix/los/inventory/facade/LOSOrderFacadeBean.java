@@ -70,6 +70,7 @@ import de.wms2.mywms.picking.PickingOrderEntityService;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingOrderPrioChangeEvent;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.shipping.ShippingOrderEntityService;
@@ -143,6 +144,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private ShippingOrderEntityService shippingOrderService;
 	@Inject
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
+	@Inject
+	private Event<PickingOrderPrioChangeEvent> pickingOrderPrioChangeEvent;
 
 	public DeliveryOrder order(
 			String clientNumber,
@@ -458,7 +461,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			int prioOld = po.getPrio();
 			if( prio != prioOld ) {
 				po.setPrio(prio);
-				manageOrderService.onPickingOrderPrioChange(po, prioOld);
+				firePickingOrderPrioChangeEvent(po, prioOld);
 			}
 		}
 	}
@@ -561,4 +564,17 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 	}
 
+	private void firePickingOrderPrioChangeEvent(PickingOrder entity, int oldPrio) throws BusinessException {
+		try {
+			log.debug("Fire PickingOrderStateChangeEvent. entity=" + entity + ", prio=" + entity.getPrio()
+					+ ", oldPrio=" + oldPrio);
+			pickingOrderPrioChangeEvent.fire(new PickingOrderPrioChangeEvent(entity, oldPrio, entity.getPrio()));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
+	}
 }

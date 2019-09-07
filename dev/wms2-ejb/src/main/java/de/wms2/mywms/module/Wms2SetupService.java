@@ -192,8 +192,14 @@ public class Wms2SetupService extends ModuleSetup {
 		orderStrategyService.getDefault(client);
 
 		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
-		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE, locale == null ? null : locale.toString(),
+		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE,
+				locale == null ? Locale.GERMANY.toString() : locale.toString(), Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_REPLENISH_FROM_PICKING, "true", Wms2Properties.GROUP_WMS, locale);
+
+		createProperty(null, Wms2Properties.KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED, "false",
 				Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_SHIPPING_RENAME_UNITLOAD, "true", Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_SHIPPING_LOCATION, null, Wms2Properties.GROUP_WMS, locale);
 
 		logger.log(Level.INFO, "Completed Setup");
 	}

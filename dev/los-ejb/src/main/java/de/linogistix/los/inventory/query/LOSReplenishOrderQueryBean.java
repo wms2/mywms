@@ -12,19 +12,19 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.query.dto.LOSReplenishOrderTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.replenish.ReplenishOrder;
 
 /** 
 *
 * @author krane
 */
 @Stateless
-public class LOSReplenishOrderQueryBean extends BusinessObjectQueryBean<LOSReplenishOrder> implements LOSReplenishOrderQueryRemote {
+public class LOSReplenishOrderQueryBean extends BusinessObjectQueryBean<ReplenishOrder> implements LOSReplenishOrderQueryRemote {
 	
 	@Override
 	protected String[] getBODTOConstructorProps() {
@@ -33,7 +33,7 @@ public class LOSReplenishOrderQueryBean extends BusinessObjectQueryBean<LOSReple
 
 	@Override
 	public String getUniqueNameProp() {
-		return "number";
+		return "orderNumber";
 	}
 
 	@Override
@@ -47,13 +47,13 @@ public class LOSReplenishOrderQueryBean extends BusinessObjectQueryBean<LOSReple
 		
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("number", false));
+		propList.add(new BODTOConstructorProperty("orderNumber", false));
 		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("prio", false));
 		propList.add(new BODTOConstructorProperty("itemData", false));
-		propList.add(new BODTOConstructorProperty("stockUnit", false));
-		propList.add(new BODTOConstructorProperty("destination.name", null, BODTOConstructorProperty.JoinType.LEFT, "destination"));
-		propList.add(new BODTOConstructorProperty("requestedAmount", false));
+		propList.add(new BODTOConstructorProperty("sourceLocation.name", null, BODTOConstructorProperty.JoinType.LEFT, "sourceLocation"));
+		propList.add(new BODTOConstructorProperty("destinationLocation.name", null, BODTOConstructorProperty.JoinType.LEFT, "destinationLocation"));
+		propList.add(new BODTOConstructorProperty("amount", false));
 		propList.add(new BODTOConstructorProperty("client.number", false));
 		
 		return propList;
@@ -73,7 +73,7 @@ public class LOSReplenishOrderQueryBean extends BusinessObjectQueryBean<LOSReple
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
 		
 		TemplateQueryWhereToken token;
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "number", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "orderNumber", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
@@ -89,11 +89,11 @@ public class LOSReplenishOrderQueryBean extends BusinessObjectQueryBean<LOSReple
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "destination.name", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "destinationLocation.name", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "sourceLocationName", value);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "sourceLocation.name", value);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		

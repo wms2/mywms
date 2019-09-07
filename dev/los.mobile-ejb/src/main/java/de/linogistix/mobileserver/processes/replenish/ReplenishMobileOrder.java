@@ -5,13 +5,13 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.replenish.ReplenishOrder;
 
 public class ReplenishMobileOrder implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -68,20 +68,20 @@ public class ReplenishMobileOrder implements Serializable {
 		}
 	}
 	
-	public void setOrder( LOSReplenishOrder order ) {
+	public void setOrder( ReplenishOrder order, StockUnit sourceStockUnit ) {
 		id = order.getId();
 		
 		clientNumber = order.getClient().getNumber();
-		amountRequested = order.getRequestedAmount();
+		amountRequested = order.getAmount();
 
 		setItem(order.getItemData());
-		setDestination(order.getDestination());
-		setStock(order.getStockUnit());
+		setDestination(order.getDestinationLocation());
+		setStock(sourceStockUnit);
 		
         DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
         created = formatter.format(order.getCreated());
         state = order.getState();
-        sourceStockId = order.getStockUnit().getId();
+        sourceStockId = order.getSourceStockUnitId();
 	}
 	@Override
 	public boolean equals(Object obj) {

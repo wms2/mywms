@@ -107,7 +107,6 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		log.info("Create Areas...");
 
 		String name = resolve("BasicDataAreaDefault", locale);
-		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_AREA_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_AREA_DEFAULT", locale), false);
 		Area storeArea = areaService.getDefault();
 		storeArea.setName(name);
 		storeArea.setUsages(null);
@@ -128,12 +127,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		
 		log.info("Create Cluster...");
 
-		name = resolve("BasicDataClusterDefault", locale);
-		propertyService.createSystemProperty(sys, null, Wms2Properties.KEY_LOCATIONCLUSTER_DEFAULT, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, resolve("PropertyDescPROPERTY_KEY_CLUSTER_DEFAULT", locale), false);
 		LocationCluster clusterDefault = locationClusterService.getDefault();
-		clusterDefault.setName(name);
-		prop = propertyService.getByKey(Wms2Properties.KEY_LOCATIONCLUSTER_DEFAULT);
-		prop.setPropertyValue(name);
 
 		
 		log.info("Create working area...");

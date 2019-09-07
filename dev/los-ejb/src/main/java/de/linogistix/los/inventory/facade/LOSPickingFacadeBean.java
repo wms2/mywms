@@ -42,13 +42,14 @@ import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
+import de.wms2.mywms.picking.PickingOrderPrioChangeEvent;
 import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
-import de.wms2.mywms.picking.Packet;
-import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.user.UserBusiness;
 
@@ -89,6 +90,8 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 	private InventoryBusiness inventoryBusiness;
 	@Inject
 	private Event<PickingOrderStateChangeEvent> pickingOrderStateChangeEvent;
+	@Inject
+	private Event<PickingOrderPrioChangeEvent> pickingOrderPrioChangeEvent;
 
 	public void changePickingOrderPrio( long orderId, int prio ) throws FacadeException {
 		String logStr = "changePickingOrderPrio ";
@@ -99,7 +102,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		int prioOld = order.getPrio();
 		if( prio != prioOld ) {
 			order.setPrio(prio);
-			manageOrderService.onPickingOrderPrioChange(order, prioOld);
+			firePickingOrderPrioChangeEvent(order, prioOld);
 		}
 	}
 
@@ -399,6 +402,20 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			log.debug("Fire PickingOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
 					+ ", oldState=" + oldState);
 			pickingOrderStateChangeEvent.fire(new PickingOrderStateChangeEvent(entity, oldState, entity.getState()));
+		} catch (ObserverException ex) {
+			Throwable cause = ex.getCause();
+			if (cause != null && cause instanceof BusinessException) {
+				throw (BusinessException) cause;
+			}
+			throw ex;
+		}
+	}
+
+	private void firePickingOrderPrioChangeEvent(PickingOrder entity, int oldPrio) throws BusinessException {
+		try {
+			log.debug("Fire PickingOrderStateChangeEvent. entity=" + entity + ", prio=" + entity.getPrio()
+					+ ", oldPrio=" + oldPrio);
+			pickingOrderPrioChangeEvent.fire(new PickingOrderPrioChangeEvent(entity, oldPrio, entity.getPrio()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

@@ -10,7 +10,7 @@ package de.linogistix.los.inventory.crud;
 import javax.ejb.Remote;
 
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSReplenishOrder;
+import de.wms2.mywms.replenish.ReplenishOrder;
 
 
 
@@ -19,6 +19,6 @@ import de.linogistix.los.inventory.model.LOSReplenishOrder;
  *
  */
 @Remote
-public interface LOSReplenishOrderCRUDRemote extends BusinessObjectCRUDRemote<LOSReplenishOrder>{
+public interface LOSReplenishOrderCRUDRemote extends BusinessObjectCRUDRemote<ReplenishOrder>{
 
 }

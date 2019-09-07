@@ -37,6 +37,7 @@ import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
+import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.strategy.LocationReservationEntityService;
 
 /**
@@ -175,6 +176,29 @@ public class TrashHandler {
 			}
 
 			manager.remove(advice);
+			manager.flush();
+
+			return true;
+		} catch (Throwable t) {
+			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+		}
+
+		return false;
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean removeReplenishOrder(ReplenishOrder replenishOrder) {
+		String logStr = "removeReplenishOrder ";
+		logger.log(Level.FINE, logStr + "replenishOrder=" + replenishOrder);
+		try {
+			manager.setFlushMode(FlushModeType.COMMIT);
+			replenishOrder = manager.reload(replenishOrder, false);
+			if (replenishOrder == null) {
+				logger.log(Level.WARNING, logStr + "ReplenishOrder is already deleted. Cannot remove.");
+				return false;
+			}
+
+			manager.remove(replenishOrder);
 			manager.flush();
 
 			return true;

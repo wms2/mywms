@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -40,6 +41,7 @@ public class Wms2Properties {
 	public static final String KEY_SHIPPING_LOCATION = "SHIPPING_LOCATION";
 	public static final String KEY_SHIPPING_RENAME_UNITLOAD = "SHIPPING_RENAME_UNITLOAD";
 	public static final String KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED = "GOODS_RECEIPT_LIMIT_AMOUNT_TO_NOTIFIED";
+	public static final String KEY_REPLENISH_FROM_PICKING = "REPLENISH_FROM_PICKING_LOCATION";
 
 	/**
 	 * Names of system property groups

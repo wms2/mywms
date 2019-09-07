@@ -22,12 +22,13 @@ import de.linogistix.inventory.browser.masternode.BOLOSReplenishOrderMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSReplenishOrderCRUDRemote;
-import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.query.LOSReplenishOrderQueryRemote;
 import de.linogistix.los.model.Prio;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.replenish.ReplenishOrder;
+import de.wms2.mywms.strategy.OrderState;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,9 +80,9 @@ public class BOLOSReplenishOrder extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSReplenishOrder c;
+      ReplenishOrder c;
     
-    c = new LOSReplenishOrder();
+    c = new ReplenishOrder();
     
     return c;
     
@@ -158,14 +159,11 @@ public class BOLOSReplenishOrder extends BO {
     public List<Object> getValueList(String fieldName) {
         if( "state".equals(fieldName) ) {
             List<Object> entryList = new ArrayList<Object>();
-            entryList.add(0);
-            entryList.add(200);
-            entryList.add(300);
-            entryList.add(400);
-            entryList.add(500);
-            entryList.add(700);
-            entryList.add(800);
-            entryList.add(1000);
+            entryList.add(OrderState.PROCESSABLE);
+            entryList.add(OrderState.STARTED);
+            entryList.add(OrderState.PICKED);
+            entryList.add(OrderState.FINISHED);
+            entryList.add(OrderState.DELETABLE);
 
             return entryList;
         }

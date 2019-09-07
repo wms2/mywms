@@ -13,8 +13,8 @@ import javax.ejb.Stateless;
 import org.mywms.service.BasicService;
 
 import de.linogistix.los.crud.BusinessObjectCRUDBean;
-import de.linogistix.los.inventory.model.LOSReplenishOrder;
 import de.linogistix.los.inventory.service.LOSReplenishOrderService;
+import de.wms2.mywms.replenish.ReplenishOrder;
 
 
 /**
@@ -22,13 +22,13 @@ import de.linogistix.los.inventory.service.LOSReplenishOrderService;
  *
  */
 @Stateless
-public class LOSReplenishOrderCRUDBean extends BusinessObjectCRUDBean<LOSReplenishOrder> implements LOSReplenishOrderCRUDRemote {
+public class LOSReplenishOrderCRUDBean extends BusinessObjectCRUDBean<ReplenishOrder> implements LOSReplenishOrderCRUDRemote {
 
 	@EJB 
 	LOSReplenishOrderService service;
 	
 	@Override
-	protected BasicService<LOSReplenishOrder> getBasicService() {
+	protected BasicService<ReplenishOrder> getBasicService() {
 		
 		return service;
 	}
