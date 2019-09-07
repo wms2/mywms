@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -18,7 +19,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.goodsreceipt;
 
+import java.math.BigDecimal;
+
 import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.product.ItemData;
 
 /**
  * This event fired when a goods receipt line is deleted
@@ -29,10 +34,18 @@ import de.wms2.mywms.advice.AdviceLine;
 public class GoodsReceiptLineDeletedEvent {
 	private GoodsReceiptLine goodsReceiptLine;
 	private AdviceLine adviceLine;
+	private ItemData itemData;
+	private UnitLoadType unitLoadType;
+	private BigDecimal amount;
 
-	public GoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine) {
+	public GoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine, ItemData itemData,
+			BigDecimal amount, UnitLoadType unitLoadType) {
 		this.goodsReceiptLine = goodsReceiptLine;
 		this.adviceLine = adviceLine;
+		this.itemData = itemData;
+		this.unitLoadType = unitLoadType;
+		this.amount = amount;
+
 	}
 
 	public GoodsReceiptLine getGoodsReceiptLine() {
@@ -41,5 +54,17 @@ public class GoodsReceiptLineDeletedEvent {
 
 	public AdviceLine getAdviceLine() {
 		return adviceLine;
+	}
+
+	public ItemData getItemData() {
+		return itemData;
+	}
+
+	public UnitLoadType getUnitLoadType() {
+		return unitLoadType;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
 	}
 }

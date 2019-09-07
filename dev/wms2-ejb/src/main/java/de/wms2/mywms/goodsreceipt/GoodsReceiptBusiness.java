@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -551,9 +552,11 @@ public class GoodsReceiptBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.stockNotAvailable");
 		}
 
+		ItemData itemData = stock.getItemData();
+		BigDecimal amount = stock.getAmount();
+		UnitLoadType unitLoadType = stock.getUnitLoad().getUnitLoadType();
 		User operator = userBusiness.getCurrentUser();
 		String activityCode = order.getOrderNumber();
-
 		BigDecimal stockUnitAmount = stock.getAmount();
 		BigDecimal receiptAmount = goodsReceiptLine.getAmount();
 		if (stockUnitAmount.compareTo(receiptAmount) != 0) {
@@ -569,7 +572,7 @@ public class GoodsReceiptBusiness {
 
 		manager.remove(goodsReceiptLine);
 
-		fireGoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine);
+		fireGoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine, itemData, amount, unitLoadType);
 	}
 
 	public GoodsReceipt finishOrder(GoodsReceipt order) throws BusinessException {
@@ -637,10 +640,10 @@ public class GoodsReceiptBusiness {
 		}
 	}
 
-	private void fireGoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine)
+	private void fireGoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine, ItemData itemData, BigDecimal amount, UnitLoadType unitLoadType)
 			throws BusinessException {
 		try {
-			goodsReceiptLineDeletedEvent.fire(new GoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine));
+			goodsReceiptLineDeletedEvent.fire(new GoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine, itemData, amount, unitLoadType));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

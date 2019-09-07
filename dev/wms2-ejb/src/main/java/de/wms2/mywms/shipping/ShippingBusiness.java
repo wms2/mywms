@@ -442,7 +442,6 @@ public class ShippingBusiness {
 
 			if (shippingOrder == null) {
 				shippingOrder = createOrder(deliveryOrder.getClient());
-				shippingOrder = manager.createInstance(ShippingOrder.class);
 				shippingOrder.setDeliveryOrder(deliveryOrder);
 				shippingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
 				shippingOrder.setState(OrderState.PROCESSABLE);
@@ -464,8 +463,7 @@ public class ShippingBusiness {
 
 	public ShippingOrder createOrder(Client client) throws BusinessException {
 		StorageLocation destination = null;
-		String destinationName = propertyBusiness.getString(Wms2Properties.KEY_SHIPPING_LOCATION, client, null,
-				null);
+		String destinationName = propertyBusiness.getString(Wms2Properties.KEY_SHIPPING_LOCATION, client, null, null);
 		if (!StringUtils.isBlank(destinationName)) {
 			destination = locationService.readByName(destinationName);
 		}
