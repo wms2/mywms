@@ -678,7 +678,7 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 		
 		if(code.length() == 0){
-			if(currentItemData.getShelflife() > 0){
+			if(currentItemData.getShelflife()!=null && currentItemData.getShelflife().intValue() > 0){
 				JSFHelper.getInstance().message( resolve("MsgEnterLotDate") );
 				return "";
 			}
@@ -692,7 +692,7 @@ public class GRDirectBean extends BasicDialogBean {
 		}
 			
 		// Check if the valid period of received goods is long enough
-		if(currentItemData.getShelflife() > 0){
+		if(currentItemData.getShelflife()!=null && currentItemData.getShelflife().intValue() > 0){
 			
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DAY_OF_YEAR, currentItemData.getShelflife());

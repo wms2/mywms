@@ -83,7 +83,7 @@ public class AdviceLine extends BasicEntity {
 	/**
 	 * The advised itemData
 	 */
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private ItemData itemData;
 
 	/**

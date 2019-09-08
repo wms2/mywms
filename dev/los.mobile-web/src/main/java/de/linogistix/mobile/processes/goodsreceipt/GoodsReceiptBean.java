@@ -320,7 +320,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 			}
 		}
 		if(validTo_Input == ""){
-			if(item.getShelflife() > 0){
+			if(item.getShelflife()!=null && item.getShelflife().intValue() > 0){
 				JSFHelper.getInstance().message(super.resolve("VALIDTO_INPUT_REQUIRED", new Object[]{}));
 				return GoodsReceiptNavigationEnum.CHOOSE_ADVICE.name();
 			}
@@ -334,7 +334,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		}
 		
 		// Check if the valid period of received goods is long enough
-		if(item.getShelflife() > 0){
+		if(item.getShelflife()!=null && item.getShelflife().intValue() > 0){
 			
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DAY_OF_YEAR, item.getShelflife());

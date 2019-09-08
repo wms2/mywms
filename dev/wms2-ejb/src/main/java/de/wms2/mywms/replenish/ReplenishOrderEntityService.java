@@ -77,7 +77,7 @@ public class ReplenishOrderEntityService {
 	}
 
 	public List<ReplenishOrder> readOpenByDestination(StorageLocation destination) {
-		return readList(null, destination, null, OrderState.FINISHED - 1, false, null, null);
+		return readList(null, destination, null, OrderState.FINISHED - 1);
 
 	}
 
@@ -92,10 +92,9 @@ public class ReplenishOrderEntityService {
 	 * @param offset      Optional
 	 * @param limit       Optional
 	 */
-	// TODO krane aufrufe pruefen
 	@SuppressWarnings("unchecked")
 	public List<ReplenishOrder> readList(ItemData itemData, StorageLocation destination, Integer minState,
-			Integer maxState, boolean sort, Integer offset, Integer limit) {
+			Integer maxState) {
 		String queryStr = "SELECT entity FROM " + ReplenishOrder.class.getName() + " entity " + "WHERE 1=1";
 		if (itemData != null) {
 			queryStr += " and entity.itemData=:itemData ";
@@ -109,17 +108,7 @@ public class ReplenishOrderEntityService {
 		if (maxState != null) {
 			queryStr += " and entity.state<=:maxState ";
 		}
-		if (sort) {
-			queryStr += "ORDER by entity.state, entity.orderNumber";
-		}
-
 		Query query = manager.createQuery(queryStr);
-		if (offset != null) {
-			query.setFirstResult(offset);
-		}
-		if (limit != null) {
-			query.setMaxResults(limit);
-		}
 		if (itemData != null) {
 			query.setParameter("itemData", itemData);
 		}

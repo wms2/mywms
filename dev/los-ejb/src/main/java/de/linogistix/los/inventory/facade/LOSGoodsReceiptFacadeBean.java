@@ -210,7 +210,82 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		AdviceLine adviceLine = (adviceDto == null ? null : manager.find(AdviceLine.class, adviceDto.getId()));
 		UnitLoadType unitLoadType = (adviceDto == null ? null : manager.find(UnitLoadType.class, unitLoadTypeDto.getId()));
        
-    	return goodsReceiptBusiness.receiveStock(goodsReceipt, adviceLine, unitLoadLabel, unitLoadType, itemData, null, amount, lot, serialNumber, lock, lockCause, null, null);
+		boolean printLabel = true;
+		boolean isFixedLocation = false;
+		StorageLocation targetLocation = null;
+		UnitLoad targetUnitLoad = null;
+		if (targetLocationName != null && targetLocationName.length() > 0) {
+			try {
+				targetLocation = locationService.readByName(targetLocationName);
+			} catch (Exception e) {
+			}
+			if (targetLocation == null) {
+				throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, targetLocationName);
+			}
+
+			// Check, whether the target location is a fixed assigned location.
+			// On this locations a special handling is needed, which the posting methods do
+			// not know??
+			FixAssignment fix = fixService.readFirstByLocation(targetLocation);
+			if (fix != null) {
+				if (!fix.getItemData().equals(itemData)) {
+					logger.error("Cannot store item data=" + itemData.getNumber() + " on fixed location for item data="
+							+ fix.getItemData().getNumber());
+					throw new InventoryException(InventoryExceptionKey.WRONG_ITEMDATA,
+							new Object[] { itemData.getNumber(), fix.getItemData().getNumber() });
+				}
+				printLabel = false;
+				isFixedLocation = true;
+			}
+		}
+		if (targetUnitLoadName != null && targetUnitLoadName.length() > 0) {
+			try {
+				targetUnitLoad = unitLoadService.readByLabel(targetUnitLoadName);
+			} catch (Exception e) {
+			}
+			if (targetUnitLoad == null) {
+				throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
+			}
+		}
+
+		GoodsReceiptLine goodsReceiptLine = goodsReceiptBusiness.receiveStock(goodsReceipt, adviceLine, unitLoadLabel,
+				unitLoadType, itemData, null, amount, lot, serialNumber, lock, lockCause, null, null);
+
+		UnitLoad unitLoad = unitLoadService.readByLabel(goodsReceiptLine.getUnitLoadLabel());
+		if (unitLoad == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, targetUnitLoadName);
+		}
+
+		if (targetLocation != null) {
+			try {
+				if (isFixedLocation) {
+					putOnFixedAssigned(contextService.getCallerUserName(), null, unitLoad, targetLocation);
+				} else {
+					inventoryBusiness.checkTransferUnitLoad(unitLoad, targetLocation, true);
+					inventoryBusiness.transferUnitLoad(unitLoad, targetLocation, null, null, null);
+				}
+			} catch (FacadeException e) {
+				logger.error("Error in Transfer to target=" + targetLocation.getName());
+				throw e;
+			}
+		} else if (targetUnitLoad != null) {
+			try {
+				for (StockUnit stock : stockUnitEntityService.readByUnitLoad(unitLoad)) {
+					inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
+					inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), null, null, null);
+				}
+			} catch (FacadeException e) {
+				logger.error("Error in Transfer to target=" + targetUnitLoadName);
+				throw e;
+			}
+		}
+
+		if (printLabel) {
+			Document label = suLabelReport.generateStockUnitLabel(unitLoad);
+			printService.print(printer, label.getData(), label.getDocumentType());
+		}
+
+		return goodsReceiptLine;
     }
 
 	public GoodsReceiptLine createGoodsReceiptLineAndLot(BODTO<Client> clientDto, GoodsReceipt goodsReceipt,
@@ -440,7 +515,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			
 			// Check, whether the target location is a fixed assigned location.
 			// On this locations a special handling is needed, which the posting methods do not know??
-			FixAssignment fix = fixService.readFirst(null, targetLocation);
+			FixAssignment fix = fixService.readFirstByLocation(targetLocation);
 			if( fix != null ) {
 				if( ! fix.getItemData().equals(idat) ) {
 					logger.error("Cannot store item data="+ idat.getNumber()+" on fixed location for item data="+fix.getItemData().getNumber());

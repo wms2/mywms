@@ -448,7 +448,7 @@ public class GoodsReceiptBusiness {
 		UnitLoad unitLoad = null;
 
 		if (StringUtils.isEmpty(unitLoadLabel)) {
-			String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "label");
+			String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "labelId");
 			unitLoad = inventoryBusiness.createUnitLoad(client, label, unitLoadType, location, StockState.INCOMING,
 					null, operator, note);
 		} else {

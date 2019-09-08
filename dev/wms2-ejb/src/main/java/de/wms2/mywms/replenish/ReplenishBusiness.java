@@ -96,7 +96,7 @@ public class ReplenishBusiness {
 		String logStr = "cleanupDeleted ";
 		logger.log(Level.FINE, logStr);
 
-		List<ReplenishOrder> orders = orderService.readList(null, null, OrderState.DELETABLE, null, false, null, null);
+		List<ReplenishOrder> orders = orderService.readList(null, null, OrderState.DELETABLE, null);
 		for (ReplenishOrder order : orders) {
 			trashHandler.removeReplenishOrder(order);
 		}
@@ -419,7 +419,7 @@ public class ReplenishBusiness {
 			if (addToUnitLoad == null) {
 				logger.log(Level.FINE, logStr + "generate new unit load on target location");
 				UnitLoadType unitLoadType = unitLoadTypeService.getVirtual();
-				String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "label");
+				String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "labelId");
 				addToUnitLoad = inventoryBusiness.createUnitLoad(order.getClient(), label, unitLoadType, toLocation,
 						sourceStockUnit.getState(), activityCode, operator, null);
 			}
@@ -542,7 +542,7 @@ public class ReplenishBusiness {
 			// reserve locations.
 			// Normally the picking locations should be filled from the reserve
 			List<ReplenishOrder> existingOrders = orderService.readList(fix.getItemData(), null, OrderState.RELEASED,
-					OrderState.FINISHED - 1, false, null, null);
+					OrderState.FINISHED - 1);
 			boolean hasExistingOrder = false;
 			for (ReplenishOrder existingOrder : existingOrders) {
 				String usages = existingOrder.getDestinationLocation().getArea().getUsages();
@@ -603,7 +603,7 @@ public class ReplenishBusiness {
 			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<Lot> lotsOnLocation)
 			throws BusinessException {
 		String logStr = "generateOrderForPicking ";
-		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
+		logger.log(Level.INFO, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
 				+ requestedAmount + ", amountOnLocation=" + amountOnLocation + ", lotsOnLocation=" + lotsOnLocation);
 
 		StockUnit sourceStock = findReplenishStockForPicking(itemData, lotsOnLocation);
@@ -653,8 +653,9 @@ public class ReplenishBusiness {
 		jpql += " AND location.lock=0 ";
 		jpql += " AND stock.lock=0 ";
 		jpql += " AND stock.amount > 0 ";
+		jpql += " AND not area.usages like '%" + AreaUsages.PICKING + "%' ";
 		jpql += " AND area.usages like '%" + AreaUsages.STORAGE + "%' ";
-		jpql += "    and exists( select 1 from " + FixAssignment.class.getName() + " fix ";
+		jpql += " AND exists( select 1 from " + FixAssignment.class.getName() + " fix ";
 		jpql += "     where fix.storageLocation = location )";
 		jpql += " AND stock.reservedAmount < stock.amount ";
 		jpql += " AND stock.itemData =:itemData ";
@@ -687,14 +688,13 @@ public class ReplenishBusiness {
 		jpql += " AND location.lock=0 ";
 		jpql += " AND stock.lock=0 ";
 		jpql += " AND stock.amount > 0 ";
+		jpql += " AND not exists( select 1 from " + FixAssignment.class.getName() + " fix ";
+		jpql += "     where fix.storageLocation = location )";
 		if (replenishFromPicking) {
 			jpql += " AND (";
-			jpql += "   (area.usages like '%" + AreaUsages.PICKING + "%' ";
-			jpql += "    and not exists( select 1 from " + FixAssignment.class.getName() + " fix ";
-			jpql += "     where fix.storageLocation = location )";
-			jpql += "   )";
-			jpql += "   or (area.usages like '%" + AreaUsages.STORAGE + "%' ";
-			jpql += " ))";
+			jpql += "   area.usages like '%" + AreaUsages.PICKING + "%' ";
+			jpql += "   or area.usages like '%" + AreaUsages.STORAGE + "%' ";
+			jpql += " )";
 		} else {
 			jpql += " AND area.usages like '%" + AreaUsages.STORAGE + "%' ";
 			jpql += " AND not area.usages like '%" + AreaUsages.PICKING + "%' ";
@@ -715,6 +715,8 @@ public class ReplenishBusiness {
 
 		try {
 			StockUnit stock = (StockUnit) query.getSingleResult();
+			logger.log(Level.INFO, logStr + "Found stock on replenish location. itemData=" + itemData
+					+ ", location=" + stock.getUnitLoad().getStorageLocation());
 			return stock;
 		} catch (Throwable t) {
 		}
@@ -727,7 +729,7 @@ public class ReplenishBusiness {
 			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<Lot> lotsOnLocation)
 			throws BusinessException {
 		String logStr = "generateOrderForStorage ";
-		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
+		logger.log(Level.INFO, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
 				+ requestedAmount + ", amountOnLocation=" + amountOnLocation + ", lotsOnLocation=" + lotsOnLocation);
 
 		StockUnit sourceStock = findReplenishStockForStorage(itemData, lotsOnLocation);
