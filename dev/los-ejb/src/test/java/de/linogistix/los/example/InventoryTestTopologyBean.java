@@ -281,7 +281,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 				
 				rl = slQuery.queryByIdentity(locName);
 							
-				FixAssignment ass = assService.readFirst(null, rl);
+				FixAssignment ass = assService.readFirstByLocation(rl);
 				if(ass == null){
 					ass = new FixAssignment();
 					ass.setStorageLocation(rl);
@@ -298,7 +298,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 				
 				rl = slQuery.queryByIdentity(locName);
 				
-				FixAssignment ass = assService.readFirst(null, rl);
+				FixAssignment ass = assService.readFirstByLocation(rl);
 				if(ass == null){
 					ass = new FixAssignment();
 					ass.setStorageLocation(rl);
@@ -563,7 +563,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 					
 					rl = slQuery.queryByIdentity(locName);
 								
-					FixAssignment ass = assService.readFirst(null, rl);
+					FixAssignment ass = assService.readFirstByLocation(rl);
 					
 					if(ass != null){
 						em.remove(ass);
@@ -590,7 +590,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 					
 					rl = slQuery.queryByIdentity(locName);
 					
-					FixAssignment ass = assService.readFirst(null, rl);
+					FixAssignment ass = assService.readFirstByLocation(rl);
 					
 					if(ass != null){
 						em.remove(ass);

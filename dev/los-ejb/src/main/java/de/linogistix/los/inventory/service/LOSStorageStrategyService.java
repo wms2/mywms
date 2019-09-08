@@ -19,6 +19,4 @@ import de.wms2.mywms.strategy.StorageStrategy;
  */
 @Local
 public interface LOSStorageStrategyService extends BasicService<StorageStrategy> {
-	public StorageStrategy getByName( String name );
-	public StorageStrategy getDefault();
 }

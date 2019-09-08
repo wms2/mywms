@@ -24,14 +24,12 @@ import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemUnitService;
-import de.linogistix.los.inventory.service.LOSStorageStrategyService;
 import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
-import de.wms2.mywms.util.Wms2Constants;
-import de.wms2.mywms.util.Wms2Properties;
+import de.wms2.mywms.strategy.StorageStrategyEntityService;
 
 
 /**
@@ -48,13 +46,14 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 	@EJB
 	private OrderStrategyEntityService orderStrategyService;
 	@EJB
-	private LOSStorageStrategyService storageStrategyService;
-	@EJB
 	private LOSSystemPropertyService propertyService;
 	@EJB
 	private ItemUnitService unitService;
 	@EJB
 	private InventoryGeneratorService genService;
+	@Inject
+	private StorageStrategyEntityService storageStrategyService;
+
 	public void createBasicData(Locale locale) throws FacadeException {
 
 		log.info("Create Inventory Basic Data...");

@@ -123,6 +123,13 @@ public class BOLOSStorageStrategy extends BO {
             List<Object> entryList = new ArrayList<Object>();
             entryList.add(0);
             entryList.add(1);
+            entryList.add(2);
+            entryList.add(3);
+            entryList.add(4);
+            entryList.add(5);
+            entryList.add(6);
+            entryList.add(7);
+            entryList.add(8);
             return entryList;
         }
         if( fieldName.equals("useStorage")) {

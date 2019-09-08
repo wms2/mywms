@@ -689,7 +689,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			isItemDataUnique = false;
 		}
 		
-		FixAssignment fix = fixService.readFirst(null, targetLocation);
+		FixAssignment fix = fixService.readFirstByLocation(targetLocation);
 		if( fix != null ) {
 			if( !isItemDataUnique ) {
 				log.error("Cannot store mixed unit load on fixed location for item data="+fix.getItemData().getNumber());

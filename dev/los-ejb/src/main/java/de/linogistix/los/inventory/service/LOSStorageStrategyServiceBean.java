@@ -7,27 +7,11 @@
  */
 package de.linogistix.los.inventory.service;
 
-import java.util.Locale;
-
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.Client;
-import org.mywms.model.User;
 import org.mywms.service.BasicServiceBean;
 
-import de.linogistix.los.customization.EntityGenerator;
-import de.linogistix.los.inventory.res.InventoryBundleResolver;
-import de.linogistix.los.model.LOSCommonPropertyKey;
-import de.linogistix.los.util.BundleHelper;
-import de.linogistix.los.util.StringTools;
-import de.linogistix.los.util.businessservice.ContextService;
-import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
-import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.strategy.StorageStrategy;
 
 /**
@@ -37,66 +21,4 @@ import de.wms2.mywms.strategy.StorageStrategy;
 @Stateless
 public class LOSStorageStrategyServiceBean extends BasicServiceBean<StorageStrategy> implements LOSStorageStrategyService {
 	Logger log = Logger.getLogger(LOSStorageStrategyServiceBean.class);
-
-	@EJB
-	private LOSSystemPropertyService propertyService;
-	@EJB
-	private ContextService contextService;
-	@EJB
-	private EntityGenerator entityGenerator;
-	@Inject
-	private ClientBusiness clientService;
-	
-	
-	public StorageStrategy getByName( String name ) {
-
-    	String queryStr = "SELECT o FROM " + StorageStrategy.class.getSimpleName() + " o WHERE o.name=:name ";
-
-        Query query = manager.createQuery( queryStr );
-
-        query.setParameter("name", name);
-
-		
-		try {
-			return (StorageStrategy)query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-        
-    }
-
-
-	public StorageStrategy getDefault(){
-		return getDefault(null);
-	}
-	
-	public StorageStrategy getDefault(Client client){
-		if( client == null ) {
-			client = contextService.getCallersClient();
-		}
-
-		String description =null;
-		String name = propertyService.getStringDefault(client, null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, null);
-		if( StringTools.isEmpty(name) ) {
-			User user = contextService.getCallersUser();
-			Locale locale = (user == null || user.getLocale()==null)?Locale.getDefault():new Locale(user.getLocale());
-	        name = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultName", locale);
-			description = BundleHelper.resolve(InventoryBundleResolver.class, "StrategyStorageDefaultDesc", locale);
-			propertyService.createSystemProperty(clientService.getSystemClient(), null, StorageStrategy.PROPERY_KEY_DEFAULT_STRATEGY, name, LOSCommonPropertyKey.PROPERTY_GROUP_SERVER, description, true);
-		}
-		
-		StorageStrategy strat = getByName(name);
-		
-		if( strat == null ) {
-			strat = entityGenerator.generateEntity(StorageStrategy.class);
-			
-			strat.setName(name);
-			strat.setAdditionalContent(description);
-			manager.persist(strat);
-		}
-
-
-		return strat;
-	}
-	
 }

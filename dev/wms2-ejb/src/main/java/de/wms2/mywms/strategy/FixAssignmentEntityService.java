@@ -149,17 +149,28 @@ public class FixAssignmentEntityService {
 		return query.getResultList();
 	}
 
+	public FixAssignment readFirstByLocation(StorageLocation location) {
+		return readFirst(null, location, null);
+	}
+
+	public FixAssignment readFirstByItemData(ItemData itemData, Boolean useForPicking) {
+		return readFirst(itemData, null, useForPicking);
+	}
+
 	/**
 	 * Read the first entry for the given parameters. All parameters are optional.
 	 * The result is ordered by itemData and orderIndex.
 	 */
-	public FixAssignment readFirst(ItemData itemData, StorageLocation location) {
+	public FixAssignment readFirst(ItemData itemData, StorageLocation location, Boolean useForPicking) {
 		String hql = "SELECT entity FROM " + FixAssignment.class.getName() + " entity WHERE 1=1";
 		if (itemData != null) {
 			hql += " and entity.itemData=:itemData";
 		}
 		if (location != null) {
 			hql += " and entity.storageLocation=:location";
+		}
+		if (useForPicking != null && useForPicking.booleanValue()) {
+			hql += " and entity.storageLocation.area.usages like '%" + AreaUsages.PICKING + "%'";
 		}
 		hql += " ORDER BY entity.itemData, entity.orderIndex";
 		Query query = manager.createQuery(hql);

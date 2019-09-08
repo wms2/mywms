@@ -305,7 +305,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 			for( FixAssignment flOld : flList ) {
 				manager.remove(flOld);
 			}
-			FixAssignment flOld = fixedService.readFirst(null, rl);
+			FixAssignment flOld = fixedService.readFirstByLocation(rl);
 			if( flOld != null ) {
 				manager.remove(flOld);
 			}

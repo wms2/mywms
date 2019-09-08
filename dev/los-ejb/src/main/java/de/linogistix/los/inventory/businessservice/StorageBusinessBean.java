@@ -43,6 +43,7 @@ import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
+import de.wms2.mywms.strategy.LocationFinder;
 import de.wms2.mywms.strategy.LocationReserver;
 import de.wms2.mywms.strategy.StorageStrategy;
 
@@ -73,7 +74,7 @@ public class StorageBusinessBean implements StorageBusiness {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 	
-	@Inject
+	@EJB
 	private LocationFinder locationFinder;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
@@ -124,7 +125,7 @@ public class StorageBusinessBean implements StorageBusiness {
 			ret.setNumber(genService.generateStorageRequestNumber(c));
 			
 			if( location == null ) {
-				location = locationFinder.findLocation(ul, null, strategy);
+				location = locationFinder.findStorageLocation(ul, strategy);
 			}
 			if( location == null ) {
 				throw new InventoryException(
@@ -235,7 +236,7 @@ public class StorageBusinessBean implements StorageBusiness {
 
 	private void transferUnitLoad(LOSStorageRequest req, UnitLoad unitload, StorageLocation targetLocation ) throws FacadeException {
 		
-		FixAssignment fix = fixService.readFirst(null, targetLocation);
+		FixAssignment fix = fixService.readFirstByLocation(targetLocation);
 		User operator = contextService.getCallersUser();
 
 		if( fix != null ) {

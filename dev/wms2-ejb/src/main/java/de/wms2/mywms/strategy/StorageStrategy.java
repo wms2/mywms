@@ -21,6 +21,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.mywms.model.BasicEntity;
 
@@ -34,35 +35,18 @@ import org.mywms.model.BasicEntity;
 public class StorageStrategy extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
-	public final static String PROPERY_KEY_DEFAULT_STRATEGY = "STRATEGY_STORAGE_DEFAULT";
-
-	public final static int CLIENT_MODE_IGNORE = 0;
-	public final static int CLIENT_MODE_PREFER_OWN = 1;
-	public final static int CLIENT_MODE_ONLY_OWN = 2;
-
-	public final static int ORDER_BY_YPOS = 0;
-	public final static int ORDER_BY_XPOS = 1;
-
-	public static final int UNDEFINED = -1;
-	public static final int FALSE = 0;
-	public static final int TRUE = 1;
-
 	@Column(nullable = false, unique = true)
 	private String name;
 
-	@Column(nullable = false)
-	private boolean useItemZone = false;
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private Zone zone;
-	@Column(nullable = false)
-	private int useStorage = UNDEFINED;
-	@Column(nullable = false)
-	private int usePicking = UNDEFINED;
 
-	@Column(nullable = false)
-	private int clientMode = CLIENT_MODE_IGNORE;
-	@Column(nullable = false)
-	private int orderByMode = ORDER_BY_YPOS;
+	/**
+	 * This field is just to give edit possibility to the rich client. No further
+	 * use.
+	 */
+	@Transient
+	private int orderByMode = StorageStrategyRichClientConverter.UNDEFINED;
 
 	/**
 	 * Allow mix items on storage location
@@ -75,6 +59,31 @@ public class StorageStrategy extends BasicEntity {
 	 */
 	@Column(nullable = false)
 	private boolean mixClient = false;
+
+	/**
+	 * Use only locations of the client of the stock unit
+	 */
+	@Column(nullable = false)
+	private boolean onlyClientLocation = false;
+
+	/**
+	 * Search location manual
+	 */
+	@Column(nullable = false)
+	private boolean manualSearch = false;
+
+	/**
+	 * Comma separated list of sort criteria (StorageStrategySortType)
+	 */
+	private String sorts;
+
+	/**
+	 * Search locations in the near of a fix assigned location. This rule is
+	 * operated on every storage level separately. The search only considers
+	 * locations in the aisle of the fix assigned location. The distance is
+	 * calculated with the X-coordinate.
+	 */
+	private boolean nearPickingLocation = false;
 
 	@Override
 	public String toString() {
@@ -100,28 +109,12 @@ public class StorageStrategy extends BasicEntity {
 		this.name = name;
 	}
 
-	public boolean isUseItemZone() {
-		return useItemZone;
-	}
-
-	public void setUseItemZone(boolean useItemZone) {
-		this.useItemZone = useItemZone;
-	}
-
 	public Zone getZone() {
 		return zone;
 	}
 
 	public void setZone(Zone zone) {
 		this.zone = zone;
-	}
-
-	public int getClientMode() {
-		return clientMode;
-	}
-
-	public void setClientMode(int clientMode) {
-		this.clientMode = clientMode;
 	}
 
 	public int getOrderByMode() {
@@ -140,28 +133,44 @@ public class StorageStrategy extends BasicEntity {
 		this.mixItem = mixItem;
 	}
 
-	public int getUseStorage() {
-		return useStorage;
-	}
-
-	public void setUseStorage(int useStorage) {
-		this.useStorage = useStorage;
-	}
-
-	public int getUsePicking() {
-		return usePicking;
-	}
-
-	public void setUsePicking(int usePicking) {
-		this.usePicking = usePicking;
-	}
-
 	public boolean isMixClient() {
 		return mixClient;
 	}
 
 	public void setMixClient(boolean mixClient) {
 		this.mixClient = mixClient;
+	}
+
+	public boolean isOnlyClientLocation() {
+		return onlyClientLocation;
+	}
+
+	public void setOnlyClientLocation(boolean onlyClientLocation) {
+		this.onlyClientLocation = onlyClientLocation;
+	}
+
+	public boolean isManualSearch() {
+		return manualSearch;
+	}
+
+	public void setManualSearch(boolean manualSearch) {
+		this.manualSearch = manualSearch;
+	}
+
+	public String getSorts() {
+		return sorts;
+	}
+
+	public void setSorts(String sorts) {
+		this.sorts = sorts;
+	}
+
+	public boolean isNearPickingLocation() {
+		return nearPickingLocation;
+	}
+
+	public void setNearPickingLocation(boolean nearPickingLocation) {
+		this.nearPickingLocation = nearPickingLocation;
 	}
 
 }

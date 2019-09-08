@@ -97,7 +97,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		if( loc == null ) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_STORAGELOCATION, locationName);
 		}
-		FixAssignment fix = fixService.readFirst(null, loc);
+		FixAssignment fix = fixService.readFirstByLocation(loc);
 		if( fix == null ) {
 			throw new InventoryException(InventoryExceptionKey.NOT_A_FIXED_ASSIGNED_LOCATION, new Object[]{});
 		}
@@ -381,7 +381,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 			BigDecimal amountDestination = BigDecimal.ZERO;
 			
 			StorageLocation destination = locationService.read(order.getDestinationLocationName());
-			FixAssignment fix = fixService.readFirst(null, destination);
+			FixAssignment fix = fixService.readFirstByLocation(destination);
 			if( fix != null ) {
 				order.setAmountDestinationMax(fix.getMaxAmount());
 			}

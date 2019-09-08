@@ -16,7 +16,10 @@ import de.linogistix.los.inventory.query.dto.LOSStorageStrategyTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
+import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.wms2.mywms.strategy.StorageStrategy;
+import de.wms2.mywms.strategy.StorageStrategyRichClientConverter;
 
 
 /**
@@ -67,6 +70,11 @@ public class LOSStorageStrategyQueryBean extends BusinessObjectQueryBean<Storage
 		return ret;
 	}
 
+	@Override
+	public StorageStrategy queryById(Long ID) throws BusinessObjectNotFoundException, BusinessObjectSecurityException {
+		StorageStrategy strategy = super.queryById(ID);
+		strategy.setOrderByMode(StorageStrategyRichClientConverter.convertSortsToOrderByMode(strategy.getSorts()));
+		return strategy;
+	}
 
-    
 }

@@ -510,7 +510,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		for( FixAssignment x : flList ) {
 			manager.remove(x);
 		}
-		FixAssignment x = fixedService.readFirst(null, sl);
+		FixAssignment x = fixedService.readFirstByLocation(sl);
 		if( x != null ) {
 			manager.remove(x);
 		}
@@ -546,7 +546,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 			UnitLoad ul = unitLoadService.readByLabel(unitLoadNumber);
 			if( ul != null ) {
 				StorageLocation sl = locationService.readByName(locationName);
-				FixAssignment x = fixedService.readFirst(null, sl);
+				FixAssignment x = fixedService.readFirstByLocation(sl);
 				if( x == null ) {
 					log.error("Do not create UnitLoad " + unitLoadNumber+" twice");
 					return;

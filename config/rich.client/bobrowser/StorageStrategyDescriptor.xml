@@ -7,58 +7,18 @@
                 <group>
                     <name>main</name>
                 </group>
-                <hidden>main</hidden>
+                <hidden>false</hidden>
                 <position>1</position>
             </value>
         </entry>
         <entry>
-            <key>useItemZone</key>
+            <key>manualSearch</key>
             <value>
                 <group>
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>2</position>
-            </value>
-        </entry>
-        <entry>
-            <key>zone</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>4</position>
-            </value>
-        </entry>
-        <entry>
-            <key>useStorage</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>5</position>
-            </value>
-        </entry>
-        <entry>
-            <key>usePicking</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>6</position>
-            </value>
-        </entry>
-        <entry>
-            <key>useReplenish</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>7</position>
+                <position>10</position>
             </value>
         </entry>
         <entry>
@@ -68,7 +28,7 @@
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>8</position>
+                <position>11</position>
             </value>
         </entry>
         <entry>
@@ -78,20 +38,60 @@
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>9</position>
+                <position>12</position>
             </value>
         </entry>
         <entry>
-            <key>clientMode</key>
+            <key>onlyClientLocation</key>
             <value>
                 <group>
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>10</position>
+                <position>13</position>
+            </value>
+        </entry>
+        <entry>
+            <key>nearPickingLocation</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>14</position>
+            </value>
+        </entry>
+        <entry>
+            <key>zone</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>15</position>
+            </value>
+        </entry>
+        <entry>
+            <key>orderByMode</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>20</position>
             </value>
         </entry>
 
+        <entry>
+            <key>sorts</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
 
 		<entry>
 			<key>lock</key>

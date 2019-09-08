@@ -173,10 +173,10 @@ public class BOLOSAdviceSelection extends BO {
 
 
     public void setClient( Client client ) {
-        for( BOQueryComponentProvider query : getQueryComponentProviders() ) {
-            if( query instanceof AutoCompletionQueryClientFilterProvider ) {
-                ((AutoCompletionQueryClientFilterProvider)query).setClient(client);
-            }
-        }
+//        for( BOQueryComponentProvider query : getQueryComponentProviders() ) {
+//            if( query instanceof AutoCompletionQueryClientFilterProvider ) {
+//                ((AutoCompletionQueryClientFilterProvider)query).setClient(client);
+//            }
+//        }
     }
 }

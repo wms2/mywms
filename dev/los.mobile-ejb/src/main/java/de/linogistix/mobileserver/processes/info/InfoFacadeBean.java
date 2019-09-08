@@ -103,7 +103,12 @@ public class InfoFacadeBean implements InfoFacade {
 	
 	public InfoItemDataTO readItemData( String itemNumber ) {
 		log.info("readItemData itemNumber="+itemNumber);
-		ItemData item = queryItemData.getByItemNumber( itemNumber );
+		ItemData item = null;
+		List<ItemData> itemList = queryItemData.getListByItemNumber( itemNumber );
+		if( itemList == null || itemList.size() < 1 ) {
+			return null;
+		}
+		item = itemList.get(0);
 		
 		List<FixAssignment> fixList = fixService.readByItemData(item);
 
@@ -121,7 +126,7 @@ public class InfoFacadeBean implements InfoFacade {
 		}
 		
 		List<FixAssignment> fixList = new ArrayList<>();
-		FixAssignment fix = fixService.readFirst(null, loc);
+		FixAssignment fix = fixService.readFirstByLocation(loc);
 		if( fix != null ) {
 			fixList.add(fix);
 		}
