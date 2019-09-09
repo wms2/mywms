@@ -52,8 +52,6 @@ import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
-import de.wms2.mywms.relocate.RelocateOrder;
-import de.wms2.mywms.relocate.RelocateOrderEntityService;
 import de.wms2.mywms.util.ListUtils;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
@@ -73,8 +71,6 @@ public class LocationFinderBean implements LocationFinder {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private StockUnitEntityService stockUnitService;
-	@Inject
-	private RelocateOrderEntityService relocateOrderService;
 	@Inject
 	private StorageStrategyEntityService strategyService;
 	@Inject
@@ -388,19 +384,6 @@ public class LocationFinderBean implements LocationFinder {
 						}
 					}
 
-					if (BigDecimal.ZERO.compareTo(location.getAllocation()) < 0) {
-						List<RelocateOrder> relocateOrders = relocateOrderService.readList(null, location, null,
-								OrderState.FINISHED, null, null);
-						for (RelocateOrder relocateOrder : relocateOrders) {
-							UnitLoad relocateUnitLoad = relocateOrder.getUnitLoad();
-							if (!unitLoad.equals(relocateUnitLoad)) {
-								BigDecimal relocateWeight = readUnitLoadWeight(relocateUnitLoad);
-								if (relocateWeight != null) {
-									locationWeight = locationWeight.add(relocateWeight);
-								}
-							}
-						}
-					}
 					if (locationWeight.compareTo(loadCapacity) > 0) {
 						logger.log(Level.FINE, logStr + "Too much weight for location. location=" + location);
 						continue;
@@ -418,27 +401,6 @@ public class LocationFinderBean implements LocationFinder {
 					if (existsOtherItemData(location, itemData)) {
 						logger.log(Level.INFO, logStr + "Not allowed to mix itemDatas. location=" + location
 								+ ", itemData=" + itemData);
-						continue;
-					}
-
-					boolean storageOk = true;
-					List<RelocateOrder> relocateOrderList = relocateOrderService.readList(null, location, null,
-							OrderState.FINISHED, null, null);
-					for (RelocateOrder relocateOrder : relocateOrderList) {
-						UnitLoad relocateUnitLoad = relocateOrder.getUnitLoad();
-						List<StockUnit> stocksOnRelocateUnitLoad = stockUnitService.readByUnitLoad(relocateUnitLoad);
-						for (StockUnit stock : stocksOnRelocateUnitLoad) {
-							if (!stock.getItemData().equals(itemData)) {
-								logger.log(Level.FINE,
-										logStr + "Location not usable, Wrong itemData in storage order. location="
-												+ location + ", itemData (in transport)=" + stock.getItemData()
-												+ ", itemData (requested)=" + itemData);
-								storageOk = false;
-								break;
-							}
-						}
-					}
-					if (!storageOk) {
 						continue;
 					}
 				}
@@ -546,12 +508,6 @@ public class LocationFinderBean implements LocationFinder {
 			jpql += " AND NOT EXISTS (";
 			jpql += "   select 1 from " + UnitLoad.class.getName() + " otherUnitLoad";
 			jpql += "   where otherUnitLoad.storageLocation=location and otherUnitLoad.client!=:stockClient";
-			jpql += " ) ";
-			// Check clients of already existing transports too
-			jpql += " AND NOT EXISTS (";
-			jpql += "   select 1 from " + RelocateOrder.class.getName() + " otherRelocateOrder ";
-			jpql += "   where otherRelocateOrder.destinationLocation=location and otherRelocateOrder.state<:finished ";
-			jpql += "     and otherRelocateOrder.unitLoad.client!=:stockClient";
 			jpql += " ) ";
 		}
 
