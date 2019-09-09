@@ -12,16 +12,16 @@
 package de.linogistix.los.inventory.query;
 
 
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.query.BusinessObjectQueryRemote;
-
 import javax.ejb.Remote;
+
+import de.linogistix.los.query.BusinessObjectQueryRemote;
+import de.wms2.mywms.transport.TransportOrder;
 
 /**
  *
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Remote
-public interface LOSStorageRequestQueryRemote extends BusinessObjectQueryRemote<LOSStorageRequest>{ 
+public interface LOSStorageRequestQueryRemote extends BusinessObjectQueryRemote<TransportOrder>{ 
   
 }

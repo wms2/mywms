@@ -12,9 +12,9 @@ import javax.ejb.Remote;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.transport.TransportOrder;
 
 /**
  *
@@ -23,18 +23,14 @@ import de.linogistix.los.query.BODTO;
 @Remote
 public interface StorageFacade {
     /**
-     * Gets (or create) a  {@link LOSStorageRequest}
+     * Gets (or create) a  storage request
      * 
      * @param labelId the label of the stockUnit/UnitLoad
-     * 
-     * @return a  {@link LOSStorageRequest}
-     * @throws de.linogistix.los.inventory.exception.InventoryException
-     * @throws org.mywms.service.EntityNotFoundException
      */
-    LOSStorageRequest getStorageRequest(String labelId, boolean startRequest) throws FacadeException;
+	TransportOrder getStorageRequest(String labelId, boolean startRequest) throws FacadeException;
     
     /**
-     * finish the process for the given {@link LOSStorageRequest}. I.e. the 
+     * finish the process for the given storage request. I.e. the 
      * operator has put the StockUnit/UnitLoad on the StorageLocation.
      * 
      * @param srcLabel the labeldID of the StockUnit/UnitLoad
@@ -60,7 +56,7 @@ public interface StorageFacade {
      * @param unitLoadLabel
      * @throws FacadeException
      */
-    public void cancelStorageRequest(BODTO<LOSStorageRequest> req) throws FacadeException;
+    public void cancelStorageRequest(BODTO<TransportOrder> req) throws FacadeException;
     
     /**
      * The storage request of the given unit load will be canceled.
@@ -68,6 +64,6 @@ public interface StorageFacade {
      * @param storageRequest BODTO<LOSStorageRequest>
      * @throws FacadeException
      */
-    public void removeStorageRequest(BODTO<LOSStorageRequest> r) throws FacadeException;
+    public void removeStorageRequest(BODTO<TransportOrder> r) throws FacadeException;
 
 }

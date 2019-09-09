@@ -16,11 +16,11 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.StorageFacade;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSStorageRequestTO;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportOrder;
 import java.util.logging.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.Role;
@@ -72,21 +72,21 @@ public final class BOStorageRequestRemoveAction extends NodeAction {
             BODTO bodto = ((BOMasterNode)n).getEntity();
             if( bodto instanceof LOSStorageRequestTO ) {
                 LOSStorageRequestTO r = (LOSStorageRequestTO)bodto;
-                if( r.getRequestState() == LOSStorageRequestState.PROCESSING ) {
+                if( r.getState() > OrderState.PROCESSABLE && r.getState()<OrderState.FINISHED ) {
                     return false;
                 }
             }
             else {
                 J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
                 LOSStorageRequestQueryRemote orderQuery;
-                LOSStorageRequest r;
+                TransportOrder r;
                 try {
                     orderQuery = loc.getStateless(LOSStorageRequestQueryRemote.class);
                     r = orderQuery.queryById(((BOMasterNode)n).getEntity().getId());
                 } catch (Exception e) {
                     return false;
                 }
-                if( r.getRequestState() == LOSStorageRequestState.PROCESSING ) {
+                if( r.getState() > OrderState.PROCESSABLE && r.getState()<OrderState.FINISHED ) {
                     return false;
                 }
             }

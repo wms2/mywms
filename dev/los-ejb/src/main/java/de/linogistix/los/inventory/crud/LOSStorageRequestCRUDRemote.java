@@ -11,10 +11,10 @@
 
 package de.linogistix.los.inventory.crud;
 
-import de.linogistix.los.crud.BusinessObjectCRUDRemote;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-
 import javax.ejb.Remote;
+
+import de.linogistix.los.crud.BusinessObjectCRUDRemote;
+import de.wms2.mywms.transport.TransportOrder;
 
 
 /**
@@ -25,6 +25,6 @@ import javax.ejb.Remote;
  *
  */
 @Remote
-public interface LOSStorageRequestCRUDRemote extends BusinessObjectCRUDRemote<LOSStorageRequest>{
+public interface LOSStorageRequestCRUDRemote extends BusinessObjectCRUDRemote<TransportOrder>{
 
 }

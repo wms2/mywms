@@ -13,7 +13,6 @@ import java.util.List;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.mobile.common.gui.bean.BasicBackingBean;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExt;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExtBean;
@@ -21,6 +20,7 @@ import de.linogistix.mobile.common.listener.ButtonListener;
 import de.linogistix.mobile.common.system.JSFHelper;
 import de.linogistix.mobile.processes.storage.NavigationEnum;
 import de.linogistix.mobile.processes.storage.StorageBackingBean;
+import de.wms2.mywms.transport.TransportOrder;
 
 public class CenterBean extends BasicBackingBean{
 
@@ -105,7 +105,7 @@ public class CenterBean extends BasicBackingBean{
 		consolidateCheckBox = false;
 	}
 
-	private LOSStorageRequest getCurrentStorageRequest() {
+	private TransportOrder getCurrentStorageRequest() {
 		return getProcessBean().getStorageRequests()
 				.get(currentPosition - 1);
 	}
@@ -157,7 +157,7 @@ public class CenterBean extends BasicBackingBean{
 	}
 
 	public String getUnitLoadLabelMessage() {
-		LOSStorageRequest storageRequest = getCurrentStorageRequest();
+		TransportOrder storageRequest = getCurrentStorageRequest();
 		if( storageRequest == null ) {
 			return "";
 		}
@@ -169,11 +169,11 @@ public class CenterBean extends BasicBackingBean{
 	}
 
 	public String getStorageLocationLabelMessage() {
-		LOSStorageRequest storageRequest = getCurrentStorageRequest();
+		TransportOrder storageRequest = getCurrentStorageRequest();
 		if( storageRequest == null ) {
 			return "";
 		}
-		return storageRequest.getDestination().getName();
+		return storageRequest.getDestinationLocation().getName();
 	}
 
 	public void setStorageLocationLabelMessage(
@@ -183,7 +183,7 @@ public class CenterBean extends BasicBackingBean{
 
 	public void unitLoadTextFieldValidator(FacesContext context,
 			UIComponent toValidate, Object value) {
-		LOSStorageRequest storageRequest = getCurrentStorageRequest();
+		TransportOrder storageRequest = getCurrentStorageRequest();
 		if( storageRequest == null ) {
 			return;
 		}

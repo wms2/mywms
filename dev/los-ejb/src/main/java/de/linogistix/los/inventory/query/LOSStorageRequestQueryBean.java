@@ -16,23 +16,23 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.query.dto.LOSStorageRequestTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportOrder;
 
 /**
  *
  * @author krane
  */
 @Stateless
-public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<LOSStorageRequest> implements LOSStorageRequestQueryRemote{
+public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<TransportOrder> implements LOSStorageRequestQueryRemote{
 
     @Override
     public String getUniqueNameProp() {
-        return "number";
+        return "orderNumber";
     }
 
 	@Override
@@ -46,10 +46,10 @@ public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<LOSStora
 		
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("number", false));
+		propList.add(new BODTOConstructorProperty("orderNumber", false));
 		propList.add(new BODTOConstructorProperty("unitLoad.labelId", false));
-		propList.add(new BODTOConstructorProperty("requestState", false));
-		propList.add(new BODTOConstructorProperty("destination.name", null, BODTOConstructorProperty.JoinType.LEFT, "destination"));
+		propList.add(new BODTOConstructorProperty("state", false));
+		propList.add(new BODTOConstructorProperty("destinationLocation.name", null, BODTOConstructorProperty.JoinType.LEFT, "destinationLocation"));
 
 		return propList;
 	}
@@ -65,7 +65,7 @@ public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<LOSStora
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
 		
 		TemplateQueryWhereToken number = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "number",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "orderNumber",
 				value);
 		number.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
@@ -75,7 +75,7 @@ public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<LOSStora
 		label.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
 		TemplateQueryWhereToken destination = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "destination.name",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "destinationLocation.name",
 				value);
 		destination.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 
@@ -95,15 +95,9 @@ public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<LOSStora
 		TemplateQueryWhereToken token;
 
 		if( "OPEN".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "requestState", LOSStorageRequestState.RAW);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.FINISHED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("stateRaw");
 			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "requestState", LOSStorageRequestState.PROCESSING);
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			token.setParameterName("stateProcessing");
-			ret.add(token);
-			
 		}
 
 		return ret;

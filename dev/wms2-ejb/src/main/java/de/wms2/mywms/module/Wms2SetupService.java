@@ -171,7 +171,7 @@ public class Wms2SetupService extends ModuleSetup {
 		sequeceBusiness.createNotExisting("UnitLoad", "%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("PickingOrder", "PICK-%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("DeliveryOrder", "ORDER-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("Storage", "STORE-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("TransportOrder", "TR-%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("Shipment", "GOUT-%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("ReplenishOrder", "REPL-%1$06d", 1L, 999999L);
 		sequeceBusiness.createNotExisting("Inventory", "IMAN-%1$06d", 1L, 999999L);

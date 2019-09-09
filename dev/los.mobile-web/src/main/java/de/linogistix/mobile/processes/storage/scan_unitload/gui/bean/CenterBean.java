@@ -16,7 +16,6 @@ import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.facade.StorageFacade;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicBackingBean;
@@ -27,6 +26,7 @@ import de.linogistix.mobile.common.system.JSFHelper;
 import de.linogistix.mobile.processes.storage.StorageBackingBean;
 import de.linogistix.mobile.processes.storage.scan_unitload.NavigationEnum;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.transport.TransportOrder;
 
 /**
  * 
@@ -57,7 +57,7 @@ public class CenterBean extends BasicBackingBean {
 	}
 	
 	public String forwardActionHandler() throws FacadeException {
-		LOSStorageRequest r = pof.getStorageRequest(ulTextField, true);
+		TransportOrder r = pof.getStorageRequest(ulTextField, true);
 		if (r == null){
 			return null;
 		}
@@ -65,7 +65,7 @@ public class CenterBean extends BasicBackingBean {
 		// needs eagerRead of query service
 		r = storageRequestQueryRemote.queryById(r.getId());
 		
-		List<LOSStorageRequest> list = new ArrayList<LOSStorageRequest>();
+		List<TransportOrder> list = new ArrayList<>();
 		list.add(r);
 		
 		StorageBackingBean sb = getProcessBean();

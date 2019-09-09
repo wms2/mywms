@@ -15,8 +15,6 @@ import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.facade.StorageFacade;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
@@ -26,12 +24,14 @@ import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExt;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExtBean;
 import de.linogistix.mobile.common.listener.ButtonListener;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportOrder;
 
 public class StorageBackingBean extends BasicDialogBean{
     private static final Logger log = Logger.getLogger(StorageBackingBean.class);
 
 	
-    protected List<LOSStorageRequest> storageRequests;
+    protected List<TransportOrder> storageRequests;
     protected String specialNavigation = null;
  	
 	
@@ -171,10 +171,9 @@ public class StorageBackingBean extends BasicDialogBean{
 
 	protected boolean isComplete() {
 		
-		for (LOSStorageRequest r : getStorageRequests()){
-			switch(r.getRequestState()){
-			case RAW: return false;
-			default:continue;
+		for (TransportOrder r : getStorageRequests()){
+			if(r.getState()<OrderState.STARTED) {
+				return false;
 			}
 		}
 		
@@ -194,9 +193,9 @@ public class StorageBackingBean extends BasicDialogBean{
                         
             pof.finishStorageRequest(unitLoadTextField, storageLocationTextField, additional, force);
             
-            LOSStorageRequest req = null;
+            TransportOrder req = null;
             
-            for (LOSStorageRequest r : storageRequests){
+            for (TransportOrder r : storageRequests){
             	if (r.getUnitLoad().getLabelId().equals(unitLoadTextField)){
             		req = r;
             		break;
@@ -221,8 +220,8 @@ public class StorageBackingBean extends BasicDialogBean{
             else if (isComplete()) {
         		boolean isDiffLocation = false;
         		boolean isTransfer = false;
-                StorageLocation reqLoc = req.getDestination();
-                if( req.getRequestState() == LOSStorageRequestState.PROCESSING || req.getRequestState() == LOSStorageRequestState.RAW ) {
+                StorageLocation reqLoc = req.getDestinationLocation();
+                if( req.getState() < OrderState.FINISHED ) {
                 	isTransfer = true;
                 }
                 if( reqLoc != null ) {
@@ -305,11 +304,11 @@ public class StorageBackingBean extends BasicDialogBean{
 		return this.storageRequests!=null?storageRequests.size():0;
 	}
 
-	public void setStorageRequests(List<LOSStorageRequest> storageRequests) {
+	public void setStorageRequests(List<TransportOrder> storageRequests) {
 		this.storageRequests = storageRequests;
 	}
 
-	public List<LOSStorageRequest> getStorageRequests() {
+	public List<TransportOrder> getStorageRequests() {
 		return storageRequests;
 	}
 	

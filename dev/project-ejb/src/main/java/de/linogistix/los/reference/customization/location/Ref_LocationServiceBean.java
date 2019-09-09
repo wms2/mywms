@@ -12,11 +12,11 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.location.customization.CustomLocationService;
 import de.linogistix.los.location.customization.CustomLocationServiceBean;
@@ -24,6 +24,8 @@ import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
+import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderEntityService;
 
 /**
  * @author krane
@@ -37,22 +39,24 @@ public class Ref_LocationServiceBean extends CustomLocationServiceBean implement
 	private LOSStorageRequestService storageService;
 	@EJB
 	private QueryTypeCapacityConstraintService capacityService;
+	@Inject
+	private TransportOrderEntityService transportOrderService;
 	
 	@Override
 	public void onLocationGetsEmpty(StorageLocation location) throws FacadeException {
 		String logStr = "onLocationGetsEmpty ";
 		// Check existing storage orders
-		List<LOSStorageRequest> storageRequestList = storageService.getActiveListByDestination(location);
+		List<TransportOrder> storageRequestList = transportOrderService.readOpen(location);
 		if( storageRequestList.size() == 0 ) {
 			location.setAllocation(BigDecimal.ZERO);
 			location.setCurrentTypeCapacityConstraint(null);
 		}
 		else {
 			log.warn(logStr+"Try to deallocate reserved location. restore reservation.");
-			for( LOSStorageRequest storageRequest : storageRequestList ) {
+			for( TransportOrder storageRequest : storageRequestList ) {
 				UnitLoad unitLoad = storageRequest.getUnitLoad();
 				if( unitLoad != null ) {
-					TypeCapacityConstraint constraint = capacityService.getByTypes(location.getType(), unitLoad.getType());
+					TypeCapacityConstraint constraint = capacityService.getByTypes(location.getLocationType(), unitLoad.getUnitLoadType());
 					if( location.getCurrentTypeCapacityConstraint() == null ) {
 						location.setCurrentTypeCapacityConstraint(constraint);
 					}

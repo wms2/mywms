@@ -18,28 +18,28 @@ import de.linogistix.common.bobrowser.query.gui.component.DefaultBOQueryComponen
 import de.linogistix.common.bobrowser.query.gui.component.TemplateQueryWizardProvider;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.inventory.browser.action.BOStorageRequestCancelAction;
 import de.linogistix.inventory.browser.masternode.BOLOSStorageRequestMasterNode;
-import de.linogistix.inventory.browser.query.gui.component.StockUnitDefaultQueryProvider;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.LOSStorageRequestCRUDRemote;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
+import de.linogistix.los.model.Prio;
+import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.SystemAction;
 
 
 /**
@@ -83,10 +83,10 @@ public class BOLOSStorageRequest extends BO {
   
   
   protected BasicEntity initEntityTemplate() {
-    LOSStorageRequest c;
+      TransportOrder c;
     
-    c = new LOSStorageRequest();
-    c.setNumber("RequestId");
+    c = new TransportOrder();
+    c.setOrderNumber("RequestId");
     
     return c;
     
@@ -149,6 +149,40 @@ public class BOLOSStorageRequest extends BO {
            ExceptionAnnotator.annotate(ex);
            return new ArrayList();
         }
+    }
+
+    @Override
+    public String getBundlePrefix() {
+        return "TransportOrder";
+    }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(OrderState.PROCESSABLE);
+            entryList.add(OrderState.STARTED);
+            entryList.add(OrderState.FINISHED);
+            entryList.add(OrderState.CANCELED);
+
+            return entryList;
+        }
+        if( "prio".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(Prio.LOW);
+            entryList.add(Prio.NORMAL);
+            entryList.add(Prio.HIGH);
+
+            return entryList;
+        }
+        if( "orderType".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(TransportOrderType.INBOUND);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
 
 }

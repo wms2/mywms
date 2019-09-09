@@ -32,7 +32,6 @@ import de.linogistix.los.crud.BusinessObjectExistsException;
 import de.linogistix.los.crud.BusinessObjectMergeException;
 import de.linogistix.los.crud.BusinessObjectModifiedException;
 import de.linogistix.los.inventory.customization.ManageUnitLoadAdviceService;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.inventory.query.ItemUnitQueryRemote;
@@ -69,6 +68,7 @@ import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.transport.TransportOrder;
 
 /**
  * Creates an example topology
@@ -383,11 +383,11 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			TemplateQuery q = new TemplateQuery();
 			q.addWhereToken(t);
 			q.addWhereToken(t2);
-			q.setBoClass(LOSStorageRequest.class);
+			q.setBoClass(TransportOrder.class);
 
-			List<LOSStorageRequest> l = storeReqQuery.queryByTemplate(d, q);
-			for (LOSStorageRequest u : l) {
-				u = em.find(LOSStorageRequest.class, u.getId());
+			List<TransportOrder> l = storeReqQuery.queryByTemplate(d, q);
+			for (TransportOrder u : l) {
+				u = em.find(TransportOrder.class, u.getId());
 				em.remove(u);
 			}
 			em.flush();

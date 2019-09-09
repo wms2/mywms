@@ -8,6 +8,8 @@ package de.linogistix.inventory.browser.masternode;
 
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
 import de.linogistix.common.bobrowser.bo.BO;
+import de.linogistix.common.res.CommonBundleResolver;
+import de.linogistix.common.util.BundleResolve;
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.query.dto.LOSStorageRequestTO;
@@ -41,8 +43,12 @@ public class BOLOSStorageRequestMasterNode extends BOMasterNode {
             sheet.put(unitLoadLabel);
             BOMasterNodeProperty<String> destinationName = new BOMasterNodeProperty<String>("destinationName", String.class, to.getDestinationName(), InventoryBundleResolver.class);
             sheet.put(destinationName);
-            BOMasterNodeProperty<String> requestState = new BOMasterNodeProperty<String>("requestStateName", String.class, "LOSStorageRequestState." + to.getRequestState().name(), InventoryBundleResolver.class, true);
-            sheet.put(requestState);
+            String strState = BundleResolve.resolve(new Class[]{bo.getBundleResolver(),CommonBundleResolver.class},"state."+to.getState(), new Object[0], false);
+            if( strState == null || strState.length()==0 ) {
+                strState = String.valueOf(to.getState());
+            }
+            BOMasterNodeProperty<String> state = new BOMasterNodeProperty<String>("state", String.class, strState, null);
+            sheet.put(state);
         }
         return new PropertySet[]{sheet};
     }
@@ -51,9 +57,9 @@ public class BOLOSStorageRequestMasterNode extends BOMasterNode {
     public static Property[] boMasterNodeProperties() {
         BOMasterNodeProperty<String> unitLoadLabel = new BOMasterNodeProperty<String>("unitLoadLabel", String.class, "", InventoryBundleResolver.class);
         BOMasterNodeProperty<String> destinationName = new BOMasterNodeProperty<String>("destinationName", String.class, "", InventoryBundleResolver.class);
-        BOMasterNodeProperty<String> requestState = new BOMasterNodeProperty<String>("requestStateName", String.class, "", InventoryBundleResolver.class);
+        BOMasterNodeProperty<String> state = new BOMasterNodeProperty<String>("state", String.class, "", CommonBundleResolver.class);
         BOMasterNodeProperty[] props = new BOMasterNodeProperty[]{
-            unitLoadLabel, destinationName, requestState
+            unitLoadLabel, destinationName, state
         };
 
         return props;

@@ -17,13 +17,13 @@ import org.mywms.facade.FacadeException;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.facade.StorageFacade;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.mobile.common.gui.bean.BasicBackingBean;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExt;
 import de.linogistix.mobile.common.gui.bean.NotifyDescriptorExtBean;
 import de.linogistix.mobile.common.listener.ButtonListener;
 import de.linogistix.mobile.common.system.JSFHelper;
 import de.linogistix.mobile.processes.storage.scan_stockunit.NavigationEnum;
+import de.wms2.mywms.transport.TransportOrder;
 
 
 /**
@@ -35,8 +35,8 @@ public class CenterBean extends BasicBackingBean {
     String destinationTextField;
     String pageResult = "";
     boolean finishedButtonEnabled = false;
-    public List<LOSStorageRequest> storageRequestList = new ArrayList<LOSStorageRequest>();
-    private LOSStorageRequest storageRequest;
+    public List<TransportOrder> storageRequestList = new ArrayList<>();
+    private TransportOrder storageRequest;
 
     public String addStockunitActionPerformedListener() {
         try {
@@ -77,13 +77,13 @@ public class CenterBean extends BasicBackingBean {
 //         Logger.getLogger(CenterBean.class.getName()).log(Level.SEVERE, "Nur ein test", new RuntimeException());
         TableBean managedBean = (TableBean) JSFHelper.getInstance().getSessionBeanForce(TableBean.class);
         StorageFacade pof = getStateless(StorageFacade.class);
-        storageRequest = (LOSStorageRequest) pof.getStorageRequest(destinationTextField, true);
+        storageRequest = pof.getStorageRequest(destinationTextField, true);
         if (storageRequest != null) {
             
             Logger.getLogger(CenterBean.class.getName()).log(Level.INFO, "found: " + storageRequest.toUniqueString());        
             managedBean.getRowList().add(managedBean.getRowObject(storageRequest.getUnitLoad().toUniqueString(),
                     storageRequest.toUniqueString(),
-                    storageRequest.getDestination().toUniqueString()));
+                    storageRequest.getDestinationLocation().toUniqueString()));
             storageRequestList.add(storageRequest);
             finishedButtonEnabled = true;
         } else {

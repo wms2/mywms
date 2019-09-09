@@ -7,19 +7,16 @@
  */
 package de.linogistix.los.inventory.query.dto;
 
-import de.linogistix.los.inventory.model.LOSStorageRequest;
-import de.linogistix.los.inventory.model.LOSStorageRequestState;
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.transport.TransportOrder;
 
-public class LOSStorageRequestTO extends BODTO<LOSStorageRequest> {
+public class LOSStorageRequestTO extends BODTO<TransportOrder> {
 
 	private static final long serialVersionUID = 1L;
 
-    private String unitLoadLabel;
-    private LOSStorageRequestState requestState = LOSStorageRequestState.RAW;
-    private String requestStateName;
-    private String destinationName;
-
+	private String unitLoadLabel;
+	private int state;
+	private String destinationName;
 
 	public LOSStorageRequestTO() {
 	}
@@ -27,17 +24,15 @@ public class LOSStorageRequestTO extends BODTO<LOSStorageRequest> {
 	public LOSStorageRequestTO(Long id, int version, String name) {
 		super(id, version, name);
 	}
-	
-	public LOSStorageRequestTO(Long id, int version, String name, 
-			String unitLoadLabel, LOSStorageRequestState requestState, String destinationName) {
+
+	public LOSStorageRequestTO(Long id, int version, String name, String unitLoadLabel, int state,
+			String destinationName) {
 		super(id, version, name);
 		this.unitLoadLabel = unitLoadLabel;
-		this.requestState = requestState;
-		this.requestStateName = requestState.name();
+		this.state = state;
 		this.destinationName = destinationName;
 	}
 
-	
 	public String getUnitLoadLabel() {
 		return unitLoadLabel;
 	}
@@ -46,12 +41,12 @@ public class LOSStorageRequestTO extends BODTO<LOSStorageRequest> {
 		this.unitLoadLabel = unitLoadLabel;
 	}
 
-	public LOSStorageRequestState getRequestState() {
-		return requestState;
+	public int getState() {
+		return state;
 	}
 
-	public void setRequestState(LOSStorageRequestState requestState) {
-		this.requestState = requestState;
+	public void setState(int state) {
+		this.state = state;
 	}
 
 	public String getDestinationName() {
@@ -61,12 +56,4 @@ public class LOSStorageRequestTO extends BODTO<LOSStorageRequest> {
 	public void setDestinationName(String destinationName) {
 		this.destinationName = destinationName;
 	}
-
-	public String getRequestStateName() {
-		return requestStateName;
-	}
-	public void setRequestStateName(String requestStateName) {
-		this.requestStateName = requestStateName;
-	}
-
 }

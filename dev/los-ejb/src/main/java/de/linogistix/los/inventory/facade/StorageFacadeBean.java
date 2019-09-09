@@ -15,12 +15,9 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.businessservice.StorageBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.service.LOSStorageRequestService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
@@ -28,8 +25,14 @@ import de.linogistix.los.location.query.UnitLoadQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportBusiness;
+import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderEntityService;
+import de.wms2.mywms.transport.TransportOrderType;
 
 /**
  *
@@ -39,8 +42,6 @@ import de.wms2.mywms.location.StorageLocationEntityService;
 public class StorageFacadeBean implements StorageFacade {
 
     private static final Logger log = Logger.getLogger(StorageFacadeBean.class);
-    @EJB
-    private StorageBusiness storage;
     @EJB
     private LOSStorageRequestService storageService;
     
@@ -52,41 +53,47 @@ public class StorageFacadeBean implements StorageFacade {
 
 	@Inject
 	private StorageLocationEntityService locationService;
+	@Inject
+	private TransportOrderEntityService transportOrderService;
+	@Inject
+	private TransportBusiness transportBusiness;
+	@Inject
+	private UnitLoadEntityService unitLoadService;
 
-    public LOSStorageRequest getStorageRequest(String labelId, boolean startProcessing) throws FacadeException {
-        try {
-            LOSStorageRequest req;
-            UnitLoad ul = ulQuery.queryByIdentity(labelId);
-            ul = manager.find(UnitLoad.class, ul.getId());
-            Client c = storage.determineClient(ul);
-            req = storage.getOrCreateStorageRequest(c, ul, startProcessing);
-            try {
-                req = storageService.get(req.getId());
-            } catch (Throwable t) {
-                log.error(t,t);
-            }
-            
-            return req;
-        } catch (BusinessObjectNotFoundException ex) {
-            log.error(ex.getMessage(), ex);
-            throw new InventoryException(InventoryExceptionKey.STORAGE_FAILED, labelId);
-        }
+
+    public TransportOrder getStorageRequest(String labelId, boolean startProcessing) throws FacadeException {
+		UnitLoad unitLoad = unitLoadService.readByLabel(labelId);
+		if (unitLoad == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, labelId);
+		}
+
+		TransportOrder transport = transportOrderService.readFirstOpen(unitLoad);
+		if (transport == null) {
+			transport = transportBusiness.createOrder(unitLoad, null, TransportOrderType.INBOUND, null);
+		}
+		if (startProcessing && transport.getState() < OrderState.STARTED) {
+			transportBusiness.startOperation(transport, null);
+		}
+
+		return transport;
     }
 
     public void finishStorageRequest(String srcLabel, String destination, boolean addToExisting, boolean overwrite) throws InventoryException, LOSLocationException, FacadeException {
     	String logStr = "finishStorageRequest ";
     	log.debug(logStr+" label="+srcLabel+", destination="+destination);
     	
-        LOSStorageRequest r;
         StorageLocation sl = null;
         UnitLoad ul;
                  
-        r = getStorageRequest(srcLabel, false);
+        TransportOrder request = getStorageRequest(srcLabel, false);
        
         if (addToExisting){
 	        //try unit load first
         	try {
 	            ul = ulQuery.queryByIdentity(destination);
+	            
+	            // Read into hibernate context. The remote query gives a detached entity
+	            ul = manager.find(UnitLoad.class, ul.getId());
 	            
 	            try{
 //	            	sl = locQuery.queryByIdentity(destination);
@@ -104,13 +111,13 @@ public class StorageFacadeBean implements StorageFacade {
 	            	//ok
 	            }
 	            
-	            if( r.getUnitLoad() != null ) {
-	            	if( r.getUnitLoad().equals(ul) ) {
+	            if( request.getUnitLoad() != null ) {
+	            	if( request.getUnitLoad().equals(ul) ) {
 	            		log.info("The target unit load cannot be the source unit load: " + srcLabel);
 	            		throw new InventoryException(InventoryExceptionKey.UNIT_LOAD_EXISTS, "");
 	            	}
 	            }
-	            storage.finishStorageRequest(r, ul);
+	            transportBusiness.confirmOrder(request, ul);
 	        } catch (BusinessObjectNotFoundException ex) {
 	        	try { 
 //	            	sl = locQuery.queryByIdentity(destination);
@@ -120,9 +127,9 @@ public class StorageFacadeBean implements StorageFacade {
 	            	}
 	            	if (sl.getUnitLoads().size() == 1){
 	            		ul = sl.getUnitLoads().get(0);
-	            		storage.finishStorageRequest(r, ul);
+	            		transportBusiness.confirmOrder(request, ul);
 	            	} else if (sl.getUnitLoads().size() == 0){
-	            		storage.finishStorageRequest(r, sl, overwrite);
+	            		transportBusiness.confirmOrder(request, sl);
 	            	} else{
 	            		throw new InventoryException(InventoryExceptionKey.MUST_SCAN_STOCKUNIT, "");
 	            	}
@@ -158,7 +165,7 @@ public class StorageFacadeBean implements StorageFacade {
 //	            TODO > handle Exception
 	        }
 	        if (sl != null) {
-	            storage.finishStorageRequest(r, sl, overwrite);
+	        	transportBusiness.confirmOrder(request, sl);
 	        } else {
 	            log.warn("No StorageLocation found: " + destination + ". Test for UnitLoad");
 	            try {
@@ -167,7 +174,10 @@ public class StorageFacadeBean implements StorageFacade {
 	                throw new InventoryException(InventoryExceptionKey.STORAGE_WRONG_LOCATION_NOT_ALLOWED, srcLabel);
 	            }
 	            if (addToExisting) {
-	                storage.finishStorageRequest(r, ul);
+		            // Read into hibernate context. The remote query gives a detached entity
+		            ul = manager.find(UnitLoad.class, ul.getId());
+
+	            	transportBusiness.confirmOrder(request, ul);
 	            } else {
 	                throw new InventoryException(InventoryExceptionKey.STORAGE_ADD_TO_EXISTING, destination);
 	            }
@@ -177,39 +187,43 @@ public class StorageFacadeBean implements StorageFacade {
     
     
     public void cancelStorageRequest(String unitLoadLabel) throws FacadeException {
-		
-		LOSStorageRequest req = storage.getOpenStorageRequest( unitLoadLabel );
-		if( req == null ) {
+		UnitLoad unitLoad = unitLoadService.readByLabel(unitLoadLabel);
+		if (unitLoad == null) {
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, unitLoadLabel);
 		}
 
-		storage.cancelStorageRequest(req);
+		TransportOrder transport = transportOrderService.readFirstOpen(unitLoad);
+		if (transport == null) {
+			throw new InventoryException(InventoryExceptionKey.NO_SUCH_UNITLOAD, unitLoadLabel);
+		}
+
+		transportBusiness.cancelOrder(transport);
     }
 
-    public void cancelStorageRequest(BODTO<LOSStorageRequest> r) throws FacadeException {		
+    public void cancelStorageRequest(BODTO<TransportOrder> r) throws FacadeException {		
 		if (r == null) {
 			return;
 		}
 
-		LOSStorageRequest req = manager.find(LOSStorageRequest.class, r.getId());
+		TransportOrder req = manager.find(TransportOrder.class, r.getId());
 		if (req == null) {
 			return;
 		}
 		
-		storage.cancelStorageRequest(req);
+		transportBusiness.cancelOrder(req);
     }
     
-    public void removeStorageRequest(BODTO<LOSStorageRequest> r) throws FacadeException {		
+    public void removeStorageRequest(BODTO<TransportOrder> r) throws FacadeException {		
 		if (r == null) {
 			return;
 		}
 
-		LOSStorageRequest req = manager.find(LOSStorageRequest.class, r.getId());
+		TransportOrder req = manager.find(TransportOrder.class, r.getId());
 		if (req == null) {
 			return;
 		}
 		
-		storage.removeStorageRequest(req);
+		transportBusiness.removeOrder(req);
     }
 
 }

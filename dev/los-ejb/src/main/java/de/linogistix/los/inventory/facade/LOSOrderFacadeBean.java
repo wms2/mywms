@@ -30,11 +30,9 @@ import org.mywms.service.ClientService;
 
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.businessservice.LOSOrderGenerator;
-import de.linogistix.los.inventory.businessservice.StorageBusiness;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.model.LOSStorageRequest;
 import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
@@ -79,6 +77,9 @@ import de.wms2.mywms.shipping.ShippingOrderLineEntityService;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.transport.TransportBusiness;
+import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderEntityService;
 
 
 // TODO i18n
@@ -118,8 +119,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@EJB
 	private LOSGoodsOutRequestPositionService outPosService;
 	@EJB
-	private StorageBusiness storageBusiness;
-	@EJB
 	private LOSStorageRequestService storageService;
 	@EJB
 	private LOSUnitLoadReport unitLoadReport;
@@ -138,6 +137,10 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private GenericEntityService entityService;
 	@Inject
 	private DeliverynoteGenerator deliverynoteGenerator;
+	@Inject
+	private TransportOrderEntityService transportOrderService;
+	@Inject
+	private TransportBusiness transportBusiness;
 	@Inject
 	private ShippingOrderLineEntityService shippingOrderLineService;
 	@Inject
@@ -337,9 +340,9 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			UnitLoad ul = pul.getUnitLoad();
 			
 
-			List<LOSStorageRequest> storageList = storageService.getListByUnitLoad(ul);
-			for( LOSStorageRequest storageReq : storageList ) {
-				storageBusiness.removeStorageRequest(storageReq);
+			List<TransportOrder> storageList = transportOrderService.readList(ul, null, null, null);
+			for( TransportOrder storageReq : storageList ) {
+				transportBusiness.removeUnitLoadReference(storageReq);
 			}
 			
 			List<ShippingOrderLine> outPosList = shippingOrderLineService.readListByPacket(pul);

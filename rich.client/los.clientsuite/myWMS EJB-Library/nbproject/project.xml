@@ -101,6 +101,7 @@
                 <package>de.wms2.mywms.sequence</package>
                 <package>de.wms2.mywms.shipping</package>
                 <package>de.wms2.mywms.strategy</package>
+                <package>de.wms2.mywms.transport</package>
                 <package>de.wms2.mywms.user</package>
                 <package>de.wms2.mywms.util</package>
                 <package>org.mywms.ejb</package>

@@ -39,6 +39,7 @@ import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.strategy.LocationReservationEntityService;
+import de.wms2.mywms.transport.TransportOrder;
 
 /**
  * @author krane
@@ -62,7 +63,7 @@ public class TrashHandler {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean removeStockUnit(StockUnit entity) {
 		String logStr = "removeStockUnit ";
-		logger.log(Level.FINE, logStr + "StockUnit=" + entity);
+		logger.log(Level.INFO, logStr + "StockUnit=" + entity);
 
 		try {
 			manager.setFlushMode(FlushModeType.COMMIT);
@@ -84,7 +85,7 @@ public class TrashHandler {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean removeUnitLoad(UnitLoad unitLoad) {
 		String logStr = "removeUnitLoad ";
-		logger.log(Level.FINE, logStr + "unitLoad=" + unitLoad);
+		logger.log(Level.INFO, logStr + "unitLoad=" + unitLoad);
 		try {
 			manager.setFlushMode(FlushModeType.COMMIT);
 			try {
@@ -124,7 +125,7 @@ public class TrashHandler {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean removeGoodsReceipt(GoodsReceipt goodsReceipt) {
 		String logStr = "removeGoodsReceipt ";
-		logger.log(Level.FINE, logStr + "goodsReceipt=" + goodsReceipt);
+		logger.log(Level.INFO, logStr + "goodsReceipt=" + goodsReceipt);
 		try {
 			manager.setFlushMode(FlushModeType.COMMIT);
 			goodsReceipt = manager.reload(goodsReceipt, false);
@@ -151,7 +152,7 @@ public class TrashHandler {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean removeAdvice(Advice advice) {
 		String logStr = "removeAdvice ";
-		logger.log(Level.FINE, logStr + "advice=" + advice);
+		logger.log(Level.INFO, logStr + "advice=" + advice);
 		try {
 			advice = manager.reload(advice, false);
 			if (advice == null) {
@@ -189,7 +190,7 @@ public class TrashHandler {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean removeReplenishOrder(ReplenishOrder replenishOrder) {
 		String logStr = "removeReplenishOrder ";
-		logger.log(Level.FINE, logStr + "replenishOrder=" + replenishOrder);
+		logger.log(Level.INFO, logStr + "replenishOrder=" + replenishOrder);
 		try {
 			manager.setFlushMode(FlushModeType.COMMIT);
 			replenishOrder = manager.reload(replenishOrder, false);
@@ -204,6 +205,30 @@ public class TrashHandler {
 			return true;
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+		}
+
+		return false;
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean removeTransportOrder(TransportOrder transportOrder) {
+		String logStr = "removeTransportOrder ";
+		logger.log(Level.INFO, logStr + "transportOrder=" + transportOrder);
+		try {
+			manager.setFlushMode(FlushModeType.COMMIT);
+			transportOrder = manager.reload(transportOrder, false);
+			if (transportOrder == null) {
+				logger.log(Level.WARNING, logStr + "RelocateOrder is already deleted. Cannot remove.");
+				return false;
+			}
+
+			manager.remove(transportOrder);
+			manager.flush();
+
+			return true;
+		} catch (Throwable t) {
+			logger.log(Level.SEVERE,
+					logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
 		}
 
 		return false;
