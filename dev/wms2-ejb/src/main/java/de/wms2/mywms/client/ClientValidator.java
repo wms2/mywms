@@ -75,6 +75,11 @@ public class ClientValidator implements EntityValidator<Client> {
 			logger.log(Level.INFO, logStr + "not unique, name. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueName");
 		}
+
+		if( entity.isSystemClient() && entity.getState()!=ClientState.ACTIVE) {
+			logger.log(Level.INFO, logStr + "Cannot inactivate systemclient. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Client.cannotInactivateSystem");
+		}
 	}
 
 	@Override

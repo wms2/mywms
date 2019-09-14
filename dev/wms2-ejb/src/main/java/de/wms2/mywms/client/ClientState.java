@@ -1,6 +1,6 @@
-package de.wms2.mywms.product;
+package de.wms2.mywms.client;
 
-public class ItemDataState {
+public class ClientState {
 
 	/**
 	 * Product is not ready to be handled. Used within creation processes.

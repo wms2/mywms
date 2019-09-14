@@ -227,6 +227,16 @@
 		</entry>
 
 		<entry>
+			<key>state</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>true</hidden>
+				<position>99</position>
+			</value>
+		</entry>
+		<entry>
 			<key>residualTermOfUsageGI</key>
 			<value>
 				<group>

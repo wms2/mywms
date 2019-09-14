@@ -40,6 +40,8 @@ public class Client
 
     private String fax = "";
 
+    private int state = 100;
+
     /**
      * Creates a new instance of Client.
      */
@@ -158,9 +160,18 @@ public class Client
      */
     @Transient
     public boolean isSystemClient() {
-        if (getId() == 0)
-            return true;
-        else
-            return false;
+		if (getId() != null && getId() == 0)
+			return true;
+		else
+			return false;
     }
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
 }

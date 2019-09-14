@@ -17,6 +17,11 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.crud.ClientCRUDRemote;
+import de.linogistix.los.model.Prio;
+import de.linogistix.los.model.State;
+import de.wms2.mywms.client.ClientState;
+import java.util.ArrayList;
+import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.mywms.model.Client;
@@ -92,4 +97,23 @@ public class BOClient extends BO {
     public String[] getAllowedRoles() {
         return allowedRoles;
     }
+    
+    @Override
+    public String getBundlePrefix() {
+        return "Client";
+    }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(ClientState.ACTIVE);
+            entryList.add(ClientState.INACTIVE);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
+    }
+
 }

@@ -23,8 +23,11 @@ import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.query.ItemUnitQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
+import de.wms2.mywms.client.ClientState;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataState;
 import de.wms2.mywms.product.ItemUnit;
+import java.util.ArrayList;
 import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.globals.SerialNoRecordType;
@@ -145,6 +148,24 @@ public class BOItemData extends BO {
     @Override
     protected Class<? extends Node> initBoMasterNodeType() {
         return BOItemDataMasterNode.class;
+    }
+
+    @Override
+    public String getBundlePrefix() {
+        return "ItemData";
+    }
+    
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(ItemDataState.ACTIVE);
+            entryList.add(ItemDataState.INACTIVE);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
     }
 
 }

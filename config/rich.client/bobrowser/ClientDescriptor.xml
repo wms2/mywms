@@ -41,6 +41,16 @@
                 <position>3</position>
             </value>
         </entry>
+        <entry>
+            <key>state</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
+            </value>
+        </entry>
         
         
         <entry>
