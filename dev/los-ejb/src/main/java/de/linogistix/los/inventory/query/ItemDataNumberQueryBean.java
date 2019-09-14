@@ -26,7 +26,7 @@ import de.wms2.mywms.product.ItemDataNumber;
 public class ItemDataNumberQueryBean extends BusinessObjectQueryBean<ItemDataNumber> implements ItemDataNumberQueryRemote{
 
 	private static final String[] dtoProps = new String[] { "id", "version", "number",
-		"index",
+		"orderIndex",
 		"client.number",
 		"itemData.number" , "itemData.name"};
 

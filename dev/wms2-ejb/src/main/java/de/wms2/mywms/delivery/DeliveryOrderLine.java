@@ -51,6 +51,9 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(DeliveryOrderLine.class.getName());
 
+	/**
+	 * Unique number of the process
+	 */
 	@Column(unique = true)
 	private String lineNumber;
 
@@ -59,17 +62,29 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 	 */
 	private String externalNumber;
 
+	/**
+	 * An optional id to give an association to other systems
+	 */
 	private String externalId;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private DeliveryOrder deliveryOrder;
 
+	/**
+	 * The ordered itemData
+	 */
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private ItemData itemData;
 
+	/**
+	 * The ordered amount
+	 */
 	@Column(precision = 17, scale = 4, nullable = false)
 	private BigDecimal amount = BigDecimal.ZERO;
 
+	/**
+	 * The ordered lot
+	 */
 	@ManyToOne(optional = true)
 	private Lot lot;
 
@@ -89,12 +104,21 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 	 */
 	private Date finished;
 
+	/**
+	 * Current state of the process
+	 */
 	@Column(nullable = false)
 	private int state = OrderState.UNDEFINED;
 
+	/**
+	 * The picked amount
+	 */
 	@Column(precision = 17, scale = 4, nullable = false)
 	private BigDecimal pickedAmount = BigDecimal.ZERO;
 
+	/**
+	 * The ordered serial number
+	 */
 	private String serialNumber;
 
 	@Override

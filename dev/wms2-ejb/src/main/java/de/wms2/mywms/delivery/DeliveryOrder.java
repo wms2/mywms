@@ -57,35 +57,68 @@ import de.wms2.mywms.util.Wms2Constants;
 public class DeliveryOrder extends BasicClientAssignedEntity {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Unique number of the process
+	 */
 	@Column(unique = true)
 	private String orderNumber;
 
+	/**
+	 * An optional number to give an association to other systems
+	 */
 	private String externalNumber;
 
+	/**
+	 * An optional id to give an association to other systems
+	 */
 	private String externalId;
 
 	@OneToMany(mappedBy = "deliveryOrder")
 	@OrderBy("lineNumber ASC")
 	private List<DeliveryOrderLine> lines;
 
+	/**
+	 * The strategy to handle the order
+	 */
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private OrderStrategy orderStrategy;
 
+	/**
+	 * Current state of the process
+	 */
 	@Column(nullable = false)
 	private int state = OrderState.UNDEFINED;
 
+	/**
+	 * Date when the material is planned to be delivered
+	 */
 	@Temporal(TemporalType.DATE)
 	private Date deliveryDate;
 
+	/**
+	 * The storage location where the material is put after picking. Can overwrite the destination location of the order strategy.
+	 */
 	@ManyToOne(optional = true)
 	private StorageLocation destination;
 
+	/**
+	 * A URL to request documents for the order
+	 */
 	private String documentUrl;
 
+	/**
+	 * A URL to request labels for the order
+	 */
 	private String labelUrl;
 
+	/**
+	 * The number of the customer
+	 */
 	private String customerNumber;
 
+	/**
+	 * The delivery address
+	 */
 	@OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Address address;
 
@@ -94,6 +127,9 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	 */
 	private String carrierName;
 
+	/**
+	 * The priority of the order
+	 */
 	@Column(nullable = false)
 	private int prio = OrderPrio.NORMAL;
 
@@ -103,6 +139,9 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
 	private String pickingHint;
 
+	/**
+	 * An optional reservation for an operator
+	 */
 	@ManyToOne(optional = true)
 	private User operator;
 

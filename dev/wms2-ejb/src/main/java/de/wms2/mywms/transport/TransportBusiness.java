@@ -466,7 +466,7 @@ public class TransportBusiness {
 
 	private void fireRelocateOrderStateChangeEvent(TransportOrder entity, int oldState) throws BusinessException {
 		try {
-			stateChangeEvent.fire(new TransportOrderStateChangeEvent(entity, oldState));
+			stateChangeEvent.fire(new TransportOrderStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

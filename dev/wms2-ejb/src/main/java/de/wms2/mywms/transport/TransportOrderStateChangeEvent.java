@@ -28,17 +28,22 @@ package de.wms2.mywms.transport;
 public class TransportOrderStateChangeEvent {
 	private TransportOrder transportOrder;
 	private int oldState;
+	private int newState;
 
-	public TransportOrderStateChangeEvent(TransportOrder transportOrder, int oldState) {
+	public TransportOrderStateChangeEvent(TransportOrder transportOrder, int oldState, int newState) {
 		this.transportOrder = transportOrder;
 		this.oldState = oldState;
 	}
 
-	public TransportOrder getRelocateOrder() {
+	public TransportOrder getTransportOrder() {
 		return transportOrder;
 	}
 
 	public int getOldState() {
 		return oldState;
+	}
+
+	public int getNewState() {
+		return newState;
 	}
 }

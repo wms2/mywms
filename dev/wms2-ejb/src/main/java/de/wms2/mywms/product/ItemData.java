@@ -33,7 +33,6 @@ import javax.persistence.Transient;
 
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.BasicClientAssignedEntity;
-import org.mywms.model.LotSubstitutionType;
 
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.strategy.StorageStrategy;
@@ -101,6 +100,7 @@ public class ItemData extends BasicClientAssignedEntity {
 	private Integer shelflife;
 
 	@Column(nullable = false)
+	@Deprecated
 	private boolean adviceMandatory = false;
 
 	/**
@@ -110,27 +110,39 @@ public class ItemData extends BasicClientAssignedEntity {
 	@Column(nullable = false)
 	private SerialNoRecordType serialNoRecordType = SerialNoRecordType.NO_RECORD;
 
-	@Enumerated(EnumType.STRING)
-	private LotSubstitutionType lotSubstitutionType = LotSubstitutionType.NOT_ALLOWED;
-
 	/**
 	 * The number of decimals in the amounts of the product
 	 */
 	@Column(nullable = false)
 	private int scale = 0;
 
+	/**
+	 * The height of one product
+	 */
 	@Column(precision = 15, scale = 2)
 	private BigDecimal height;
 
+	/**
+	 * The width of one product
+	 */
 	@Column(precision = 15, scale = 2)
 	private BigDecimal width;
 
+	/**
+	 * The depth of one product
+	 */
 	@Column(precision = 15, scale = 2)
 	private BigDecimal depth;
 
+	/**
+	 * The weight of one product
+	 */
 	@Column(precision = 16, scale = 3)
 	private BigDecimal weight;
 
+	/**
+	 * The volume of one product
+	 */
 	@Column(precision = 19, scale = 6)
 	private BigDecimal volume;
 
@@ -158,7 +170,7 @@ public class ItemData extends BasicClientAssignedEntity {
 	 * @deprecated Use a service to read the additional numbers
 	 */
 	@OneToMany(mappedBy = "itemData")
-	@OrderBy("index ASC")
+	@OrderBy("orderIndex ASC")
 	@Deprecated
 	private List<ItemDataNumber> numberList;
 
@@ -238,6 +250,14 @@ public class ItemData extends BasicClientAssignedEntity {
 		this.number = number;
 	}
 
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -302,14 +322,6 @@ public class ItemData extends BasicClientAssignedEntity {
 		this.serialNoRecordType = serialNoRecordType;
 	}
 
-	public LotSubstitutionType getLotSubstitutionType() {
-		return lotSubstitutionType;
-	}
-
-	public void setLotSubstitutionType(LotSubstitutionType lotSubstitutionType) {
-		this.lotSubstitutionType = lotSubstitutionType;
-	}
-
 	public int getScale() {
 		return scale;
 	}
@@ -358,6 +370,14 @@ public class ItemData extends BasicClientAssignedEntity {
 		this.volume = volume;
 	}
 
+	public StorageStrategy getDefaultStorageStrategy() {
+		return defaultStorageStrategy;
+	}
+
+	public void setDefaultStorageStrategy(StorageStrategy defaultStorageStrategy) {
+		this.defaultStorageStrategy = defaultStorageStrategy;
+	}
+
 	public ItemUnit getItemUnit() {
 		return itemUnit;
 	}
@@ -390,14 +410,6 @@ public class ItemData extends BasicClientAssignedEntity {
 		this.safetyStock = safetyStock;
 	}
 
-	public StorageStrategy getDefaultStorageStrategy() {
-		return defaultStorageStrategy;
-	}
-
-	public void setDefaultStorageStrategy(StorageStrategy defaultStorageStrategy) {
-		this.defaultStorageStrategy = defaultStorageStrategy;
-	}
-
 	public PackagingUnit getDefaultPackagingUnit() {
 		return defaultPackagingUnit;
 	}
@@ -405,5 +417,4 @@ public class ItemData extends BasicClientAssignedEntity {
 	public void setDefaultPackagingUnit(PackagingUnit defaultPackagingUnit) {
 		this.defaultPackagingUnit = defaultPackagingUnit;
 	}
-
 }

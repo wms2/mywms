@@ -126,7 +126,7 @@ public class UnitLoadTypeEntityService {
 	/**
 	 * Sets the systems default UnitLoadType
 	 */
-	public void setDefaultUnitLoadType(UnitLoadType unitLoadType) {
+	public void setDefault(UnitLoadType unitLoadType) {
 		propertyBusiness.setValue(Wms2Properties.KEY_UNITLOADTYPE_DEFAULT, unitLoadType.getName());
 	}
 
@@ -138,7 +138,7 @@ public class UnitLoadTypeEntityService {
 		if (type != null) {
 			return type;
 		}
-		type = createSystemUnitLoadType(0, "unitLoadTypeSystem");
+		type = createSystem(0, "unitLoadTypeSystem");
 
 		type.setAggregateStocks(false);
 		type.setCalculateWeight(false);
@@ -155,7 +155,7 @@ public class UnitLoadTypeEntityService {
 		if (type != null) {
 			return type;
 		}
-		type = createSystemUnitLoadType(1, "unitLoadTypeVirtual");
+		type = createSystem(1, "unitLoadTypeVirtual");
 
 		type.setAggregateStocks(true);
 		type.setCalculateWeight(false);
@@ -164,7 +164,7 @@ public class UnitLoadTypeEntityService {
 		return type;
 	}
 
-	private UnitLoadType createSystemUnitLoadType(long id, String nameKey) {
+	private UnitLoadType createSystem(long id, String nameKey) {
 		Locale locale = userBusiness.getCurrentUsersLocale();
 		String name = Translator.getString(Wms2BundleResolver.class, "BasicData", nameKey, "name", locale);
 		String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", nameKey, "desc", locale);

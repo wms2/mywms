@@ -125,8 +125,8 @@ public class AreaEntityService {
 	/**
 	 * Sets the given Area as the Default-Role
 	 */
-	public void setDefaultArea(Area role) {
-		propertyBusiness.setValue(Wms2Properties.KEY_AREA_DEFAULT, role.getName());
+	public void setDefault(Area area) {
+		propertyBusiness.setValue(Wms2Properties.KEY_AREA_DEFAULT, area.getName());
 	}
 
 	/**

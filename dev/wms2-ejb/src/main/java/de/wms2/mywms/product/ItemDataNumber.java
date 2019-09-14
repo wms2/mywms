@@ -56,7 +56,7 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 	 * Not every dialog supports this value.
 	 */
 	@Column(nullable = false)
-	private int index = 0;
+	private int orderIndex = 0;
 
 	/**
 	 * The packaging unit linked to the code.<br>
@@ -118,12 +118,12 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	public int getIndex() {
-		return index;
+	public int getOrderIndex() {
+		return orderIndex;
 	}
 
-	public void setIndex(int index) {
-		this.index = index;
+	public void setOrderIndex(int orderIndex) {
+		this.orderIndex = orderIndex;
 	}
 
 	public PackagingUnit getPackagingUnit() {

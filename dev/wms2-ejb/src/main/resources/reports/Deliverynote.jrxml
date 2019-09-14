@@ -68,21 +68,21 @@
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{order}.getAddress().getFirstName() + " " + $P{order}.getAddress().getLastName()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{order}.getAddress().getFirstName()==null?"":$P{order}.getAddress().getFirstName() + " ") + ($P{order}.getAddress().getLastName()==null?"":$P{order}.getAddress().getLastName())]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="0" y="138" width="300" height="16" isRemoveLineWhenBlank="true" uuid="f61ed808-2113-4185-85a7-9cbbc6ce44e7"/>
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{order}.getAddress().getStreet() + " " + $P{order}.getAddress().getStreetNumber()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{order}.getAddress().getStreet()==null?"":$P{order}.getAddress().getStreet() + " ") + ($P{order}.getAddress().getStreetNumber()==null?"":$P{order}.getAddress().getStreetNumber())]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="0" y="154" width="300" height="16" isRemoveLineWhenBlank="true" uuid="2ef93418-652a-4e5f-bc5d-e6b584dd0e0b"/>
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{order}.getAddress().getZipCode() + " " + $P{order}.getAddress().getCity()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{order}.getAddress().getZipCode()==null?"":$P{order}.getAddress().getZipCode() + " ") + ($P{order}.getAddress().getCity()==null?"":$P{order}.getAddress().getCity())]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="0" y="80" width="300" height="16" isRemoveLineWhenBlank="true" uuid="88b43da6-0f66-4ed6-8301-7ef504446ff3"/>
@@ -96,8 +96,7 @@
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{order}.getAddress().getNameAffix()
-]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{order}.getAddress().getNameAffix()]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="0" y="96" width="300" height="16" isRemoveLineWhenBlank="true" uuid="9b423658-58e8-46f5-986e-e5cfe59c8dde"/>

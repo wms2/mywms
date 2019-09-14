@@ -35,8 +35,6 @@ public class LocationCluster extends BasicEntity {
 	@Column(nullable = false, unique = true)
 	private String name;
 
-	private Integer level = 0;
-
 	@Override
 	public String toString() {
 		if (name != null) {
@@ -60,13 +58,4 @@ public class LocationCluster extends BasicEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public Integer getLevel() {
-		return level;
-	}
-
-	public void setLevel(Integer level) {
-		this.level = level;
-	}
-
 }

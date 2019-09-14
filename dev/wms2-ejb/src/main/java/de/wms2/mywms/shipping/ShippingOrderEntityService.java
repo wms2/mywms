@@ -67,10 +67,10 @@ public class ShippingOrderEntityService {
 
 	@SuppressWarnings("unchecked")
 	public List<ShippingOrder> readByDeliveryOrder(DeliveryOrder deliveryOrder) {
-		String jpql = "select order FROM ";
+		String jpql = "select entity FROM ";
 		jpql += ShippingOrder.class.getName() + " entity ";
-		jpql += "where deliveryOrder = :deliveryOrder";
-		jpql += " order by order.orderNumber ";
+		jpql += "where entity.deliveryOrder = :deliveryOrder";
+		jpql += " order by entity.orderNumber ";
 		Query query = manager.createQuery(jpql);
 		query.setParameter("deliveryOrder", deliveryOrder);
 		return query.getResultList();

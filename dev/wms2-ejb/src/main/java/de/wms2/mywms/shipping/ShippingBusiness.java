@@ -329,10 +329,11 @@ public class ShippingBusiness {
 		for (ShippingOrderLine line : shippingOrder.getLines()) {
 			Packet packet = line.getPacket();
 			if (packet != null && packet.getPickingOrder() == null && packet.getDeliveryOrder() == null
-					&& packet.getUnitLoad().getState() == StockState.PICKED) {
+					&& packet.getUnitLoad().getState() <= StockState.PICKED) {
 				// This line has been manual created. Remove line and packet and reactivate unit
 				// load
 				removeLine(line);
+				continue;
 			}
 			int lineState = line.getState();
 
@@ -533,7 +534,7 @@ public class ShippingBusiness {
 		}
 
 		if (packet.getPickingOrder() == null && packet.getDeliveryOrder() == null
-				&& packet.getUnitLoad().getState() == StockState.PICKED) {
+				&& packet.getUnitLoad().getState() <= StockState.PICKED) {
 			packet.getUnitLoad().setState(StockState.ON_STOCK);
 			manager.removeValidated(packet);
 		}

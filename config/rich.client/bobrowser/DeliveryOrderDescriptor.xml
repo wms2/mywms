@@ -100,7 +100,7 @@
 				<group>
 					<name>main</name>
 				</group>
-				<hidden>false</hidden>
+				<hidden>true</hidden>
 				<position>9</position>
 			</value>
 		</entry>
@@ -110,7 +110,7 @@
                 <group>
 					<name>main</name>
                 </group>
-                <hidden>false</hidden>
+                <hidden>true</hidden>
                 <position>10</position>
             </value>
         </entry>

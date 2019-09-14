@@ -48,12 +48,21 @@ public class TypeCapacityConstraint extends BasicEntity {
 	public final static int ALLOCATE_UNIT_LOAD_TYPE = 1;
 	public final static int ALLOCATE_PERCENTAGE = 2;
 
+	/**
+	 * The related location type
+	 */
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private LocationType locationType;
 
+	/**
+	 * The related unit load type
+	 */
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private UnitLoadType unitLoadType;
 
+	/**
+	 * The method to allocate the storage location
+	 */
 	@Column(nullable = false)
 	private int allocationType = ALLOCATE_UNIT_LOAD_TYPE;
 

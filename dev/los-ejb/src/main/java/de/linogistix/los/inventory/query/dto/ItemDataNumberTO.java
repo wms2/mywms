@@ -26,7 +26,7 @@ public class ItemDataNumberTO extends BODTO<ItemData> {
 
 	public ItemDataNumberTO( ItemDataNumber idat ) {
 		super(idat.getId(), idat.getVersion(), idat.getNumber());
-		this.index = idat.getIndex();
+		this.index = idat.getOrderIndex();
 		this.clientNumber = idat.getClient().getNumber();
 		this.itemDataName = idat.getItemData().getName();
 		this.itemDataNumber = idat.getItemData().getNumber();

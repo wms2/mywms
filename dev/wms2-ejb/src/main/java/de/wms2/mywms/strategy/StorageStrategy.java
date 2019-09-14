@@ -35,9 +35,15 @@ import org.mywms.model.BasicEntity;
 public class StorageStrategy extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The name of the entity, Keyfield.
+	 */
 	@Column(nullable = false, unique = true)
 	private String name;
 
+	/**
+	 * Restrict search of a location to this zone only
+	 */
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private Zone zone;
 
