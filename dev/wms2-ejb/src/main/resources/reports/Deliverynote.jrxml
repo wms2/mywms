@@ -64,21 +64,21 @@
 				<textFieldExpression><![CDATA[$R{Deliverynote.printDate}==null?"":$R{Deliverynote.printDate}+":"]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="110" width="300" height="16" isRemoveLineWhenBlank="true" uuid="83cd513b-8bcb-41ca-8657-cc690fe14b10"/>
+				<reportElement positionType="Float" x="0" y="112" width="300" height="16" isRemoveLineWhenBlank="true" uuid="83cd513b-8bcb-41ca-8657-cc690fe14b10"/>
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[($P{order}.getAddress().getFirstName()==null?"":$P{order}.getAddress().getFirstName() + " ") + ($P{order}.getAddress().getLastName()==null?"":$P{order}.getAddress().getLastName())]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="138" width="300" height="16" isRemoveLineWhenBlank="true" uuid="f61ed808-2113-4185-85a7-9cbbc6ce44e7"/>
+				<reportElement positionType="Float" x="0" y="144" width="300" height="16" isRemoveLineWhenBlank="true" uuid="f61ed808-2113-4185-85a7-9cbbc6ce44e7"/>
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[($P{order}.getAddress().getStreet()==null?"":$P{order}.getAddress().getStreet() + " ") + ($P{order}.getAddress().getStreetNumber()==null?"":$P{order}.getAddress().getStreetNumber())]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="154" width="300" height="16" isRemoveLineWhenBlank="true" uuid="2ef93418-652a-4e5f-bc5d-e6b584dd0e0b"/>
+				<reportElement positionType="Float" x="0" y="160" width="300" height="16" isRemoveLineWhenBlank="true" uuid="2ef93418-652a-4e5f-bc5d-e6b584dd0e0b"/>
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>
@@ -92,7 +92,7 @@
 				<textFieldExpression><![CDATA[$P{order}.getAddress().getCompany()]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="124" width="300" height="16" isRemoveLineWhenBlank="true" uuid="793e41a6-cb19-4ddd-8723-bbaa16cf62a9"/>
+				<reportElement positionType="Float" x="0" y="128" width="300" height="16" isRemoveLineWhenBlank="true" uuid="793e41a6-cb19-4ddd-8723-bbaa16cf62a9"/>
 				<textElement verticalAlignment="Top">
 					<font size="10" isBold="false"/>
 				</textElement>

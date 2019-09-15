@@ -56,8 +56,8 @@ public class LOSAdviceTO extends BODTO<AdviceLine> {
 	public LOSAdviceTO(AdviceLine adv) {
 		super(adv.getId(), adv.getVersion(), adv.getLineNumber() );
 		this.state = adv.getState();
-		this.receiptAmount = adv.getAmount().setScale(adv.getItemData().getScale());
-		this.notifiedAmount = adv.getConfirmedAmount().setScale(adv.getItemData().getScale());
+		this.notifiedAmount= adv.getAmount().setScale(adv.getItemData().getScale());
+		this.receiptAmount  = adv.getConfirmedAmount().setScale(adv.getItemData().getScale());
 		this.itemData = adv.getItemData().getNumber();;
 		this.itemDataName = adv.getItemData().getName();;
 
