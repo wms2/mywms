@@ -219,26 +219,6 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.linogistix.los.inventory.customization.ManageItemDataService#updateSaftyStock(org.mywms.model.ItemData, int)
-	 */
-	public ItemData updateSaftyStock(ItemData item, int newValue) {
-		
-		if(item.getSafetyStock() != newValue){
-			
-			item.setSafetyStock(newValue);
-			
-			log.info("[UPDATED]-[ITEMDATA]-Cl "+item.getClient().getNumber()
-					+"-No "+item.getNumber()+"-[NEW] SafetyStock "+newValue);
-			
-			return manager.merge(item);
-		}
-		else{
-			return item;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
 	 * @see de.linogistix.los.inventory.customization.ManageItemDataService#deleteItemData(org.mywms.model.ItemData)
 	 */
 	public void deleteItemData(ItemData item) throws StockExistException {

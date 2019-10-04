@@ -283,6 +283,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
         GoodsReceipt gr = null;
         
         try {
+            gr = this.goodsReceiptNode.getGoodsReceipt();
             goodsReceiptFacade.finishGoodsReceipt(gr);
             
         } catch (InventoryException ex) {

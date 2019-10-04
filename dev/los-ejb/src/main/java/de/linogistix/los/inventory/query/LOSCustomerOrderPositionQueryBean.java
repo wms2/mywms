@@ -125,7 +125,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<D
 		if(orderTO != null){
 			DeliveryOrder order = manager.find(DeliveryOrder.class, orderTO.getId());
 			client = order.getClient();
-			tokenList.add(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "order", order));
+			tokenList.add(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "deliveryOrder", order));
 		}
 		
 		return autoCompletion(typedToUpper, client, tokenList.toArray(new TemplateQueryWhereToken[0]), detail);

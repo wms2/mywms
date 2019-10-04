@@ -175,13 +175,6 @@ public class ItemData extends BasicClientAssignedEntity {
 	private List<ItemDataNumber> numberList;
 
 	/**
-	 * @deprecated removed
-	 */
-	@Column(nullable = false)
-	@Deprecated
-	private int safetyStock = 0;
-
-	/**
 	 * Default value for a packaging.<br>
 	 * The way how this is handled is depending on the used processes and
 	 * applications.
@@ -400,14 +393,6 @@ public class ItemData extends BasicClientAssignedEntity {
 
 	public void setNumberList(List<ItemDataNumber> numberList) {
 		this.numberList = numberList;
-	}
-
-	public int getSafetyStock() {
-		return safetyStock;
-	}
-
-	public void setSafetyStock(int safetyStock) {
-		this.safetyStock = safetyStock;
 	}
 
 	public PackagingUnit getDefaultPackagingUnit() {

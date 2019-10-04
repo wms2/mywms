@@ -90,8 +90,6 @@ public interface ManageItemDataService {
 	
 	public ItemData updateAdviceMandatory(ItemData item, boolean newValue);
 	
-	public ItemData updateSaftyStock(ItemData item, int newValue);
-	
 	/**
 	 * Deleting an ItemData is only possible when there are no stocks at all
 	 * of specified item in the warehouse.

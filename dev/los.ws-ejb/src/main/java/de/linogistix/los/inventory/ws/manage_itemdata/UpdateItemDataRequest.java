@@ -30,8 +30,6 @@ public class UpdateItemDataRequest {
     
     private String description;
     
-    private int safetyStock = 0;
-    
     private boolean lotMandatory = false;
     
     private boolean adviceMandatory = false;
@@ -78,15 +76,6 @@ public class UpdateItemDataRequest {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	@XmlElement(defaultValue="0")
-	public int getSafetyStock() {
-		return safetyStock;
-	}
-
-	public void setSafetyStock(int safetyStock) {
-		this.safetyStock = safetyStock;
 	}
 
 	public boolean isLotMandatory() {
@@ -155,9 +144,6 @@ public class UpdateItemDataRequest {
 	    
 		sb.append(", description=");
 		sb.append(description);
-	    
-		sb.append(", safetyStock=");
-		sb.append(safetyStock);
 	    
 		sb.append(", lotMandatory=");
 		sb.append(lotMandatory);

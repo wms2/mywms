@@ -32,16 +32,6 @@
             </value>
         </entry>
         <entry>
-            <key>safetyStock</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>4</position>
-            </value>
-        </entry>
-        <entry>
             <key>defaultUnitLoadType</key>
             <value>
                 <group>

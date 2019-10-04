@@ -148,7 +148,6 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 	
 			item.setDescription(updateReq.getDescription());
 			item.setScale(updateReq.getScale());
-			item.setSafetyStock(updateReq.getSafetyStock());
 			item.setLotMandatory(updateReq.isLotMandatory());
 			item.setAdviceMandatory(updateReq.isAdviceMandatory());
 			item.setSerialNoRecordType(updateReq.getSerialNoRecordType());
@@ -196,7 +195,6 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 			manageItemService.updateName(item, updateReq.getName());
 			manageItemService.updateDescription(item, updateReq.getDescription());
 			manageItemService.updateAdviceMandatory(item, updateReq.isAdviceMandatory());
-			manageItemService.updateSaftyStock(item, updateReq.getSafetyStock());
 		}
 		
 		String[] eans = updateReq.getEanCodes();

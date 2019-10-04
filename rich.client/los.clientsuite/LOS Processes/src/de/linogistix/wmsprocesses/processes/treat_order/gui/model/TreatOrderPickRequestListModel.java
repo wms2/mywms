@@ -14,6 +14,7 @@ import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.location.StorageLocation;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.openide.util.Lookup;
 
 /**
@@ -57,8 +58,9 @@ public class TreatOrderPickRequestListModel extends DefaultLOSListViewModel{
         String[] reqNumberParts = reqNumber.split(" ");
         
         String number = reqNumberParts[reqNumberParts.length-1];
-        Long dummyId = Long.parseLong(number);
+//        Long dummyId = Long.parseLong(number);
         
+        Long dummyId = Long.valueOf(RandomUtil.randomInt());
         String name = reqNumber;
         
         if(target != null){
