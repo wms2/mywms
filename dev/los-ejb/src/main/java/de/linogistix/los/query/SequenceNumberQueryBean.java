@@ -28,7 +28,6 @@ public class SequenceNumberQueryBean extends BusinessObjectQueryBean<SequenceNum
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("name", false));
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("format", false));
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("counter", false));
-		BODTOConstructorProperties.add(new BODTOConstructorProperty("startCounter", false));
 		BODTOConstructorProperties.add(new BODTOConstructorProperty("endCounter", false));
 	}
 
@@ -59,9 +58,6 @@ public class SequenceNumberQueryBean extends BusinessObjectQueryBean<SequenceNum
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 			ret.add(token);
 			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "counter", number);
-			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "startCounter", number);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 			ret.add(token);
 			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "endCounter", number);

@@ -153,17 +153,6 @@ public class SequenceBusiness {
 		throw new RuntimeException("Generation of sequencenumber failed");
 	}
 
-	/**
-	 * Reset a sequence to the start value
-	 * 
-	 * @param name
-	 */
-	public void reset(String name) {
-		String logStr = "resetSequence ";
-		logger.log(Level.INFO, logStr + "name=" + name);
-		sequenceEngine.reset(name);
-	}
-
 	public SequenceNumber createNotExisting(String name, String format, long startValue, long endValue)
 			throws BusinessException {
 		return sequenceEngine.createNotExisting(name, format, startValue, endValue);

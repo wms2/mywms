@@ -1,6 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -26,6 +24,8 @@ import org.mywms.model.BasicEntity;
 
 /**
  * Data structure to store sequences. Master data and the current state.
+ * <p>
+ * This class is based on myWMS-LOS:LOSSequenceNumber
  * 
  * @author krane
  *
@@ -98,14 +98,6 @@ public class SequenceNumber extends BasicEntity {
 
 	public void setFormat(String format) {
 		this.format = format;
-	}
-
-	public long getStartCounter() {
-		return startCounter;
-	}
-
-	public void setStartCounter(long startCounter) {
-		this.startCounter = startCounter;
 	}
 
 	public long getEndCounter() {

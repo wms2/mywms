@@ -66,11 +66,6 @@ public class SequenceTransactionService {
 		// check the counter
 		long currentCounter = sequence.getCounter();
 		currentCounter += 1;
-		if (currentCounter < sequence.getStartCounter()) {
-			currentCounter = sequence.getStartCounter();
-			logger.log(Level.INFO, logStr + "Adjust sequence to start counter. name=" + name + ", startCounter="
-					+ sequence.getStartCounter());
-		}
 		if (currentCounter > sequence.getEndCounter()) {
 			logger.log(Level.WARNING, logStr + "Sequence exceeded limit. Cannot get a new value. name=" + name
 					+ ", endCounter=" + sequence.getEndCounter());
@@ -97,17 +92,6 @@ public class SequenceTransactionService {
 		return "" + currentCounter;
 	}
 
-	public void reset(String name) {
-		String logStr = "reset ";
-
-		SequenceNumber sequence = read(name);
-		if (sequence == null) {
-			logger.log(Level.WARNING, logStr + "Cannot read sequence. No reset. name=" + name);
-			return;
-		}
-		sequence.setCounter(sequence.getStartCounter());
-	}
-
 	public SequenceNumber createNotExisting(String name, String format, long startValue, long endValue)
 			throws BusinessException {
 		SequenceNumber sequence = read(name);
@@ -115,7 +99,6 @@ public class SequenceTransactionService {
 			sequence = manager.createInstance(SequenceNumber.class);
 			sequence.setName(name);
 			sequence.setFormat(format);
-			sequence.setStartCounter(startValue);
 			sequence.setEndCounter(endValue);
 			sequence.setCounter(startValue);
 			manager.persistValidated(sequence);

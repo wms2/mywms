@@ -13,7 +13,6 @@ public class SequenceNumberTO extends BODTO<SequenceNumber> {
 
 	private String name;
 	private long counter = 0;
-	private long startCounter = 1;
 	private long endCounter = 999999;
 	private String format;
 
@@ -21,14 +20,12 @@ public class SequenceNumberTO extends BODTO<SequenceNumber> {
 		super(id, version, name);
 	}
 
-	public SequenceNumberTO(Long id, int version, String name, String format, long counter, long minCounter,
-			long maxCounter) {
+	public SequenceNumberTO(Long id, int version, String name, String format, long counter, long endCounter) {
 		super(id, version, name);
 		this.name = name;
 		this.format = format;
 		this.counter = counter;
-		this.startCounter = minCounter;
-		this.endCounter = maxCounter;
+		this.endCounter = endCounter;
 	}
 
 	public String getName() {
@@ -45,14 +42,6 @@ public class SequenceNumberTO extends BODTO<SequenceNumber> {
 
 	public void setCounter(long counter) {
 		this.counter = counter;
-	}
-
-	public long getStartCounter() {
-		return startCounter;
-	}
-
-	public void setStartCounter(long startCounter) {
-		this.startCounter = startCounter;
 	}
 
 	public long getEndCounter() {
