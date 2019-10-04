@@ -20,6 +20,7 @@ package de.linogistix.los.inventory.query;
 
 import javax.ejb.Stateless;
 
+import de.linogistix.los.inventory.query.dto.AddressTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.wms2.mywms.address.Address;
 
@@ -29,4 +30,13 @@ import de.wms2.mywms.address.Address;
  */
 @Stateless
 public class AddressQueryBean extends BusinessObjectQueryBean<Address> implements AddressQueryRemote {
+	@Override
+	public Class<AddressTO> getBODTOClass() {
+		return AddressTO.class;
+	}
+
+	@Override
+	protected String[] getBODTOConstructorProps() {
+		return new String[] { "id", "version", "firstName", "lastName", "city" };
+	}
 }

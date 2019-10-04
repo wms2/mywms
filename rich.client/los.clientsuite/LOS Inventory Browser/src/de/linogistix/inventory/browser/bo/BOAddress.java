@@ -21,6 +21,7 @@ package de.linogistix.inventory.browser.bo;
 import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
+import de.linogistix.inventory.browser.masternode.BOAddressMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.crud.AddressCRUDRemote;
@@ -29,7 +30,9 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.wms2.mywms.address.Address;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.nodes.Node.Property;
 
 
 
@@ -96,5 +99,14 @@ public class BOAddress extends BO {
     return new String[]{"lastname"};
   }
    
-  
+    @Override
+    protected Property[] initBoMasterNodeProperties() {
+        return BOAddressMasterNode.boMasterNodeProperties();
+    }
+
+    @Override
+    protected Class<? extends Node> initBoMasterNodeType() {
+        return BOAddressMasterNode.class;
+    }
+
 }

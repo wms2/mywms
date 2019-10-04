@@ -32,6 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 
+import de.wms2.mywms.address.Address;
+import de.wms2.mywms.address.AddressEntityService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
@@ -91,6 +93,8 @@ public class ShippingBusiness {
 	private PacketEntityService packetEntityService;
 	@Inject
 	private StorageLocationEntityService locationService;
+	@Inject
+	private AddressEntityService addressEntityService;
 
 	/**
 	 * Release shipping order for operation
@@ -416,7 +420,8 @@ public class ShippingBusiness {
 			logger.warning(logStr + "Missing parameter deliveryOrder");
 			return null;
 		}
-		logger.fine(logStr + "Create shipment for customer order number=" + deliveryOrder.getOrderNumber());
+		logger.fine(
+				logStr + "Create shipping order for delivery order. deliveryOrder=" + deliveryOrder.getOrderNumber());
 
 		ShippingOrder shippingOrder = null;
 
@@ -425,7 +430,8 @@ public class ShippingBusiness {
 
 		for (Packet packet : packetList) {
 			if (packet.getState() < OrderState.PICKED) {
-				logger.info(logStr + "UnitLoad not picked. packet=" + packet + ", state=" + packet.getState());
+				logger.info(logStr + "Packet not finish picked. Do not use. packet=" + packet + ", state="
+						+ packet.getState());
 				continue;
 			}
 			if (packet.getState() >= OrderState.SHIPPED) {
@@ -445,6 +451,7 @@ public class ShippingBusiness {
 				shippingOrder = createOrder(deliveryOrder.getClient());
 				shippingOrder.setDeliveryOrder(deliveryOrder);
 				shippingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
+				shippingOrder.setAddress(deliveryOrder.getAddress());
 				shippingOrder.setState(OrderState.PROCESSABLE);
 			}
 
@@ -502,6 +509,12 @@ public class ShippingBusiness {
 
 		manager.persistValidated(pos);
 
+		if (packet.getState() < OrderState.SHIPPING) {
+			int oldState = packet.getState();
+			packet.setState(OrderState.SHIPPING);
+			firePacketStateChangeEvent(packet, oldState);
+		}
+
 		return pos;
 	}
 
@@ -554,6 +567,13 @@ public class ShippingBusiness {
 		for (ShippingOrderLine line : shippingOrder.getLines()) {
 			manager.removeValidated(line);
 		}
+
+		Address address = shippingOrder.getAddress();
+		if (address != null) {
+			shippingOrder.setAddress(null);
+			addressEntityService.removeIfUnused(address);
+		}
+
 		manager.removeValidated(shippingOrder);
 		manager.flush();
 	}

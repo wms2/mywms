@@ -33,6 +33,8 @@ import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
+import de.wms2.mywms.address.Address;
+import de.wms2.mywms.address.AddressEntityService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
@@ -84,6 +86,8 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 	@Inject
 	private PacketEntityService pickingUnitLoadService;
+	@Inject
+	private AddressEntityService addressEntityService;
 	@Inject
 	private StorageLocationEntityService locationService;
 	@Inject
@@ -182,7 +186,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		PickingOrder order = manager.find(PickingOrder.class, orderId);
 		
 		if( order.getState()>State.RESERVED ) {
-			log.error(logStr+"Order is already in progress. => Cannot release.");
+			log.error(logStr+"Order is already in progress. => Cannot halt.");
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, "Order is already in progress. => Cannot halt.");
 		}
 		else {
@@ -241,6 +245,13 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		for( Packet ul : order.getPackets() ) {
 			manager.remove(ul);
 		}
+
+		Address address = order.getAddress();
+		if (address != null) {
+			order.setAddress(null);
+			addressEntityService.removeIfUnused(address);
+		}
+
 		manager.remove(order);
 	}
 	
@@ -268,7 +279,6 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 		List<PickingOrderLine> pickList = new ArrayList<PickingOrderLine>();
 		OrderStrategy strat = null;
-		
 		for( Long deliveryOrderId : deliveryOrderIdList ) {
 			DeliveryOrder deliveryOrder = manager.find(DeliveryOrder.class, deliveryOrderId);
 			if( deliveryOrder == null ) {
@@ -297,7 +307,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			if( prio < 0 ) {
 				prio = deliveryOrder.getPrio();
 			}
-		
+
 			List<PickingOrderLine> pickListX;
 			pickListX = pickingPosGenerator.generatePicks(deliveryOrder, true);
 			pickList.addAll(pickListX);

@@ -42,7 +42,7 @@
             </value>
         </entry>
         <entry>
-            <key>nameAffix</key>
+            <key>affix</key>
             <value>
                 <group>
                     <name>main</name>
@@ -59,16 +59,6 @@
                 </group>
                 <hidden>false</hidden>
                 <position>6</position>
-            </value>
-        </entry>
-        <entry>
-            <key>streetNumber</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>7</position>
             </value>
         </entry>
         <entry>
@@ -111,7 +101,37 @@
                 <position>11</position>
             </value>
         </entry>
+        <entry>
+            <key>email</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>12</position>
+            </value>
+        </entry>
+        <entry>
+            <key>phone</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>13</position>
+            </value>
+        </entry>
 
+        <entry>
+            <key>streetNumber</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
 		<entry>
 			<key>lock</key>
 			<value>
@@ -140,6 +160,16 @@
 				</group>
 				<hidden>true</hidden>
 				<position>1</position>
+			</value>
+		</entry>
+		<entry>
+			<key>empty</key>
+			<value>
+				<group>
+					<name>basic</name>
+				</group>
+				<hidden>true</hidden>
+				<position>99</position>
 			</value>
 		</entry>
 

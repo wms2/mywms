@@ -49,6 +49,7 @@ import de.linogistix.los.stocktaking.component.LOSStockTakingProcessComp;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
@@ -227,7 +228,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		euro140.setHeight(BigDecimal.valueOf(1.40));
 		euro140.setWeight(BigDecimal.valueOf(25));
 		euro140.setLiftingCapacity(BigDecimal.valueOf(500));
-		unitLoadTypeService.setDefaultUnitLoadType(euro140);
+		unitLoadTypeService.setDefault(euro140);
 
 		UnitLoadType kltType60 = createUnitLoadType(sys, resolve("UnitLoadTypeBox6040"), 0.40, 0.60, 0.25, 20, 0.7);
 		
@@ -585,7 +586,14 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 				StorageLocation loc = locList.get(0);
 				locName = loc.getName();
 			}
-			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null, null, locName, null, new Date(), Prio.NORMAL, true, false, null );
+			Address address = new Address();
+			address.setFirstName(resolve("AddressFirstName"));
+			address.setLastName(resolve("AddressLastName"));
+			address.setStreet(resolve("AddressStreet"));
+			address.setZipCode(resolve("AddressZipCode"));
+			address.setCity(resolve("AddressCity"));
+
+			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null, null, locName, null, new Date(), Prio.NORMAL, address, true, false, null );
 
 		} catch (Exception e) {
 			log.error("Error creating Order: "+e.getMessage(), e);

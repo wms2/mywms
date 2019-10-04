@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,10 +29,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
@@ -67,6 +71,11 @@ public class PickingOrder extends BasicClientAssignedEntity {
 	 * An optional number to give an association to other systems
 	 */
 	private String externalNumber;
+
+	/**
+	 * An optional id to give an association to other systems
+	 */
+	private String externalId;
 
 	@Column(nullable = false)
 	private int state = OrderState.UNDEFINED;
@@ -124,6 +133,18 @@ public class PickingOrder extends BasicClientAssignedEntity {
 
 	@ManyToOne(optional = false)
 	private OrderStrategy orderStrategy;
+
+	/**
+	 * Date when the material is planned to be delivered
+	 */
+	@Temporal(TemporalType.DATE)
+	private Date deliveryDate;
+
+	/**
+	 * The delivery address
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private Address address;
 
 	/**
 	 * Approximately the weight of the order.
@@ -184,6 +205,14 @@ public class PickingOrder extends BasicClientAssignedEntity {
 
 	public void setExternalNumber(String externalNumber) {
 		this.externalNumber = externalNumber;
+	}
+
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
 	}
 
 	public int getState() {
@@ -266,6 +295,14 @@ public class PickingOrder extends BasicClientAssignedEntity {
 		this.destination = destination;
 	}
 
+	public boolean isCreateFollowUpPicks() {
+		return createFollowUpPicks;
+	}
+
+	public void setCreateFollowUpPicks(boolean createFollowUpPicks) {
+		this.createFollowUpPicks = createFollowUpPicks;
+	}
+
 	public UnitLoadType getUnitLoadType() {
 		return unitLoadType;
 	}
@@ -282,6 +319,22 @@ public class PickingOrder extends BasicClientAssignedEntity {
 		this.orderStrategy = orderStrategy;
 	}
 
+	public Date getDeliveryDate() {
+		return deliveryDate;
+	}
+
+	public void setDeliveryDate(Date deliveryDate) {
+		this.deliveryDate = deliveryDate;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
 	public BigDecimal getWeight() {
 		return weight;
 	}
@@ -296,14 +349,6 @@ public class PickingOrder extends BasicClientAssignedEntity {
 
 	public void setVolume(BigDecimal volume) {
 		this.volume = volume;
-	}
-
-	public boolean isCreateFollowUpPicks() {
-		return createFollowUpPicks;
-	}
-
-	public void setCreateFollowUpPicks(boolean createFollowUpPicks) {
-		this.createFollowUpPicks = createFollowUpPicks;
 	}
 
 }

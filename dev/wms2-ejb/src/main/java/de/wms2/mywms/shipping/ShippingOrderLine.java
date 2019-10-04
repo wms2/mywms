@@ -1,7 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-info@krane.engineer
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -33,6 +30,8 @@ import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.strategy.OrderState;
 
 /**
+ * This class is based on myWMS-LOS:LOSGoodsOutRequestPosition
+ * 
  * @author krane
  *
  */

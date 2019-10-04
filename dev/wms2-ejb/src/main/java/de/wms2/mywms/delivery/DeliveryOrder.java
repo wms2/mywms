@@ -1,6 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -28,7 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -96,7 +93,8 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	private Date deliveryDate;
 
 	/**
-	 * The storage location where the material is put after picking. Can overwrite the destination location of the order strategy.
+	 * The storage location where the material is put after picking. Can overwrite
+	 * the destination location of the order strategy.
 	 */
 	@ManyToOne(optional = true)
 	private StorageLocation destination;
@@ -119,7 +117,7 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	/**
 	 * The delivery address
 	 */
-	@OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	private Address address;
 
 	/**

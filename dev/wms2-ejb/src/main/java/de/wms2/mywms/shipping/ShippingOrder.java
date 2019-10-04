@@ -1,7 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-info@krane.engineer
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -23,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,12 +35,15 @@ import javax.persistence.TemporalType;
 import org.mywms.model.BasicClientAssignedEntity;
 import org.mywms.model.User;
 
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.OrderPrio;
 import de.wms2.mywms.strategy.OrderState;
 
 /**
+ * This class is based on myWMS-LOS:LOSGoodsOutRequest
+ * 
  * @author krane
  *
  */
@@ -67,7 +68,7 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 	@Column(nullable = false)
 	private int state = OrderState.UNDEFINED;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	private Date shippingDate;
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
@@ -81,6 +82,12 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 	 */
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private DeliveryOrder deliveryOrder;
+
+	/**
+	 * The delivery address
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private Address address;
 
 	/**
 	 * Name of the carrier
@@ -202,6 +209,14 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 
 	public void setDeliveryOrder(DeliveryOrder deliveryOrder) {
 		this.deliveryOrder = deliveryOrder;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
 	}
 
 	public String getCarrierName() {
