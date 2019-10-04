@@ -73,14 +73,6 @@ public class GoodsReceiptValidator implements EntityValidator<GoodsReceipt> {
 			logger.log(Level.INFO, logStr + "missing location. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLocation");
 		}
-
-		if (!entity.isUseAdvice()) {
-			if (entity.getAdviceLines() != null && entity.getAdviceLines().size() > 0) {
-				logger.log(Level.INFO,
-						logStr + "cannot handle advices for GoodsReceipt with useAdvice=false. entity=" + entity);
-				throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidMustNotHaveAdvice");
-			}
-		}
 	}
 
 	@Override

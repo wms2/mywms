@@ -1,6 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -44,6 +42,8 @@ import de.wms2.mywms.strategy.OrderState;
 
 /**
  * The incoming processes
+ * <p>
+ * This class is based on myWMS-LOS:LOSGoodsReceipt
  * 
  * @author krane
  *
@@ -104,13 +104,6 @@ public class GoodsReceipt extends BasicClientAssignedEntity {
 	 */
 	@Column(nullable = false)
 	private int orderType = GoodsReceiptType.NORMAL;
-
-	/**
-	 * If true, only adviced material will be handled. Otherwise no advice is
-	 * considered.
-	 */
-	@Column(nullable = false)
-	private boolean useAdvice = true;
 
 	/**
 	 * The name of the sender
@@ -240,14 +233,6 @@ public class GoodsReceipt extends BasicClientAssignedEntity {
 
 	public void setOrderType(int orderType) {
 		this.orderType = orderType;
-	}
-
-	public boolean isUseAdvice() {
-		return useAdvice;
-	}
-
-	public void setUseAdvice(boolean useAdvice) {
-		this.useAdvice = useAdvice;
 	}
 
 	public String getSenderName() {

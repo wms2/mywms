@@ -1,6 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -42,6 +40,8 @@ import de.wms2.mywms.util.Wms2Constants;
 
 /**
  * A line of a goods receipt
+ * <p>
+ * This class is based on myWMS-LOS:LOSGoodsReceiptPosition
  * 
  * @see GoodsReceipt
  * @author krane

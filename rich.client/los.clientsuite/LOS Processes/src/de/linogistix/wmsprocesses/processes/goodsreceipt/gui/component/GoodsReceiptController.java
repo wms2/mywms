@@ -573,7 +573,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
                 CommonBundleResolver.class,"state." + gr.getState()));
         topComponent.centerPanel.getStateTextField().setEditable(false);
 
-        topComponent.centerPanel.getDateTextField().setText(new SimpleDateFormat("dd.MM.yyyy").format(gr.getReceiptDate()));
+        topComponent.centerPanel.getDateTextField().setText(gr.getReceiptDate()==null?"":new SimpleDateFormat("dd.MM.yyyy").format(gr.getReceiptDate()));
         topComponent.centerPanel.getDateTextField().setEditable(false);
         
         updateAdviceView();

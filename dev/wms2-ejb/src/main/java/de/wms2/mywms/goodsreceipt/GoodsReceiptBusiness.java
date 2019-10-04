@@ -381,12 +381,6 @@ public class GoodsReceiptBusiness {
 				throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.clientMismatch");
 			}
 
-			if (!order.isUseAdvice()) {
-				logger.log(Level.INFO,
-						logStr + "Cannot assign advice to GoodsReceipt with useAdvice=false. order=" + order);
-				throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.cannotHaveAdvices");
-			}
-
 			if (!order.getAdviceLines().contains(adviceLine)) {
 				order.getAdviceLines().add(adviceLine);
 				fireAdviceLineAssignEvent(adviceLine);
@@ -481,12 +475,6 @@ public class GoodsReceiptBusiness {
 
 		if (order.getAdviceLines().contains(adviceLine)) {
 			return;
-		}
-
-		if (!order.isUseAdvice()) {
-			logger.log(Level.INFO,
-					logStr + "Cannot assign advice to GoodsReceipt with useAdvice=false. order=" + order);
-			throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.cannotHaveAdvices");
 		}
 
 		order.getAdviceLines().add(adviceLine);
