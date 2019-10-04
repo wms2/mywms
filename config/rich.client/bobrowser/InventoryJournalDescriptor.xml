@@ -137,8 +137,8 @@
                 <group>
                     <name>main</name>
                 </group>
-                <hidden>true</hidden>
-                <position>99</position>
+                <hidden>false</hidden>
+                <position>26</position>
             </value>
         </entry>
         <entry>

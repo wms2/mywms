@@ -37,7 +37,6 @@ public class BOSequenceNumberMasterNode extends BOMasterNode {
 
             sheet.put( new BOMasterNodeProperty<String>("format", String.class, to.getFormat(), CommonBundleResolver.class) );
             sheet.put( new BOMasterNodeProperty<Long>("counter", Long.class, to.getCounter(), CommonBundleResolver.class) );
-            sheet.put( new BOMasterNodeProperty<Long>("startCounter", Long.class, to.getStartCounter(), CommonBundleResolver.class) );
             sheet.put( new BOMasterNodeProperty<Long>("endCounter", Long.class, to.getEndCounter(), CommonBundleResolver.class) );
 
         }
@@ -49,11 +48,10 @@ public class BOSequenceNumberMasterNode extends BOMasterNode {
 
         BOMasterNodeProperty<String> format = new BOMasterNodeProperty<String>("format", String.class, "", CommonBundleResolver.class);
         BOMasterNodeProperty<Long> lastNumber = new BOMasterNodeProperty<Long>("counter", Long.class, 0L, CommonBundleResolver.class);
-        BOMasterNodeProperty<Long> minNumber = new BOMasterNodeProperty<Long>("startCounter", Long.class, 0L, CommonBundleResolver.class);
-        BOMasterNodeProperty<Long> maxNumber = new BOMasterNodeProperty<Long>("endCounter", Long.class, 0L, CommonBundleResolver.class);
+        BOMasterNodeProperty<Long> endCounter = new BOMasterNodeProperty<Long>("endCounter", Long.class, 0L, CommonBundleResolver.class);
 
         BOMasterNodeProperty[] props = new BOMasterNodeProperty[]{
-            format, lastNumber, minNumber, maxNumber
+            format, lastNumber, endCounter
         };
 
         return props;

@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
@@ -29,7 +30,6 @@ import de.linogistix.los.location.entityservice.LOSWorkingAreaService;
 import de.linogistix.los.location.model.LOSWorkingArea;
 import de.linogistix.los.location.model.LOSWorkingAreaPosition;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
-import de.linogistix.los.model.LOSCommonPropertyKey;
 import de.linogistix.los.res.BundleResolver;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyService;
 import de.wms2.mywms.client.ClientBusiness;
@@ -45,6 +45,8 @@ import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.property.SystemProperty;
+import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
 import de.wms2.mywms.strategy.ZoneEntityService;
@@ -88,6 +90,8 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private OrderStrategyEntityService orderStrategyService;
 
 	public void createBasicData(Locale locale) throws FacadeException {
 
@@ -160,8 +164,17 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 			createStorageLocation(sys, resolve("BasicDataLocationGoodsIn", locale), areaIn, sysType, clusterDefault);
 		}
 		list = locationService.getForGoodsOut(null);
-		if( list == null || list.size() == 0 ) {
-			createStorageLocation(sys, resolve("BasicDataLocationGoodsOut", locale), areaOut, sysType, clusterDefault);
+		if (list == null || list.size() == 0) {
+			StorageLocation goodsOutLocation = createStorageLocation(sys, resolve("BasicDataLocationGoodsOut", locale),
+					areaOut, sysType, clusterDefault);
+			OrderStrategy defaultOrderStrategy = orderStrategyService.getDefault(sys);
+			if (defaultOrderStrategy.getDefaultDestination() == null) {
+				defaultOrderStrategy.setDefaultDestination(goodsOutLocation);
+			}
+			SystemProperty shippingLocationProperty = propertyService.getByKey(Wms2Properties.KEY_SHIPPING_LOCATION);
+			if (shippingLocationProperty != null && StringUtils.isBlank(shippingLocationProperty.getPropertyValue())) {
+				shippingLocationProperty.setPropertyValue(goodsOutLocation.getName());
+			}
 		}
 		StorageLocation loc = locationService.getClearing();
 		loc.setArea(areaClearing);

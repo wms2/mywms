@@ -27,15 +27,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.User;
 
+import de.wms2.mywms.advice.Advice;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.entity.EntityValidator;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.property.SystemProperty;
+import de.wms2.mywms.replenish.ReplenishOrder;
+import de.wms2.mywms.shipping.ShippingOrder;
+import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 /**
@@ -86,17 +94,17 @@ public class ClientValidator implements EntityValidator<Client> {
 	public void validateDelete(Client entity) throws BusinessException {
 		String logStr = "validateDelete ";
 
-		if (entitySerivce.exists(SystemProperty.class, "client", entity)) {
-			logger.log(Level.INFO, logStr + "Existing reference to LOSSystemProperty. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedBySystemProperty");
+		if (entitySerivce.exists(Advice.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to Advice. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByAdvice");
 		}
-		if (entitySerivce.exists(StockUnit.class, "client", entity)) {
-			logger.log(Level.INFO, logStr + "Existing reference to StockUnit. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByStockUnit");
+		if (entitySerivce.exists(DeliveryOrder.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to DeliveryOrder. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByDeliveryOrder");
 		}
-		if (entitySerivce.exists(UnitLoad.class, "client", entity)) {
-			logger.log(Level.INFO, logStr + "Existing reference to UnitLoad. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByUnitLoad");
+		if (entitySerivce.exists(GoodsReceipt.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to GoodsReceipt. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByGoodsReceipt");
 		}
 		if (entitySerivce.exists(ItemData.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to ItemData. entity=" + entity);
@@ -106,9 +114,41 @@ public class ClientValidator implements EntityValidator<Client> {
 			logger.log(Level.INFO, logStr + "Existing reference to Lot. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByLot");
 		}
+		if (entitySerivce.exists(PickingOrder.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to PickingOrder. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByPickingOrder");
+		}
+		if (entitySerivce.exists(PickingOrderLine.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to PickingOrderLine. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByPickingOrderLine");
+		}
+		if (entitySerivce.exists(ReplenishOrder.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to ReplenishOrder. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByReplenishOrder");
+		}
+		if (entitySerivce.exists(ShippingOrder.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to ShippingOrder. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByShippingOrder");
+		}
+		if (entitySerivce.exists(StockUnit.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to StockUnit. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByStockUnit");
+		}
 		if (entitySerivce.exists(StorageLocation.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to StorageLocation. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByStorageLocation");
+		}
+		if (entitySerivce.exists(SystemProperty.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to SystemProperty. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedBySystemProperty");
+		}
+		if (entitySerivce.exists(TransportOrder.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to TransportOrder. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByTransport");
+		}
+		if (entitySerivce.exists(UnitLoad.class, "client", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to UnitLoad. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByUnitLoad");
 		}
 		if (entitySerivce.exists(User.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to User. entity=" + entity);

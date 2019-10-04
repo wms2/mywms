@@ -26,10 +26,16 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 
+import de.wms2.mywms.advice.AdviceLine;
+import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.entity.EntityValidator;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.replenish.ReplenishOrder;
+import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 /**
@@ -106,9 +112,33 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 	public void validateDelete(ItemData entity) throws BusinessException {
 		String logStr = "validateDelete ";
 
+		if (entitySerivce.exists(AdviceLine.class, "itemData", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to Advice. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByAdviceLine");
+		}
+		if (entitySerivce.exists(DeliveryOrderLine.class, "itemData", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to DeliveryOrderLine. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByDeliveryOrderLine");
+		}
+		if (entitySerivce.exists(FixAssignment.class, "itemData", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to FixAssignment. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByFixAssignment");
+		}
+		if (entitySerivce.exists(GoodsReceiptLine.class, "itemData", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to GoodsReceiptLine. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByGoodsReceiptLine");
+		}
 		if (entitySerivce.exists(ItemDataNumber.class, "itemData", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to ItemDataCode. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByItemDataNumber");
+		}
+		if (entitySerivce.exists(PickingOrderLine.class, "itemData", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to PickingOrderLine. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByPickingOrderLine");
+		}
+		if (entitySerivce.exists(ReplenishOrder.class, "itemData", entity)) {
+			logger.log(Level.INFO, logStr + "Existing reference to ReplenishOrder. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByReplenishOrder");
 		}
 		if (entitySerivce.exists(StockUnit.class, "itemData", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to StockUnit. entity=" + entity);
