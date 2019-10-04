@@ -93,7 +93,8 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 			                    <h:commandButton id="BUTTON_UL_COMPLETE" 
 	                				 value="#{bundle.ButtonCompleted}" 
 	                				 action="#{PickingBean.processPickFunctionFinish}" 
-	                				 styleClass="commandButton2" />
+	                				 styleClass="commandButton2"
+	                				 disabled="#{PickingBean.completePick}"  />
 							</td>
 							<td style="padding-bottom:20px;">
 							</td>	                	

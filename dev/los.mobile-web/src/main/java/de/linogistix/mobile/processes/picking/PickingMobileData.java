@@ -24,6 +24,7 @@ import de.linogistix.mobileserver.processes.picking.PickingMobileOrder;
 import de.linogistix.mobileserver.processes.picking.PickingMobilePos;
 import de.linogistix.mobileserver.processes.picking.PickingMobileUnitLoad;
 import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingType;
 
 
 
@@ -327,6 +328,31 @@ public class PickingMobileData extends BasicBackingBean implements Serializable 
 		facade.changePickFromStockUnit(pick, code);
 	}
 	
+	public boolean isCompletePick() {
+		PickingMobilePos pick = getCurrentPick();
+		if(pick==null) {
+			return false;
+		}
+		return pick.pickingType == PickingType.COMPLETE;
+	}
+
+	/**
+	 * Confirmation of the current pick.
+	 */
+	public void confirmCompletePick(String targetLocationName) throws FacadeException {
+		String logStr = "confirmCompletePick ";
+		log.debug(logStr+"targetLocationName="+targetLocationName);
+
+		PickingMobilePos pick = getCurrentPick();
+		if( pick == null ) {
+			log.warn(logStr+"No current pick");
+			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, resolve("MsgDataNoCurrentPick") );
+		}
+
+		facade.confirmCompletePick(pick, targetLocationName);
+		pick.state = State.PICKED;
+	}
+
 	/**
 	 * Confirmation of the current pick.
 	 */

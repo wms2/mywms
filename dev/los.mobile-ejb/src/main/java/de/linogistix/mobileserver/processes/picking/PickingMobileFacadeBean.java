@@ -34,7 +34,6 @@ import de.linogistix.los.common.exception.LOSExceptionRB;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemDataService;
@@ -59,16 +58,17 @@ import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
+import de.wms2.mywms.inventory.UnitLoadReportGenerator;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.PickingType;
-import de.wms2.mywms.picking.Packet;
-import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -101,8 +101,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	private StockUnitService stockUnitService;
 	@EJB
 	private ItemDataService itemDataService;
-	@EJB
-	private LOSUnitLoadReport unitLoadReport;
+	@Inject
+	private UnitLoadReportGenerator unitLoadReport;
 	@EJB
 	private LOSPrintService printService;
 	@EJB
@@ -224,7 +224,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 				UnitLoad unitLoad = null;
 				unitLoad = unitLoadService.readByLabel(pickTo.label);
 				if (unitLoad == null) {
-					UnitLoadType type = unitLoadTypeService.getDefault();
+					UnitLoadType type = unitLoadTypeService.getPicking();
 					StorageLocation storageLocation = locationService.getCurrentUsersLocation();
 					String activityCode = (pick.getPickingOrder() == null ? null
 							: pick.getPickingOrder().getOrderNumber());
@@ -240,6 +240,30 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		
 		pickingBusiness.confirmPick(pick, pickingUnitLoad, amountPicked, amountRemain, serialNoList, counted);
 		
+	}
+
+	public void confirmCompletePick(PickingMobilePos pickTO, String targetLocName) throws FacadeException {
+		String logStr = "confirmPick ";
+		PickingOrderLine pick = getPickingPosition(pickTO.id);
+		if( pick == null ) {
+			log.warn(logStr+"Pick not found. id="+pickTO.id);
+			throw new LOSExceptionRB("CannotReadCurrentPick", this.getClass());
+		}
+
+		StorageLocation targetLoc = null;
+		if( targetLocName == null ) {
+			locationService.getClearing();
+		}
+		else {
+			targetLoc = locationService.read(targetLocName);
+		}
+
+		if( targetLoc == null ) {
+			log.error(logStr+"location not found. name="+targetLocName);
+			throw new LOSLocationException(LOSLocationExceptionKey.NO_SUCH_LOCATION, new Object[]{targetLocName});
+		}
+
+		pickingBusiness.confirmCompletePick(pick, targetLoc);
 	}
 
 	public void transferUnitLoad(String label, String targetLocName, int state) throws FacadeException {
@@ -327,7 +351,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB( "UnitLoadAlreadyExists", this.getClass() );
 		}
 			
-		UnitLoadType type = unitLoadTypeService.getDefault();
+		UnitLoadType type = unitLoadTypeService.getPicking();
 		Client client = contextService.getCallersClient();
 		StorageLocation storageLocation = locationService.getCurrentUsersLocation();
 
@@ -540,7 +564,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			order = pickingOrderService.get(orderId);
 			List<Packet> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
 			for( Packet unitLoad : unitLoadList ) {
-				if( unitLoad.getState() < State.FINISHED ) {
+				if( unitLoad.getState() < State.PICKED ) {
 					unitLoadUsable = unitLoad;
 					break;
 				}
@@ -565,7 +589,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			List<Packet> unitLoadList = pickingUnitLoadService.readByPickingOrder(order);
 			for( Packet unitLoad : unitLoadList ) {
 				log.debug(logStr+"Found unit load for order. unitload="+unitLoad+", state="+unitLoad.getState()+", order="+order);
-				if( unitLoad.getState() < State.FINISHED ) {
+				if( unitLoad.getState() <= State.PICKED ) {
 					unitLoadUsableList.add(new PickingMobileUnitLoad(unitLoad));
 				}
 			}
@@ -712,7 +736,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB("CannotReadUnitLoad", this.getClass());
 		}
 		
-		Document receipt = unitLoadReport.generateUnitLoadReport(unitLoad);
+		Document receipt = unitLoadReport.generateReport(unitLoad);
 		printService.print(printer, receipt.getData(), receipt.getDocumentType());
 
 	}

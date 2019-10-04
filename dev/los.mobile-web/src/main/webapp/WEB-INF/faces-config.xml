@@ -1542,6 +1542,7 @@
 		<navigation-case><from-outcome>PICK_PICK_REMAINING</from-outcome><to-view-id>/pages/processes/picking/PickRemaining.jsp</to-view-id></navigation-case>
 		<navigation-case><from-outcome>PICK_PICK_MISSING</from-outcome><to-view-id>/pages/processes/picking/PickMissing.jsp</to-view-id></navigation-case>
 		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_COMPLETE_TARGET</from-outcome><to-view-id>/pages/processes/picking/PickCompleteTarget.jsp</to-view-id></navigation-case>
 	</navigation-rule>
 	<navigation-rule>
 		<from-view-id>/pages/processes/picking/PickRemaining.jsp</from-view-id>
@@ -1559,6 +1560,15 @@
 		<navigation-case><from-outcome>PICK_PICK_EMPTY</from-outcome><to-view-id>/pages/processes/picking/PickEmpty.jsp</to-view-id></navigation-case>
 		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
 		<navigation-case><from-outcome>PICK_PICK_REMAINING</from-outcome><to-view-id>/pages/processes/picking/PickRemaining.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/pages/processes/picking/PickCompleteTarget.jsp</from-view-id>
+		<navigation-case><from-outcome>PICK_PICK_DONE</from-outcome><to-view-id>/pages/processes/picking/PickDone.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICKFROM</from-outcome><to-view-id>/pages/processes/picking/PickFrom.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_EMPTY</from-outcome><to-view-id>/pages/processes/picking/PickEmpty.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK</from-outcome><to-view-id>/pages/processes/picking/Pick.jsp</to-view-id></navigation-case>
+		<navigation-case><from-outcome>PICK_PICK_MISSING</from-outcome><to-view-id>/pages/processes/picking/PickMissing.jsp</to-view-id></navigation-case>
 		<navigation-case><from-outcome>PICK_PICK_SERIAL</from-outcome><to-view-id>/pages/processes/picking/PickSerial.jsp</to-view-id></navigation-case>
 	</navigation-rule>
 	<navigation-rule>

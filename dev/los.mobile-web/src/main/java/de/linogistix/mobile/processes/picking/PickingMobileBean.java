@@ -414,12 +414,16 @@ public class PickingMobileBean extends BasicDialogBean {
 				data.setCurrentPick();
 				return getNavigationKey(PickingMobileNavigation.PICK_PICKFROM);
 			}
+
+			if(isCompletePick()) {
+				return getNavigationKey(PickingMobileNavigation.PICK_COMPLETE_TARGET);
+			}
 			
 			if( getNumSerial() > (serialList == null ? 0 : serialList.size()) ) {
 				return getNavigationKey(PickingMobileNavigation.PICK_PICK_SERIAL);
 			}
 			
-			if( data.isLocationEmpty() ) {
+			if( !data.isCompletePick() && data.isLocationEmpty() ) {
 				return getNavigationKey(PickingMobileNavigation.PICK_PICK_EMPTY);
 			}
 
@@ -737,6 +741,43 @@ public class PickingMobileBean extends BasicDialogBean {
 		return getNavigationKey(PickingMobileNavigation.PICK_PICK);
 	}
 
+	// ***********************************************************************
+	// PickCompleteTarget.jsp
+	// ***********************************************************************
+	public String processCompleteTarget(){
+		String logStr = "processCompleteTarget ";
+		String code = inputCode == null ? "" : inputCode.trim();
+		inputCode = "";
+
+		log.debug(logStr+getTrace()+", input="+code);
+
+		if( code.length() == 0 ) {
+			JSFHelper.getInstance().message( resolve("MsgEnterSomething") );
+			return "";
+		}
+
+		try {
+			data.confirmCompletePick(code);
+			if( data.setNextPick() ) {
+				return getNavigationKey(PickingMobileNavigation.PICK_PICKFROM);
+			}
+			return getNavigationKey(PickingMobileNavigation.PICK_PICK_DONE);
+		} catch (FacadeException e) {
+			JSFHelper.getInstance().message( e.getLocalizedMessage(getUIViewRoot().getLocale()) );
+			return "";
+		}
+
+	}
+
+	public String processCompleteCancel(){
+		String logStr = "processCompleteCancel ";
+		log.debug(logStr+getTrace());
+		inputCode = "";
+		amountTaken = null;
+		amountRemaining = null;
+		locationCounted = false;
+		return getNavigationKey(PickingMobileNavigation.PICK_PICK);
+	}
 	
 	// ***********************************************************************
 	// LocationEmpty.jsp
@@ -1006,8 +1047,12 @@ public class PickingMobileBean extends BasicDialogBean {
 		}
 		return false;
 	}
-	
-	
+
+	public boolean isCompletePick() {
+		return data.isCompletePick();
+	}
+
+
 	
 	protected int getNumSerial() {
 		if( data.getCurrentPick() == null ) {

@@ -33,7 +33,6 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.model.State;
-import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
@@ -93,6 +92,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+
 	@Inject
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
 	@Inject
@@ -321,6 +321,10 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		int stateOld = pickingOrder.getState();
 
+		if( pickingOrder.getState()<State.PROCESSABLE) {
+			log.error(logStr+"Order not yet processable. => Cannot start.");
+			throw new InventoryException(InventoryExceptionKey.ORDER_RESERVED, "");
+		}
 		if( stateOld>=State.PICKED ) {
 			log.error(logStr+"Order is already picked. => Cannot reserve.");
 			throw new InventoryException(InventoryExceptionKey.PICK_ALREADY_STARTED, pickingOrder.getOrderNumber());
@@ -364,6 +368,10 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		int stateOld = pickingOrder.getState();
 
+		if( pickingOrder.getState()<State.PROCESSABLE) {
+			log.error(logStr+"Order not yet processable. => Cannot start.");
+			throw new InventoryException(InventoryExceptionKey.ORDER_RESERVED, "");
+		}
 		if( pickingOrder.getState()>=State.PICKED) {
 			log.error(logStr+"Order is already picked. => Cannot start.");
 			throw new InventoryException(InventoryExceptionKey.ORDER_ALREADY_FINISHED, "");
@@ -477,8 +485,6 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 
-		checkCreateGoodsOutOrder(pickingOrder);
-		
 		return pickingOrder;
 	}
 	/**
@@ -537,45 +543,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 		
-		checkCreateGoodsOutOrder(pickingOrder);
-
 		return pickingOrder;
 	}
-	
-	private void checkCreateGoodsOutOrder( PickingOrder pickingOrder ) throws FacadeException {
-		String logStr = "checkCreateGoodsOutOrder ";
-		log.debug(logStr+"order="+pickingOrder);
-		
-		String deliveryOrderNumber = (pickingOrder.getDeliveryOrder()==null?null:pickingOrder.getDeliveryOrder().getOrderNumber());
-		if( StringTools.isEmpty(deliveryOrderNumber) ) {
-			log.debug(logStr+"No customer order set picking order. => No goods out order. picking order="+pickingOrder.getOrderNumber());
-			return;
-		}
-
-		DeliveryOrder deliveryOrder = customerOrderService.getByNumber(deliveryOrderNumber);
-		if( deliveryOrder == null ) {
-			log.warn(logStr+"Cannot create goods out order without customer order. PickingOrder="+pickingOrder.getOrderNumber());
-			return;
-		}
-
-		int deliveryOrderStateOld = deliveryOrder.getState(); 
-		if( pickingOrder.getOrderStrategy().isCreatePackingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < OrderState.PACKED) {
-			log.debug(logStr+"Create packing order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
-			deliveryOrder.setState(OrderState.PACKING);
-			fireDeliveryOrderStateChangeEvent(deliveryOrder, deliveryOrderStateOld);
-		}
-		else if(pickingOrder.getOrderStrategy().isCreateShippingOrder() && deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld < State.FINISHED) {
-			log.debug(logStr+"Create shipping order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy());
-			deliveryOrder.setState(OrderState.SHIPPING);
-			fireDeliveryOrderStateChangeEvent(deliveryOrder, deliveryOrderStateOld);
-		}
-		else if(deliveryOrderStateOld >= State.PICKED && deliveryOrderStateOld<State.FINISHED) {
-			log.debug(logStr+"No goods out order for delivery order="+deliveryOrderNumber+", strategy="+pickingOrder.getOrderStrategy().getName());
-			deliveryOrder.setState(State.FINISHED);
-			fireDeliveryOrderStateChangeEvent(deliveryOrder, deliveryOrderStateOld);
-		}
-	}
-	
 	
 	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException {
 		confirmPick(pick, pickToUnitLoad, amountPicked, amountRemain, serialNoList, false);
@@ -750,7 +719,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		pick.setPickedAmount(amountPosted);
 		pick.setPickedLotNumber(lotPicked==null?null:lotPicked.getName());
 		pick.setPickFromStockUnit(null);
-		
+		pick.setPickingType(PickingType.PICK);
+
 		DeliveryOrderLine deliveryOrderLine = pick.getDeliveryOrderLine();
 		if( deliveryOrderLine != null ) {
 			if( pickingOrder.isCreateFollowUpPicks()) {
@@ -798,6 +768,90 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 		
 
+	}
+
+	public void confirmCompletePick(PickingOrderLine pick, StorageLocation destination) throws FacadeException {
+		String logStr = "confirmPick ";
+		if (pick == null) {
+			log.error(logStr + "missing parameter pick");
+			return;
+		}
+		log.debug(logStr + "pick.id=" + pick.getId() + ", item=" + pick.getItemData().getNumber());
+		int stateOld = pick.getState();
+
+		if (pick.getState() >= State.PICKED) {
+			log.error(logStr + "Pick already done. => Abort");
+			throw new InventoryException(InventoryExceptionKey.PICK_ALREADY_FINISHED, "");
+		}
+		if (pick.getPickFromStockUnit() == null) {
+			log.error(logStr + "Pick has no assigned stock. => Abort");
+			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_NO_STOCK, "");
+		}
+
+		PickingOrder pickingOrder = pick.getPickingOrder();
+		if (pickingOrder == null) {
+			log.error(logStr + "Cannot confirm without order. Abort");
+			throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_MISSING_ORDER, "");
+		}
+
+		StockUnit pickFromStock = pick.getPickFromStockUnit();
+		Lot lotPicked = pickFromStock.getLot();
+
+		// Release the reservation on pick from stock unit.
+		// Maybe that some services would fail on the original reservations
+		pickFromStock.releaseReservedAmount(pick.getAmount());
+
+		UnitLoad pickFromUnitLoad = pickFromStock.getUnitLoad();
+
+		Packet packet = pickingUnitLoadService.create(pickFromUnitLoad);
+		packet.setState(OrderState.PICKED);
+		packet.setPickingOrder(pick.getPickingOrder());
+		DeliveryOrderLine deliveryOrderLine = pick.getDeliveryOrderLine();
+		if (deliveryOrderLine != null) {
+			packet.setDeliveryOrder(deliveryOrderLine.getDeliveryOrder());
+		}
+
+		pick.setState(State.PICKED);
+		pick.setPacket(packet);
+		pick.setPickedAmount(pickFromStock.getAmount());
+		pick.setPickedLotNumber(lotPicked == null ? null : lotPicked.getName());
+		pick.setPickFromStockUnit(null);
+		pick.setPickingType(PickingType.COMPLETE);
+
+		if (deliveryOrderLine != null) {
+			confirmDeliveryOrderLine(deliveryOrderLine, pickFromStock.getAmount());
+		}
+
+		if (pickingOrder.getState() < State.STARTED) {
+			startPickingOrder(pickingOrder, true);
+		}
+
+		if (pickFromUnitLoad.getState() <= OrderState.PICKED) {
+			inventoryBusiness.changeState(pickFromUnitLoad, OrderState.PICKED);
+		}
+
+		firePacketStateChangeEvent(packet, -1);
+		if (pick.getState() != stateOld) {
+			firePickingOrderLineStateChangeEvent(pick, stateOld);
+		}
+
+		// Check picking order state
+		boolean allPicksDone = true;
+		for (PickingOrderLine p : pickingOrder.getLines()) {
+			if (p.getState() < State.PICKED) {
+				allPicksDone = false;
+				break;
+			}
+		}
+		stateOld = pickingOrder.getState();
+		if (allPicksDone && stateOld < State.PICKED) {
+			pickingOrder.setState(State.PICKED);
+			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
+		}
+
+		if (!pickFromUnitLoad.getStorageLocation().equals(destination)) {
+			inventoryBusiness.transferUnitLoad(pickFromUnitLoad, destination, null, null, null);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

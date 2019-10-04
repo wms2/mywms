@@ -50,7 +50,8 @@ public interface PickingMobileFacade {
 	
 	
 	public void confirmPick(PickingMobilePos pickTO, PickingMobileUnitLoad pickTo, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted ) throws FacadeException;
-	
+	void confirmCompletePick(PickingMobilePos pickTO, String targetLocName) throws FacadeException;
+
 	public void transferUnitLoad(String label, String target, int state) throws FacadeException;
 	
 	

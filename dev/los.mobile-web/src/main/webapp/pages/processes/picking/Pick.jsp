@@ -86,17 +86,26 @@
 					
                     <table  width="100%" border="0" cellspacing="0" style="padding-top:20px; padding-bottom:10px">
                     	<tr>
+                            <td nowrap="nowrap" width="1%" style="padding-right:2px; vertical-align:middle;">
+                    			<h:outputLabel id="completeLabelMessage" 
+                     				value="#{bundle.LabelComplete}"
+                     				style="color:#008000; font-weight:bold; font-size:1.5em;}" 
+                     				rendered="#{PickingBean.completePick}"  />
+                            </td>
                             <td nowrap="nowrap" width="1%" style="padding-right:10px; vertical-align:middle;">
-                            	<h:outputLabel id="labelAmount" value="#{bundle.LabelAmount}:" styleClass="param"/> 
+                            	<h:outputLabel id="labelAmount" value="#{bundle.LabelAmount}:" styleClass="param" 
+                     				rendered="#{!PickingBean.completePick}"  />
                             </td>
                             <td nowrap="nowrap" width="1%" style="padding-right:2px; vertical-align:middle;">
                     			<h:outputLabel id="amountLabelMessage" 
                      				value="#{PickingBean.pickAmount}"
-                     				style="color:#008000; font-weight:bold; font-size:3em;}" />
+                     				style="color:#008000; font-weight:bold; font-size:3em;}"
+                     				rendered="#{!PickingBean.completePick}"  />
                             </td>
                             <td nowrap="nowrap" style="vertical-align:middle;">
                        			<h:outputLabel id="labelUnitName" styleClass="label" 
-                  					value="#{PickingBean.pickUnit}"/>
+                  					value="#{PickingBean.pickUnit}"
+                     				rendered="#{!PickingBean.completePick}"  />
                             </td>
                         </tr>
 					</table>

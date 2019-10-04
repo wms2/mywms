@@ -8,13 +8,9 @@
 
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-<%--
-The taglib directive below imports the JSTL library. If you uncomment it,
-you must also add the JSTL library to the project. The Add Library... action
-on Libraries node in Projects view can be used to add the JSTL 1.1 library.
---%>
 <%@ taglib prefix="f" uri="http://java.sun.com/jsf/core" %>
 <%@ taglib prefix="h" uri="http://java.sun.com/jsf/html" %>
+<%-- <%@ taglib prefix="rich" uri="http://richfaces.org/rich" %> --%>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
@@ -31,10 +27,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <f:view locale="#{PickingBean.locale}">
             <f:loadBundle var="bundle" basename ="de.linogistix.mobile.processes.picking.PickingMobileBundle" /> 
             
-            <h:form id="Form" styleClass="form" >
+            <h:form id="Form" styleClass="form" onsubmit="return validate();">
                 <%-- Page Title--%>
                 <p id="pHeader"class="pageheader">
-                	<h:outputText id="pagetitle" value="#{bundle.TitlePickSpecialFunction}" styleClass="pagetitle"/>
+                	<h:outputText id="pagetitle" value="#{bundle.TitlePickAmount}" styleClass="pagetitle"/>
 	                <h:graphicImage id="logo" url="/pics/logo.gif" styleClass="logo"/>
                	</p>
                 
@@ -63,7 +59,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                               	<h:outputLabel id="locData" value="#{PickingBean.pickFromName}" styleClass="label"/>
                             </td>
                         </tr>
-                   		<tr>
+                    	<tr>
                             <td nowrap="nowrap" style="padding-right:20px">
                             	<h:outputLabel id="ulLabel" value="#{bundle.LabelUnitLaod}:" styleClass="param" /> 
                             </td>
@@ -84,59 +80,37 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                                	<h:outputLabel id="matName" value="#{PickingBean.pickItemName}" />
                             </td>
                         </tr>
+					</table>
+				</div>
+                <div class="space">
+					
+                    <table  width="100%" border="0" cellspacing="0" style="padding-top:20px; padding-bottom:10px">
+                    	<tr>
+                            <td nowrap="nowrap" width="1%" style="padding-right:2px; vertical-align:middle;">
+                    			<h:outputLabel id="completeLabelMessage" 
+                     				value="#{bundle.LabelComplete}"
+                     				style="color:#008000; font-weight:bold; font-size:3em;}" />
+                            </td>
+                        </tr>
+					</table>
+				</div>
+				    
 
-                  	</table>
-                  	
-                	<table cellspacing="0">
-	                	<tr >
-							<td style="padding-bottom:20px;padding-top:10px;padding-right:10px;">
-			                    <h:commandButton id="BUTTON_UL_COMPLETE" 
-	                				 value="#{bundle.ButtonCompleted}" 
-	                				 action="#{PickingBean.processPickFunctionFinish}" 
-	                				 styleClass="commandButton2"  
-	                				 disabled="#{PickingBean.completePick}"  />
-							</td>
-							<td style="padding-bottom:20px;padding-top:10px;">
-            			        <h:commandButton id="BUTTON_MISSING" 
-	                				 value="#{bundle.ButtonMissing}" 
-	                				 action="#{PickingBean.processPickFunctionMissing}" 
-	                				 styleClass="commandButton2"  />
-							</td>	                	
-	                	</tr>
-	                	<tr >
-							<td style="padding-bottom:20px;padding-right:10px;">
-			                    <h:commandButton id="BUTTON_CANCEL" 
-	                				 value="#{bundle.ButtonCancel}" 
-	                				 action="#{PickingBean.processPickFunctionCancel}" 
-	                				 styleClass="commandButton2"
-	                				 disabled="#{!PickingBean.showCancel}"  />
-							</td>
-							<td style="padding-bottom:20px;">
-							</td>	                	
-	                	</tr>
-                	</table>
-	                				 
-                </div>
-
-				<h:inputText value="IE-Dummy" style="display:none" />
-
+				<h:inputText value="#{PickingBean.currentId}" style="display:none" />
+                
                 <%-- Command Buttons --%>
                 <div class="buttonbar">  
                     <h:commandButton id="BUTTON_OK" 
-	                				 value="#{bundle.ButtonBack}" 
-									 onclick="goBack(); return false;" 
-	                				 styleClass="commandButton"
-	                				 />
-					&#160;
-					<h:commandButton id="BUTTON_PREV" 
-              				 value="<" 
-              				 action="#{PickingBean.processPickFunctionPrev}"
-              				 styleClass="navigateButton" /> 
-                    <h:commandButton id="BUTTON_NEXT" 
-         	    				 value=">" 
-             					 action="#{PickingBean.processPickFunctionNext}" 
-             					 styleClass="navigateButton" /> 
+	                				 value="#{bundle.ButtonOK}" 
+	                				 action="#{PickingBean.processPick}" 
+                                     onclick="noticeButton()"
+	                				 styleClass="commandButton"  />
 	                				 
+					&#160;
+                    <h:commandButton id="BUTTON_CHANGE" 
+	                				 value="#{bundle.ButtonChange}" 
+	                				 action="#{PickingBean.processPickFunction}" 
+	                				 styleClass="commandButton"  />
                 </div>
             </h:form>
         </f:view> 
@@ -150,11 +124,26 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 document.getElementById('Form:BUTTON_OK').focus();
             }    
             
-            function goBack() {
-                window.history.back();
-                window.location.href = window.location.pathname + window.location.search;
+            isEnableSubmit = true;
+            isOkPressed = false;
+
+            function noticeButton() {
+                isButtonPressed = true;
             }
-            
+
+            function validate() {
+                if( !isEnableSubmit ) {
+                    // Disable server opertion only.
+                    // With the disabled element the server method is not called. So the disabled attribute is set with the 2nd click.
+                    document.getElementById('Form:BUTTON_OK').disabled = true;
+                    document.getElementById('Form:BUTTON_CHANGE').disabled = true;
+                    return false;
+                }
+                if( isButtonPressed ) {
+                    isEnableSubmit = false;
+                }
+                return true;
+            }
         </script>
         
     </body>

@@ -142,7 +142,8 @@ public interface LOSOrderBusiness {
 	 */
 	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList, boolean counted) throws FacadeException;
 	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException;
-	
+	void confirmCompletePick(PickingOrderLine pick, StorageLocation destination) throws FacadeException;
+
 	/**
 	 * Cancellation of a single picking position.<br>
 	 * The picking order is not affected or recalculated!

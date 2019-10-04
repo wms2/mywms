@@ -34,13 +34,12 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             <h:form id="Form" styleClass="form" >
                 <%-- Page Title--%>
                 <p id="pHeader"class="pageheader">
-                	<h:outputText id="pagetitle" value="#{bundle.TitlePickSpecialFunction}" styleClass="pagetitle"/>
+                	<h:outputText id="pagetitle" value="#{bundle.TitleEnterTarget}" styleClass="pagetitle"/>
 	                <h:graphicImage id="logo" url="/pics/logo.gif" styleClass="logo"/>
                	</p>
                 
                 <div class="space">
                     <h:messages id="messages"  styleClass="error"/> 
-                    
                     <table  width="100%" border="0" cellspacing="0">
                     	<colgroup>
 							<col width="10%"/>
@@ -57,86 +56,81 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                         </tr>
                     	<tr>
                             <td nowrap="nowrap" style="padding-right:20px">
-                            	<h:outputLabel id="locLabel" value="#{bundle.LabelLocation}:" styleClass="param"/> 
-                            </td>
-                            <td nowrap="nowrap">
-                              	<h:outputLabel id="locData" value="#{PickingBean.pickFromName}" styleClass="label"/>
-                            </td>
-                        </tr>
-                   		<tr>
-                            <td nowrap="nowrap" style="padding-right:20px">
                             	<h:outputLabel id="ulLabel" value="#{bundle.LabelUnitLaod}:" styleClass="param" /> 
                             </td>
                             <td nowrap="nowrap">
                               	<h:outputLabel id="ulData" value="#{PickingBean.pickFromLabel}" styleClass="label" />
                             </td>
                         </tr>
+                    </table>
+                </div>
+                
+                <div class="space">
+                    <table  width="100%" border="0" cellspacing="0">
+                    	<colgroup>
+							<col width="10%"/>
+							<col width="90%"/>
+						</colgroup>
                     	<tr>
                             <td nowrap="nowrap" style="padding-right:20px">
-                            	<h:outputLabel id="matLabel" value="#{bundle.LabelItemData}:" styleClass="param"/> 
+                            	<h:outputLabel id="locLabel" value="#{bundle.LabelTarget}:" styleClass="param"/> 
                             </td>
                             <td nowrap="nowrap">
-                              	<h:outputLabel id="matData" value="#{PickingBean.pickItemNumber}" styleClass="label"/>
+                              	<h:outputLabel id="locData" value="#{PickingBean.pickToTargetName}" styleClass="labelBold"/>
                             </td>
                         </tr>
+                        
+                        <tr><td>&#160;</td></tr>
+                        
+                    </table>
+				</div>
+				                    
+                <div class="space">
+                    <table  width="100%" border="0" cellspacing="0" style="padding-top:20px; padding-bottom:10px">
+                    	<tr>
+                            <td nowrap="nowrap" width="1%" style="padding-right:2px; vertical-align:middle;">
+                    			<h:outputLabel id="completeLabelMessage" 
+                     				value="#{bundle.LabelComplete}"
+                     				style="color:#008000; font-weight:bold; font-size:1.5em;}" 
+                     				/>
+                            </td>
+                        </tr>
+					</table>
+				</div>
+
+                <div class="space">
+                    <table  width="100%" border="0" cellspacing="0">
                         <tr>
-                            <td nowrap="nowrap" colspan="2" style="padding-right:20px; padding-left:20px; font-size:smaller;">
-                               	<h:outputLabel id="matName" value="#{PickingBean.pickItemName}" />
+                            <td>
+                            	<h:outputLabel id="input1Label" value="#{bundle.LabelEnterTarget}" styleClass="label" />
+                            </td>
+                        </tr><tr>
+                            <td>
+                               	<h:inputText id="input1" 
+                             			 value="#{PickingBean.inputCode}" 
+                             			 styleClass="input" /> 
                             </td>
                         </tr>
 
-                  	</table>
-                  	
-                	<table cellspacing="0">
-	                	<tr >
-							<td style="padding-bottom:20px;padding-top:10px;padding-right:10px;">
-			                    <h:commandButton id="BUTTON_UL_COMPLETE" 
-	                				 value="#{bundle.ButtonCompleted}" 
-	                				 action="#{PickingBean.processPickFunctionFinish}" 
-	                				 styleClass="commandButton2"  
-	                				 disabled="#{PickingBean.completePick}"  />
-							</td>
-							<td style="padding-bottom:20px;padding-top:10px;">
-            			        <h:commandButton id="BUTTON_MISSING" 
-	                				 value="#{bundle.ButtonMissing}" 
-	                				 action="#{PickingBean.processPickFunctionMissing}" 
-	                				 styleClass="commandButton2"  />
-							</td>	                	
-	                	</tr>
-	                	<tr >
-							<td style="padding-bottom:20px;padding-right:10px;">
-			                    <h:commandButton id="BUTTON_CANCEL" 
-	                				 value="#{bundle.ButtonCancel}" 
-	                				 action="#{PickingBean.processPickFunctionCancel}" 
-	                				 styleClass="commandButton2"
-	                				 disabled="#{!PickingBean.showCancel}"  />
-							</td>
-							<td style="padding-bottom:20px;">
-							</td>	                	
-	                	</tr>
-                	</table>
-	                				 
+                    </table>
+                    
                 </div>
-
+                
+                
 				<h:inputText value="IE-Dummy" style="display:none" />
 
                 <%-- Command Buttons --%>
                 <div class="buttonbar">  
-                    <h:commandButton id="BUTTON_OK" 
-	                				 value="#{bundle.ButtonBack}" 
-									 onclick="goBack(); return false;" 
-	                				 styleClass="commandButton"
-	                				 />
+                    <h:commandButton id="BUTTON_CONTINUE" 
+	                				 value="#{bundle.ButtonContinue}" 
+	                				 action="#{PickingBean.processCompleteTarget}" 
+	                				 styleClass="commandButton"  />
 					&#160;
-					<h:commandButton id="BUTTON_PREV" 
-              				 value="<" 
-              				 action="#{PickingBean.processPickFunctionPrev}"
-              				 styleClass="navigateButton" /> 
-                    <h:commandButton id="BUTTON_NEXT" 
-         	    				 value=">" 
-             					 action="#{PickingBean.processPickFunctionNext}" 
-             					 styleClass="navigateButton" /> 
-	                				 
+                    <h:commandButton id="BUTTON_SKIP" 
+	                				 value="#{bundle.ButtonCancel}" 
+	                				 action="#{PickingBean.processCompleteCancel}" 
+                                     onclick="noticeButton()"
+	                				 styleClass="commandButton"  />
                 </div>
             </h:form>
         </f:view> 
@@ -147,13 +141,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             }    
             
             function setFocus() {
-                document.getElementById('Form:BUTTON_OK').focus();
+                document.getElementById('Form:input1').focus();
+                document.getElementById('Form:input1').select();
             }    
-            
-            function goBack() {
-                window.history.back();
-                window.location.href = window.location.pathname + window.location.search;
-            }
             
         </script>
         
