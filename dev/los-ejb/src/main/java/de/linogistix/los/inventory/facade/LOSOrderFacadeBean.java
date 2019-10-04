@@ -33,7 +33,6 @@ import de.linogistix.los.inventory.businessservice.LOSOrderGenerator;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.report.LOSUnitLoadReport;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
@@ -47,18 +46,18 @@ import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.address.Address;
+import de.wms2.mywms.address.AddressEntityService;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
-import de.wms2.mywms.delivery.DeliverynoteGenerator;
+import de.wms2.mywms.delivery.DeliverynoteReportGenerator;
 import de.wms2.mywms.document.Document;
-import de.wms2.mywms.document.DocumentType;
-import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
+import de.wms2.mywms.inventory.UnitLoadReportGenerator;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.Packet;
@@ -120,8 +119,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private LOSGoodsOutRequestPositionService outPosService;
 	@EJB
 	private LOSStorageRequestService storageService;
-	@EJB
-	private LOSUnitLoadReport unitLoadReport;
+	@Inject
+	private UnitLoadReportGenerator unitLoadReport;
     @PersistenceContext(unitName = "myWMS")
     private  EntityManager manager;
 
@@ -134,9 +133,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@Inject
 	private UnitLoadEntityService unitLoadService;
 	@Inject
-	private GenericEntityService entityService;
-	@Inject
-	private DeliverynoteGenerator deliverynoteGenerator;
+	private DeliverynoteReportGenerator deliverynoteGenerator;
 	@Inject
 	private TransportOrderEntityService transportOrderService;
 	@Inject
@@ -146,9 +143,18 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@Inject
 	private ShippingOrderEntityService shippingOrderService;
 	@Inject
+	private AddressEntityService addressEntityService;
+	@Inject
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
 	@Inject
 	private Event<PickingOrderPrioChangeEvent> pickingOrderPrioChangeEvent;
+
+	public DeliveryOrder order(String clientNumber, String externalNumber, OrderPositionTO[] positions,
+			String documentUrl, String labelUrl, String destinationName, String orderStrategyName, Date deliveryDate,
+			int prio, boolean startPicking, boolean completeOnly, String comment) throws FacadeException {
+		return order(clientNumber, externalNumber, positions, documentUrl, labelUrl, destinationName, orderStrategyName,
+				deliveryDate, prio, null, startPicking, completeOnly, comment);
+	}
 
 	public DeliveryOrder order(
 			String clientNumber,
@@ -160,6 +166,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			String orderStrategyName,
 			Date deliveryDate, 
 			int prio,
+			Address address,
 			boolean startPicking, boolean completeOnly,
 			String comment) throws FacadeException {
 		String logStr = "order ";
@@ -189,7 +196,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			strat = orderStratService.getDefault(client);
 		}
 		else {
-			strat = orderStratService.read(client, orderStrategyName);
+			strat = orderStratService.read(orderStrategyName);
 		}
 		if( strat == null ){
 			String msg = "OrderStrategy does not exist. name="+orderStrategyName;
@@ -215,6 +222,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		order.setLabelUrl(labelUrl);
 		order.setDestination(destination);
 		order.setDeliveryDate(deliveryDate);
+		order.setAddress(address);
 
 		for( OrderPositionTO posTO : positions ) {
 			ItemData item = itemService.getByItemNumber(client, posTO.articleRef);
@@ -389,11 +397,11 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 		// 8. Remove address
 		Address address = order.getAddress();
-		if( address!=null) {
-			if(entityService.exists(DeliveryOrder.class, "address", address, order.getId())) {
-				order.setAddress(null);
-			}
+		if (address != null) {
+			order.setAddress(null);
+			addressEntityService.removeIfUnused(address);
 		}
+
 		// 9. Remove order
 		manager.remove(order);
 	}
@@ -480,12 +488,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		log.debug(logStr+"order number="+order.getOrderNumber());
 
-		byte[] data = deliverynoteGenerator.generateReport(order);
-		Document document = new Document();
-		document.setData(data);
-		document.setDocumentType(DocumentType.PDF);
-		document.setName("deliverynote-" + order.getOrderNumber());
-		return document;
+		return  deliverynoteGenerator.generateReport(order);
 	}
 	
 	public Document generateUnitLoadLabel( String label ) throws FacadeException {
@@ -500,7 +503,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
 
-		Document doc = unitLoadReport.generateUnitLoadReport(unitLoad);
+		Document doc = unitLoadReport.generateReport(unitLoad);
 		
 		return doc;
 	}

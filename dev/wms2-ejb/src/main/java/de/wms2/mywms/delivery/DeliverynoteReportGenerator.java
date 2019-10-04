@@ -39,10 +39,14 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 
+import de.wms2.mywms.address.Address;
+import de.wms2.mywms.document.Document;
+import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
+import de.wms2.mywms.inventory.StockUnitReportDto;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
@@ -59,7 +63,7 @@ import net.sf.jasperreports.engine.JRParameter;
  *
  */
 @Stateless
-public class DeliverynoteGenerator {
+public class DeliverynoteReportGenerator {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Inject
@@ -71,12 +75,12 @@ public class DeliverynoteGenerator {
 	@Inject
 	private StockUnitEntityService stockUnitService;
 
-	public byte[] generateReport(DeliveryOrder order) throws BusinessException {
+	public Document generateReport(DeliveryOrder order) throws BusinessException {
 		String logStr = "generateReport ";
-		logger.log(Level.FINE, logStr + "order=" + order);
+		logger.log(Level.INFO, logStr + "order=" + order);
 
 		Client client = null;
-		List<DeliverynoteDto> reportItems = new ArrayList<DeliverynoteDto>();
+		List<StockUnitReportDto> reportItems = new ArrayList<>();
 
 		if (client == null) {
 			client = order.getClient();
@@ -84,7 +88,7 @@ public class DeliverynoteGenerator {
 
 		Map<ItemData, BigDecimal> orderAmountMap = new HashMap<>();
 		Map<ItemData, BigDecimal> unitLoadAmountMap = new HashMap<>();
-		Map<String, DeliverynoteDto> reportItemMap = new HashMap<>();
+		Map<String, StockUnitReportDto> reportItemMap = new HashMap<>();
 
 		for (DeliveryOrderLine orderLine : order.getLines()) {
 			registerAmount(orderAmountMap, orderLine.getItemData(), orderLine.getPickedAmount());
@@ -104,19 +108,19 @@ public class DeliverynoteGenerator {
 				Lot lot = stock.getLot();
 				if (lot != null) {
 					String lotKey = key + "L" + lot.getName().hashCode();
-					DeliverynoteDto reportItem = registerItem(reportItemMap, lotKey, "L",
+					StockUnitReportDto reportItem = registerItem(reportItemMap, lotKey, "L",
 							stock.getItemData(), stock.getAmount());
 					reportItem.setLotNumber(lot.getName());
 				}
 				if (lot != null && lot.getBestBeforeEnd() != null) {
 					String bestBeforeKey = key + "B" + lot.getBestBeforeEnd().hashCode();
-					DeliverynoteDto reportItem = registerItem(reportItemMap, bestBeforeKey, "B",
+					StockUnitReportDto reportItem = registerItem(reportItemMap, bestBeforeKey, "B",
 							stock.getItemData(), stock.getAmount());
 					reportItem.setBestBefore(lot.getBestBeforeEnd());
 				}
 				if (!StringUtils.isBlank(stock.getSerialNumber())) {
 					String serialKey = key + "L" + stock.getSerialNumber().hashCode();
-					DeliverynoteDto reportItem = registerItem(reportItemMap, serialKey, "S",
+					StockUnitReportDto reportItem = registerItem(reportItemMap, serialKey, "S",
 							stock.getItemData(), stock.getAmount());
 					reportItem.setSerialNumber(stock.getSerialNumber());
 				}
@@ -155,11 +159,11 @@ public class DeliverynoteGenerator {
 
 		reportItems.addAll(reportItemMap.values());
 
-		Collections.sort(reportItems, new DeliverynoteDtoComparator());
+		Collections.sort(reportItems, new StockUnitReportDtoComparator());
 
 		int lineNumber = 0;
 		String itemDataNumber = null;
-		for (DeliverynoteDto reportItem : reportItems) {
+		for (StockUnitReportDto reportItem : reportItems) {
 			if (itemDataNumber == null || !StringUtils.equals(itemDataNumber, reportItem.getProductNumber())) {
 				itemDataNumber = reportItem.getProductNumber();
 				lineNumber++;
@@ -170,6 +174,11 @@ public class DeliverynoteGenerator {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("printDate", new Date());
 		parameters.put("order", order);
+		Address address = order.getAddress();
+		if (address == null) {
+			address = new Address();
+		}
+		parameters.put("address", address);
 
 		String localeString = propertyBusiness.getString(Wms2Properties.KEY_REPORT_LOCALE, null);
 		Locale locale = Translator.parseLocale(localeString);
@@ -179,7 +188,12 @@ public class DeliverynoteGenerator {
 
 		byte[] data = reportBusiness.createPdfDocument(client, "Deliverynote", Wms2BundleResolver.class, reportItems,
 				parameters);
-		return data;
+		Document doc = new Document();
+		doc.setData(data);
+		doc.setDocumentType(DocumentType.PDF);
+		doc.setName("Deliverynote");
+		
+		return doc;
 	}
 
 	private void registerAmount(Map<ItemData, BigDecimal> registeredAmountMap, ItemData itemData, BigDecimal amount) {
@@ -191,11 +205,11 @@ public class DeliverynoteGenerator {
 		}
 	}
 
-	private DeliverynoteDto registerItem(Map<String, DeliverynoteDto> itemMap, String key, String type,
+	private StockUnitReportDto registerItem(Map<String, StockUnitReportDto> itemMap, String key, String type,
 			ItemData itemData, BigDecimal amount) {
-		DeliverynoteDto value = itemMap.get(key);
+		StockUnitReportDto value = itemMap.get(key);
 		if (value == null) {
-			value = new DeliverynoteDto(type, itemData, amount);
+			value = new StockUnitReportDto(type, itemData, amount);
 			itemMap.put(key, value);
 		} else {
 			value.addAmount(amount);
@@ -203,49 +217,34 @@ public class DeliverynoteGenerator {
 		return value;
 	}
 
-	private static class DeliverynoteDtoComparator implements Comparator<DeliverynoteDto>, Serializable {
+	private static class StockUnitReportDtoComparator implements Comparator<StockUnitReportDto>, Serializable {
 		private static final long serialVersionUID = 1L;
 
-		public int compare(DeliverynoteDto o1, DeliverynoteDto o2) {
+		public int compare(StockUnitReportDto o1, StockUnitReportDto o2) {
 
-			if (o1.getProductNumber() != null && o2.getProductNumber() != null) {
-				int x = o1.getProductNumber().compareTo(o2.getProductNumber());
-				if (x != 0) {
-					return x;
-				}
+			int x = StringUtils.compare(o1.getLabel(), o2.getLabel());
+			if (x != 0) {
+				return x;
 			}
 
-			if (o1.getType() != null && o2.getType() != null) {
-				int x = o1.getType().compareTo(o2.getType());
-				if (x != 0) {
-					return x;
-				}
+			x = StringUtils.compare(o1.getProductNumber(), o2.getProductNumber());
+			if (x != 0) {
+				return x;
 			}
 
-			if (o1.getSerialNumber() != null && o2.getSerialNumber() == null) {
-				return 1;
-			}
-			if (o1.getSerialNumber() == null && o2.getSerialNumber() != null) {
-				return -1;
-			}
-			if (o1.getSerialNumber() != null && o2.getSerialNumber() != null) {
-				int x = o1.getSerialNumber().compareTo(o2.getSerialNumber());
-				if (x != 0) {
-					return x;
-				}
+			x = StringUtils.compare(o1.getType(), o2.getType());
+			if (x != 0) {
+				return x;
 			}
 
-			if (o1.getLotNumber() != null && o2.getLotNumber() == null) {
-				return 1;
+			x = StringUtils.compare(o1.getSerialNumber(), o2.getSerialNumber());
+			if (x != 0) {
+				return x;
 			}
-			if (o1.getLotNumber() == null && o2.getLotNumber() != null) {
-				return -1;
-			}
-			if (o1.getLotNumber() != null && o2.getLotNumber() != null) {
-				int x = o1.getLotNumber().compareTo(o2.getLotNumber());
-				if (x != 0) {
-					return x;
-				}
+
+			x = StringUtils.compare(o1.getLotNumber(), o2.getLotNumber());
+			if (x != 0) {
+				return x;
 			}
 
 			if (o1.getAmount() != null && o2.getAmount() != null) {
@@ -255,4 +254,5 @@ public class DeliverynoteGenerator {
 			return 0;
 		}
 	}
+	
 }

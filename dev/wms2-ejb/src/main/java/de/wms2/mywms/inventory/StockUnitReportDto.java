@@ -1,5 +1,6 @@
 /* 
 Copyright 2019 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -16,35 +17,54 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package de.wms2.mywms.delivery;
+package de.wms2.mywms.inventory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import de.wms2.mywms.document.Document;
 import de.wms2.mywms.product.ItemData;
 
-/**
- * Data transfer object for report handling
- * 
- * @author krane
- *
- */
-public class DeliverynoteDto implements Serializable {
+public class StockUnitReportDto implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String lineNumber = null;
-	private String productNumber = null;
-	private String productName = null;
-	private String productUnit = null;
-	private BigDecimal amount = null;
-
+	private String lineNumber;
 	private String type;
-	private String lotNumber = null;
-	private Date bestBefore = null;
-	private String serialNumber = null;
+	private String label;
+	private String productNumber;
+	private String productName;
+	private String productUnit;
+	private BigDecimal amount;
+	private String lotNumber;
+	private Date bestBefore;
+	private String serialNumber;
+	private Document image;
 
-	public DeliverynoteDto(String type, ItemData itemData, BigDecimal amount) {
+	public StockUnitReportDto() {
+	}
+
+	public StockUnitReportDto(StockUnit stockUnit) {
+		type = "S";
+		if (stockUnit == null) {
+			return;
+		}
+		UnitLoad unitLoad = stockUnit.getUnitLoad();
+		label = unitLoad.getLabelId();
+		ItemData itemData = stockUnit.getItemData();
+		productNumber = itemData.getNumber();
+		productName = itemData.getName();
+		productUnit = itemData.getItemUnit().getName();
+		amount = stockUnit.getAmount();
+		Lot lot = stockUnit.getLot();
+		if (lot != null) {
+			lotNumber = lot.getName();
+			bestBefore = lot.getBestBeforeEnd();
+		}
+		serialNumber = stockUnit.getSerialNumber();
+	}
+
+	public StockUnitReportDto(String type, ItemData itemData, BigDecimal amount) {
 		this.type = type;
 		if (itemData != null) {
 			this.productNumber = itemData.getNumber();
@@ -71,6 +91,22 @@ public class DeliverynoteDto implements Serializable {
 
 	public void setLineNumber(String lineNumber) {
 		this.lineNumber = lineNumber;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public String getProductNumber() {
@@ -105,14 +141,6 @@ public class DeliverynoteDto implements Serializable {
 		this.amount = amount;
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	public String getLotNumber() {
 		return lotNumber;
 	}
@@ -135,6 +163,14 @@ public class DeliverynoteDto implements Serializable {
 
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
+	}
+
+	public Document getImage() {
+		return image;
+	}
+
+	public void setImage(Document image) {
+		this.image = image;
 	}
 
 }

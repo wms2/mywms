@@ -1,6 +1,4 @@
 /* 
-Copyright 2019 Matthias Krane
-
 This file is part of the Warehouse Management System mywms
 
 mywms is free software: you can redistribute it and/or modify
@@ -26,6 +24,10 @@ import javax.persistence.UniqueConstraint;
 import org.mywms.model.BasicClientAssignedEntity;
 
 /**
+ * Report forms
+ * <p>
+ * This class is based on myWMS-LOS:LOSJasperReport
+ * 
  * @author krane
  *
  */

@@ -36,6 +36,7 @@ import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.document.Document;
+import de.wms2.mywms.document.DocumentBusiness;
 import de.wms2.mywms.document.DocumentEntityService;
 import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.exception.BusinessException;
@@ -67,6 +68,8 @@ public class ReportBusiness {
 	private ReportEntityService reportService;
 	@Inject
 	private DocumentEntityService documentService;
+	@Inject
+	private DocumentBusiness documentBusiness;
 
 	public byte[] createPdfDocument(Client client, String name, Class<?> bundleResolver, List<? extends Object> values,
 			Map<String, Object> parameters) throws BusinessException {
@@ -78,10 +81,17 @@ public class ReportBusiness {
 
 		// Fill the requested report with the specified data
 		JRBeanCollectionDataSource jbCollectionDS = new JRBeanCollectionDataSource(values);
-		JasperReport jasperReport = readJasperReport(client, name, bundleResolver);
+		Report report = readReport(client, name);
+
+		JasperReport jasperReport = readJasperReport(report, bundleResolver);
 		if (jasperReport == null) {
 			logger.log(Level.SEVERE, logStr + "Cannot read report. Abort");
 			throw new BusinessException(Wms2BundleResolver.class, "Report.creationFailed");
+		}
+
+		if (!parameters.containsKey("image")) {
+			Document image = documentBusiness.readImage(Report.class, report.getId());
+			parameters.put("image", image);
 		}
 
 		try {
@@ -135,12 +145,7 @@ public class ReportBusiness {
 		return data;
 	}
 
-	private JasperReport readJasperReport(Client client, String name, Class<?> bundleResolver)
-			throws BusinessException {
-		String logStr = "readJasperReport ";
-
-		JasperReport jasperReport = null;
-
+	private Report readReport(Client client, String name) throws BusinessException {
 		if (client == null) {
 			client = clientBusiness.getSystemClient();
 		}
@@ -152,6 +157,14 @@ public class ReportBusiness {
 		if (report == null) {
 			report = reportService.create(name, clientBusiness.getSystemClient());
 		}
+
+		return report;
+	}
+
+	private JasperReport readJasperReport(Report report, Class<?> bundleResolver) throws BusinessException {
+		String logStr = "readJasperReport ";
+
+		JasperReport jasperReport = null;
 
 		byte[] compiled = readJasperDocument(report);
 		if (compiled == null) {

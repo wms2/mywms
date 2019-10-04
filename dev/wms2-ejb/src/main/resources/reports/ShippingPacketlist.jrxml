@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Delivernote" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Packetlist" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<import value="java.util.*"/>
 	<parameter name="printDate" class="java.util.Date"/>
-	<parameter name="order" class="de.wms2.mywms.delivery.DeliveryOrder"/>
+	<parameter name="order" class="de.wms2.mywms.shipping.ShippingOrder"/>
 	<parameter name="address" class="de.wms2.mywms.address.Address"/>
 	<parameter name="image" class="de.wms2.mywms.document.Document"/>
 	<field name="lineNumber" class="java.lang.String"/>
@@ -19,6 +19,7 @@
 	<field name="serialNumber" class="java.lang.String"/>
 	<field name="bestBefore" class="java.util.Date"/>
 	<field name="type" class="java.lang.String"/>
+	<field name="label" class="java.lang.String"/>
 	<group name="order" isStartNewPage="true" keepTogether="true">
 		<groupExpression><![CDATA[$P{order}]]></groupExpression>
 	</group>
@@ -35,7 +36,7 @@
 				<textElement verticalAlignment="Bottom" markup="none">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{order}.getOrderNumber()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{order}.getExternalNumber()==null || $P{order}.getExternalNumber().length()==0 ? $P{order}.getOrderNumber() : $P{order}.getExternalNumber()]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
 				<reportElement x="420" y="16" width="108" height="16" uuid="b0f9bd8e-15ad-4506-b726-1b825175107e"/>
@@ -49,21 +50,21 @@
 				<textElement>
 					<font size="24" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.name}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.name}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="370" y="0" width="64" height="16" uuid="2e50656b-0155-4daf-8892-22e9dc956895"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.orderNumber}==null?"":$R{Deliverynote.orderNumber}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.orderNumber}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="370" y="16" width="64" height="16" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.printDate}==null?"":$R{Deliverynote.printDate}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.printDate}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="0" y="112" width="300" height="16" isRemoveLineWhenBlank="true" uuid="83cd513b-8bcb-41ca-8657-cc690fe14b10"/>
@@ -110,35 +111,35 @@
 		</band>
 	</pageHeader>
 	<columnHeader>
-		<band height="24" splitType="Stretch">
+		<band height="20" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField isBlankWhenNull="true">
-				<reportElement x="50" y="0" width="70" height="16" uuid="6f691ee1-6fc3-41cd-a63a-3479bf2816ed"/>
+				<reportElement x="70" y="0" width="70" height="16" uuid="6f691ee1-6fc3-41cd-a63a-3479bf2816ed"/>
 				<textElement verticalAlignment="Middle">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.productNumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.productNumber}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="120" y="0" width="240" height="16" uuid="748c5fff-5b85-4d08-a973-50212512f1fe"/>
+				<reportElement x="140" y="0" width="240" height="16" uuid="748c5fff-5b85-4d08-a973-50212512f1fe"/>
 				<textElement verticalAlignment="Middle">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.productName}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.productName}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="0" width="32" height="16" uuid="aed9e1b2-cf3b-462d-a699-ad50fec11a4f"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+				<reportElement x="10" y="0" width="32" height="16" uuid="aed9e1b2-cf3b-462d-a699-ad50fec11a4f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.lineNumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.label}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="406" y="0" width="114" height="16" uuid="dc08f6e1-48d9-48ad-8c72-f823f15a1604"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Deliverynote.amount}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.amount}]]></textFieldExpression>
 			</textField>
 			<line>
 				<reportElement positionType="FixRelativeToBottom" x="0" y="16" width="528" height="1" uuid="bffb19d1-ac82-4d27-808a-c96e6af80600">
@@ -148,25 +149,29 @@
 		</band>
 	</columnHeader>
 	<detail>
+		<band height="32">
+			<printWhenExpression><![CDATA[$F{type}=="P"]]></printWhenExpression>
+			<textField isBlankWhenNull="true">
+				<reportElement x="10" y="12" width="150" height="18" uuid="1cb5240f-2308-4bd5-9f3f-950d4667e6ff">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph rightIndent="0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{label}]]></textFieldExpression>
+			</textField>
+		</band>
 		<band height="16">
 			<printWhenExpression><![CDATA[$F{type}=="A"]]></printWhenExpression>
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="0" width="32" height="14" uuid="1cb5240f-2308-4bd5-9f3f-950d4667e6ff">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				</reportElement>
-				<textElement textAlignment="Right">
-					<paragraph rightIndent="0"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{lineNumber}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="50" y="0" width="60" height="14" uuid="37ee471b-0ded-4bef-9dcf-a0b9817d63c4">
+				<reportElement x="70" y="0" width="60" height="14" uuid="37ee471b-0ded-4bef-9dcf-a0b9817d63c4">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{productNumber}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="120" y="0" width="320" height="14" uuid="d04b2b5c-fa2c-4b90-9e60-ddf225db57cc">
+				<reportElement x="140" y="0" width="300" height="14" uuid="d04b2b5c-fa2c-4b90-9e60-ddf225db57cc">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement>
@@ -188,7 +193,7 @@
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<printWhenExpression><![CDATA[$F{type}=="L"]]></printWhenExpression>
 			<textField>
-				<reportElement stretchType="RelativeToTallestObject" x="120" y="0" width="320" height="16" uuid="216ff331-db19-485a-8db9-c2ccd2125424">
+				<reportElement stretchType="RelativeToTallestObject" x="140" y="0" width="320" height="16" uuid="216ff331-db19-485a-8db9-c2ccd2125424">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement>
@@ -201,7 +206,7 @@
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<printWhenExpression><![CDATA[$F{type}=="S"]]></printWhenExpression>
 			<textField>
-				<reportElement x="120" y="0" width="320" height="16" uuid="f1b4a29d-f449-4e60-838e-3ad77a7ce313">
+				<reportElement x="140" y="0" width="320" height="16" uuid="f1b4a29d-f449-4e60-838e-3ad77a7ce313">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement>
@@ -210,9 +215,9 @@
 				<textFieldExpression><![CDATA[$F{serialNumber}==null?"":"SN: "+$F{serialNumber}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="10">
+		<band height="2">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-			<printWhenExpression><![CDATA[$F{type}=="X"]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{type}=="XY"]]></printWhenExpression>
 		</band>
 	</detail>
 	<columnFooter>

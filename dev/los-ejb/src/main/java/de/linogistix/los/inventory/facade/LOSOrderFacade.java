@@ -15,6 +15,7 @@ import javax.ejb.Remote;
 import org.mywms.facade.FacadeException;
 
 import de.linogistix.los.query.BODTO;
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.location.StorageLocation;
@@ -48,10 +49,24 @@ public interface LOSOrderFacade {
 			OrderPositionTO[] positions,
 			String documentUrl,
 			String labelUrl,
+			String destination,
+			String orderStrategyName,
+			Date deliveryDate,
+			int prio,
+			boolean startPicking, boolean completeOnly,
+			String comment) throws FacadeException;
+
+	public DeliveryOrder order(
+			String clientNumber,
+			String externalNumber,
+			OrderPositionTO[] positions,
+			String documentUrl,
+			String labelUrl,
 			String destination, 
 			String orderStrategyName,
 			Date deliveryDate, 
 			int prio,
+			Address address,
 			boolean startPicking, boolean completeOnly,
 			String comment) throws FacadeException;
 

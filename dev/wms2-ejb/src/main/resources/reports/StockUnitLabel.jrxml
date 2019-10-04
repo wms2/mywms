@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="UnitLoadLabel" pageWidth="300" pageHeight="200" orientation="Landscape" columnWidth="300" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="116f4042-4350-4484-9245-fe6db81c41f8">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<style name="barcode_center" hTextAlign="Center" hImageAlign="Center" vTextAlign="Bottom" vImageAlign="Bottom"/>
+	<parameter name="printDate" class="java.util.Date"/>
+	<parameter name="image" class="de.wms2.mywms.document.Document"/>
+	<parameter name="unitLoad" class="de.wms2.mywms.inventory.UnitLoad"/>
+	<field name="lineNumber" class="java.lang.String"/>
+	<field name="productNumber" class="java.lang.String"/>
+	<field name="productName" class="java.lang.String"/>
+	<field name="productUnit" class="java.lang.String"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<field name="lotNumber" class="java.lang.String"/>
+	<field name="serialNumber" class="java.lang.String"/>
+	<field name="bestBefore" class="java.util.Date"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="label" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="180" splitType="Stretch">
+			<componentElement>
+				<reportElement style="barcode_center" x="20" y="10" width="260" height="60" uuid="bd2665d9-8220-40ff-985f-7356b5ef73c6"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="true" checksumRequired="false" barHeight="40">
+					<jr:codeExpression><![CDATA[$F{label}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField>
+				<reportElement x="20" y="70" width="260" height="20" uuid="e485789f-05e0-4f0a-bf90-494c35473786"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{label}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="100" width="60" height="20" uuid="a7543521-7254-4fc9-8f18-85ea26522dcf"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{StockUnitLabel.itemData}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="100" width="150" height="20" uuid="b5ced695-0785-484e-91f5-f19c626c6a28"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{productNumber}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="140" width="230" height="30" uuid="b7ce7c68-a5c6-4787-a3ee-cf54c81cd14d"/>
+				<textFieldExpression><![CDATA[$F{productName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="100" width="80" height="20" uuid="da2ead1d-22c3-4e37-9fc4-e6950cf696c7"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount}==null?"":NumberFormat.getInstance($P{REPORT_LOCALE}).format($F{amount})+($F{amount}==null?"":" "+$F{productUnit})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="120" width="60" height="20" uuid="7a9d9182-359b-4749-91fd-f24a2a440b49">
+					<printWhenExpression><![CDATA[$F{lotNumber}!=null]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{StockUnitLabel.lotNumber}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="120" width="190" height="20" isRemoveLineWhenBlank="true" uuid="a1d00e81-ba75-4588-afc3-da0aa48c4589">
+					<printWhenExpression><![CDATA[$F{lotNumber}!=null]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lotNumber}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -17,8 +17,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 
 import de.linogistix.los.example.CommonTestTopologyRemote;
-import de.linogistix.los.inventory.pick.model.PickReceipt;
-import de.linogistix.los.inventory.pick.model.PickReceiptPosition;
 import de.linogistix.los.model.State;
 
 /**

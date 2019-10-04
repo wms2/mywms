@@ -36,7 +36,6 @@ import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
 import de.linogistix.los.inventory.query.LotQueryRemote;
-import de.linogistix.los.inventory.report.LOSStockUnitLabelReport;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
@@ -62,6 +61,7 @@ import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
+import de.wms2.mywms.inventory.StockUnitReportGenerator;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -108,8 +108,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private FixAssignmentEntityService fixService;
 	@EJB
 	private QueryItemDataService queryItemDataService;
-	@EJB
-	private LOSStockUnitLabelReport suLabelReport;
+	@Inject
+	private StockUnitReportGenerator suLabelReport;
 	@EJB
 	private QueryClientService queryClientService;
 	@EJB
@@ -281,7 +281,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		}
 
 		if (printLabel) {
-			Document label = suLabelReport.generateStockUnitLabel(unitLoad);
+			Document label = suLabelReport.generateReport(unitLoad);
 			printService.print(printer, label.getData(), label.getDocumentType());
 		}
 
@@ -389,7 +389,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 
 		UnitLoad unitLoad = stock.getUnitLoad();
 
-		Document label = suLabelReport.generateStockUnitLabel(unitLoad);
+		Document label = suLabelReport.generateReport(unitLoad);
 		printService.print(printer, label.getData(), label.getDocumentType());
 
 		return label;
@@ -621,7 +621,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         
         if(printLabel){
-        	Document label = suLabelReport.generateStockUnitLabel(ul);
+        	Document label = suLabelReport.generateReport(ul);
         	printService.print(null, label.getData(), label.getDocumentType());
         }
 
