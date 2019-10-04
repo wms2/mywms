@@ -62,17 +62,17 @@
                 <position>11</position>
             </value>
         </entry>
-
         <entry>
             <key>createTypeOrders</key>
             <value>
                 <group>
-                    <name>stockSelection</name>
+                    <name>processing</name>
                 </group>
-                <hidden>true</hidden>
+                <hidden>false</hidden>
                 <position>20</position>
             </value>
         </entry>
+
         <entry>
             <key>useLockedStock</key>
             <value>

@@ -96,7 +96,7 @@ public class PickingOrderEntityService {
 	 * optional.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PickingOrder> readList(String externalNumber, Integer minState, Integer maxState) {
+	public List<PickingOrder> readList(String externalId, Integer minState, Integer maxState) {
 		String jpql = "SELECT entity FROM ";
 		jpql += PickingOrder.class.getName() + " entity ";
 		jpql += "WHERE 1=1 ";
@@ -106,8 +106,8 @@ public class PickingOrderEntityService {
 		if (maxState != null) {
 			jpql += " and entity.state<=:maxState ";
 		}
-		if (!StringUtils.isEmpty(externalNumber)) {
-			jpql += " and entity.externalNumber=:externalNumber";
+		if (!StringUtils.isEmpty(externalId)) {
+			jpql += " and entity.externalId=:externalId";
 		}
 		jpql += " order by entity.orderNumber ";
 		Query query = manager.createQuery(jpql);
@@ -117,8 +117,8 @@ public class PickingOrderEntityService {
 		if (maxState != null) {
 			query.setParameter("maxState", maxState);
 		}
-		if (!StringUtils.isEmpty(externalNumber)) {
-			query.setParameter("externalNumber", externalNumber);
+		if (!StringUtils.isEmpty(externalId)) {
+			query.setParameter("externalId", externalId);
 		}
 		return query.getResultList();
 	}

@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:boBeanNodeDescriptor xmlns:ns2="http://schema.linogistix.com/bobeandescriptor">
     <descriptions>
-		<entry>
+        <entry>
+			<key>started</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
+        <entry>
+			<key>finished</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
+            </value>
+        </entry>
+
+        <entry>
 			<key>lock</key>
 			<value>
 				<group>
@@ -23,7 +44,7 @@
             </value>
         </entry>
 		<entry>
-			<key>externalNumber</key>
+			<key>lines</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -33,24 +54,13 @@
 			</value>
 		</entry>
 		<entry>
-			<key>lines</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>false</hidden>
-				<position>3</position>
-				<typeHint>de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition</typeHint>
-			</value>
-		</entry>
-		<entry>
 			<key>state</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>4</position>
+				<position>3</position>
 			</value>
 		</entry>
 		<entry>
@@ -60,7 +70,57 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
+				<position>4</position>
+			</value>
+		</entry>
+		<entry>
+			<key>shippingDate</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
 				<position>5</position>
+			</value>
+		</entry>
+        <entry>
+			<key>carrierName</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>6</position>
+			</value>
+		</entry>
+		<entry>
+			<key>destination</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>7</position>
+			</value>
+		</entry>
+		<entry>
+			<key>address</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>8</position>
+			</value>
+		</entry>
+        <entry>
+			<key>externalNumber</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>9</position>
 			</value>
 		</entry>
 		<entry>
@@ -70,40 +130,10 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>6</position>
-			</value>
-		</entry>
-
-		<entry>
-			<key>destination</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>true</hidden>
 				<position>10</position>
 			</value>
 		</entry>
-		<entry>
-			<key>shippingDate</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>true</hidden>
-				<position>11</position>
-			</value>
-		</entry>
-		<entry>
-			<key>carrierName</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>true</hidden>
-				<position>21</position>
-			</value>
-		</entry>
+
 
         <entry>
 			<key>prio</key>
@@ -112,30 +142,30 @@
 					<name>main</name>
 				</group>
 				<hidden>true</hidden>
-				<position>22</position>
+				<position>99</position>
 			</value>
 		</entry>
+        <entry>
+			<key>weight</key>
+            <value>
+                <group>
+					<name>measurement</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+        <entry>
+			<key>volume</key>
+            <value>
+                <group>
+					<name>measurement</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
 
-        <entry>
-			<key>started</key>
-            <value>
-                <group>
-					<name>basic</name>
-                </group>
-                <hidden>false</hidden>
-                <position>3</position>
-            </value>
-        </entry>
-        <entry>
-			<key>finished</key>
-            <value>
-                <group>
-					<name>basic</name>
-                </group>
-                <hidden>false</hidden>
-                <position>4</position>
-            </value>
-        </entry>
 
     </descriptions>
     <groups>

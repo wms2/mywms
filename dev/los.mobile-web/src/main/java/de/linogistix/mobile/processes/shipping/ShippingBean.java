@@ -15,6 +15,7 @@ import java.util.ResourceBundle;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 
@@ -219,8 +220,8 @@ public class ShippingBean extends BasicDialogBean {
 				for (LOSGoodsOutRequestTO order : outRequestList) {
 					String displayname = order.getNumber();
 					String customerOrderNumber = order.getCustomerOrderNumber();
-					if( !StringTools.isEmpty(customerOrderNumber) ) {
-						displayname += " ("+customerOrderNumber+")";
+					if( !StringUtils.isBlank(customerOrderNumber) ) {
+						displayname = customerOrderNumber + " ("+order.getNumber()+")";
 					}
 					orderList.add(new SelectItem(order.getNumber(), displayname));
 				}

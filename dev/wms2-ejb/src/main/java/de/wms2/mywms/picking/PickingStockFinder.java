@@ -198,11 +198,12 @@ public class PickingStockFinder {
 			logger.log(Level.INFO, logStr
 					+ "No usable stock found. Only complete handling is allowed but no valid complete unit load has been found. candidates="
 					+ stockList.size() + ", itemData=" + itemData + ", amount=" + amount + ", client=" + client
-					+ ", lot=" + lot+ ", (unitLoadOpened=false, reservedAmount=0, locationUseForStorage=true, onFixedLocation=false, mixed=false)");
+					+ ", lot=" + lot
+					+ ", (unitLoadOpened=false, reservedAmount=0, locationUseForStorage=true, onFixedLocation=false, mixed=false)");
 			return null;
 		}
 
-		// Find stock on fixed location
+		// Find stock on fixed picking location
 		for (PickingStockUnit stock : stockList) {
 			if (!stock.onFixedLocation) {
 				continue;
@@ -221,19 +222,24 @@ public class PickingStockFinder {
 		}
 
 		// Find any usable stock for picking with exact matching amount
-		for (PickingStockUnit stock : stockList) {
-			if (stock.availableAmount.compareTo(amount) != 0) {
-				continue;
-			}
-			if (stock.onFixedLocation) {
-				continue;
-			}
-			if (!stock.locationUseForPicking) {
-				continue;
-			}
+		if (strategy.isPreferMatching()) {
+			for (PickingStockUnit stock : stockList) {
+				if (stock.availableAmount.compareTo(amount) != 0) {
+					continue;
+				}
+				if (stock.onFixedLocation) {
+					continue;
+				}
+				if (!stock.locationUseForPicking) {
+					// A complete pick type would be valid. The amount is matching.
+					if (!isValidForCompleteHandling(stock)) {
+						continue;
+					}
+				}
 
-			logger.log(Level.FINE, logStr + "Use matching stock. amount=" + amount + ", stock=" + stock);
-			return manager.find(StockUnit.class, stock.stockId);
+				logger.log(Level.FINE, logStr + "Use matching stock. amount=" + amount + ", stock=" + stock);
+				return manager.find(StockUnit.class, stock.stockId);
+			}
 		}
 
 		// Find any usable stock for picking
@@ -242,7 +248,12 @@ public class PickingStockFinder {
 				continue;
 			}
 			if (!stock.locationUseForPicking) {
-				continue;
+				if (stock.availableAmount.compareTo(amount) > 0) {
+					continue;
+				}
+				if (!isValidForCompleteHandling(stock)) {
+					continue;
+				}
 			}
 
 			logger.log(Level.FINE, logStr + "Use stock. amount=" + amount + ", stock=" + stock);

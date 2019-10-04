@@ -8,7 +8,6 @@
 package de.linogistix.inventory.browser.bo;
 
 
-import de.linogistix.inventory.browser.masternode.BOOrderStrategyMasterNode;
 import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.userlogin.LoginService;
@@ -21,8 +20,6 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.wms2.mywms.strategy.OrderStrategy;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
-import org.openide.nodes.Node;
-import org.openide.nodes.Node.Property;
 import org.openide.util.Lookup;
 
 
@@ -73,7 +70,6 @@ public class BOOrderStrategy extends BO {
 
     o = new OrderStrategy();
     LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
-    o.setClient( login.getUsersClient() );
 
     o.setName("Template");
 
@@ -102,16 +98,6 @@ public class BOOrderStrategy extends BO {
     @Override
     public Class getBundleResolver() {
         return InventoryBundleResolver.class;
-    }
-
-    @Override
-    protected Property[] initBoMasterNodeProperties() {
-        return BOOrderStrategyMasterNode.boMasterNodeProperties();
-    }
-
-    @Override
-    protected Class<? extends Node> initBoMasterNodeType() {
-        return BOOrderStrategyMasterNode.class;
     }
 
 }

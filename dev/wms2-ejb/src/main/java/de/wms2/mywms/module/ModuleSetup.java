@@ -112,8 +112,8 @@ public abstract class ModuleSetup {
 	 * @param group          The property group
 	 * @param locale         The locale
 	 */
-	protected void createProperty(Class<?> bundleResolver, String key, String value, String group, Locale locale) {
-		createProperty(bundleResolver, key, value, group, key, key, locale);
+	protected SystemProperty createProperty(Class<?> bundleResolver, String key, String value, String group, Locale locale) {
+		return createProperty(bundleResolver, key, value, group, key, key, locale);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public abstract class ModuleSetup {
 	 * @param bundleKeyNote  Optional, The bundle key to read the note from bundle
 	 * @param locale         The locale
 	 */
-	protected void createProperty(Class<?> bundleResolver, String key, String value, String group, String bundleKeyDesc,
+	protected SystemProperty createProperty(Class<?> bundleResolver, String key, String value, String group, String bundleKeyDesc,
 			String bundleKeyNote, Locale locale) {
 
 		String desc = null;
@@ -144,6 +144,8 @@ public abstract class ModuleSetup {
 			String note = Translator.getString(bundleResolver, "BasicData", bundleKey, "note", null, locale);
 			property.setAdditionalContent(note);
 		}
+
+		return property;
 	}
 
 }

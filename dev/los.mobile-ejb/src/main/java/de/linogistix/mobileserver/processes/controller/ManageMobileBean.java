@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.ejb.Stateless;
+import org.apache.commons.lang3.StringUtils;
 
 import de.linogistix.mobileserver.processes.picking.PickingMobileComparator;
 import de.linogistix.mobileserver.processes.picking.PickingMobilePos;
@@ -46,6 +46,9 @@ public class ManageMobileBean implements ManageMobile {
 	}
 	
 	public String getPickingSelectionText(PickingOrder pickingOrder) {
+		if (!StringUtils.isBlank(pickingOrder.getExternalNumber())) {
+			return pickingOrder.getExternalNumber() + " (" + pickingOrder.getOrderNumber() + ")";
+		}
 		return pickingOrder.getOrderNumber();
 	}
 }

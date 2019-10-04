@@ -37,6 +37,7 @@ public class Wms2Properties {
 	public static final String KEY_LOCATIONCLUSTER_DEFAULT = "LOCATIONCLUSTER_DEFAULT";
 	public static final String KEY_LOCATIONTYPE_DEFAULT = "LOCATIONTYPE_DEFAULT";
 	public static final String KEY_UNITLOADTYPE_DEFAULT = "UNITLOADTYPE_DEFAULT";
+	public static final String KEY_UNITLOADTYPE_PICKING = "UNITLOADTYPE_PICKING";
 	public static final String KEY_AREA_DEFAULT = "AREA_DEFAULT";
 	public static final String KEY_REPORT_LOCALE = "REPORT_LOCALE";
 	public static final String KEY_SHIPPING_LOCATION = "SHIPPING_LOCATION";

@@ -58,20 +58,12 @@ public class OrderStrategyValidator implements EntityValidator<OrderStrategy> {
 	private void validate(OrderStrategy entity) throws BusinessException {
 		String logStr = "validate ";
 
-		if (entity.getClient() == null) {
-			logger.log(Level.INFO, logStr + "missing client. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingClient");
-		}
-
 		if (StringUtils.isEmpty(entity.getName())) {
 			logger.log(Level.INFO, logStr + "missing name. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingName");
 		}
-		String[] attributes = { "client", "name" };
-		Object[] values = { entity.getClient(), entity.getName() };
-		if (genericSerivce.exists(OrderStrategy.class, attributes, values, entity.getId())) {
-			logger.log(Level.INFO, logStr + "not unique, client/name. entity=" + entity + ", client="
-					+ entity.getClient() + ", name=" + entity.getName());
+		if (genericSerivce.exists(OrderStrategy.class, "name", entity.getName(), entity.getId())) {
+			logger.log(Level.INFO, logStr + "not unique, client/name. entity=" + entity + ", name=" + entity.getName());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
 		}
 

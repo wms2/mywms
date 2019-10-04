@@ -215,7 +215,7 @@ public class PickingOrderLineGenerator {
 	public PickingOrderLine generatePick(DeliveryOrderLine deliveryOrderLine, OrderStrategy strategy,
 			StockUnit sourceStock, BigDecimal amount, Client client, String note, String hint)
 			throws BusinessException {
-		String logStr = "generatePickingLine ";
+		String logStr = "generatePick ";
 		logger.log(Level.FINE,
 				logStr + "stock=" + sourceStock + ", itemData=" + sourceStock.getItemData() + ", amount=" + amount);
 
@@ -304,7 +304,7 @@ public class PickingOrderLineGenerator {
 	private void firePickingOrderLineStateChangeEvent(PickingOrderLine pickingOrderLine, int oldState)
 			throws BusinessException {
 		try {
-			logger.fine("Fire DeliveryOrderStateChangeEvent. pickingOrderLine=" + pickingOrderLine + ", state="
+			logger.fine("Fire PickingOrderLineStateChangeEvent. pickingOrderLine=" + pickingOrderLine + ", state="
 					+ pickingOrderLine.getState() + ", oldState=" + oldState);
 			pickingOrderLineStateChangeEvent.fire(
 					new PickingOrderLineStateChangeEvent(pickingOrderLine, oldState, pickingOrderLine.getState()));

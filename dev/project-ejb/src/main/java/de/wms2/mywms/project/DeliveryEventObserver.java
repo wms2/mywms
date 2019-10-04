@@ -33,6 +33,7 @@ import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.picking.PacketStateChangeEvent;
 import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
 import de.wms2.mywms.shipping.ShippingBusiness;
 import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.strategy.OrderState;
@@ -64,13 +65,107 @@ public class DeliveryEventObserver {
 		DeliveryOrder deliveryOrder = event.getDeliveryOrder();
 		int oldState = event.getOldState();
 		int newState = event.getNewState();
-		if (oldState < OrderState.SHIPPING && newState == OrderState.SHIPPING) {
-			logger.info("DeliveryOrder got state SHIPPING. deliveryOrder=" + deliveryOrder  + ", oldState=" + oldState + ", newState=" + newState);
-			ShippingOrder shippingOrder = shippingBusiness.createOrder(deliveryOrder);
-			if (shippingOrder != null) {
-				shippingBusiness.releaseOperation(shippingOrder);
+
+		if (oldState < OrderState.PACKED && newState == OrderState.PACKED) {
+			logger.info("DeliveryOrder got state PACKED. deliveryOrder=" + deliveryOrder + ", oldState=" + oldState
+					+ ", newState=" + newState);
+
+			OrderStrategy orderStrategy = deliveryOrder.getOrderStrategy();
+
+			if (orderStrategy.isCreateShippingOrder()) {
+				logger.info("Create shipping order for delivery deliveryOrder=" + deliveryOrder + ", orderStrategy="
+						+ orderStrategy);
+				deliveryOrder.setState(OrderState.SHIPPING);
+				ShippingOrder shippingOrder = shippingBusiness.createOrder(deliveryOrder);
+				if (shippingOrder != null) {
+					shippingBusiness.releaseOperation(shippingOrder);
+				}
+			} else {
+				logger.info("Finish delivery deliveryOrder=" + deliveryOrder + ", orderStrategy=" + orderStrategy);
+				deliveryOrder.setState(OrderState.FINISHED);
 			}
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, OrderState.PACKED);
 		}
+
+		if (oldState < OrderState.SHIPPED && newState == OrderState.SHIPPED) {
+			logger.info("DeliveryOrder got state SHIPPED. deliveryOrder=" + deliveryOrder + ", oldState=" + oldState
+					+ ", newState=" + newState);
+
+			logger.info("Finish delivery deliveryOrder=" + deliveryOrder);
+			deliveryOrder.setState(OrderState.FINISHED);
+			fireDeliveryOrderStateChangeEvent(deliveryOrder, OrderState.SHIPPED);
+		}
+
+	}
+
+	public void listen(@Observes PickingOrderStateChangeEvent event) throws BusinessException {
+		if (event == null || event.getPickingOrder() == null) {
+			return;
+		}
+
+		PickingOrder pickingOrder = event.getPickingOrder();
+		int oldState = event.getOldState();
+		int newState = event.getNewState();
+		if (oldState < OrderState.FINISHED && newState == OrderState.FINISHED) {
+			logger.info("PickingOrder got state FINISHED. pickingOrder=" + pickingOrder + ", oldState=" + oldState
+					+ ", newState=" + newState);
+			DeliveryOrder deliveryOrder = pickingOrder.getDeliveryOrder();
+			if (deliveryOrder == null) {
+				// Standalone picking order.
+				// Generate shipping oder if strategy flag is set.
+				// Packing is not defined for picking orders without delivery order.
+				OrderStrategy orderStrategy = pickingOrder.getOrderStrategy();
+
+				if (orderStrategy.isCreateShippingOrder()) {
+					logger.info("Create shipping order for pickingOrder=" + pickingOrder + ", orderStrategy="
+							+ orderStrategy);
+					ShippingOrder shippingOrder = null;
+					for (Packet packet : pickingOrder.getPackets()) {
+						if (packet.getState() >= OrderState.SHIPPING) {
+							logger.info("Packet alread in shipping. packet=" + packet + ", pickingOrder=" + pickingOrder
+									+ ", orderStrategy=" + orderStrategy);
+							continue;
+						}
+						if (shippingOrder == null) {
+							shippingOrder = shippingBusiness.createOrder(pickingOrder.getClient());
+							shippingOrder.setAddress(pickingOrder.getAddress());
+							shippingOrder.setExternalNumber(pickingOrder.getExternalNumber());
+						}
+						shippingBusiness.addLine(shippingOrder, packet);
+					}
+					if (shippingOrder != null) {
+						shippingBusiness.releaseOperation(shippingOrder);
+					}
+				}
+			} else {
+				// If delivery order is in state PICKED the next step can be started.
+				int deliveryOrderState = deliveryOrder.getState();
+				if (deliveryOrderState == OrderState.PICKED) {
+					OrderStrategy orderStrategy = deliveryOrder.getOrderStrategy();
+
+					if (orderStrategy.isCreatePackingOrder()) {
+						logger.info("Create packing order for delivery deliveryOrder=" + deliveryOrder
+								+ ", orderStrategy=" + orderStrategy);
+						deliveryOrder.setState(OrderState.PACKING);
+					} else if (orderStrategy.isCreateShippingOrder()) {
+						logger.info("Create shipping order for delivery deliveryOrder=" + deliveryOrder
+								+ ", orderStrategy=" + orderStrategy);
+						deliveryOrder.setState(OrderState.SHIPPING);
+						ShippingOrder shippingOrder = shippingBusiness.createOrder(deliveryOrder);
+						if (shippingOrder != null) {
+							shippingBusiness.releaseOperation(shippingOrder);
+						}
+					} else {
+						logger.info(
+								"Finish delivery deliveryOrder=" + deliveryOrder + ", orderStrategy=" + orderStrategy);
+						deliveryOrder.setState(OrderState.FINISHED);
+					}
+					fireDeliveryOrderStateChangeEvent(deliveryOrder, OrderState.PICKED);
+				}
+			}
+
+		}
+
 	}
 
 	public void listen(@Observes PacketStateChangeEvent event) throws BusinessException {
@@ -80,58 +175,6 @@ public class DeliveryEventObserver {
 		Packet packet = event.getPacket();
 		int oldState = event.getOldState();
 		int newState = event.getNewState();
-		if (oldState < OrderState.PICKED && newState == OrderState.PICKED) {
-			logger.info(
-					"Packet got state PICKED. packet=" + packet + ", oldState=" + oldState + ", newState=" + newState);
-			int currentPacketState = packet.getState();
-
-			// A packet has been picked
-			// Find next operation for packet
-			OrderStrategy orderStrategy = findStrategyShipping(packet);
-			if (orderStrategy != null) {
-				if (orderStrategy.isCreatePackingOrder()) {
-					packet.setState(OrderState.PACKING);
-				} else if (orderStrategy.isCreateShippingOrder()) {
-					packet.setState(OrderState.SHIPPING);
-				} else {
-					packet.setState(OrderState.FINISHED);
-				}
-				firePacketStateChangeEvent(packet, currentPacketState);
-			}
-		}
-
-		if (oldState < OrderState.PACKED && newState == OrderState.PACKED) {
-			logger.info("Packet got state PACKED. packet=" + packet + ", state=" + packet.getState() + ", oldState="
-					+ oldState);
-			int currentPacketState = packet.getState();
-
-			// A packet has been packed
-			// Find next operation for packet
-			OrderStrategy orderStrategy = findStrategyShipping(packet);
-			if (orderStrategy != null) {
-				if (orderStrategy.isCreateShippingOrder()) {
-					packet.setState(OrderState.SHIPPING);
-				} else {
-					packet.setState(OrderState.FINISHED);
-				}
-				firePacketStateChangeEvent(packet, currentPacketState);
-			}
-
-			// Check delivery order state
-			DeliveryOrder deliveryOrder = packet.getDeliveryOrder();
-			if (deliveryOrder != null && deliveryOrder.getState() < OrderState.FINISHED
-					&& isCompletePacked(deliveryOrder)) {
-				int nextDeliveryOrderState = OrderState.FINISHED;
-				if (orderStrategy.isCreateShippingOrder()) {
-					nextDeliveryOrderState = OrderState.SHIPPING;
-				}
-				if (deliveryOrder.getState() < nextDeliveryOrderState) {
-					int currentDeliveryOrderState = deliveryOrder.getState();
-					deliveryOrder.setState(nextDeliveryOrderState);
-					fireDeliveryOrderStateChangeEvent(deliveryOrder, currentDeliveryOrderState);
-				}
-			}
-		}
 
 		if (oldState < OrderState.SHIPPED && newState == OrderState.SHIPPED) {
 			logger.info("Packet got state SHIPPED. packet=" + packet + ", state=" + packet.getState() + ", oldState="
@@ -150,31 +193,6 @@ public class DeliveryEventObserver {
 			}
 		}
 
-	}
-
-	private OrderStrategy findStrategyShipping(Packet packet) {
-		OrderStrategy orderStrategy = null;
-		DeliveryOrder deliveryOrder = packet.getDeliveryOrder();
-		if (deliveryOrder != null) {
-			orderStrategy = deliveryOrder.getOrderStrategy();
-		}
-		if (orderStrategy == null) {
-			PickingOrder pickingOrder = packet.getPickingOrder();
-			if (pickingOrder != null) {
-				orderStrategy = deliveryOrder.getOrderStrategy();
-			}
-		}
-		return orderStrategy;
-	}
-
-	private boolean isCompletePacked(DeliveryOrder deliveryOrder) {
-		if (deliveryOrder.getState() < OrderState.PICKED) {
-			return false;
-		}
-		if (packetEntityService.exists(deliveryOrder, null, OrderState.PACKED - 1)) {
-			return false;
-		}
-		return true;
 	}
 
 	private boolean isCompleteShipped(DeliveryOrder deliveryOrder) {

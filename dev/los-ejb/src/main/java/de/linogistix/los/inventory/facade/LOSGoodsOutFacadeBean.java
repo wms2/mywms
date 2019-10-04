@@ -162,6 +162,15 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 			orderDto.setShippingDate(order.getShippingDate());
 			orderDto.setState(order.getState());
 
+			DeliveryOrder deliveryOrder = order.getDeliveryOrder();
+			if(deliveryOrder!=null) {
+				if(!StringUtils.isBlank(deliveryOrder.getExternalNumber())) {
+					orderDto.setCustomerOrderNumber(deliveryOrder.getExternalNumber());
+				}
+				else {
+					orderDto.setCustomerOrderNumber(deliveryOrder.getOrderNumber());
+				}
+			}
 			dtos.add(orderDto);
 		}
 

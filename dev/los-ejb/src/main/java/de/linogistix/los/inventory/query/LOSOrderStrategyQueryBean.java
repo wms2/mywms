@@ -15,8 +15,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
-import de.linogistix.los.inventory.query.dto.LOSOrderStrategyTO;
-import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.strategy.OrderStrategy;
@@ -30,32 +28,9 @@ public class LOSOrderStrategyQueryBean extends BusinessObjectQueryBean<OrderStra
 	private Logger log = Logger.getLogger(LOSOrderStrategyQueryBean.class);
 
 	@Override
-	protected String[] getBODTOConstructorProps() {
-		return new String[]{};
-	}
-
-	@Override
 	public String getUniqueNameProp() {
 		return "name";
 	}
-
-	@Override
-	public Class<LOSOrderStrategyTO> getBODTOClass() {
-		return LOSOrderStrategyTO.class;
-	}
-
-	@Override
-	protected List<BODTOConstructorProperty> getBODTOConstructorProperties() {
-		List<BODTOConstructorProperty> propList = super.getBODTOConstructorProperties();
-		
-		propList.add(new BODTOConstructorProperty("id", false));
-		propList.add(new BODTOConstructorProperty("version", false));
-		propList.add(new BODTOConstructorProperty("name", false));
-		propList.add(new BODTOConstructorProperty("client.number", false));
-		
-		return propList;
-	}
-
 
     @Override
 	protected List<TemplateQueryWhereToken> getAutoCompletionTokens(String value) {
@@ -68,10 +43,6 @@ public class LOSOrderStrategyQueryBean extends BusinessObjectQueryBean<OrderStra
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(token);
 		
-		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_LIKE, "client.number", value);
-		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		ret.add(token);
-
 		return ret;
 	}
 

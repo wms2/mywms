@@ -124,6 +124,41 @@ public class UnitLoadTypeEntityService {
 	}
 
 	/**
+	 * Read the systems default UnitLoadType
+	 */
+	public UnitLoadType getPicking() {
+		String bundleKey = "unitLoadTypePicking";
+
+		String name = propertyBusiness.getString(Wms2Properties.KEY_UNITLOADTYPE_PICKING, null, null, null);
+		if (StringUtils.isEmpty(name)) {
+			Locale locale = userBusiness.getCurrentUsersLocale();
+			name = Translator.getString(Wms2BundleResolver.class, "BasicData", bundleKey, "name", locale);
+			String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", bundleKey, "desc", "", locale);
+
+			propertyBusiness.createOrUpdate(Wms2Properties.KEY_UNITLOADTYPE_PICKING, name, Wms2Properties.GROUP_WMS,
+					desc);
+		}
+
+		UnitLoadType type = readByName(name);
+		if (type != null) {
+			return type;
+		}
+
+		logger.log(Level.WARNING, "Picking unit load type undefined. create unit load type with name=" + name);
+
+		type = manager.createInstance(UnitLoadType.class);
+		type.setName(name);
+		type.setAggregateStocks(false);
+
+		manager.persist(type);
+
+		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING + ","
+				+ UnitLoadTypeUsages.SHIPPING);
+
+		return type;
+	}
+
+	/**
 	 * Sets the systems default UnitLoadType
 	 */
 	public void setDefault(UnitLoadType unitLoadType) {

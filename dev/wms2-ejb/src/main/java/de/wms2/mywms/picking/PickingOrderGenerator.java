@@ -200,6 +200,9 @@ public class PickingOrderGenerator {
 				DeliveryOrder deliveryOrder = affectedDeliveryOrders.get(0);
 				pickingOrder.setDeliveryOrder(deliveryOrder);
 				pickingOrder.setPickingHint(deliveryOrder.getPickingHint());
+				pickingOrder.setDeliveryDate(deliveryOrder.getDeliveryDate());
+				pickingOrder.setAddress(deliveryOrder.getAddress());
+				pickingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
 			}
 
 			for (PickingOrderLine pick : affectedPicks) {
@@ -216,12 +219,12 @@ public class PickingOrderGenerator {
 
 			firePickingOrderStateChangeEvent(pickingOrder, -1);
 
+			newPickingOrders.add(pickingOrder);
+
 			// Switch state of the deliveryOrder to PROCESSABLE
 			for (DeliveryOrder deliveryOrder : affectedDeliveryOrders) {
 				recalculateDeliveryOrderState(deliveryOrder);
 			}
-
-			newPickingOrders.add(pickingOrder);
 		}
 
 		return newPickingOrders;
@@ -361,7 +364,8 @@ public class PickingOrderGenerator {
 		try {
 			logger.fine("Fire PickingOrderStateChangeEvent. pickingOrder=" + pickingOrder + ", state="
 					+ pickingOrder.getState() + ", oldState=" + oldState);
-			pickingOrderStateChangeEvent.fire(new PickingOrderStateChangeEvent(pickingOrder, oldState, pickingOrder.getState()));
+			pickingOrderStateChangeEvent
+					.fire(new PickingOrderStateChangeEvent(pickingOrder, oldState, pickingOrder.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

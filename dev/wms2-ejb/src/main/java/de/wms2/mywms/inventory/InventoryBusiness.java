@@ -120,6 +120,19 @@ public class InventoryBusiness {
 	// ***********************************************************************
 	// UnitLoad handling
 	// ***********************************************************************
+	/**
+	 * Change the state of a unit load and all it's stock units.<p>
+	 * The state is just written to the entities. NO CHECK!<br> 
+	 * Be sure what you are doing!
+	 */
+	public void changeState(UnitLoad unitLoad, int state) throws BusinessException {
+		unitLoad.setState(state);
+		for( StockUnit stockUnit : stockUnitService.readByUnitLoad(unitLoad)) {
+			int oldState = stockUnit.getState();
+			stockUnit.setState(state);
+			fireStockUnitStateChangeEvent(stockUnit, oldState);
+		}
+	}
 
 	public UnitLoad createUnitLoad(Client client, String label, UnitLoadType unitLoadType, StorageLocation location,
 			int state, String activityCode, User operator, String note) throws BusinessException {

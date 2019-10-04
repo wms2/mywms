@@ -29,7 +29,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import org.mywms.facade.FacadeException;
 import org.mywms.model.BasicClientAssignedEntity;
 
 import de.wms2.mywms.product.ItemData;
@@ -78,8 +77,16 @@ public class Lot extends BasicClientAssignedEntity {
 	private String age;
 
 	@PreUpdate
+	public void preUpdate() {
+		super.preUpdate();
+		if (getAdditionalContent() != null && getAdditionalContent().length() > 255) {
+			setAdditionalContent(getAdditionalContent().substring(0, 255));
+		}
+	}
+
 	@PrePersist
-	public void proPersist() throws FacadeException {
+	public void prePersist() {
+		super.prePersist();
 		if (getAdditionalContent() != null && getAdditionalContent().length() > 255) {
 			setAdditionalContent(getAdditionalContent().substring(0, 255));
 		}

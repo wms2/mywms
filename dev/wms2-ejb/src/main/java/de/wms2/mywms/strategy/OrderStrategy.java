@@ -20,10 +20,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
-import org.mywms.model.BasicClientAssignedEntity;
+import org.mywms.model.BasicEntity;
 
 import de.wms2.mywms.location.StorageLocation;
 
@@ -38,10 +36,10 @@ import de.wms2.mywms.location.StorageLocation;
  * @author krane
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "client_id" }) })
-public class OrderStrategy extends BasicClientAssignedEntity {
+public class OrderStrategy extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable = false, unique = true)
 	private String name;
 
 	/**
@@ -110,7 +108,7 @@ public class OrderStrategy extends BasicClientAssignedEntity {
 	 * complete)
 	 */
 	@Column(nullable = false)
-	private boolean createTypeOrders = false;
+	private boolean createTypeOrders = true;
 
 	@Column(nullable = false)
 	private int manualCreationIndex = 99;

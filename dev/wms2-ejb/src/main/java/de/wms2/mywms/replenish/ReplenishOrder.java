@@ -38,6 +38,8 @@ import de.wms2.mywms.strategy.OrderState;
 
 /**
  * The replenish order
+ * <p>
+ * This class is based on myWMS-LOSReplenishOrder
  * 
  * @author krane
  *

@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
@@ -61,9 +60,8 @@ public class OrderStrategyEntityService {
 	@Inject
 	private StorageLocationEntityService locationService;
 
-	public OrderStrategy create(Client client, String name) throws BusinessException {
+	public OrderStrategy create(String name) throws BusinessException {
 		OrderStrategy strategy = manager.createInstance(OrderStrategy.class);
-		strategy.setClient(client);
 		strategy.setName(name);
 
 		manager.persistValidated(strategy);
@@ -71,22 +69,15 @@ public class OrderStrategyEntityService {
 		return strategy;
 	}
 
-	public OrderStrategy read(Client client, String name) {
-		if (client == null) {
-			client = clientBusiness.getSystemClient();
-		}
+	public OrderStrategy read(String name) {
 		String jpql = "SELECT entity FROM " + OrderStrategy.class.getName() + " entity ";
-		jpql += "WHERE entity.name=:name and entity.client=:client";
+		jpql += "WHERE entity.name=:name ";
 		Query query = manager.createQuery(jpql);
 		query.setParameter("name", name);
-		query.setParameter("client", client);
 
 		try {
 			return (OrderStrategy) query.getSingleResult();
-		} catch (NoResultException ne) {
-			if (!client.isSystemClient()) {
-				return read(clientBusiness.getSystemClient(), name);
-			}
+		} catch (Throwable ne) {
 		}
 
 		return null;
@@ -98,7 +89,10 @@ public class OrderStrategyEntityService {
 			client = clientBusiness.getSystemClient();
 		}
 
-		String name = propertyBusiness.getString(Wms2Properties.KEY_ORDERSTRATEGY_DEFAULT, null, null, null);
+		String name = propertyBusiness.getString(Wms2Properties.KEY_ORDERSTRATEGY_DEFAULT, client, null, null);
+		if (StringUtils.isEmpty(name)) {
+			name = propertyBusiness.getString(Wms2Properties.KEY_ORDERSTRATEGY_DEFAULT, null, null, null);
+		}
 		if (StringUtils.isEmpty(name)) {
 			Locale locale = userBusiness.getCurrentUsersLocale();
 			name = Translator.getString(Wms2BundleResolver.class, "BasicData", "orderStrategyDefault", "name", locale);
@@ -109,7 +103,7 @@ public class OrderStrategyEntityService {
 					desc);
 		}
 
-		OrderStrategy strategy = read(client, name);
+		OrderStrategy strategy = read(name);
 		if (strategy != null) {
 			return strategy;
 		}
@@ -123,11 +117,10 @@ public class OrderStrategyEntityService {
 				locale);
 
 		strategy.setName(name);
-		strategy.setClient(client);
 		strategy.setAdditionalContent(desc);
 
 		List<StorageLocation> locations = locationService.getForGoodsOut(client);
-		if (locations.size() == 1) {
+		if (locations.size() >= 1) {
 			strategy.setDefaultDestination(locations.get(0));
 		}
 
@@ -145,7 +138,10 @@ public class OrderStrategyEntityService {
 			client = clientBusiness.getSystemClient();
 		}
 
-		String name = propertyBusiness.getString(Wms2Properties.KEY_ORDERSTRATEGY_EXTINGUISH, null, null, null);
+		String name = propertyBusiness.getString(Wms2Properties.KEY_ORDERSTRATEGY_EXTINGUISH, client, null, null);
+		if (StringUtils.isEmpty(name)) {
+			name = propertyBusiness.getString(Wms2Properties.KEY_ORDERSTRATEGY_EXTINGUISH, null, null, null);
+		}
 		if (StringUtils.isEmpty(name)) {
 			Locale locale = userBusiness.getCurrentUsersLocale();
 			name = Translator.getString(Wms2BundleResolver.class, "BasicData", "orderStrategyExtinguish", "name",
@@ -157,7 +153,7 @@ public class OrderStrategyEntityService {
 					desc);
 		}
 
-		OrderStrategy strategy = read(client, name);
+		OrderStrategy strategy = read(name);
 		if (strategy != null) {
 			return strategy;
 		}
@@ -171,7 +167,6 @@ public class OrderStrategyEntityService {
 				locale);
 
 		strategy.setName(name);
-		strategy.setClient(client);
 		strategy.setAdditionalContent(desc);
 		strategy.setDefaultDestination(locationService.getClearing());
 		strategy.setManualCreationIndex(0);

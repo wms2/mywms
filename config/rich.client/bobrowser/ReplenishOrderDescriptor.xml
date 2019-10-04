@@ -142,6 +142,16 @@
 				<position>31</position>
 			</value>
 		</entry>
+		<entry>
+			<key>sourceStockUnitId</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>true</hidden>
+				<position>99</position>
+			</value>
+		</entry>
 
 
 
