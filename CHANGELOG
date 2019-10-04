@@ -212,3 +212,96 @@ Release 2.2
         There is an upgrade script for postgres database structure
         But have in mind: This script comes without any warranty!
         We recommend to compare the automatically generated database structure with the existing database structure and manually adjust them.
+
+
+
+
+Release 2.3
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Reorganization of customer- and picking- and shipping orders
+    - Reorganization of JasperReports
+    - Replace custom service calls by CDI events
+    - Advice as head/line records and reorganization of goods receipt structures
+    - Added state to item data and client to filter active/inactive entities
+    - Reorganization of replenish order
+    - Adjustable sequences
+    - Adjustable min-, max- and picking-amounts on fixed locations
+    - Storage strategy got more options
+    - Enable complete pallet picking
+    - Actualization of documentation
+    - Support of Wildfly 18
+
+
+    Functional changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Orders and picking orders got timestamps for start and finishing operation
+    - Generation of picking orders requires a strategy
+    - Generation of picking order can combine multiple customer orders
+    - Generation of picking order can be restricted to only complete pallets
+    - Sequences can be configured
+    - Adjust stock state and order state
+    - Unit load type got a hint for which usecase it is available
+    - Packet got reference to delivery order
+    - Create default data on first startup of server application
+    - Storage of labels has been disabled
+    - Added address to delivery-, picking- and shipping-orders
+    - Added address to deliverynote report
+    - Added new packet-list report to picking- and shipping-orders
+    - Enable images in reports
+    - Removed activity code from manual actions
+    - Added external number to mobile picking- and shipping-order selection
+    - Confirm destination of shipping orders in mobile operation
+    - Storage strategy with near of picking-location option
+    - Storage strategy with more sort options
+
+
+    Technical changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Changed database entities
+        de.linogistix.los.inventory.model.LOSCustomerOrder replaced by de.wms2.mywms.delivery.DeliveryOrder
+        de.linogistix.los.inventory.model.LOSCustomerOrderPosition replaced by de.wms2.mywms.delivery.DeliveryOrderLine
+        de.linogistix.los.inventory.model.LOSPickingOrder replaced by de.wms2.mywms.picking.PickingOrder
+        de.linogistix.los.inventory.model.LOSPickingPosition replaced by de.wms2.mywms.picking.PickingOrderLine
+        de.linogistix.los.inventory.model.LOSPickingUnitLoad replaced by de.wms2.mywms.picking.PickingUnitLoad
+        de.linogistix.los.inventory.model.LOSOrderStrategy replaced by de.wms2.mywms.strategy.OrderStrategy
+        de.linogistix.los.location.model.LOSFixedLocationAssignment replaced by de.wms2.mywms.strategy.FixAssignment
+        de.linogistix.los.model.LOSJasperReport replaced by de.wms2.mywms.report.Report
+        de.linogistix.los.model.LOSSequenceNumber replaced by de.wms2.mywms.sequence.SequenceNumber
+        org.mywms.model.Document replaced by de.wms2.mywms.document.Document
+        de.linogistix.los.inventory.model.LOSGoodsReceipt replaced by de.wms2.mywms.goodsreceipt.GoodsReceipt
+        de.linogistix.los.inventory.model.LOSGoodsReceiptPosition replaced by de.wms2.mywms.goodsreceipt.GoodsReceiptLine
+        de.linogistix.los.model.LOSJasperReport replaced by de.wms2.mywms.report.Report
+        de.linogistix.los.model.LOSSequenceNumber replaced by de.wms2.mywms.sequence.SequenceNumber
+        de.linogistix.los.inventory.model.LOSGoodsOutRequest replaced by de.wms2.mywms.shipping.ShippingOrder
+        de.linogistix.los.inventory.model.LOSGoodsOutRequestPosition replaced by de.wms2.mywms.shipping.ShippingOrderLine
+        de.wms2.mywms.picking.PickingUnitLoad replaced by de.wms2.mywms.picking.Packet
+        de.linogistix.los.inventory.model.LOSStorageRequest replaced by de.wms2.mywms.transport.TransportOrder
+        de.wms2.mywms.inventory.UnitLoadType got new attribute 'usages'
+        de.wms2.mywms.address.Address is new
+
+    - Removed some duplicate method implementations from entity services
+    - Made API of entity services a little more consistent
+    - InventoryBusiness replaces: LOSInventoryComponent, ManageInventoryBusiness, InventoryProcessFacade, LOSStorage
+    - Replace CustomService calls of inventory posting methods with CDI events
+    - Replace PackageType of UnitLoad to dedicated flags in UnitLoadType
+    - Report got new backend and data structures
+    - Document got new backend and data structures
+    - Removed client from order strategy
+
+
+    Bugfixes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    Call of toUniqueString() in BasicEntity subclasses must not call toString()
+
+
+    Switch to Release 2.3
+    -------------------------------------------------------------------------------
+    - The replaced entities have similar attributes to the original ones. In most cases it will be easy to adapt.
+    - Some duplicate implementations have been moved to only one service. If you get compile errors in your own modules try to use another service. E.g. StorageLocationEntityService instead of LOSStorageLocationService or QueryStorageLocationService
+    - Deliverynote report .jrxml has to be adjusted to the changed data structures
+    - Some customization user exits have been replaced by CDI events. Replace the on... Methods of your customization services by apropriate event observers.
+    - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
+

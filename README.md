@@ -13,20 +13,23 @@ Features:
 * Designed for manual driven warehouses
 * Barcode/RFID identification, mobile terminals for paperless processes
 * Modular/ SOA architecture
-* Supported technologies: JEE7, Wildfly, Netbeans RCP, iReport, SOAP
-* Supports Wildfly-17 and Java-11
+* Supported technologies: JEE8, Wildfly, Netbeans RCP, iReport, SOAP
+* Supports Wildfly-18 and Java-11
 
 
-## Sources
+## Original Sources
 
 This fork is based on the latest public available version of the Logata SVN sources: https://svn.logistics-mall.com/svn/los.reference
 
 Another location of the original sources, but a little outdated, is located on sourceforge: https://sourceforge.net/projects/mywmslos
 
-The documentation and additional resources of the project are located on: http://www.mywms.org
+The documentation and additional resources of the project are based on: http://www.mywms.org
 
+## Current Sources
 
-## Changes within this fork
+The current sources and documetations are located on github https://github.com/wms2/mywms
+
+## Starting changes within this fork
 
 The first action is to set the project to an actual environment (2019)
 
@@ -37,27 +40,27 @@ The first action is to set the project to an actual environment (2019)
 - Change build system from ant to maven
 - Change version control from svn to git
 
-
 ## Future changes
 
 It is planned to keep the project on the current development and runtime platforms. At least the LTS releases of the Java platform and used tools like wildfly application server should be supported.
 
+Have a look to the CHANGELOG file to get information about new changes.
+
 Furthermore functional and technical enhancements will be added to the project.
 
-Here some ideas.
+Here some ideas:
+
 This are only ideas of what could be done. There is no actual plan to do it at all nor a specific roadmap.
 Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
 
 - Advice as master/detail
 - Add images and attachments to master data objects
 - Change-history
-- Configurable sequence numbers
 - Multiple locks on one entity
 - More powerful sorting criteria in storage strategies
 - More powerful criteria in storage location capacity configuration
 - Configurable picking strategy
 - Stocktaking orders for single unit loads
-- Distinction of different stock states
 - Consigned goods
 - Pick-to-pack functionality in picking process.
 - Packing. Dialogues to handle packing operations.
@@ -74,8 +77,12 @@ Please contribute to the project. Bring your ideas, code and modules. Vote for n
 - Make a set of entity services with equal behavior
 - Only one BundleHelper/Translator
 - Move remote services into separate modules
+- Add versions and history to stored jasperreports
+- Replenish strategies to distinguish between long term reserve and reserve in the near of a picking location
+- Dialogs to consolidate stocks. Manual cleanup.
+- Distinguish between active and inactive products
 
-
+## Contribute
 
 __If you have any enhancements, please contribute to the project!__
 
