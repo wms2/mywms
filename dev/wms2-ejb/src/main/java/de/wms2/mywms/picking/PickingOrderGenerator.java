@@ -200,6 +200,7 @@ public class PickingOrderGenerator {
 				DeliveryOrder deliveryOrder = affectedDeliveryOrders.get(0);
 				pickingOrder.setDeliveryOrder(deliveryOrder);
 				pickingOrder.setPickingHint(deliveryOrder.getPickingHint());
+				pickingOrder.setPackingHint(deliveryOrder.getPackingHint());
 				pickingOrder.setDeliveryDate(deliveryOrder.getDeliveryDate());
 				pickingOrder.setAddress(deliveryOrder.getAddress());
 				pickingOrder.setExternalNumber(deliveryOrder.getExternalNumber());

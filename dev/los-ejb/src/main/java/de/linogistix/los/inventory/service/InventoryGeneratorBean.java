@@ -59,7 +59,7 @@ public class InventoryGeneratorBean implements InventoryGeneratorService {
     }
 
 	public String generateGoodsOutNumber(Client c) {
-        return seqService.readNextValue("Shipment");
+        return seqService.readNextValue("ShippingOrder");
 	}
 
 	public String generateReplenishNumber(Client c) {
@@ -71,7 +71,7 @@ public class InventoryGeneratorBean implements InventoryGeneratorService {
 	}
 	
 	public String generateStocktakingNumber() {
-        return seqService.readNextValue("Stocktaking");
+        return seqService.readNextValue("StocktakingOrder");
 	}
 
 }

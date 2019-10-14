@@ -50,8 +50,7 @@ public class PickingOrderEntityService {
 
 	public PickingOrder create(Client client, OrderStrategy strategy) throws BusinessException {
 
-		String sequenceName = PickingOrder.class.getSimpleName();
-		String number = sequenceBusiness.readNextValue(sequenceName, PickingOrder.class, "orderNumber");
+		String number = sequenceBusiness.readNextValue(PickingOrder.class, "orderNumber");
 
 		PickingOrder order = manager.createInstance(PickingOrder.class);
 

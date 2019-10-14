@@ -478,7 +478,7 @@ public class ShippingBusiness {
 
 		ShippingOrder shippingOrder = manager.createInstance(ShippingOrder.class);
 		shippingOrder.setClient(client);
-		shippingOrder.setOrderNumber(sequenceBusiness.readNextValue(Wms2Properties.SEQ_SHIPPING_ORDER));
+		shippingOrder.setOrderNumber(sequenceBusiness.readNextValue(ShippingOrder.class, "orderNumber"));
 		shippingOrder.setShippingDate(new Date());
 		shippingOrder.setDestination(destination);
 		shippingOrder.setState(OrderState.PROCESSABLE);

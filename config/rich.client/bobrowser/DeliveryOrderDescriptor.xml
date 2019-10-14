@@ -185,6 +185,16 @@
             </value>
         </entry>
         <entry>
+			<key>packingHint</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+        <entry>
 			<key>pickingHint</key>
             <value>
                 <group>

@@ -22,16 +22,13 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.service.ClientService;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.entityservice.BusinessObjectLockState;
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.LOSLotService;
-import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LotLockState;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.Lot;
@@ -59,8 +56,6 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	private ContextService contextService;
 	@EJB
 	private LOSLotService lotService;
-	@EJB
-	private ClientService clientService;
 	@Inject
 	private PickingOrderLineGenerator pickPosGenerator;
 	@Inject
@@ -69,50 +64,12 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	private OrderStrategyEntityService strategyService;
 	@EJB
 	private LOSOrderBusiness orderBusiness;
-	@EJB
-	private InventoryGeneratorService sequenceService;
-	@EJB
-	private LOSPickingOrderService pickingOrderService;
 	
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
 
 	@Inject
 	private StorageLocationEntityService locationService;
-	
-	public void generateOrder( String clientNumber, String lotName, String itemDataNumber ) throws FacadeException {
-		String logStr = "generateOrder ";
-		log.info(logStr+"clientNumber="+clientNumber+", lotName="+lotName+", itemNumber="+itemDataNumber);
-		
-
-		Client client = null;
-		if( clientNumber != null ) {
-			client = clientService.getByNumber(clientNumber);
-			if( client == null ) {
-				log.warn(logStr+"Client does not exist");
-				throw new InventoryException(InventoryExceptionKey.NO_SUCH_CLIENT, clientNumber);
-			}
-		}
-		if( client == null ) {
-			client = contextService.getCallersClient();
-		}
-		
-		Lot lot = null;
-		try {
-			lot = lotService.getByNameAndItemData(client, lotName, itemDataNumber);
-		} catch (EntityNotFoundException e) {}
-		if( lot == null ) {
-			log.warn(logStr+"Lot does not exist");
-			throw new InventoryException(InventoryExceptionKey.NO_SUCH_LOT, lotName+" / "+itemDataNumber);
-		}
-		
-		List<StockUnit> stockList = getListByLot(lot, false);
-		
-		generateOrder( client, stockList );
-		
-		lot.setLock(LotLockState.LOT_EXPIRED.getLock());
-
-	}
 	
 	public void generateOrder( List<Long> lotIds ) throws FacadeException {
 		String logStr = "generateOrder ";
@@ -169,7 +126,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 				continue;
 			}
 			PickingOrderLine pick;
-			pick = pickPosGenerator.generatePick( null, strat, stock, stock.getAvailableAmount(), stock.getClient(), null, null);
+			pick = pickPosGenerator.generatePick( null, strat, stock, stock.getAvailableAmount(), stock.getClient());
 
 			pickList.add(pick);
 		}

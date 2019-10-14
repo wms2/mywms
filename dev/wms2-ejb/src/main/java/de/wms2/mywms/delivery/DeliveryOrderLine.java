@@ -93,6 +93,23 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 	private String pickingHint;
 
 	/**
+	 * A hint for packing operation
+	 */
+	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
+	private String packingHint;
+
+	/**
+	 * A hint for shipping operation
+	 */
+	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
+	private String shippingHint;
+
+	/**
+	 * The price of a base unit
+	 */
+	private BigDecimal unitPrice;
+
+	/**
 	 * Timestamp of start processing
 	 */
 	private Date started;
@@ -113,11 +130,6 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 	 */
 	@Column(precision = 17, scale = 4, nullable = false)
 	private BigDecimal pickedAmount = BigDecimal.ZERO;
-
-	/**
-	 * The ordered serial number
-	 */
-	private String serialNumber;
 
 	@Override
 	public String toString() {
@@ -226,6 +238,22 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 		this.pickingHint = pickingHint;
 	}
 
+	public String getPackingHint() {
+		return packingHint;
+	}
+
+	public void setPackingHint(String packingHint) {
+		this.packingHint = packingHint;
+	}
+
+	public BigDecimal getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(BigDecimal unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
 	public Date getStarted() {
 		return started;
 	}
@@ -250,20 +278,20 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 		this.state = state;
 	}
 
-	public String getSerialNumber() {
-		return serialNumber;
-	}
-
-	public void setSerialNumber(String serialNumber) {
-		this.serialNumber = serialNumber;
-	}
-
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
 	public void setPickedAmount(BigDecimal pickedAmount) {
 		this.pickedAmount = pickedAmount;
+	}
+
+	public String getShippingHint() {
+		return shippingHint;
+	}
+
+	public void setShippingHint(String shippingHint) {
+		this.shippingHint = shippingHint;
 	}
 
 }

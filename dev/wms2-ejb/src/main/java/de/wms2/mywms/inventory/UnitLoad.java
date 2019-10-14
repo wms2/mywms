@@ -51,6 +51,11 @@ public class UnitLoad extends BasicClientAssignedEntity {
 	@Column(nullable = false, unique = true)
 	private String labelId = null;
 
+	/**
+	 * An optional id to give an association to other systems
+	 */
+	private String externalId;
+
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private UnitLoadType unitLoadType = null;
 
@@ -161,6 +166,14 @@ public class UnitLoad extends BasicClientAssignedEntity {
 		this.labelId = labelId;
 	}
 
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
 	public UnitLoadType getUnitLoadType() {
 		return unitLoadType;
 	}
@@ -175,10 +188,6 @@ public class UnitLoad extends BasicClientAssignedEntity {
 
 	public void setIndex(int index) {
 		this.index = index;
-	}
-
-	public StorageLocation getStorageLocation() {
-		return storageLocation;
 	}
 
 	public List<StockUnit> getStockUnitList() {
@@ -245,16 +254,20 @@ public class UnitLoad extends BasicClientAssignedEntity {
 		this.carrierUnitLoad = carrierUnitLoad;
 	}
 
-	public BigDecimal getWeight() {
-		return weight;
-	}
-
 	public int getState() {
 		return state;
 	}
 
 	public void setState(int state) {
 		this.state = state;
+	}
+
+	public StorageLocation getStorageLocation() {
+		return storageLocation;
+	}
+
+	public BigDecimal getWeight() {
+		return weight;
 	}
 
 }

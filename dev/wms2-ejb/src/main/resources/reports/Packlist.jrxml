@@ -12,16 +12,19 @@
 	<parameter name="deliveryOrder" class="de.wms2.mywms.delivery.DeliveryOrder"/>
 	<parameter name="address" class="de.wms2.mywms.address.Address"/>
 	<parameter name="image" class="de.wms2.mywms.document.Document"/>
+	<parameter name="unitLoadType" class="de.wms2.mywms.inventory.UnitLoadType"/>
+	<parameter name="packet" class="de.wms2.mywms.picking.Packet"/>
+	<parameter name="label" class="java.lang.String"/>
 	<field name="lineNumber" class="java.lang.String"/>
-	<field name="productNumber" class="java.lang.String"/>
-	<field name="productName" class="java.lang.String"/>
-	<field name="productUnit" class="java.lang.String"/>
 	<field name="amount" class="java.math.BigDecimal"/>
 	<field name="lotNumber" class="java.lang.String"/>
 	<field name="serialNumber" class="java.lang.String"/>
 	<field name="bestBefore" class="java.util.Date"/>
 	<field name="type" class="java.lang.String"/>
 	<field name="label" class="java.lang.String"/>
+	<field name="externalId" class="java.lang.String"/>
+	<field name="itemData" class="de.wms2.mywms.product.ItemData"/>
+	<field name="unitLoad" class="de.wms2.mywms.inventory.UnitLoad"/>
 	<group name="order" isStartNewPage="true" keepTogether="true">
 		<groupExpression><![CDATA[$P{pickingOrder}]]></groupExpression>
 	</group>
@@ -80,12 +83,12 @@
 				<textElement verticalAlignment="Bottom" markup="none">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{unitLoad}.getLabelId()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{label}]]></textFieldExpression>
 			</textField>
 			<componentElement>
 				<reportElement x="0" y="60" width="315" height="50" uuid="6713cc0a-983a-40c7-8f11-d39acca5ced1"/>
 				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="true" checksumRequired="false" barHeight="40">
-					<jr:codeExpression><![CDATA[$P{unitLoad}.getLabelId()]]></jr:codeExpression>
+					<jr:codeExpression><![CDATA[$P{label}]]></jr:codeExpression>
 				</jr:barbecue>
 			</componentElement>
 		</band>
@@ -123,12 +126,12 @@
 	</columnHeader>
 	<detail>
 		<band height="16">
-			<printWhenExpression><![CDATA[$F{type}=="A"]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{type}=="2-ITEMDATA"]]></printWhenExpression>
 			<textField isBlankWhenNull="true">
 				<reportElement x="37" y="0" width="100" height="14" uuid="37ee471b-0ded-4bef-9dcf-a0b9817d63c4">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
-				<textFieldExpression><![CDATA[$F{productNumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{itemData}==null?"":$F{itemData}.getNumber()]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="140" y="0" width="270" height="14" uuid="d04b2b5c-fa2c-4b90-9e60-ddf225db57cc">
@@ -137,7 +140,7 @@
 				<textElement>
 					<paragraph leftIndent="0"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{productName}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{itemData}==null?"":$F{itemData}.getName()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="410" y="0" width="80" height="14" uuid="5c0a9eee-0841-479d-a7cb-87baf6077d39">
@@ -146,12 +149,12 @@
 				<textElement textAlignment="Right">
 					<paragraph rightIndent="0"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{amount}==null?"":NumberFormat.getInstance($P{REPORT_LOCALE}).format($F{amount})+($F{amount}==null?"":" "+$F{productUnit})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{amount}==null?"":NumberFormat.getInstance($P{REPORT_LOCALE}).format($F{amount})+($F{itemData}==null?"":" "+$F{itemData}.getItemUnit().getName())]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="16">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
-			<printWhenExpression><![CDATA[$F{type}=="L"]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{type}=="3-LOT"]]></printWhenExpression>
 			<textField>
 				<reportElement stretchType="RelativeToTallestObject" x="140" y="0" width="320" height="16" uuid="216ff331-db19-485a-8db9-c2ccd2125424">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -164,7 +167,7 @@
 		</band>
 		<band height="16">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-			<printWhenExpression><![CDATA[$F{type}=="S"]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{type}=="6-SERIAL"]]></printWhenExpression>
 			<textField>
 				<reportElement x="140" y="0" width="320" height="16" uuid="f1b4a29d-f449-4e60-838e-3ad77a7ce313">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -174,10 +177,6 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{serialNumber}==null?"":"SN: "+$F{serialNumber}]]></textFieldExpression>
 			</textField>
-		</band>
-		<band height="2">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-			<printWhenExpression><![CDATA[$F{type}=="XY"]]></printWhenExpression>
 		</band>
 	</detail>
 	<columnFooter>

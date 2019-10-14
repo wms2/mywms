@@ -94,6 +94,23 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 	private String pickingHint;
 
 	/**
+	 * A hint for packing operation
+	 */
+	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
+	private String packingHint;
+
+	/**
+	 * A hint for shipping operation
+	 */
+	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
+	private String shippingHint;
+
+	/**
+	 * The price of a base unit
+	 */
+	private BigDecimal unitPrice;
+
+	/**
 	 * Timestamp of finishing
 	 */
 	private Date finished;
@@ -152,6 +169,14 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 
 	public void setPickFromStockUnit(StockUnit pickFromStockUnit) {
 		this.pickFromStockUnit = pickFromStockUnit;
+	}
+
+	public String getPickFromLocationName() {
+		return pickFromLocationName;
+	}
+
+	public void setPickFromLocationName(String pickFromLocationName) {
+		this.pickFromLocationName = pickFromLocationName;
 	}
 
 	public String getPickFromUnitLoadLabel() {
@@ -218,6 +243,30 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 		this.pickingHint = pickingHint;
 	}
 
+	public String getPackingHint() {
+		return packingHint;
+	}
+
+	public void setPackingHint(String packingHint) {
+		this.packingHint = packingHint;
+	}
+
+	public String getShippingHint() {
+		return shippingHint;
+	}
+
+	public void setShippingHint(String shippingHint) {
+		this.shippingHint = shippingHint;
+	}
+
+	public BigDecimal getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(BigDecimal unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
 	public Date getFinished() {
 		return finished;
 	}
@@ -232,14 +281,6 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 
 	public void setPickedAmount(BigDecimal pickedAmount) {
 		this.pickedAmount = pickedAmount;
-	}
-
-	public String getPickFromLocationName() {
-		return pickFromLocationName;
-	}
-
-	public void setPickFromLocationName(String pickFromLocationName) {
-		this.pickFromLocationName = pickFromLocationName;
 	}
 
 }

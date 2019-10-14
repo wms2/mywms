@@ -30,8 +30,6 @@ import org.mywms.model.User;
 import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.delivery.DeliveryOrder;
@@ -53,6 +51,7 @@ import de.wms2.mywms.picking.PacketStateChangeEvent;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineEntityService;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.picking.PickingOrderLineStateChangeEvent;
 import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
@@ -70,14 +69,10 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 
- 	@EJB
-	private LOSPickingPositionService pickingPositionService;
+ 	@Inject
+	private PickingOrderLineEntityService pickingPositionService;
 	@EJB
 	private ContextService contextService;
-	
-	@EJB
-	private LOSCustomerOrderService customerOrderService;
-
 	@EJB
 	private ManageOrderService manageOrderService;
 	@Inject
@@ -177,7 +172,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		else {
 			// Find open picks. If no more picks are available, the state is set to PENDING
 			boolean hasOpenPicks = false;
-			List<PickingOrderLine> pickList = pickingPositionService.getByDeliveryOrderLine(deliveryOrderLine);
+			List<PickingOrderLine> pickList = pickingPositionService.readByDeliveryOrderLine(deliveryOrderLine);
 			for( PickingOrderLine pick : pickList ) {
 				if( pick.getState() < State.PICKED ) {
 					hasOpenPicks = true;
@@ -648,7 +643,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				// Maybe other picking positions are affected
 				// If the pick from stock is going to zero, other affected picks are reseted
 				if( BigDecimal.ZERO.compareTo(amountRemain) == 0 ) {
-					List<PickingOrderLine> affectedList = pickingPositionService.getByPickFromStockUnit(pickFromStock);
+					List<PickingOrderLine> affectedList = pickingPositionService.readBySourceStockUnit(pickFromStock);
 					for( PickingOrderLine affected : affectedList ) {
 						if( affected.equals(pick) ) {
 							continue;
@@ -1077,7 +1072,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		if( amountReservedMax==null || amountReservedNew.compareTo(amountReservedMax) > 0 ) {
 			// Try to change reservations
 
-			List<PickingOrderLine> reserverList = pickingPositionService.getByPickFromStockUnit(pickFromStockNew);
+			List<PickingOrderLine> reserverList = pickingPositionService.readBySourceStockUnit(pickFromStockNew);
 			if( reserverList == null || reserverList.size() == 0 ) {
 				log.warn(logStr+"seems to be a phantom reservation. kill it. stock="+pickFromStockNew.toDescriptiveString());
 				// seems to be a phantom reservation. kill it.

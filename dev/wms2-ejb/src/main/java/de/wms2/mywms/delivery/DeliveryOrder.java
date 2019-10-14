@@ -138,6 +138,12 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	private String pickingHint;
 
 	/**
+	 * A hint for packing operation
+	 */
+	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
+	private String packingHint;
+
+	/**
 	 * An optional reservation for an operator
 	 */
 	@ManyToOne(optional = true)
@@ -286,6 +292,14 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 		this.customerNumber = customerNumber;
 	}
 
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
 	public String getCarrierName() {
 		return carrierName;
 	}
@@ -308,6 +322,22 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	public void setPickingHint(String pickingHint) {
 		this.pickingHint = pickingHint;
+	}
+
+	public String getPackingHint() {
+		return packingHint;
+	}
+
+	public void setPackingHint(String packingHint) {
+		this.packingHint = packingHint;
+	}
+
+	public User getOperator() {
+		return operator;
+	}
+
+	public void setOperator(User operator) {
+		this.operator = operator;
 	}
 
 	public Date getStarted() {
@@ -340,22 +370,6 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	public void setVolume(BigDecimal volume) {
 		this.volume = volume;
-	}
-
-	public User getOperator() {
-		return operator;
-	}
-
-	public void setOperator(User operator) {
-		this.operator = operator;
-	}
-
-	public Address getAddress() {
-		return address;
-	}
-
-	public void setAddress(Address address) {
-		this.address = address;
 	}
 
 }

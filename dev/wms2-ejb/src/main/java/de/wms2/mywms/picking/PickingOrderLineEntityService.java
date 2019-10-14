@@ -48,6 +48,10 @@ public class PickingOrderLineEntityService {
 		return readList(null, null, deliveryOrder, null, null, null, null);
 	}
 
+	public List<PickingOrderLine> readBySourceStockUnit(StockUnit stockUnit) {
+		return readList(stockUnit, null, null, null, null, null, null);
+	}
+
 	public List<PickingOrderLine> readByPacket(Packet packet) {
 		return readList(null, null, null, null, packet, null, null);
 	}

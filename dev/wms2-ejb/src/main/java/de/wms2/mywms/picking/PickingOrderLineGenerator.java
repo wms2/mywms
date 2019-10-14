@@ -198,8 +198,12 @@ public class PickingOrderLineGenerator {
 				pickAmount = availableAmount;
 			}
 
-			PickingOrderLine pickingLine = generatePick(deliveryOrderLine, strategy, sourceStock, pickAmount, client,
-					deliveryOrderLine.getAdditionalContent(), deliveryOrderLine.getPickingHint());
+			PickingOrderLine pickingLine = generatePick(deliveryOrderLine, strategy, sourceStock, pickAmount, client);
+			pickingLine.setAdditionalContent(deliveryOrderLine.getAdditionalContent());
+			pickingLine.setPickingHint(deliveryOrderLine.getPickingHint());
+			pickingLine.setPackingHint(deliveryOrderLine.getPackingHint());
+			pickingLine.setShippingHint(deliveryOrderLine.getShippingHint());
+			pickingLine.setUnitPrice(deliveryOrderLine.getUnitPrice());
 
 			pickList.add(pickingLine);
 
@@ -213,8 +217,7 @@ public class PickingOrderLineGenerator {
 	}
 
 	public PickingOrderLine generatePick(DeliveryOrderLine deliveryOrderLine, OrderStrategy strategy,
-			StockUnit sourceStock, BigDecimal amount, Client client, String note, String hint)
-			throws BusinessException {
+			StockUnit sourceStock, BigDecimal amount, Client client) throws BusinessException {
 		String logStr = "generatePick ";
 		logger.log(Level.FINE,
 				logStr + "stock=" + sourceStock + ", itemData=" + sourceStock.getItemData() + ", amount=" + amount);
@@ -224,8 +227,6 @@ public class PickingOrderLineGenerator {
 		PickingOrderLine pick = manager.createInstance(PickingOrderLine.class);
 		pick.setAmount(amount);
 		pick.setDeliveryOrderLine(deliveryOrderLine);
-		pick.setAdditionalContent(note);
-		pick.setPickingHint(hint);
 		pick.setPickingType(calculatePickingType(sourceStock, amount));
 		pick.setItemData(sourceStock.getItemData());
 		pick.setPickFromLocationName(sourceLocation.getName());
@@ -291,7 +292,8 @@ public class PickingOrderLineGenerator {
 		try {
 			logger.fine("Fire DeliveryOrderStateChangeEvent. deliveryOrderLine=" + deliveryOrderLine + ", state="
 					+ deliveryOrderLine.getState() + ", oldState=" + oldState);
-			deliveryOrderLineStateChangeEvent.fire(new DeliveryOrderLineStateChangeEvent(deliveryOrderLine, oldState, deliveryOrderLine.getState()));
+			deliveryOrderLineStateChangeEvent.fire(
+					new DeliveryOrderLineStateChangeEvent(deliveryOrderLine, oldState, deliveryOrderLine.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

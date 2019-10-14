@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,8 +42,12 @@ import de.wms2.mywms.document.DocumentBusiness;
 import de.wms2.mywms.document.DocumentEntityService;
 import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.util.Translator;
 import de.wms2.mywms.util.Wms2BundleResolver;
+import de.wms2.mywms.util.Wms2Properties;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -70,6 +76,8 @@ public class ReportBusiness {
 	private DocumentEntityService documentService;
 	@Inject
 	private DocumentBusiness documentBusiness;
+	@Inject
+	private SystemPropertyBusiness propertyBusiness;
 
 	public byte[] createPdfDocument(Client client, String name, Class<?> bundleResolver, List<? extends Object> values,
 			Map<String, Object> parameters) throws BusinessException {
@@ -89,10 +97,15 @@ public class ReportBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Report.creationFailed");
 		}
 
-		if (!parameters.containsKey("image")) {
-			Document image = documentBusiness.readImage(Report.class, report.getId());
-			parameters.put("image", image);
-		}
+		Document image = documentBusiness.readImage(Report.class, report.getId());
+		parameters.put("image", image);
+
+		String localeString = propertyBusiness.getString(Wms2Properties.KEY_REPORT_LOCALE, null);
+		Locale locale = Translator.parseLocale(localeString);
+		parameters.put(JRParameter.REPORT_LOCALE, locale);
+
+		ResourceBundle bundle = Translator.getBundle(Wms2BundleResolver.class, null, locale);
+		parameters.put(JRParameter.REPORT_RESOURCE_BUNDLE, bundle);
 
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();

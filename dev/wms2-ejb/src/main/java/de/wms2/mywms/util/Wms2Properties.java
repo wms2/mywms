@@ -55,8 +55,4 @@ public class Wms2Properties {
 	public final static String GROUP_GENERAL = "GENERAL";
 	public final static String GROUP_WMS = "WMS";
 
-	/**
-	 * Names of sequences
-	 */
-	public static final String SEQ_SHIPPING_ORDER = "Shipment";
 }

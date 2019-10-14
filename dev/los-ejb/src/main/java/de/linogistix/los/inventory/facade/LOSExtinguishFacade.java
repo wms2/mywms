@@ -23,8 +23,6 @@ import de.wms2.mywms.inventory.StockUnit;
 @Remote
 public interface LOSExtinguishFacade {
 	
-	public void generateOrder( String clientNumber, String lotName, String itemDataNumber ) throws FacadeException;
-	
 	public void generateOrder( List<Long> stockIds ) throws FacadeException;
 
 	public void calculateLotLocks() throws FacadeException;

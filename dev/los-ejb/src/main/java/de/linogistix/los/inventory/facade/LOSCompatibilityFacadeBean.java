@@ -105,7 +105,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			su.releaseReservedAmount(amount);
 
 			PickingOrderLine pick;
-			pick = pickingPosGenerator.generatePick(orderPos, order.getOrderStrategy(), su, amount, su.getClient(), null, null);
+			pick = pickingPosGenerator.generatePick(orderPos, order.getOrderStrategy(), su, amount, su.getClient());
 			
 			String pickingOrderNumber = posTO.pickRequestNumber;
 			List<PickingOrderLine> pickList = pickingOrderMap.get(pickingOrderNumber);

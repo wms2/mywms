@@ -65,6 +65,11 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 	 */
 	private String externalNumber;
 
+	/**
+	 * An optional id to give an association to other systems
+	 */
+	private String externalId;
+
 	@Column(nullable = false)
 	private int state = OrderState.UNDEFINED;
 
@@ -177,6 +182,14 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 
 	public void setExternalNumber(String externalNumber) {
 		this.externalNumber = externalNumber;
+	}
+
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
 	}
 
 	public int getState() {

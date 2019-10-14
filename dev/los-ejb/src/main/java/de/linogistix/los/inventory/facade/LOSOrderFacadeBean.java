@@ -29,16 +29,8 @@ import org.mywms.model.Client;
 import org.mywms.service.ClientService;
 
 import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
-import de.linogistix.los.inventory.businessservice.LOSOrderGenerator;
-import de.linogistix.los.inventory.customization.ManageOrderService;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
-import de.linogistix.los.inventory.service.ItemDataService;
-import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.inventory.service.LOSGoodsOutRequestPositionService;
-import de.linogistix.los.inventory.service.LOSPickingPositionService;
-import de.linogistix.los.inventory.service.LOSStorageRequestService;
-import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.location.exception.LOSLocationExceptionKey;
 import de.linogistix.los.model.State;
@@ -48,16 +40,18 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.address.Address;
 import de.wms2.mywms.address.AddressEntityService;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderEntityService;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.delivery.DeliveryOrderLineEntityService;
 import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
-import de.wms2.mywms.delivery.DeliverynoteReportGenerator;
+import de.wms2.mywms.delivery.DeliveryReportGenerator;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
-import de.wms2.mywms.inventory.UnitLoadReportGenerator;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.Packet;
@@ -66,9 +60,10 @@ import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderEntityService;
 import de.wms2.mywms.picking.PickingOrderGenerator;
 import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineEntityService;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
-import de.wms2.mywms.picking.PickingOrderPrioChangeEvent;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataEntityService;
 import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.shipping.ShippingOrderEntityService;
 import de.wms2.mywms.shipping.ShippingOrderLine;
@@ -93,34 +88,25 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	
 	@EJB
 	private ClientService clientService;
-	@EJB
-	private LOSCustomerOrderService orderService;
-	@EJB
-	private LOSPickingPositionService pickingPositionService;
+	@Inject
+	private PickingOrderLineEntityService pickingPositionService;
+
 	@EJB
 	private LOSOrderBusiness orderBusiness;
-	@EJB
-	private LOSOrderGenerator orderGenerator;
-	@EJB
-	private ItemDataService itemService;
-	@EJB
-	private QueryLotService lotService;
+	@Inject
+	private ItemDataEntityService itemService;
+	@Inject
+	private LotEntityService lotService;
 	@Inject
 	private PickingOrderLineGenerator pickingPosGenerator;
 	@Inject
 	private PickingOrderGenerator pickingOrderGenerator;
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private OrderStrategyEntityService orderStratService;
-	@EJB
-	private ManageOrderService manageOrderService;
-	@EJB
-	private LOSGoodsOutRequestPositionService outPosService;
-	@EJB
-	private LOSStorageRequestService storageService;
 	@Inject
-	private UnitLoadReportGenerator unitLoadReport;
+	private OrderStrategyEntityService orderStratService;
+	@Inject
+	private DeliveryReportGenerator reportGenerator;
     @PersistenceContext(unitName = "myWMS")
     private  EntityManager manager;
 
@@ -133,8 +119,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@Inject
 	private UnitLoadEntityService unitLoadService;
 	@Inject
-	private DeliverynoteReportGenerator deliverynoteGenerator;
-	@Inject
 	private TransportOrderEntityService transportOrderService;
 	@Inject
 	private TransportBusiness transportBusiness;
@@ -145,9 +129,11 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@Inject
 	private AddressEntityService addressEntityService;
 	@Inject
-	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
+	private DeliveryOrderEntityService deliveryOrderService;
 	@Inject
-	private Event<PickingOrderPrioChangeEvent> pickingOrderPrioChangeEvent;
+	private DeliveryOrderLineEntityService deliveryOrderLineService;
+	@Inject
+	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
 
 	public DeliveryOrder order(String clientNumber, String externalNumber, OrderPositionTO[] positions,
 			String documentUrl, String labelUrl, String destinationName, String orderStrategyName, Date deliveryDate,
@@ -214,7 +200,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			}
 		}
 		
-		order = orderGenerator.createDeliveryOrder(client, strat);
+		order = deliveryOrderService.create(client, strat);
 		order.setPrio(prio);
 		order.setAdditionalContent(comment);
 		order.setExternalNumber(externalNumber);
@@ -223,9 +209,9 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		order.setDestination(destination);
 		order.setDeliveryDate(deliveryDate);
 		order.setAddress(address);
-
+		int line = 0;
 		for( OrderPositionTO posTO : positions ) {
-			ItemData item = itemService.getByItemNumber(client, posTO.articleRef);
+			ItemData item = itemService.readByNumber(posTO.articleRef);
 			if( item == null ) {
 				String msg = "Item data does not exist. number="+posTO.articleRef;
 				log.error(logStr+msg);
@@ -233,7 +219,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			}
 			Lot lot = null;
 			if( posTO.batchRef != null && posTO.batchRef.length()>0 ) {
-				lot = lotService.getByNameAndItemData(posTO.batchRef, item);
+				lot = lotService.read(item, posTO.batchRef);
 				if( lot == null ) {
 					String msg = "Lot data does not exist. name="+posTO.batchRef+", item="+posTO.articleRef;
 					log.error(logStr+msg);
@@ -247,7 +233,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 			}
 			
-			orderGenerator.addDeliveryOrderLine(order, item, lot, null, amount);
+			deliveryOrderLineService.create(order, item, lot, amount, ++line);
 		}
 
 		if( startPicking ) {
@@ -279,7 +265,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		log.debug(logStr+"order number="+order.getOrderNumber());
 
-		List<PickingOrderLine> pickList = pickingPositionService.getByDeliveryOrder(order);
+		List<PickingOrderLine> pickList = pickingPositionService.readByDeliveryOrder(order);
 		Set<PickingOrder> pickingOrderSet = new HashSet<PickingOrder>();
 		for( PickingOrderLine pick : pickList ) {
 			PickingOrder po = pick.getPickingOrder();
@@ -307,7 +293,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		log.debug(logStr+"order number="+order.getOrderNumber());
 		
-		List<PickingOrderLine> pickList = pickingPositionService.getByDeliveryOrder(order);
+		List<PickingOrderLine> pickList = pickingPositionService.readByDeliveryOrder(order);
 		Set<Long> pickingOrderSet1 = new HashSet<Long>();
 		
 		// 1. Remove all picks
@@ -431,53 +417,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		return ret;
 	}
 	
-	public List<BODTO<StorageLocation>> getGoodsOutLocationsBO() throws FacadeException {
-		String logStr = "getGoodsOutLocationsBO ";
-		log.debug(logStr);
-		
-		
-		List<StorageLocation> slList;
-		slList = locationService.getForGoodsOut(null);
-
-		if (slList.size() == 0) {
-			throw new LOSLocationException(
-					// LOSLocationExceptionKey.NO_GOODS_IN_LOCATION, new
-					// Object[0]);
-					LOSLocationExceptionKey.NO_GOODS_OUT_LOCATION,
-					new Object[0]);
-		}
-		
-		List<BODTO<StorageLocation>> ret = new ArrayList<BODTO<StorageLocation>>();
-
-		for (StorageLocation sl : slList) {
-			ret.add( new BODTO<StorageLocation>(sl) );
-		}
-		return ret;
-	}
-
-	public void changeOrderPrio( Long orderId, int prio ) throws FacadeException {
-		String logStr = "changeOrderPrio ";
-		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
-		if( order == null ) {
-			String msg = "Customer order does not exist. id="+orderId;
-			log.error(logStr+msg);
-			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
-		}
-		log.debug(logStr+"order number="+order.getOrderNumber());
-
-		order.setPrio(prio);
-		
-		List<PickingOrder> poList = pickingOrderEntityService.readByDeliveryOrder(order);
-		for( PickingOrder po : poList ) {
-			int prioOld = po.getPrio();
-			if( prio != prioOld ) {
-				po.setPrio(prio);
-				firePickingOrderPrioChangeEvent(po, prioOld);
-			}
-		}
-	}
-	
-	
 	public Document generateReceipt( Long orderId ) throws FacadeException {
 		String logStr = "generateReceipt ";
 		DeliveryOrder order = manager.find(DeliveryOrder.class, orderId);
@@ -488,7 +427,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 		log.debug(logStr+"order number="+order.getOrderNumber());
 
-		return  deliverynoteGenerator.generateReport(order);
+		return  reportGenerator.generateDeliverynote(order);
 	}
 	
 	public Document generateUnitLoadLabel( String label ) throws FacadeException {
@@ -503,7 +442,24 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
 
-		Document doc = unitLoadReport.generateReport(unitLoad);
+		Document doc = reportGenerator.generatePackList(unitLoad);
+
+		return doc;
+	}
+
+	public Document generatePacketLabel( Long packetId ) throws FacadeException {
+		String logStr = "generatePacketLabel ";
+		log.debug(logStr+"packetId="+packetId);
+
+		Packet packet = manager.find(Packet.class, packetId);
+
+		if( packet == null ) {
+			String msg = "Packet does not exist. id="+packetId;
+			log.error(logStr+msg);
+			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
+		}
+
+		Document doc = reportGenerator.generatePackList(packet);
 		
 		return doc;
 	}
@@ -570,17 +526,4 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 	}
 
-	private void firePickingOrderPrioChangeEvent(PickingOrder entity, int oldPrio) throws BusinessException {
-		try {
-			log.debug("Fire PickingOrderStateChangeEvent. entity=" + entity + ", prio=" + entity.getPrio()
-					+ ", oldPrio=" + oldPrio);
-			pickingOrderPrioChangeEvent.fire(new PickingOrderPrioChangeEvent(entity, oldPrio, entity.getPrio()));
-		} catch (ObserverException ex) {
-			Throwable cause = ex.getCause();
-			if (cause != null && cause instanceof BusinessException) {
-				throw (BusinessException) cause;
-			}
-			throw ex;
-		}
-	}
 }

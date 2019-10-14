@@ -58,6 +58,26 @@ public class SequenceBusiness {
 	 * is returned.
 	 * <p>
 	 * If it is not possible to generate a number after several tries, an Exception
+	 * is thrown.<p>
+	 * As name of the sequence, the name of the class is used.
+	 * 
+	 * @param entityType    Class of the entity for validation
+	 * @param attributeName Attribute name of the entity for validation
+	 * @throws BusinessException
+	 */
+	public String readNextValue(Class<? extends BasicEntity> entityType, String attributeName) {
+		return readNextValue(entityType.getSimpleName(), entityType, attributeName);
+	}
+
+	/**
+	 * Reads the next sequence number of the given sequence. If the sequence does
+	 * not exist it will be generated with default-values.
+	 * <p>
+	 * The generated number is validated with an exists query on entityType,
+	 * attributeName and the generated number. Only if no entity exists the number
+	 * is returned.
+	 * <p>
+	 * If it is not possible to generate a number after several tries, an Exception
 	 * is thrown.
 	 * 
 	 * @param name          Name of the sequence

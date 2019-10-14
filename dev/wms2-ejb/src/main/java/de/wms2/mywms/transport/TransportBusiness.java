@@ -197,7 +197,7 @@ public class TransportBusiness {
 		order.setUnitLoad(unitLoad);
 		order.setOrderType(orderType);
 		order.setState(OrderState.CREATED);
-		order.setOrderNumber(sequenceBusiness.readNextValue(TransportOrder.class.getSimpleName()));
+		order.setOrderNumber(sequenceBusiness.readNextValue(TransportOrder.class, "orderNumber"));
 		order.setDestinationLocation(destinationLocation);
 		order.setClient(unitLoad.getClient());
 		manager.persist(order);
@@ -232,7 +232,7 @@ public class TransportBusiness {
 		order.setUnitLoad(unitLoad);
 		order.setOrderType(orderType);
 		order.setState(OrderState.CREATED);
-		order.setOrderNumber(sequenceBusiness.readNextValue(TransportOrder.class.getName()));
+		order.setOrderNumber(sequenceBusiness.readNextValue(TransportOrder.class, "orderNumber"));
 		order.setDestinationLocation(null);
 		order.setClient(unitLoad.getClient());
 		manager.persist(order);
@@ -319,7 +319,7 @@ public class TransportBusiness {
 		TransportOrder successor = manager.createInstance(TransportOrder.class);
 		successor.setUnitLoad(predecessor.getUnitLoad());
 		successor.setState(OrderState.PROCESSABLE);
-		successor.setOrderNumber(sequenceBusiness.readNextValue(TransportOrder.class.getSimpleName()));
+		successor.setOrderNumber(sequenceBusiness.readNextValue(TransportOrder.class, "orderNumber"));
 		successor.setDestinationLocation(predecessor.getDestinationLocation());
 		successor.setClient(predecessor.getClient());
 		successor.setExternalNumber(predecessor.getExternalNumber());

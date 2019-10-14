@@ -18,7 +18,6 @@ import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.document.Document;
-import de.wms2.mywms.location.StorageLocation;
 
 /**
  * @author krane
@@ -97,14 +96,12 @@ public interface LOSOrderFacade {
 	 * @throws FacadeException
 	 */
 	public List<String> getGoodsOutLocations() throws FacadeException;
-	public List<BODTO<StorageLocation>> getGoodsOutLocationsBO() throws FacadeException;
-
-	public void changeOrderPrio( Long orderId, int prio ) throws FacadeException;
-
 	
 	public Document generateReceipt( Long orderId ) throws FacadeException;
 	
 	public Document generateUnitLoadLabel( String label ) throws FacadeException;
+
+	Document generatePacketLabel( Long packetId ) throws FacadeException;
 
 	/**
 	 * Generate goods-out request for pending order

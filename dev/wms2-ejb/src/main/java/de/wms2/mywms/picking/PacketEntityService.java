@@ -58,14 +58,14 @@ public class PacketEntityService {
 	 * Read one packet for the label. Only not shipped packets are queried.
 	 */
 	public Packet readFirstByLabel(String label) {
-		return readFirst(null, label, null, null, OrderState.SHIPPED-1);
+		return readFirst(null, label, null, null, OrderState.FINISHED);
 	}
 
 	/**
 	 * Read one packet for the unit load. Only not shipped packets are queried.
 	 */
 	public Packet readFirstByUnitLoad(UnitLoad unitLoad) {
-		return readFirst(unitLoad, null, null, null, OrderState.SHIPPED-1);
+		return readFirst(unitLoad, null, null, null, OrderState.FINISHED);
 	}
 
 	public List<Packet> readByPickingOrder(PickingOrder pickingOrder) {
@@ -98,7 +98,7 @@ public class PacketEntityService {
 		if (maxState != null) {
 			jpql += " and packet.state<=:maxState ";
 		}
-		jpql += " order by packet.unitLoad.labelId, packet.id";
+		jpql += " order by packet.state, packet.modified";
 		Query query = manager.createQuery(jpql);
 		if (unitLoad != null) {
 			query = query.setParameter("unitLoad", unitLoad);

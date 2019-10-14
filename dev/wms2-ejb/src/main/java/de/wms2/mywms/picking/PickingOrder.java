@@ -93,6 +93,12 @@ public class PickingOrder extends BasicClientAssignedEntity {
 	private String pickingHint;
 
 	/**
+	 * A hint for packing operation
+	 */
+	@Column(length = Wms2Constants.FIELDSIZE_DESCRIPTION)
+	private String packingHint;
+
+	/**
 	 * Timestamp of start processing
 	 */
 	private Date started;
@@ -245,6 +251,14 @@ public class PickingOrder extends BasicClientAssignedEntity {
 
 	public void setPickingHint(String pickingHint) {
 		this.pickingHint = pickingHint;
+	}
+
+	public String getPackingHint() {
+		return packingHint;
+	}
+
+	public void setPackingHint(String packingHint) {
+		this.packingHint = packingHint;
 	}
 
 	public Date getStarted() {

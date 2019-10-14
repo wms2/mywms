@@ -142,6 +142,16 @@
 				<position>14</position>
 			</value>
 		</entry>
+        <entry>
+			<key>externalId</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>15</position>
+			</value>
+		</entry>
 
         <entry>
             <key>stockTakingDate</key>
