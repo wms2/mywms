@@ -1,4 +1,4 @@
-# myWMS
+# myWMS - Release 2
 
 A fork of myWMS LOS Warehouse Management System
 
@@ -34,7 +34,7 @@ The current sources and documetations are located on github https://github.com/w
 The first action is to set the project to an actual environment (2019)
 
 - Support of Java 11 runtime
-- Support of wildfly 16 version
+- Support of wildfly 18 version
 - Support of netbeans 11 rich client
 - Support of JasperReports 6
 - Change build system from ant to maven
@@ -53,7 +53,6 @@ Here some ideas:
 This are only ideas of what could be done. There is no actual plan to do it at all nor a specific roadmap.
 Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
 
-- Advice as master/detail
 - Add images and attachments to master data objects
 - Change-history
 - Multiple locks on one entity

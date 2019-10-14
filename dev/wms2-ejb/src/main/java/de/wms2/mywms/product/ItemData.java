@@ -17,7 +17,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.product;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,8 +24,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
@@ -165,14 +162,6 @@ public class ItemData extends BasicClientAssignedEntity {
 	private ItemUnit itemUnit;
 
 	private String tradeGroup;
-
-	/**
-	 * @deprecated Use a service to read the additional numbers
-	 */
-	@OneToMany(mappedBy = "itemData")
-	@OrderBy("orderIndex ASC")
-	@Deprecated
-	private List<ItemDataNumber> numberList;
 
 	/**
 	 * Default value for a packaging.<br>
@@ -385,14 +374,6 @@ public class ItemData extends BasicClientAssignedEntity {
 
 	public void setTradeGroup(String tradeGroup) {
 		this.tradeGroup = tradeGroup;
-	}
-
-	public List<ItemDataNumber> getNumberList() {
-		return numberList;
-	}
-
-	public void setNumberList(List<ItemDataNumber> numberList) {
-		this.numberList = numberList;
 	}
 
 	public PackagingUnit getDefaultPackagingUnit() {

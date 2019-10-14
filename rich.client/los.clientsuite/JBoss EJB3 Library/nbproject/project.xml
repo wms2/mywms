@@ -213,6 +213,7 @@
                 <package>org.apache.activemq.artemis.api.core.management</package>
                 <package>org.apache.activemq.artemis.api.jms</package>
                 <package>org.apache.activemq.artemis.api.jms.management</package>
+                <package>org.apache.activemq.artemis.core</package>
                 <package>org.apache.activemq.artemis.core.buffers.impl</package>
                 <package>org.apache.activemq.artemis.core.client</package>
                 <package>org.apache.activemq.artemis.core.client.impl</package>
@@ -240,6 +241,7 @@
                 <package>org.apache.activemq.artemis.core.version</package>
                 <package>org.apache.activemq.artemis.core.version.impl</package>
                 <package>org.apache.activemq.artemis.jms.client</package>
+                <package>org.apache.activemq.artemis.jms.client.compatible1X</package>
                 <package>org.apache.activemq.artemis.jndi</package>
                 <package>org.apache.activemq.artemis.logs</package>
                 <package>org.apache.activemq.artemis.reader</package>
@@ -318,6 +320,7 @@
                 <package>org.hibernate.boot.registry.selector.spi</package>
                 <package>org.hibernate.boot.spi</package>
                 <package>org.hibernate.boot.xsd</package>
+                <package>org.hibernate.bytecode</package>
                 <package>org.hibernate.bytecode.enhance.internal.bytebuddy</package>
                 <package>org.hibernate.bytecode.enhance.internal.javassist</package>
                 <package>org.hibernate.bytecode.enhance.internal.tracker</package>
@@ -451,6 +454,7 @@
                 <package>org.hibernate.loader.entity</package>
                 <package>org.hibernate.loader.entity.plan</package>
                 <package>org.hibernate.loader.hql</package>
+                <package>org.hibernate.loader.internal</package>
                 <package>org.hibernate.loader.plan.build.internal</package>
                 <package>org.hibernate.loader.plan.build.internal.returns</package>
                 <package>org.hibernate.loader.plan.build.internal.spaces</package>
@@ -620,19 +624,24 @@
                 <package>org.wildfly.common</package>
                 <package>org.wildfly.common._private</package>
                 <package>org.wildfly.common.annotation</package>
+                <package>org.wildfly.common.archive</package>
+                <package>org.wildfly.common.array</package>
                 <package>org.wildfly.common.bytes</package>
                 <package>org.wildfly.common.codec</package>
                 <package>org.wildfly.common.context</package>
                 <package>org.wildfly.common.cpu</package>
                 <package>org.wildfly.common.expression</package>
+                <package>org.wildfly.common.flags</package>
                 <package>org.wildfly.common.function</package>
                 <package>org.wildfly.common.iteration</package>
+                <package>org.wildfly.common.lock</package>
                 <package>org.wildfly.common.math</package>
                 <package>org.wildfly.common.net</package>
                 <package>org.wildfly.common.os</package>
                 <package>org.wildfly.common.ref</package>
                 <package>org.wildfly.common.rpc</package>
                 <package>org.wildfly.common.selector</package>
+                <package>org.wildfly.common.string</package>
                 <package>org.wildfly.discovery</package>
                 <package>org.wildfly.discovery.impl</package>
                 <package>org.wildfly.discovery.spi</package>
@@ -647,39 +656,53 @@
                 <package>org.wildfly.naming.client.util</package>
                 <package>org.wildfly.naming.security</package>
                 <package>org.wildfly.security</package>
-                <package>org.wildfly.security._private</package>
                 <package>org.wildfly.security.asn1</package>
-                <package>org.wildfly.security.asn1.util</package>
                 <package>org.wildfly.security.audit</package>
                 <package>org.wildfly.security.auth</package>
                 <package>org.wildfly.security.auth.callback</package>
                 <package>org.wildfly.security.auth.client</package>
                 <package>org.wildfly.security.auth.jaspi</package>
+                <package>org.wildfly.security.auth.jaspi._private</package>
                 <package>org.wildfly.security.auth.jaspi.impl</package>
                 <package>org.wildfly.security.auth.permission</package>
                 <package>org.wildfly.security.auth.principal</package>
                 <package>org.wildfly.security.auth.realm</package>
                 <package>org.wildfly.security.auth.realm.jdbc</package>
+                <package>org.wildfly.security.auth.realm.jdbc._private</package>
                 <package>org.wildfly.security.auth.realm.jdbc.mapper</package>
                 <package>org.wildfly.security.auth.realm.ldap</package>
                 <package>org.wildfly.security.auth.realm.token</package>
+                <package>org.wildfly.security.auth.realm.token._private</package>
                 <package>org.wildfly.security.auth.realm.token.validator</package>
                 <package>org.wildfly.security.auth.server</package>
+                <package>org.wildfly.security.auth.server._private</package>
                 <package>org.wildfly.security.auth.server.event</package>
+                <package>org.wildfly.security.auth.server.http</package>
+                <package>org.wildfly.security.auth.server.sasl</package>
                 <package>org.wildfly.security.auth.util</package>
                 <package>org.wildfly.security.authz</package>
                 <package>org.wildfly.security.authz.jacc</package>
                 <package>org.wildfly.security.cache</package>
                 <package>org.wildfly.security.credential</package>
+                <package>org.wildfly.security.credential._private</package>
                 <package>org.wildfly.security.credential.source</package>
+                <package>org.wildfly.security.credential.source.impl</package>
                 <package>org.wildfly.security.credential.store</package>
+                <package>org.wildfly.security.credential.store._private</package>
                 <package>org.wildfly.security.credential.store.impl</package>
                 <package>org.wildfly.security.digest</package>
                 <package>org.wildfly.security.evidence</package>
                 <package>org.wildfly.security.http</package>
+                <package>org.wildfly.security.http.basic</package>
+                <package>org.wildfly.security.http.bearer</package>
+                <package>org.wildfly.security.http.cert</package>
+                <package>org.wildfly.security.http.digest</package>
+                <package>org.wildfly.security.http.form</package>
                 <package>org.wildfly.security.http.impl</package>
+                <package>org.wildfly.security.http.spnego</package>
                 <package>org.wildfly.security.http.util</package>
                 <package>org.wildfly.security.http.util.sso</package>
+                <package>org.wildfly.security.json.util</package>
                 <package>org.wildfly.security.key</package>
                 <package>org.wildfly.security.keystore</package>
                 <package>org.wildfly.security.manager</package>
@@ -688,6 +711,8 @@
                 <package>org.wildfly.security.mechanism</package>
                 <package>org.wildfly.security.mechanism._private</package>
                 <package>org.wildfly.security.mechanism.digest</package>
+                <package>org.wildfly.security.mechanism.gssapi</package>
+                <package>org.wildfly.security.mechanism.http</package>
                 <package>org.wildfly.security.mechanism.oauth2</package>
                 <package>org.wildfly.security.mechanism.scram</package>
                 <package>org.wildfly.security.password</package>
@@ -697,8 +722,12 @@
                 <package>org.wildfly.security.password.util</package>
                 <package>org.wildfly.security.pem</package>
                 <package>org.wildfly.security.permission</package>
+                <package>org.wildfly.security.provider.util</package>
+                <package>org.wildfly.security.provider.util._private</package>
                 <package>org.wildfly.security.sasl</package>
+                <package>org.wildfly.security.sasl._private</package>
                 <package>org.wildfly.security.sasl.anonymous</package>
+                <package>org.wildfly.security.sasl.auth.util</package>
                 <package>org.wildfly.security.sasl.digest</package>
                 <package>org.wildfly.security.sasl.digest._private</package>
                 <package>org.wildfly.security.sasl.entity</package>
@@ -714,11 +743,13 @@
                 <package>org.wildfly.security.ssl</package>
                 <package>org.wildfly.security.ssl._private</package>
                 <package>org.wildfly.security.util</package>
-                <package>org.wildfly.security.util._private</package>
                 <package>org.wildfly.security.x500</package>
+                <package>org.wildfly.security.x500._private</package>
                 <package>org.wildfly.security.x500.cert</package>
+                <package>org.wildfly.security.x500.cert._private</package>
                 <package>org.wildfly.security.x500.cert.acme</package>
                 <package>org.wildfly.security.x500.cert.util</package>
+                <package>org.wildfly.security.x500.principal</package>
                 <package>org.wildfly.security.x500.util</package>
                 <package>org.wildfly.transaction</package>
                 <package>org.wildfly.transaction.client</package>
@@ -739,16 +770,16 @@
                 <package>org.xnio.streams</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/jboss-client.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jboss-client.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/hibernate-core-5.3.9.Final.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/hibernate-core-5.3.9.Final.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/javax.persistence-api-2.2.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/javax.persistence-api-2.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/hibernate-core-5.3.12.Final.jar</runtime-relative-path>
+                <binary-origin>/home/krane/projekt/mywms/rich.client/los.clientsuite/JBoss EJB3 Library/release/modules/ext/hibernate-core-5.3.12.Final.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jboss-client.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jboss-client.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/byte-buddy-1.9.5.jar</runtime-relative-path>
