@@ -48,6 +48,7 @@ public class ItemDataEntityService {
 		itemData.setItemUnit(unit);
 
 		manager.persistValidated(itemData);
+		manager.flush();
 
 		return itemData;
 	}

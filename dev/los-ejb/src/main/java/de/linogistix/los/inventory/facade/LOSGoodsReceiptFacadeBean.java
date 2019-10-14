@@ -23,7 +23,6 @@ import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
 import org.mywms.model.Client;
 import org.mywms.model.User;
-import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.common.businessservice.LOSPrintService;
 import de.linogistix.los.common.exception.UnAuthorizedException;
@@ -33,17 +32,9 @@ import de.linogistix.los.inventory.crud.StockUnitCRUDRemote;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
-import de.linogistix.los.inventory.query.ItemDataQueryRemote;
-import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
-import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.LOSLotService;
-import de.linogistix.los.inventory.service.QueryItemDataService;
-import de.linogistix.los.inventory.service.QueryLotService;
-import de.linogistix.los.inventory.service.StockUnitService;
 import de.linogistix.los.location.exception.LOSLocationException;
 import de.linogistix.los.query.BODTO;
-import de.linogistix.los.query.ClientQueryRemote;
 import de.linogistix.los.report.ReportException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.linogistix.los.util.businessservice.ContextService;
@@ -69,6 +60,7 @@ import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataEntityService;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.OrderState;
@@ -81,33 +73,17 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     @EJB
     private LOSGoodsReceiptComponent receiptComponent;
     @EJB
-    private ClientQueryRemote clientQuery;
-    @EJB
-    private LotQueryRemote lotQuery;
-    @EJB
-    private ItemDataQueryRemote itemQuery;
-    @EJB
     private StockUnitCRUDRemote suCrud;
     @EJB
     private InventoryGeneratorService genService;
     @EJB
-    private LOSGoodsReceiptQueryRemote qrQuery;
-    @EJB
-    private LOSLotService lotService;
-    @EJB
-    private QueryLotService queryLotService;
-    @EJB
-    private ManageInventoryFacade manageInventoryFacade;
+    private LotEntityService lotService;
     @EJB
     private LOSSystemPropertyService propertyService;
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private StockUnitService stockUnitService;
-	@EJB
+	@Inject
 	private FixAssignmentEntityService fixService;
-	@EJB
-	private QueryItemDataService queryItemDataService;
 	@Inject
 	private StockUnitReportGenerator suLabelReport;
 	@EJB
@@ -129,6 +105,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private GoodsReceiptBusiness goodsReceiptBusiness;
 	@Inject
 	private LotEntityService lotEntityService;
+	@Inject
+	private ItemDataEntityService itemDataEntityService;
 	@Inject
 	private PersistenceManager manager;
 
@@ -357,13 +335,14 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	{
 		item = manager.merge(item);
 		
-		Lot lot = queryLotService.getByNameAndItemData(lotName, item);
+		Lot lot = lotService.read(item, lotName);
 		
 		if(lot != null){
 			return lot;
 		}
 		else{
-			lot = lotService.create(item.getClient(), item, lotName, new Date(), null, validTo);
+			lot = lotService.create(item, lotName, new Date());
+			lot.setBestBeforeEnd(validTo);
 			return lot;
 		}
 	}
@@ -405,7 +384,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			return false;
 		}
 		
-		List<StockUnit> list = stockUnitService.getBySerialNumber(itemData, serialNo);
+		List<StockUnit> list = stockUnitEntityService.readBySerialNumber(itemData, serialNo);
 		for (StockUnit su : list) {
 			if (BigDecimal.ZERO.compareTo(su.getAmount()) < 0) {
 				return false;
@@ -466,7 +445,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
         
         
-        ItemData idat = queryItemDataService.getByItemNumber(client, itemDataNumber);
+        ItemData idat = itemDataEntityService.readByNumber(itemDataNumber);
         if (idat == null){
         	throw new InventoryException(InventoryExceptionKey.ITEMDATA_NOT_FOUND, itemDataNumber);
         }
@@ -489,11 +468,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         
         Lot lot = null;
         if (lotName != null){
-        	try {
-				lot = lotService.getByNameAndItemData(client, lotName, itemDataNumber);
-			} catch (EntityNotFoundException e) {
-			}
-        	if (lot == null){
+				lot = lotEntityService.read(idat, lotName);
+				if (lot == null){
             	throw new InventoryException(InventoryExceptionKey.NO_LOT_WITH_NAME, lotName);
             }
         } else if (idat.isLotMandatory()){

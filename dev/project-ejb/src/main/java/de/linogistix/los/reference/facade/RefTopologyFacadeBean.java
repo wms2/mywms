@@ -37,7 +37,6 @@ import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.businessservice.LocationBasicDataService;
@@ -68,7 +67,9 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.module.ModuleSetup.SetupLevel;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataEntityService;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemDataNumberEntityService;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.property.SystemProperty;
 import de.wms2.mywms.strategy.FixAssignment;
@@ -102,8 +103,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	@EJB
 	private QueryTypeCapacityConstraintService capaService;
 	
-	@EJB
-	private ItemDataService itemDataService;
+	@Inject
+	private ItemDataEntityService itemDataService;
 	
 	@Inject
 	private FixAssignmentEntityService fixedService;
@@ -117,8 +118,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	@EJB
 	private LOSOrderFacade orderFacade;
 	
-	@EJB
-	private ItemDataNumberService eanService;
+	@Inject
+	private ItemDataNumberEntityService eanService;
 
 	@EJB
 	private LOSStockTakingProcessComp stService;
@@ -463,14 +464,14 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	private ItemData createItemData(Client client, String number, String name, String descr, ItemUnit unit,
 			boolean lotMandatory, SerialNoRecordType serialType, Zone zone, UnitLoadType type, BigDecimal height,
 			BigDecimal width, BigDecimal depth, BigDecimal weight) {
-		ItemData itemData = null;
-		itemData = itemDataService.getByItemNumber(client, number);
+		ItemData itemData = itemDataService.readByNumber(number);
 		if( itemData == null ) {
 			itemData = entityGenerator.generateEntity( ItemData.class );
 			itemData.setClient(client);
 			itemData.setNumber(number);
 			itemData.setItemUnit(unit);
 			manager.persist(itemData);
+			manager.flush();
 		}
 
 		itemData.setName(name);
@@ -489,9 +490,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	}
 	
 	private ItemDataNumber createEAN(ItemData itemData, String code) {
-		ItemDataNumber ean = null;
-		List<ItemDataNumber> eanList = eanService.getListByNumber(null, code);
-		if( eanList == null || eanList.size() == 0 ) {
+		ItemDataNumber ean = eanService.read(itemData, code);
+		if (ean == null) {
 			try {
 				ean = eanService.create(itemData, code);
 			} catch (FacadeException e) {

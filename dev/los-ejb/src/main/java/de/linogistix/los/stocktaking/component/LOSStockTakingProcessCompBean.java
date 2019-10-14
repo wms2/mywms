@@ -33,7 +33,6 @@ import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
-import de.linogistix.los.inventory.service.QueryLotService;
 import de.linogistix.los.location.service.QueryTypeCapacityConstraintService;
 import de.linogistix.los.stocktaking.customization.LOSManageStocktakingService;
 import de.linogistix.los.stocktaking.exception.LOSStockTakingException;
@@ -48,6 +47,7 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.JournalHandler;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -72,8 +72,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	@EJB
 	private QueryItemDataService queryItemService;
 
-	@EJB
-	private QueryLotService queryLotService;
+	@Inject
+	private LotEntityService queryLotService;
 
 	@EJB
 	private QueryTypeCapacityConstraintService queryTccService;
@@ -1307,7 +1307,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		
 		resolved.lot = null;
 		if (rec.getLotNo() != null && rec.getLotNo().length() > 0) {
-			resolved.lot = queryLotService.getByNameAndItemData(rec.getLotNo(), resolved.item);
+			resolved.lot = queryLotService.read(resolved.item, rec.getLotNo());
 
 			if (resolved.lot == null) {
 				log.info(methodName+"Unknown Lot <"+rec.getItemNo()+" / "+rec.getLotNo()+">");

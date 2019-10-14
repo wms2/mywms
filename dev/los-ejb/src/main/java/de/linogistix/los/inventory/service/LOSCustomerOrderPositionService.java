@@ -19,8 +19,4 @@ import de.wms2.mywms.delivery.DeliveryOrderLine;
  */
 @Local
 public interface LOSCustomerOrderPositionService extends BasicService<DeliveryOrderLine> {
-
-	public DeliveryOrderLine getByNumber(String number);
-	public boolean existsByNumber(String number);
-
 }

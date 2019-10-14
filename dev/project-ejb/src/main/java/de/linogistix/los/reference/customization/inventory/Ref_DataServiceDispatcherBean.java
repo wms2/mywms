@@ -20,20 +20,19 @@ import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 import org.mywms.model.ItemUnitType;
-import org.mywms.service.UniqueConstraintViolatedException;
 
 import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.customization.ImportDataServiceDispatcher;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
-import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
@@ -41,6 +40,7 @@ import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemDataEntityService;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -50,8 +50,8 @@ import de.wms2.mywms.strategy.TypeCapacityConstraint;
 public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatcher {
 	private static final Logger logger = Logger.getLogger(Ref_DataServiceDispatcherBean.class);
 
-	@EJB
-	private ItemDataService itemService;
+	@Inject
+	private ItemDataEntityService itemService;
 	
 	@EJB
 	private ItemUnitService itemUnitService;
@@ -454,12 +454,12 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		
 		ItemData item;
 		
-		item = itemService.getByItemNumber(client, number);
+		item = itemService.readByNumber(number);
 		if (item == null) {
 			try {
-				item = itemService.create(client, number);
-			} catch (UniqueConstraintViolatedException e) {
-				logger.error("ItemData already exists. => Skip.");
+				item = itemService.create(client, number, name, unit);
+			} catch (BusinessException e) {
+				logger.error("ItemData is invalid.", e);
 		        return;
 			}
 		}

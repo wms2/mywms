@@ -37,16 +37,24 @@ import org.mywms.model.User;
 import org.mywms.service.RoleService;
 import org.mywms.service.UniqueConstraintViolatedException;
 
+import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.client.ClientBusiness;
+import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.goodsreceipt.GoodsReceipt;
+import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.AreaEntityService;
 import de.wms2.mywms.location.LocationClusterEntityService;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocationEntityService;
+import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.property.SystemPropertyBusiness;
+import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.sequence.SequenceBusiness;
+import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2Properties;
 
@@ -165,17 +173,15 @@ public class Wms2SetupService extends ModuleSetup {
 		}
 
 		logger.info("Create Sequences...");
-		sequeceBusiness.createNotExisting("GoodsReceipt", "WE-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("Advice", "AVIS-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("UnitLoadAdvice", "UAV-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("UnitLoad", "%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("PickingOrder", "PICK-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("DeliveryOrder", "ORDER-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("TransportOrder", "TR-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("Shipment", "GOUT-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("ReplenishOrder", "REPL-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("Inventory", "IMAN-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("Stocktaking", "IV-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(GoodsReceipt.class.getSimpleName(), "WE-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(Advice.class.getSimpleName(), "AVIS-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(UnitLoad.class.getSimpleName(), "%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(PickingOrder.class.getSimpleName(), "PICK-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(DeliveryOrder.class.getSimpleName(), "ORDER-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(TransportOrder.class.getSimpleName(), "TR-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(ShippingOrder.class.getSimpleName(), "GOUT-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting(ReplenishOrder.class.getSimpleName(), "REPL-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("StocktakingOrder", "IV-%1$06d", 1L, 999999L);
 
 		logger.info("Create defaults...");
 		locationClusterService.getSystem();

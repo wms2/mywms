@@ -18,7 +18,7 @@ import de.wms2.mywms.product.ItemData;
 
 @Stateless
 public class QueryLotServiceBean 
-	implements QueryLotService, QueryLotServiceRemote 
+	implements QueryLotServiceRemote 
 {
 
 	@PersistenceContext(unitName="myWMS")

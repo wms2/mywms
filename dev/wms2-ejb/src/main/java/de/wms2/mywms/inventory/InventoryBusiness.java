@@ -121,13 +121,14 @@ public class InventoryBusiness {
 	// UnitLoad handling
 	// ***********************************************************************
 	/**
-	 * Change the state of a unit load and all it's stock units.<p>
-	 * The state is just written to the entities. NO CHECK!<br> 
+	 * Change the state of a unit load and all it's stock units.
+	 * <p>
+	 * The state is just written to the entities. NO CHECK!<br>
 	 * Be sure what you are doing!
 	 */
 	public void changeState(UnitLoad unitLoad, int state) throws BusinessException {
 		unitLoad.setState(state);
-		for( StockUnit stockUnit : stockUnitService.readByUnitLoad(unitLoad)) {
+		for (StockUnit stockUnit : stockUnitService.readByUnitLoad(unitLoad)) {
 			int oldState = stockUnit.getState();
 			stockUnit.setState(state);
 			fireStockUnitStateChangeEvent(stockUnit, oldState);
@@ -156,7 +157,7 @@ public class InventoryBusiness {
 			operator = userBusiness.getCurrentUser();
 		}
 		if (StringUtils.isEmpty(label)) {
-			label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "labelId");
+			label = sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 		}
 
 		unitLoad = unitLoadService.create(client, label, unitLoadType, location);
@@ -474,7 +475,7 @@ public class InventoryBusiness {
 			return;
 		}
 
-		boolean isStockOnUnitLoad = stockUnitService.exists(null, null, null, unitLoad, null, null);
+		boolean isStockOnUnitLoad = stockUnitService.existsByUnitLoad(unitLoad);
 		if (isStockOnUnitLoad) {
 			logger.log(Level.FINE, logStr + "UnitLoad is not empty. unitLoad=" + unitLoad);
 			return;
@@ -722,7 +723,7 @@ public class InventoryBusiness {
 		}
 
 		if (!StringUtils.isBlank(serialNumber)) {
-			if (stockService.exists(null, itemData, null, null, null, serialNumber)) {
+			if (stockService.existsBySerialNumber(itemData, serialNumber)) {
 				logger.log(Level.INFO,
 						logStr + "Serial-No already exists. product=" + itemData + ", serial=" + serialNumber);
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueSerial");
@@ -750,7 +751,7 @@ public class InventoryBusiness {
 		serialNumber = StringUtils.trimToNull(serialNumber);
 
 		if (serialNumber != null) {
-			if (stockService.exists(null, itemData, null, null, null, serialNumber)) {
+			if (stockService.existsBySerialNumber(itemData, serialNumber)) {
 				logger.log(Level.WARNING,
 						logStr + "Serial-No already exists. itemData=" + itemData + ", serial=" + serialNumber);
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueSerial");
@@ -943,7 +944,7 @@ public class InventoryBusiness {
 
 		if (toUnitLoad.getUnitLoadType().isAggregateStocks() && amount.compareTo(BigDecimal.ZERO) > 0) {
 			List<StockUnit> addToStockList = stockService.readList(stock.getClient(), stock.getItemData(),
-					stock.getLot(), toUnitLoad, null, stock.getSerialNumber(), null);
+					stock.getLot(), toUnitLoad, null, stock.getSerialNumber(), null, null);
 			for (StockUnit addToStock : addToStockList) {
 				if (isSummableItem(stock, amount, addToStock, addToStock.getAmount())) {
 					int stockState = stock.getState();

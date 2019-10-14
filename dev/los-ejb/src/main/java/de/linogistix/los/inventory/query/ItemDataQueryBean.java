@@ -14,14 +14,13 @@ package de.linogistix.los.inventory.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.query.dto.ItemDataTO;
-import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
@@ -30,6 +29,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemDataNumberEntityService;
 
 /**
  *
@@ -40,8 +40,8 @@ public class ItemDataQueryBean extends BusinessObjectQueryBean<ItemData> impleme
 
 	private static final Logger log = Logger.getLogger(ItemDataQueryBean.class);
 	
-	@EJB
-	ItemDataNumberService idnService;
+	@Inject
+	ItemDataNumberEntityService idnService;
     
 	@Override
     public String getUniqueNameProp() {
@@ -86,7 +86,7 @@ public class ItemDataQueryBean extends BusinessObjectQueryBean<ItemData> impleme
 		ret.add(client);
 		
 		// I think, that it is not possible make this in one query with JPA and Hibernate 3.1
-		List<ItemDataNumber> idnList = idnService.getListByNumber(null,value);
+		List<ItemDataNumber> idnList = idnService.readByNumber(value);
 		if( idnList != null && idnList.size()>0 ) {
 			int i=0;
 			for( ItemDataNumber idn : idnList ) {

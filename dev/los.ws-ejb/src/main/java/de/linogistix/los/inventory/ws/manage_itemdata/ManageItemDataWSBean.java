@@ -13,6 +13,7 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
@@ -35,12 +36,12 @@ import de.linogistix.los.inventory.exception.InventoryTransactionException;
 import de.linogistix.los.inventory.exception.StockExistException;
 import de.linogistix.los.inventory.model.LOSBom;
 import de.linogistix.los.inventory.service.ClientItemNumberTO;
-import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSBomService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemDataNumberEntityService;
 import de.wms2.mywms.product.ItemUnit;
 
 @Stateless
@@ -69,8 +70,8 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 	@EJB
 	private LOSBomService bomService;
 	
-	@EJB
-	private ItemDataNumberService idnService;	
+	@Inject
+	private ItemDataNumberEntityService idnService;	
 	
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
@@ -198,7 +199,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 		}
 		
 		String[] eans = updateReq.getEanCodes();
-		List<ItemDataNumber> idnList = idnService.getListByItemData( item );
+		List<ItemDataNumber> idnList = idnService.readByItemData( item );
 		
 		if( eans != null ) {
 			for( String s : eans ) {
@@ -231,8 +232,8 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 			}
 			for( ItemDataNumber idn : idnList ) {
 				try {
-					idnService.delete(idn);
-				} catch (ConstraintViolatedException e) {
+					manager.remove(idn);
+				} catch (Exception e) {
 					log.error(logStr+"Exception in delete: " + e.getMessage(), e);
 					throw new ManageItemDataWSFault(
 							ManageItemDataErrorCodes.ERROR_UPDATE_BOM, 
@@ -299,11 +300,11 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
     	}
 
 		
-		List<ItemDataNumber> idnList = idnService.getListByItemData(item);
+		List<ItemDataNumber> idnList = idnService.readByItemData(item);
 		for( ItemDataNumber idn:idnList ) {
 			try {
-				idnService.delete(idn);
-			} catch (ConstraintViolatedException e) {
+				manager.remove(idn);
+			} catch (Exception e) {
 				log.error(logStr+"Cannot delete ItemDataNumber number="+idn.getNumber()+", item="+item.getNumber());
 				throw new ManageItemDataWSFault(ManageItemDataErrorCodes.ERROR_DELETE, e.getLocalizedMessage());
 			}

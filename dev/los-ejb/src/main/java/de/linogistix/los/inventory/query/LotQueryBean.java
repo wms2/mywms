@@ -11,22 +11,15 @@
 package de.linogistix.los.inventory.query;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
-import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.query.dto.LotTO;
-import de.linogistix.los.inventory.service.LOSLotService;
-import de.linogistix.los.inventory.service.LotLockState;
-import de.linogistix.los.inventory.service.LotService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
@@ -44,8 +37,6 @@ import de.wms2.mywms.product.ItemData;
  * @author <a href="http://community.mywms.de/developer.jsp">Andreas Trautmann</a>
  */
 @Stateless
-// public class LotQueryBean extends BusinessObjectQueryBean<Client> implements
-// LotQueryRemote{
 public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 		LotQueryRemote {
 
@@ -54,11 +45,6 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 	private static final String[] dtoProps = new String[] { "id", "version",
 			"name", "itemData.number", "itemData.name", "lock", "useNotBefore", "bestBeforeEnd", "client.number" };
 
-	@EJB
-	LotService lotService;
-	
-	@EJB
-	LOSLotService losLotService;
 	@Inject
 	private LotEntityService lotEntityService;
 
@@ -120,65 +106,6 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 		}
 	}
 
-	public LOSResultList<BODTO<Lot>> getNotToUse(QueryDetail d)
-			throws FacadeException {
-
-		GregorianCalendar today = new GregorianCalendar();
-
-		today.set(GregorianCalendar.HOUR_OF_DAY, 23);
-		today.set(GregorianCalendar.MINUTE, 59);
-		today.set(GregorianCalendar.SECOND, 59);
-
-		TemplateQuery q = new TemplateQuery();
-		q.setBoClass(Lot.class);
-		TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_AFTER, "useNotBefore", today
-						.getTime());
-		q.addWhereToken(t);
-
-		return queryByTemplateHandles(d, q);
-
-	}
-
-	public LOSResultList<BODTO<Lot>> getToUseFromNow(QueryDetail d)
-			throws FacadeException {
-		GregorianCalendar today = new GregorianCalendar();
-
-		today.set(GregorianCalendar.HOUR_OF_DAY, 0);
-		today.set(GregorianCalendar.MINUTE, 0);
-		today.set(GregorianCalendar.SECOND, 0);
-
-		TemplateQuery q = new TemplateQuery();
-		q.setBoClass(Lot.class);
-		TemplateQueryWhereToken t = new TemplateQueryWhereToken("<=",
-				"useNotBefore", today.getTime());
-		q.addWhereToken(t);
-
-		t = new TemplateQueryWhereToken("=", "lock", LotLockState.LOT_TOO_YOUNG
-				.getLock());
-		q.addWhereToken(t);
-
-		return queryByTemplateHandles(d, q);
-	}
-
-	public LOSResultList<BODTO<Lot>> getTooOld(QueryDetail d)
-			throws FacadeException {
-
-		GregorianCalendar today = new GregorianCalendar();
-		today.set(GregorianCalendar.HOUR_OF_DAY, 0);
-		today.set(GregorianCalendar.MINUTE, 0);
-		today.set(GregorianCalendar.SECOND, 0);
-
-		TemplateQuery q = new TemplateQuery();
-		q.setBoClass(Lot.class);
-		TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_BEFORE, "bestBeforeEnd", today
-						.getTime());
-		q.addWhereToken(t);
-
-		return queryByTemplateHandles(d, q);
-	}
-
 	@Override
 	protected List<TemplateQueryWhereToken> getAutoCompletionTokens(String value) {
 
@@ -209,13 +136,6 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 		return ret;
 	}
 	
-	public Lot queryByNameAndItemData(Client c, String lotName, ItemData idat) throws BusinessObjectNotFoundException{
-		try{
-			return losLotService.getByNameAndItemData(c, lotName, idat.getNumber());
-		} catch (EntityNotFoundException ex){
-			throw new BusinessObjectNotFoundException();
-		}
-	}
 	public Lot queryByNameAndItemData(String lotName, ItemData itemData) {
 		return lotEntityService.read(itemData, lotName);
 	}

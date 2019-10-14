@@ -125,8 +125,7 @@ public class LocationFinderBean implements LocationFinder {
 
 			boolean hasWrongLot = false;
 			boolean hasVeto = false;
-			List<StockUnit> stockList = stockUnitService.readList(null, itemData, null, null, fix.getStorageLocation(),
-					null, null);
+			List<StockUnit> stockList = stockUnitService.readByItemDataLocation(itemData, fix.getStorageLocation());
 			for (StockUnit stock : stockList) {
 				if (vetoStocks != null && vetoStocks.contains(stock)) {
 					hasVeto = true;

@@ -43,6 +43,7 @@ import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.advice.AdviceBusiness;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -87,7 +88,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private ClientService clientService;
 	
     @EJB 
-    private LOSLotService lotService;
+    private LOSLotService losLotService;
 	
     @EJB
     private ContextService contextService;
@@ -125,6 +126,8 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private AdviceBusiness adviceBusiness;
+    @Inject
+    private LotEntityService lotEntityService;
 
 	/* 
 	 * @see ManageInventoryRemote#createItemData(java.lang.String, java.lang.String)
@@ -250,14 +253,14 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			}
 			
 			if(batchRef != null){
-				try{
-					batch = lotService.getByNameAndItemData(c, batchRef, itemData.getNumber());
-				} catch (EntityNotFoundException ex){
-					log.warn("No Iventory Found: CREATED. - " + ex.getMessage());
-					batch = lotService.create(c, itemData, batchRef, new Date(), useNotBefore, bestBeforeEnd);
+				batch = lotEntityService.read(itemData, batchRef);
+				if(batch==null) {
+					batch = lotEntityService.create(itemData, batchRef, new Date());
+					batch.setUseNotBefore(useNotBefore);
+					batch.setBestBeforeEnd(bestBeforeEnd);
 				}
 				
-				lotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
+				losLotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
 			Advice advice = adviceBusiness.createOrder(c, null);
@@ -308,14 +311,14 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			}
 			
 			if(batchRef != null){
-				try{
-					batch = lotService.getByNameAndItemData(c, batchRef, itemData.getNumber());
-				} catch (EntityNotFoundException ex){
-					log.warn("No Iventory Found: CREATED. - " + ex.getMessage());
-					batch = lotService.create(c, itemData, batchRef, new Date(), useNotBefore, bestBeforeEnd);
+				batch = lotEntityService.read(itemData, batchRef);
+				if(batch==null) {
+					batch = lotEntityService.create(itemData, batchRef, new Date());
+					batch.setUseNotBefore(useNotBefore);
+					batch.setBestBeforeEnd(bestBeforeEnd);
 				}
 				
-				lotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
+				losLotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
 			Advice advice = adviceBusiness.createOrder(c, requestID);
@@ -416,14 +419,12 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private Lot getOrCreateLot(Client c, String lotRef, ItemData idat) {
 		Lot lot;
 		if (lotRef != null && lotRef.length() != 0) {
-			try {
-				lot = lotService.getByNameAndItemData(c, lotRef, idat.getNumber());
-				if (!lot.getItemData().equals(idat)) {
-					throw new RuntimeException("ItemData does not match Lot");
-				}
-			} catch (EntityNotFoundException ex) {
-				log.warn("CREATE Lot: " + ex.getMessage());
-				lot = lotService.create(c, idat, lotRef, new Date(), null, null);
+			lot = lotEntityService.read(idat, lotRef);
+			if (lot == null) {
+				lot = lotEntityService.create(idat, lotRef, new Date());
+			}
+			if (!lot.getItemData().equals(idat)) {
+				throw new RuntimeException("ItemData does not match Lot");
 			}
 		} else {
 			throw new IllegalArgumentException("Missing orderRef");
@@ -592,17 +593,16 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 					new Object[]{item.getName()});
 		}
 				
-		try {
-			lotService.getByNameAndItemData(cl, lotNumber, it.getNumber());
-			throw new InventoryException(InventoryExceptionKey.LOT_ALREADY_EXIST, new Object[]{lotNumber});
-			
-		} catch (EntityNotFoundException e) {
-			// o.k. the number still does not exist
+
+		Lot lot = lotEntityService.read(it, lotNumber);
+		if (lot != null) {
+			throw new InventoryException(InventoryExceptionKey.LOT_ALREADY_EXIST, new Object[] { lotNumber });
 		}
+		lot = lotEntityService.create(it, lotNumber, new Date());
+		lot.setUseNotBefore(useNotBefore);
+		lot.setBestBeforeEnd(bestBeforeEnd);
 		
-		Lot lot = lotService.create(cl, it, lotNumber, new Date(), useNotBefore, bestBeforeEnd);
-		
-		lotService.processLotDates(lot, bestBeforeEnd, useNotBefore);
+		losLotService.processLotDates(lot, bestBeforeEnd, useNotBefore);
 		
 		return new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.getName());
 	}

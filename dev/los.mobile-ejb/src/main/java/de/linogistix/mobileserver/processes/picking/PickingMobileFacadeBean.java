@@ -35,9 +35,7 @@ import de.linogistix.los.inventory.businessservice.LOSOrderBusiness;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.inventory.service.ItemDataService;
-import de.linogistix.los.inventory.service.LOSCustomerOrderService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.StockUnitService;
@@ -51,14 +49,15 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.linogistix.mobileserver.processes.controller.ManageMobile;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.delivery.DeliveryOrderEntityService;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.delivery.DeliveryReportGenerator;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
-import de.wms2.mywms.inventory.UnitLoadReportGenerator;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.LocationCluster;
@@ -68,9 +67,11 @@ import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineEntityService;
 import de.wms2.mywms.picking.PickingType;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemDataNumberEntityService;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
 /**
@@ -94,21 +95,19 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	@EJB
 	private LOSPickingPositionService pickingPositionService;
 	@EJB
-	private LOSCustomerOrderService customerOrderService;
-	@EJB
 	private InventoryGeneratorService sequenceService;
 	@EJB
 	private StockUnitService stockUnitService;
 	@EJB
 	private ItemDataService itemDataService;
 	@Inject
-	private UnitLoadReportGenerator unitLoadReport;
+	private DeliveryReportGenerator unitLoadReport;
 	@EJB
 	private LOSPrintService printService;
 	@EJB
 	private ManageMobile manageMobile;
-	@EJB
-	private ItemDataNumberService eanService;
+	@Inject
+	private ItemDataNumberEntityService eanService;
 	@Inject
 	private FixAssignmentEntityService fixService;
 
@@ -118,6 +117,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	@Inject
 	private PacketEntityService pickingUnitLoadService;
 	@Inject
+	private PickingOrderLineEntityService pickingOrderLineEntityService;
+	@Inject
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private StorageLocationEntityService locationService;
@@ -125,6 +126,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	private UnitLoadTypeEntityService unitLoadTypeService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private DeliveryOrderEntityService deliveryOrderService;
 
 	public Client getDefaultClient() {
 		Client systemClient = clientBusiness.getSingleClient();
@@ -156,7 +159,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		PickingMobileOrder mOrder = new PickingMobileOrder(order);
 		
 		if( !StringTools.isEmpty(mOrder.customerOrderNumber) ) {
-			DeliveryOrder deliveryOrder = customerOrderService.getByNumber(mOrder.customerOrderNumber);
+			DeliveryOrder deliveryOrder = deliveryOrderService.readByOrderNumber(mOrder.customerOrderNumber);
 			if( deliveryOrder != null ) {
 				mOrder.setCustomerOrder(deliveryOrder);
 			}
@@ -396,7 +399,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		}
 		
 		
-		List<PickingOrderLine> pickList = pickingPositionService.getByPickToUnitLoad(pickingUnitLoad);
+		List<PickingOrderLine> pickList = pickingOrderLineEntityService.readByPacket(pickingUnitLoad);
 		if( pickList != null && pickList.size()>0 ) {
 			log.info(logStr+"Some picks are referencing the picking unit load. Cannot remove. label="+label);
 			return false;
@@ -613,7 +616,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		List<PickingMobilePos> pickListMobile = new ArrayList<PickingMobilePos>();
 		
 		for( PickingOrderLine pick : pickList ) {
-			List<ItemDataNumber> numberList = eanService.getListByItemData(pick.getItemData());
+			List<ItemDataNumber> numberList = eanService.readByItemData(pick.getItemData());
 			List<String> eanList = null;
 			if( numberList != null && numberList.size()>0 ) {
 				eanList = new ArrayList<String>();
@@ -736,7 +739,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB("CannotReadUnitLoad", this.getClass());
 		}
 		
-		Document receipt = unitLoadReport.generateReport(unitLoad);
+		Document receipt = unitLoadReport.generatePackList(unitLoad);
 		printService.print(printer, receipt.getData(), receipt.getDocumentType());
 
 	}

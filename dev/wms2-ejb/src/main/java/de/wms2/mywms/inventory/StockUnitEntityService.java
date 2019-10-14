@@ -43,15 +43,39 @@ public class StockUnitEntityService {
 	private PersistenceManager manager;
 
 	public List<StockUnit> readByLocation(StorageLocation location) {
-		return readList(null, null, null, null, location, null, null);
-	}
-
-	public List<StockUnit> readByUnitLoad(UnitLoad unitLoad) {
-		return readList(null, null, null, unitLoad, null, null, null);
+		return readList(null, null, null, null, location, null, null, null);
 	}
 
 	public boolean existsByUnitLoad(UnitLoad unitLoad) {
-		return exists(null, null, null, unitLoad, null, null);
+		return exists(null, null, null, unitLoad, null, null, null);
+	}
+
+	public List<StockUnit> readByUnitLoad(UnitLoad unitLoad) {
+		return readList(null, null, null, unitLoad, null, null, null, null);
+	}
+
+	public boolean existsByItemData(ItemData itemData) {
+		return exists(null, itemData, null, null, null, null, StockState.DELETABLE - 1);
+	}
+
+	public List<StockUnit> readByItemData(ItemData itemData) {
+		return readList(null, itemData, null, null, null, null, StockState.DELETABLE - 1, null);
+	}
+
+	public boolean existsBySerialNumber(ItemData itemData, String serialNumber) {
+		return exists(null, itemData, null, null, null, serialNumber, StockState.DELETABLE - 1);
+	}
+
+	public List<StockUnit> readBySerialNumber(ItemData itemData, String serialNumber) {
+		return readList(null, itemData, null, null, null, serialNumber, StockState.DELETABLE - 1, null);
+	}
+
+	public boolean existsByItemDataLocation(ItemData itemData, StorageLocation location) {
+		return exists(null, itemData, null, null, location, null, StockState.DELETABLE - 1);
+	}
+
+	public List<StockUnit> readByItemDataLocation(ItemData itemData, StorageLocation location) {
+		return readList(null, itemData, null, null, location, null, StockState.DELETABLE - 1, null);
 	}
 
 	/**
@@ -60,7 +84,7 @@ public class StockUnitEntityService {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<StockUnit> readList(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad,
-			StorageLocation location, String serialNumber, Integer limit) {
+			StorageLocation location, String serialNumber, Integer maxState, Integer limit) {
 		String hql = "SELECT stock, stock.unitLoad, stock.itemData FROM " + StockUnit.class.getName() + " stock";
 		hql += " WHERE 1=1";
 		if (client != null) {
@@ -81,6 +105,9 @@ public class StockUnitEntityService {
 		if (!StringUtils.isBlank(serialNumber)) {
 			hql += " AND stock.serialNumber=:serial";
 		}
+		if (maxState != null) {
+			hql += " AND stock.state<=:maxState";
+		}
 		hql += " order by stock.id";
 
 		Query query = manager.createQuery(hql);
@@ -88,22 +115,25 @@ public class StockUnitEntityService {
 			query.setMaxResults(limit);
 		}
 		if (client != null) {
-			query = query.setParameter("client", client);
+			query.setParameter("client", client);
 		}
 		if (itemData != null) {
-			query = query.setParameter("itemData", itemData);
+			query.setParameter("itemData", itemData);
 		}
 		if (unitLoad != null) {
-			query = query.setParameter("unitLoad", unitLoad);
+			query.setParameter("unitLoad", unitLoad);
 		}
 		if (location != null) {
-			query = query.setParameter("location", location);
+			query.setParameter("location", location);
 		}
 		if (lot != null) {
-			query = query.setParameter("lot", lot);
+			query.setParameter("lot", lot);
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
-			query = query.setParameter("serial", serialNumber);
+			query.setParameter("serial", serialNumber);
+		}
+		if (maxState != null) {
+			query.setParameter("maxState", maxState);
 		}
 
 		List<Object[]> results = query.getResultList();
@@ -120,8 +150,8 @@ public class StockUnitEntityService {
 	 * Checks whether an entity exists, which is matching the given criteria. All
 	 * parameters are optional.
 	 */
-	public boolean exists(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad,
-			StorageLocation location, String serialNumber) {
+	public boolean exists(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad, StorageLocation location,
+			String serialNumber, Integer maxState) {
 		String hql = "SELECT stock.id FROM " + StockUnit.class.getName() + " stock";
 		hql += " WHERE 1=1";
 		if (client != null) {
@@ -142,6 +172,9 @@ public class StockUnitEntityService {
 		if (!StringUtils.isBlank(serialNumber)) {
 			hql += " AND stock.serialNumber=:serial";
 		}
+		if (maxState != null) {
+			hql += " AND stock.state<=:maxState";
+		}
 
 		Query query = manager.createQuery(hql);
 		if (client != null) {
@@ -161,6 +194,9 @@ public class StockUnitEntityService {
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			query = query.setParameter("serial", serialNumber);
+		}
+		if (maxState != null) {
+			query.setParameter("maxState", maxState);
 		}
 
 		query.setMaxResults(1);

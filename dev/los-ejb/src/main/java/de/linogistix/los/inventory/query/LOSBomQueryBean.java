@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
@@ -25,7 +25,6 @@ import org.mywms.model.User;
 
 import de.linogistix.los.inventory.model.LOSBom;
 import de.linogistix.los.inventory.query.dto.LOSBomTO;
-import de.linogistix.los.inventory.service.ItemDataNumberService;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
@@ -37,6 +36,7 @@ import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemDataNumberEntityService;
 
 /**
  * @author krane
@@ -46,8 +46,8 @@ import de.wms2.mywms.product.ItemDataNumber;
 public class LOSBomQueryBean extends BusinessObjectQueryBean<LOSBom> implements LOSBomQueryRemote{
 	Logger log = Logger.getLogger(LOSBomQueryBean.class);
 
-	@EJB
-	ItemDataNumberService idnService;
+	@Inject
+	ItemDataNumberEntityService idnService;
 
 	private static final String[] dtoProps = new String[] { 
 		"id", "version", "id",  
@@ -92,8 +92,9 @@ public class LOSBomQueryBean extends BusinessObjectQueryBean<LOSBom> implements 
 			t.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 			filter.addWhereToken(t);
 			
-			ItemDataNumber idn = idnService.getByNumber(master);
-			if( idn != null ) {
+			List<ItemDataNumber> idns = idnService.readByNumber(master);
+			if( idns.size()==1 ) {
+				ItemDataNumber idn = idns.get(0);
 				t = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "parent.id", idn.getItemData().getId());
 				t.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 				filter.addWhereToken(t);
@@ -114,8 +115,9 @@ public class LOSBomQueryBean extends BusinessObjectQueryBean<LOSBom> implements 
 			t.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 			filter.addWhereToken(t);
 			
-			ItemDataNumber idn = idnService.getByNumber(child);
-			if( idn != null ) {
+			List<ItemDataNumber> idns = idnService.readByNumber(child);
+			if( idns.size()==1 ) {
+				ItemDataNumber idn = idns.get(0);
 				t = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "child.id", idn.getItemData().getId());
 				t.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 				filter.addWhereToken(t);
@@ -178,8 +180,9 @@ public class LOSBomQueryBean extends BusinessObjectQueryBean<LOSBom> implements 
 		ret.add(client);
 
 		// I think, that it is not possible make this in one query with JPA and Hibernate 3.1
-		ItemDataNumber idn = idnService.getByNumber(value);
-		if( idn != null ) {
+		List<ItemDataNumber> idns = idnService.readByNumber(value);
+		if( idns.size()==1 ) {
+			ItemDataNumber idn = idns.get(0);
 			TemplateQueryWhereToken numbers = new TemplateQueryWhereToken(
 				TemplateQueryWhereToken.OPERATOR_EQUAL, "child.id", idn.getItemData().getId());
 			numbers.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);

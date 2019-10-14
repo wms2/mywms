@@ -12,19 +12,19 @@ import java.util.Date;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 import org.mywms.service.ClientService;
-import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.businessservice.QueryInventoryBusiness;
 import de.linogistix.los.inventory.businessservice.QueryInventoryTO;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.ItemDataService;
-import de.linogistix.los.inventory.service.LOSLotService;
 import de.wms2.mywms.inventory.Lot;
+import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.product.ItemData;
 
 
@@ -46,8 +46,8 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 	@EJB
 	private ClientService clientService;
 	
-	@EJB
-	private LOSLotService lotService;
+	@Inject
+	private LotEntityService lotService;
 	
 	@EJB
 	private QueryInventoryBusiness invBusiness;
@@ -113,10 +113,9 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_ITEMDATA, articleRef);
 		}
 		
-		try{
-			lot = lotService.getByNameAndItemData(c, lotRef, articleRef);
-		} catch (EntityNotFoundException ex){
-			log.error("--- !!! NO LOT WITH NUMBER > "+lotRef+" !!! ---");
+		lot = lotService.read(idat, lotRef);
+		if (lot == null) {
+			log.error("--- !!! NO LOT WITH NUMBER > " + lotRef + " !!! ---");
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_LOT, lotRef);
 		}
 		

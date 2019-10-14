@@ -29,16 +29,6 @@ public interface QueryItemDataService {
      */
     public ItemData getByItemNumber(Client client, String itemNumber);
     
-	/**
-     * Search for a List of {@link ItemData} having the specified number
-     * and belonging to specified {@link Client}.
-     * 
-     * @param client the client owning the item data entity
-     * @param itemNumber the item number to find
-     * @return matching {@link ItemData} or NULL if there is none
-     */
-	public List<ItemData> getListByItemNumber(Client client, String itemNumber);
-
     /**
      * Search for an {@link ItemData} having the specified number.
      * and belonging to callers {@link Client}.

@@ -20,23 +20,23 @@ import javax.persistence.PersistenceContext;
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
-import de.linogistix.los.inventory.service.LOSCustomerOrderService;
-import de.linogistix.los.inventory.service.LOSPickingPositionService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
-import de.linogistix.los.inventory.service.QueryStockService;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
+import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
-import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.picking.PacketEntityService;
+import de.wms2.mywms.picking.PickingOrderLine;
+import de.wms2.mywms.picking.PickingOrderLineEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
@@ -53,18 +53,13 @@ public class InfoFacadeBean implements InfoFacade {
 	private QueryItemDataService queryItemData;
 	
 	@EJB
-	private QueryStockService queryStock;
-	
-	@EJB
 	private FixAssignmentEntityService fixService;
 	
 	
 	@EJB
 	private ContextService contextService;
-	@EJB
-	private LOSPickingPositionService pickingPositionService;
-	@EJB
-	private LOSCustomerOrderService customerOrderService;
+	@Inject
+	private PickingOrderLineEntityService pickingPositionService;
 
 	@Inject
 	private ClientBusiness clientService;
@@ -74,6 +69,8 @@ public class InfoFacadeBean implements InfoFacade {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private UnitLoadEntityService unitLoadService;
+	@Inject
+	private StockUnitEntityService stockUnitEntityService;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
@@ -112,7 +109,7 @@ public class InfoFacadeBean implements InfoFacade {
 		
 		List<FixAssignment> fixList = fixService.readByItemData(item);
 
-		List<StockUnit> suList = queryStock.getListByItemData(item, true);
+		List<StockUnit> suList = stockUnitEntityService.readList(null, item, null, null, null, null, StockState.ON_STOCK, null);
 		
 		return new InfoItemDataTO(item, fixList, suList);
 	}
@@ -146,7 +143,7 @@ public class InfoFacadeBean implements InfoFacade {
 		
 		ItemData item = queryItemData.getByItemNumber( itemNumber );
 		
-		List<StockUnit> suList = queryStock.getListByItemData(item, true);
+		List<StockUnit> suList = stockUnitEntityService.readList(null, item, null, null, null, null, StockState.ON_STOCK, null);
 		if( suList == null || suList.size()<=0 ) {
 			return toList;
 		}
@@ -211,7 +208,7 @@ public class InfoFacadeBean implements InfoFacade {
 				orderSetSu.add( deliveryOrder );
 			}
 			else {
-				List<PickingOrderLine> pickList = pickingPositionService.getByPickFromStockUnit(su);
+				List<PickingOrderLine> pickList = pickingPositionService.readBySourceStockUnit(su);
 				for( PickingOrderLine pick : pickList ) {
 					if( pick.getState() < State.PICKED ) {
 						DeliveryOrderLine orderPos = pick.getDeliveryOrderLine();

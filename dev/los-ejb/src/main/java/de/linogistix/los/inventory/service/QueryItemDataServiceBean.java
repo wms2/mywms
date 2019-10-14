@@ -26,6 +26,7 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
+import de.wms2.mywms.product.ItemDataNumberEntityService;
 
 @Stateless
 public class QueryItemDataServiceBean 
@@ -38,8 +39,8 @@ public class QueryItemDataServiceBean
 	@EJB
 	private ContextService ctxService;
 	
-	@EJB
-	private ItemDataNumberService idnService;
+	@Inject
+	private ItemDataNumberEntityService idnService;
 	
 	@PersistenceContext(unitName="myWMS")
 	private EntityManager manager;
@@ -84,17 +85,17 @@ public class QueryItemDataServiceBean
         }
         else if( idList == null || idList.size() == 0 ) {
         	// Try to find some ItemData with the additional numbers
-        	ItemDataNumber idn = idnService.getByNumber(client, itemNumber);
-        	if( idn != null ) {
-        		return (ItemData)BusinessObjectHelper.eagerRead(idn.getItemData());
-        	}
+			List<ItemDataNumber> idns = idnService.readByNumber(itemNumber);
+			if (idns.size() == 1) {
+				return (ItemData) BusinessObjectHelper.eagerRead(idns.get(0).getItemData());
+			}
         }
         
     	return null;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<ItemData> getListByItemNumber(Client client, String itemNumber) {
+	private List<ItemData> getListByItemNumber(Client client, String itemNumber) {
 		
 		Client callersClient = ctxService.getCallersClient();
         if (!callersClient.isSystemClient()) {
@@ -129,7 +130,7 @@ public class QueryItemDataServiceBean
         }
         
     	// Try to find some ItemData with the additional numbers
-    	List<ItemDataNumber> idnList = idnService.getListByNumber(client, itemNumber);
+    	List<ItemDataNumber> idnList = idnService.readByNumber(itemNumber);
     	if( idnList != null && idnList.size() > 0 ) {
     		List<ItemData> retList = new ArrayList<ItemData>();
     		for( ItemDataNumber idn : idnList ) {
@@ -141,63 +142,8 @@ public class QueryItemDataServiceBean
     	return null;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see de.linogistix.los.inventory.service.QueryItemDataService#getByItemNumber(org.mywms.model.Client, java.lang.String)
-	 */
-//	public ItemData getByItemNumber(Client client, String itemNumber) {
-//		
-//		StringBuffer sb = new StringBuffer("SELECT id FROM ");
-//        sb.append(ItemData.class.getSimpleName()+ " id ");
-//        sb.append("WHERE id.number=:itemNumber ");
-//        sb.append("AND id.client=:cl");
-//        
-//        Query query = manager.createQuery(sb.toString());
-//        
-//        query.setParameter("itemNumber", itemNumber);
-//        query.setParameter("cl", client);
-//
-//        try {
-//        	return (ItemData) query.getSingleResult();
-//        }
-//        catch (NoResultException ex) {
-//        	// Try to find some ItemData with the additional numbers
-//        	List<ItemDataNumber> idns = idnService.getByNumber(client, itemNumber);
-//        	if( idns != null && idns.size() == 1 ) {
-//        		return idns.get(0).getItemData();
-//        	}
-//        	
-//            return null;
-//            
-//        }
-//	}
-	
 	public ItemData getByItemNumber(String itemNumber) {
 		return getByItemNumber(null, itemNumber);
-		
-//		Client callersClient = ctxService.getCallersClient();
-//
-//		StringBuffer sb = new StringBuffer("SELECT id FROM ");
-//        sb.append(ItemData.class.getSimpleName()+ " id ");
-//        sb.append("WHERE id.number=:itemNumber ");
-//
-//        if (!callersClient.isSystemClient()) {
-//            sb.append("AND id.client = :cl ");
-//        }
-//        
-//        Query query = manager.createQuery(sb.toString());
-//        
-//        query.setParameter("itemNumber", itemNumber);
-//        if (!callersClient.isSystemClient()) {
-//        	query.setParameter("cl", callersClient);
-//        }
-//
-//        try {
-//        	return (ItemData) query.getSingleResult();
-//        }
-//        catch (NoResultException ex) {
-//            return null;
-//        }
 	}
 
 	public List<ItemData> getListByItemNumber(String itemNumber) {

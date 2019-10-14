@@ -11,11 +11,9 @@ import java.util.List;
 
 import javax.ejb.Remote;
 
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
-import de.wms2.mywms.product.ItemData;
 
 @Remote
 public interface QueryStockServiceRemote {
@@ -30,53 +28,7 @@ public interface QueryStockServiceRemote {
 	 * @return {@link List} of {@link StockUnit}s
 	 */
 	public List<StockUnit> getListByUnitLoad(UnitLoad ul);
-	
-	/**
-	 * Reading the stock units of a unit load.<br>
-	 * For security reasons result will be limited according to the callers client <br> 
-	 * - callers who belong to the system client will get all {@link StockUnit}s for the specified unit load<br>
-	 * - callers of a certain client will get only those {@link StockUnit}s that are also assigned to that client.
-	 * 
-	 * @param label, the label of the unit load
-	 * @return {@link List} of {@link StockUnit}s
-	 */
-	public List<StockUnit> getListByUnitLoadLabel( String label );
-	/**
-	 * Search for all stocks of specified lot. 
-	 * If lot is NULL, search for stocks that are not assigned to any lot.
-	 * For security reasons result will be limited according to the callers client <br> 
-	 * - callers who belong to the system client will get all {@link StockUnit}s for the specified {@link Lot}<br>
-	 * - callers of a certain client will get only those {@link StockUnit}s that are also assigned to that client.
-	 * 
-	 * @param lot {@link Lot} to search for.
-	 * @param checkAvailable Only unlocked material with amount > 0 is searched
-	 * @return {@link List} of {@link StockUnit}s
-	 */
-	public List<StockUnit> getListByLot(Lot lot, boolean checkAvailable);
-	
-	/**
-	 * Search for all stocks of specified {@link ItemData}.
-	 * For security reasons result will be limited according to the callers client <br> 
-	 * - callers who belong to the system client will get all {@link StockUnit}s for the specified {@link ItemData}<br>
-	 * - callers of a certain client will get only those {@link StockUnit}s that are also assigned to that client.
-	 * 
-	 * @param item
-	 * @param checkAvailable Only unlocked material with amount > 0 is searched
-	 * @return
-	 */
-	public List<StockUnit> getListByItemData(ItemData item, boolean checkAvailable);
-	
-	/**
-	 * Search for all stocks of specified {@link ItemData} that are not assigned to any lot.
-	 * For security reasons result will be limited according to the callers client <br> 
-	 * - callers who belong to the system client will get all {@link StockUnit}s for the specified {@link ItemData}<br>
-	 * - callers of a certain client will get only those {@link StockUnit}s that are also assigned to that client.
-	 * 
-	 * @param item
-	 * @return
-	 */
-	public List<StockUnit> getListByItemDataNoLot(ItemData item);
-	
+
 	/**
 	 * Search for all stocks of specified location.
 	 * For security reasons result will be limited according to the callers client.

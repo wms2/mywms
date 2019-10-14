@@ -8,6 +8,7 @@
 package de.linogistix.los.inventory.customization;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -20,7 +21,7 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.exception.InventoryTransactionException;
 import de.linogistix.los.inventory.exception.StockExistException;
 import de.linogistix.los.inventory.service.ItemDataService;
-import de.linogistix.los.inventory.service.StockUnitService;
+import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
 
@@ -29,8 +30,8 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 	@EJB
 	private ItemDataService itemService;
 	
-	@EJB
-	private StockUnitService stockService;
+	@Inject
+	private StockUnitEntityService stockService;
 	@EJB
 	private EntityGenerator entityGenerator;
 
@@ -100,7 +101,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 	public ItemData updateItemUnit(ItemData item, ItemUnit newValue)
 			throws StockExistException 
 	{
-		if(stockService.getCount(item)>0){
+		if(stockService.existsByItemData(item)){
 			throw new StockExistException();
 		}
 		
@@ -115,7 +116,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 	 */
 	public ItemData updateLotMandatory(ItemData item, boolean newValue) throws StockExistException {
 		
-		if(stockService.getCount(item)>0){
+		if(stockService.existsByItemData(item)){
 			throw new StockExistException();
 		}
 		
@@ -130,7 +131,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 	 */
 	public ItemData updateScale(ItemData item, int newValue) throws StockExistException {
 		
-		if(stockService.getCount(item)>0){
+		if(stockService.existsByItemData(item)){
 			throw new StockExistException();
 		}
 		
@@ -147,7 +148,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 		throws StockExistException 
 	{
 		
-		if(stockService.getCount(item)>0){
+		if(stockService.existsByItemData(item)){
 			throw new StockExistException();
 		}
 		
@@ -223,7 +224,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 	 */
 	public void deleteItemData(ItemData item) throws StockExistException {
 		
-		if(stockService.getCount(item)>0){
+		if(stockService.existsByItemData(item)){
 			throw new StockExistException();
 		}
 		

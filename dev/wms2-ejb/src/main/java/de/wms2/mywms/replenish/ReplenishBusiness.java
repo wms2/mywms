@@ -375,8 +375,7 @@ public class ReplenishBusiness {
 		boolean useCompleteSource = (amount.compareTo(sourceStockUnit.getAmount()) == 0);
 		if (useCompleteSource) {
 			// do not move mixed source
-			List<StockUnit> stocksOnUnitLoad = stockUnitEntityService.readList(null, null, null,
-					sourceStockUnit.getUnitLoad(), null, null, null);
+			List<StockUnit> stocksOnUnitLoad = stockUnitEntityService.readByUnitLoad(sourceStockUnit.getUnitLoad());
 			if (stocksOnUnitLoad.size() != 1) {
 				useCompleteSource = false;
 			}
@@ -391,7 +390,7 @@ public class ReplenishBusiness {
 			// Find stock to add the amount
 			List<StockUnit> addToStocks = stockUnitEntityService.readList(sourceStockUnit.getClient(),
 					sourceStockUnit.getItemData(), sourceStockUnit.getLot(), null, toLocation,
-					sourceStockUnit.getSerialNumber(), null);
+					sourceStockUnit.getSerialNumber(), null, null);
 			for (StockUnit addToStock : addToStocks) {
 				if (addToStock.getUnitLoad().equals(sourceStockUnit.getUnitLoad())) {
 					continue;
@@ -406,8 +405,7 @@ public class ReplenishBusiness {
 			UnitLoad addToUnitLoad = null;
 
 			// find a unit load to add
-			List<StockUnit> stocksOnLocation = stockUnitEntityService.readList(null, null, null, null, toLocation, null,
-					null);
+			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByLocation(toLocation);
 			for (StockUnit stockOnLocation : stocksOnLocation) {
 				if (inventoryBusiness.isSummableItem(sourceStockUnit, null, stockOnLocation, null)) {
 					logger.log(Level.FINE,
@@ -419,7 +417,7 @@ public class ReplenishBusiness {
 			if (addToUnitLoad == null) {
 				logger.log(Level.FINE, logStr + "generate new unit load on target location");
 				UnitLoadType unitLoadType = unitLoadTypeService.getVirtual();
-				String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "labelId");
+				String label = sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 				addToUnitLoad = inventoryBusiness.createUnitLoad(order.getClient(), label, unitLoadType, toLocation,
 						sourceStockUnit.getState(), activityCode, operator, null);
 			}
@@ -513,8 +511,7 @@ public class ReplenishBusiness {
 
 			BigDecimal sumAmount = BigDecimal.ZERO;
 			Set<Lot> lotsOnLocation = new HashSet<>();
-			List<StockUnit> stocksOnLocation = stockUnitEntityService.readList(null, fix.getItemData(), null, null,
-					fix.getStorageLocation(), null, null);
+			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByItemDataLocation(fix.getItemData(), fix.getStorageLocation());
 			for (StockUnit stock : stocksOnLocation) {
 				sumAmount = sumAmount.add(stock.getAmount());
 				if (stock.getLot() != null) {
@@ -560,8 +557,8 @@ public class ReplenishBusiness {
 			// check amounts
 			BigDecimal sumAmount = BigDecimal.ZERO;
 			Set<Lot> lotsOnLocation = new HashSet<>();
-			List<StockUnit> stocksOnLocation = stockUnitEntityService.readList(null, fix.getItemData(), null, null,
-					fix.getStorageLocation(), null, null);
+			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByItemDataLocation(fix.getItemData(),
+					fix.getStorageLocation());
 			for (StockUnit stock : stocksOnLocation) {
 				sumAmount = sumAmount.add(stock.getAmount());
 				if (stock.getLot() != null) {
@@ -587,8 +584,7 @@ public class ReplenishBusiness {
 			throws BusinessException {
 		BigDecimal sumAmount = BigDecimal.ZERO;
 		Set<Lot> lotSet = new HashSet<>();
-		List<StockUnit> locationStockList = stockUnitEntityService.readList(null, itemData, null, null, location, null,
-				null);
+		List<StockUnit> locationStockList = stockUnitEntityService.readByItemDataLocation(itemData, location);
 		for (StockUnit stock : locationStockList) {
 			sumAmount = sumAmount.add(stock.getAmount());
 			if (stock.getLot() != null) {
@@ -618,8 +614,7 @@ public class ReplenishBusiness {
 			return null;
 		}
 
-		String orderNumber = sequenceBusiness.readNextValue(ReplenishOrder.class.getSimpleName(), ReplenishOrder.class,
-				"orderNumber");
+		String orderNumber = sequenceBusiness.readNextValue(ReplenishOrder.class, "orderNumber");
 		ReplenishOrder order = manager.createInstance(ReplenishOrder.class);
 		order.setClient(sourceStock.getClient());
 		order.setOrderNumber(orderNumber);
@@ -715,8 +710,8 @@ public class ReplenishBusiness {
 
 		try {
 			StockUnit stock = (StockUnit) query.getSingleResult();
-			logger.log(Level.INFO, logStr + "Found stock on replenish location. itemData=" + itemData
-					+ ", location=" + stock.getUnitLoad().getStorageLocation());
+			logger.log(Level.INFO, logStr + "Found stock on replenish location. itemData=" + itemData + ", location="
+					+ stock.getUnitLoad().getStorageLocation());
 			return stock;
 		} catch (Throwable t) {
 		}
@@ -744,8 +739,7 @@ public class ReplenishBusiness {
 			return null;
 		}
 
-		String orderNumber = sequenceBusiness.readNextValue(ReplenishOrder.class.getSimpleName(), ReplenishOrder.class,
-				"orderNumber");
+		String orderNumber = sequenceBusiness.readNextValue(ReplenishOrder.class, "orderNumber");
 		ReplenishOrder order = manager.createInstance(ReplenishOrder.class);
 		order.setClient(sourceStock.getClient());
 		order.setOrderNumber(orderNumber);
