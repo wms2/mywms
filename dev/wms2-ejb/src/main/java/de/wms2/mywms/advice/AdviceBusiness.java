@@ -176,7 +176,7 @@ public class AdviceBusiness {
 		}
 
 		if (StringUtils.isEmpty(orderNumber)) {
-			orderNumber = sequenceBusiness.readNextValue(Advice.class.getSimpleName(), Advice.class, "orderNumber");
+			orderNumber = sequenceBusiness.readNextValue(Advice.class, "orderNumber");
 		}
 
 		Advice advice = manager.createInstance(Advice.class);

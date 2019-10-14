@@ -344,20 +344,25 @@ public class UnitLoadPrintDialog extends javax.swing.JDialog {
         try {
             for( BODTO bodto : orders ) {
                 String label = null;
+                Long packetId = null;
                 if( bodto instanceof LOSPickingUnitLoadTO ) {
-                    label = ((LOSPickingUnitLoadTO)bodto).getLabel();
+                    packetId = bodto.getId();
                 }
                 else {
                     label = bodto.getName();
                 }
-                if( label == null ) {
+                if( label == null && packetId==null) {
                     continue;
                 }
 
                 Document doc = null;
 
                 if( fPrintLabel.isSelected() || fSaveLabel.isSelected() ) {
-                    doc = orderFacade.generateUnitLoadLabel(label);
+                    if( packetId!=null) {
+                        doc = orderFacade.generatePacketLabel(packetId);
+                    } else {
+                        doc = orderFacade.generateUnitLoadLabel(label);
+                    }
                 }
 
                 if( fSaveLabel.isSelected() && doc != null ) {

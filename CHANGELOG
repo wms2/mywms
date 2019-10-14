@@ -281,6 +281,7 @@ Release 2.3
         de.linogistix.los.inventory.model.LOSStorageRequest replaced by de.wms2.mywms.transport.TransportOrder
         de.wms2.mywms.inventory.UnitLoadType got new attribute 'usages'
         de.wms2.mywms.address.Address is new
+        de.wms2.mywms.advice.Advice, AdviceLine
 
     - Removed some duplicate method implementations from entity services
     - Made API of entity services a little more consistent

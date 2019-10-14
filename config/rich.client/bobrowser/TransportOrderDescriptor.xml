@@ -154,6 +154,16 @@
                 <position>4</position>
             </value>
         </entry>
+        <entry>
+            <key>externalId</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
 
 
     </descriptions>

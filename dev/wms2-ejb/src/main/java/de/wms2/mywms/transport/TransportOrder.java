@@ -85,6 +85,11 @@ public class TransportOrder extends BasicClientAssignedEntity {
 	private String externalNumber;
 
 	/**
+	 * An optional id to give an association to other systems
+	 */
+	private String externalId;
+
+	/**
 	 * Timestamp of start processing
 	 */
 	private Date started;
@@ -229,6 +234,14 @@ public class TransportOrder extends BasicClientAssignedEntity {
 
 	public void setExternalNumber(String externalNumber) {
 		this.externalNumber = externalNumber;
+	}
+
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
 	}
 
 	public Date getStarted() {

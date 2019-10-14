@@ -256,8 +256,7 @@ public class GoodsReceiptBusiness {
 		String logStr = "createOrder ";
 		logger.log(Level.FINE, logStr + "client=" + client);
 
-		String number = sequenceBusiness.readNextValue(GoodsReceipt.class.getSimpleName(), GoodsReceipt.class,
-				"orderNumber");
+		String number = sequenceBusiness.readNextValue(GoodsReceipt.class, "orderNumber");
 
 		GoodsReceipt goodsReceipt = manager.createInstance(GoodsReceipt.class);
 		goodsReceipt.setClient(client);
@@ -335,7 +334,7 @@ public class GoodsReceiptBusiness {
 		UnitLoad unitLoad = null;
 
 		if (StringUtils.isEmpty(unitLoadLabel)) {
-			String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "labelId");
+			String label = sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 			unitLoad = inventoryBusiness.createUnitLoad(client, label, unitLoadType, location, StockState.INCOMING,
 					activityCode, operator, note);
 		} else {
@@ -442,7 +441,7 @@ public class GoodsReceiptBusiness {
 		UnitLoad unitLoad = null;
 
 		if (StringUtils.isEmpty(unitLoadLabel)) {
-			String label = sequenceBusiness.readNextValue(UnitLoad.class.getSimpleName(), UnitLoad.class, "labelId");
+			String label = sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 			unitLoad = inventoryBusiness.createUnitLoad(client, label, unitLoadType, location, StockState.INCOMING,
 					null, operator, note);
 		} else {
@@ -628,10 +627,11 @@ public class GoodsReceiptBusiness {
 		}
 	}
 
-	private void fireGoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine, ItemData itemData, BigDecimal amount, UnitLoadType unitLoadType)
-			throws BusinessException {
+	private void fireGoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine,
+			ItemData itemData, BigDecimal amount, UnitLoadType unitLoadType) throws BusinessException {
 		try {
-			goodsReceiptLineDeletedEvent.fire(new GoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine, itemData, amount, unitLoadType));
+			goodsReceiptLineDeletedEvent.fire(
+					new GoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine, itemData, amount, unitLoadType));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {
