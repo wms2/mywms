@@ -79,6 +79,11 @@ public class FixAssignmentValidator implements EntityValidator<FixAssignment> {
 					logStr + "invalid minAmount. entity=" + entity + ", minAmount=" + entity.getMinAmount());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notNegativeAmount");
 		}
+		if (entity.getMaxPickAmount() != null && entity.getMaxPickAmount().compareTo(BigDecimal.ZERO) < 0) {
+			logger.log(Level.INFO, logStr + "invalid maxPickAmount. entity=" + entity + ", maxPickAmount="
+					+ entity.getMaxPickAmount());
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.notNegativeAmount");
+		}
 
 		StorageLocation location = manager.reload(entity.getStorageLocation(), false);
 		Client locationClient = location.getClient();

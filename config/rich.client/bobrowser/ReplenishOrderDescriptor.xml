@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:boBeanNodeDescriptor xmlns:ns2="http://schema.linogistix.com/bobeandescriptor">
     <descriptions>
-		<entry>
+        <entry>
+			<key>started</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>3</position>
+            </value>
+        </entry>
+        <entry>
+			<key>finished</key>
+            <value>
+                <group>
+					<name>basic</name>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
+            </value>
+        </entry>
+
+        <entry>
 			<key>lock</key>
 			<value>
 				<group>
@@ -13,7 +34,7 @@
 		</entry>
 
         <entry>
-            <key>number</key>
+            <key>orderNumber</key>
             <value>
                 <group>
                     <name>main</name>
@@ -23,17 +44,7 @@
             </value>
         </entry>
 		<entry>
-			<key>itemData</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>false</hidden>
-				<position>2</position>
-			</value>
-		</entry>
-		<entry>
-			<key>lot</key>
+			<key>state</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -42,18 +53,19 @@
 				<position>3</position>
 			</value>
 		</entry>
-		<entry>
-			<key>sourceLocationName</key>
-			<value>
-				<group>
+        <entry>
+			<key>prio</key>
+            <value>
+                <group>
 					<name>main</name>
-				</group>
-				<hidden>false</hidden>
-				<position>4</position>
-			</value>
-		</entry>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
+            </value>
+        </entry>
+
 		<entry>
-			<key>stockUnit</key>
+			<key>itemData</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -63,7 +75,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>destination</key>
+			<key>lotNumber</key>
 			<value>
 				<group>
 					<name>main</name>
@@ -73,23 +85,43 @@
 			</value>
 		</entry>
 		<entry>
-			<key>state</key>
+			<key>amount</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>11</position>
+				<position>7</position>
+			</value>
+		</entry>
+        <entry>
+			<key>confirmedAmount</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>8</position>
+            </value>
+        </entry>
+		<entry>
+			<key>sourceLocation</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>9</position>
 			</value>
 		</entry>
 		<entry>
-			<key>prio</key>
+			<key>destinationLocation</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>12</position>
+				<position>10</position>
 			</value>
 		</entry>
 		<entry>
@@ -100,46 +132,6 @@
 				</group>
 				<hidden>false</hidden>
 				<position>13</position>
-			</value>
-		</entry>
-		<entry>
-			<key>requestedAmount</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>false</hidden>
-				<position>21</position>
-			</value>
-		</entry>
-        <entry>
-			<key>requestedLocation</key>
-            <value>
-                <group>
-					<name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>22</position>
-            </value>
-        </entry>
-        <entry>
-			<key>requestedRack</key>
-            <value>
-                <group>
-					<name>main</name>
-                </group>
-                <hidden>true</hidden>
-                <position>23</position>
-            </value>
-        </entry>
-		<entry>
-			<key>sourceLocationName</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>true</hidden>
-				<position>31</position>
 			</value>
 		</entry>
 		<entry>

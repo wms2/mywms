@@ -80,10 +80,6 @@ public class ImportLocationWizard extends WizardDescriptor implements ActionList
         FinishablePanel p3 = new ImportLocationHintPanel();   
         panels.add(p3);
         
-        FinishablePanel p4 = new ImportLocationLabelPanel();
-        panels.add(p4);
-        
-        
         return (Panel[]) panels.toArray(new Panel[0]);
     }
 
@@ -130,7 +126,6 @@ public class ImportLocationWizard extends WizardDescriptor implements ActionList
        return new String[]{
         NbBundle.getMessage(BundleResolver.class, "ImportLocationFilePanel.contentData"),
         NbBundle.getMessage(BundleResolver.class, "ImportLocationHintPanel.contentData"),
-         NbBundle.getMessage(BundleResolver.class, "ImportLocationLabelPanel.contentData")
        };
     }
 

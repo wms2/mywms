@@ -29,7 +29,6 @@ import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.location.query.LOSTypeCapacityConstraintQueryRemote;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.exception.BusinessException;
@@ -44,7 +43,6 @@ import de.wms2.mywms.product.ItemDataEntityService;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
-import de.wms2.mywms.strategy.TypeCapacityConstraint;
 
 @Stateless
 public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatcher {
@@ -65,14 +63,11 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	@EJB
 	private LOSStorageLocationQueryRemote locationQuery; 
 	
-	@EJB
+	@Inject
 	private LocationTypeEntityService locationTypeService;
 
 	@EJB
 	private LOSAreaQueryRemote areaQuery;
-	
-	@EJB
-	private LOSTypeCapacityConstraintQueryRemote capacityConstrQuery;
 	
 	@EJB
 	private ItemDataQueryRemote idatQuery;
@@ -197,17 +192,6 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 			locType = locationTypeService.getDefault();
 		}
 		
-		// ----------- Capacity Constraint -------------------------------------
-		
-		TypeCapacityConstraint capacityConstraint;
-
-		try {
-			capacityConstraint = capacityConstrQuery.queryByIdentity(capacityConstrName);
-		} catch (BusinessObjectNotFoundException ex) {
-			logger.error("Unknown capacityConstraint: " + capacityConstrName + ". Won't set.");
-			capacityConstraint = null;
-		}
-		
 		// ----------- dummy unitload type for picking--------------------------------
 		
 		UnitLoadType ulTypeDummyPick;
@@ -282,8 +266,6 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 			rl.setRack(rackName);
 			rl.setType(locType);
 			
-			rl.setCurrentTypeCapacityConstraint(capacityConstraint);
-
 			rl.setXPos(x);
 			rl.setYPos(y);
 			manager.persist(rl);

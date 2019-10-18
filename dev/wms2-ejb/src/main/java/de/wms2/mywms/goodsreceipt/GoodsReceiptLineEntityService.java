@@ -39,7 +39,7 @@ public class GoodsReceiptLineEntityService {
 			return null;
 		}
 		String jpql = "SELECT entity FROM " + GoodsReceiptLine.class.getName() + " entity ";
-		jpql += " where entity.unitLoadLabelId=:label";
+		jpql += " where entity.unitLoadLabel=:label";
 		jpql += " order by entity.id desc";
 		Query query = manager.createQuery(jpql);
 		query.setParameter("label", unitLoad.getLabelId());
