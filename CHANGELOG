@@ -233,6 +233,7 @@ Release 2.3
     - Enable complete pallet picking
     - Actualization of documentation
     - Support of Wildfly 18
+    - Print packet list of shipping and picking orders.
 
 
     Functional changes (for details have a look to the git repository)

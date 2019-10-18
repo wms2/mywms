@@ -16,20 +16,18 @@ Features:
 * Supported technologies: JEE8, Wildfly, Netbeans RCP, iReport, SOAP
 * Supports Wildfly-18 and Java-11
 
+This project is maintained by [krane.engineer](https://krane.engineer).
 
 ## Original Sources
 
-This fork is based on the latest public available version of the Logata SVN sources: https://svn.logistics-mall.com/svn/los.reference
+This fork is based on the latest public available version of the Logata SVN sources.
+Another location of the original sources, but a little outdated, is located on [sourceforge.net](https://sourceforge.net/projects/mywmslos).
 
-Another location of the original sources, but a little outdated, is located on sourceforge: https://sourceforge.net/projects/mywmslos
+A good location with additional information of the preivous versions is [mywms.org](http://www.mywms.org).
 
-The documentation and additional resources of the project are based on: http://www.mywms.org
 
-## Current Sources
 
-The current sources and documetations are located on github https://github.com/wms2/mywms
-
-## Starting changes within this fork
+## Changes within this fork
 
 The first action is to set the project to an actual environment (2019)
 
@@ -40,6 +38,10 @@ The first action is to set the project to an actual environment (2019)
 - Change build system from ant to maven
 - Change version control from svn to git
 
+The current sources and documetations are located on [github.com](https://github.com/wms2/mywms).
+
+For mor detailed information about the changes have a look into the CHANGELOG file.
+
 ## Future changes
 
 It is planned to keep the project on the current development and runtime platforms. At least the LTS releases of the Java platform and used tools like wildfly application server should be supported.
@@ -48,8 +50,7 @@ Have a look to the CHANGELOG file to get information about new changes.
 
 Furthermore functional and technical enhancements will be added to the project.
 
-Here some ideas:
-
+__Here some ideas:__
 This are only ideas of what could be done. There is no actual plan to do it at all nor a specific roadmap.
 Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
 
@@ -81,10 +82,11 @@ Please contribute to the project. Bring your ideas, code and modules. Vote for n
 - Dialogs to consolidate stocks. Manual cleanup.
 - Distinguish between active and inactive products
 
-## Contribute
 
-__If you have any enhancements, please contribute to the project!__
+## Bugs, issues and contributions
 
-__If you have any idea of functional or technical enhancement, please contribute to the project!__
+Contributions and suggestions are welcome. 
+If you have any idea of functional or technical enhancement, please contribute to the project.
 
-__If you plan to introduce this software into you own business matters, please contribute to the project!__
+And if you have any problem, please open an issue.
+
