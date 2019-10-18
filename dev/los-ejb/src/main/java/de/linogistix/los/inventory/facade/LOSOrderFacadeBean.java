@@ -442,7 +442,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
 
-		Document doc = reportGenerator.generatePackList(unitLoad);
+		Document doc = reportGenerator.generateContentList(unitLoad);
 
 		return doc;
 	}
@@ -459,11 +459,38 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 		}
 
-		Document doc = reportGenerator.generatePackList(packet);
+		Document doc = reportGenerator.generateContentList(packet);
 		
 		return doc;
 	}
-	
+
+	public Document generatePacketList(Long orderId) throws FacadeException {
+		String logStr = "generatePacketList ";
+		log.debug(logStr + "orderId=" + orderId);
+
+		PickingOrder pickingOrder = null;
+		DeliveryOrder deliveryOrder = null;
+		ShippingOrder shippingOrder = manager.find(ShippingOrder.class, orderId);
+		if (shippingOrder == null) {
+			pickingOrder = manager.find(PickingOrder.class, orderId);
+		}
+		if (shippingOrder == null && pickingOrder == null) {
+			deliveryOrder = manager.find(DeliveryOrder.class, orderId);
+		}
+
+		if (shippingOrder != null) {
+			return reportGenerator.generatePacketList(shippingOrder);
+		} else if (pickingOrder != null) {
+			return reportGenerator.generatePacketList(pickingOrder);
+		} else if (deliveryOrder != null) {
+			return reportGenerator.generatePacketList(deliveryOrder);
+		} else {
+			String msg = "Order does not exist. id=" + orderId;
+			log.error(logStr + msg);
+			throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
+		}
+	}
+
 	public void processOrderPickedFinish(List<BODTO<DeliveryOrder>> orders) throws FacadeException {
 		String logStr = "processOrderPickedFinish ";
 		if (orders == null) {

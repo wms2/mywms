@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Packlist" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Contentlist" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
@@ -55,28 +55,28 @@
 				<textElement>
 					<font size="24" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.name}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.name}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="315" y="20" width="64" height="20" uuid="2e50656b-0155-4daf-8892-22e9dc956895"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.orderNumber}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.orderNumber}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="315" y="40" width="64" height="20" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.printDate}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.printDate}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="315" y="0" width="64" height="20" uuid="adc95ea9-bdea-466d-b04b-2eb78d928f91"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.label}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.label}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="375" y="0" width="108" height="20" uuid="a94152ec-5424-46f8-8951-e54faf5088ee"/>
@@ -101,21 +101,21 @@
 				<textElement verticalAlignment="Middle">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.productNumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.productNumber}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="140" y="0" width="240" height="16" uuid="748c5fff-5b85-4d08-a973-50212512f1fe"/>
 				<textElement verticalAlignment="Middle">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.productName}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.productName}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="340" y="0" width="145" height="16" uuid="dc08f6e1-48d9-48ad-8c72-f823f15a1604"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font isItalic="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packlist.amount}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Contentlist.amount}]]></textFieldExpression>
 			</textField>
 			<line>
 				<reportElement positionType="FixRelativeToBottom" x="0" y="20" width="528" height="1" uuid="bffb19d1-ac82-4d27-808a-c96e6af80600">

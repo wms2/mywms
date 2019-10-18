@@ -739,7 +739,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 			throw new LOSExceptionRB("CannotReadUnitLoad", this.getClass());
 		}
 		
-		Document receipt = unitLoadReport.generatePackList(unitLoad);
+		Document receipt = unitLoadReport.generateContentList(unitLoad);
 		printService.print(printer, receipt.getData(), receipt.getDocumentType());
 
 	}

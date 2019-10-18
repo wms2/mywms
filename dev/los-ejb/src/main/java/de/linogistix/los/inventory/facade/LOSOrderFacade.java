@@ -102,6 +102,7 @@ public interface LOSOrderFacade {
 	public Document generateUnitLoadLabel( String label ) throws FacadeException;
 
 	Document generatePacketLabel( Long packetId ) throws FacadeException;
+	Document generatePacketList( Long orderId ) throws FacadeException;
 
 	/**
 	 * Generate goods-out request for pending order

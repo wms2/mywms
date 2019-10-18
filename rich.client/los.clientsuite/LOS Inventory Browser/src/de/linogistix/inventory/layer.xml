@@ -27,6 +27,9 @@
                     <file name="de-linogistix-location-bobrowser-action-BOUnitLoadNirwanaAction.hidden"/>
                     <file name="de-linogistix-inventory-browser-action-BOUnitLoadNirwanaAction.instance"/>
                     <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
+                    <file name="de-linogistix-inventory-browser-action-BOUnitLoadPrintAction.instance">
+                        <attr name="position" intvalue="200"/>
+                    </file>
                 </folder>
             </folder>
             <folder name="LOSAdvices">
@@ -75,6 +78,7 @@
                     <file name="de-linogistix-inventory-browser-action-BOPickingOrderRemoveAction.instance">
                         <attr name="position" intvalue="50"/>
                     </file>
+                    <file name="de-linogistix-inventory-browser-action-PacketListPrintAction.instance"/>
 
                 </folder>
             </folder>
@@ -97,6 +101,7 @@
                     <file name="de-linogistix-inventory-browser-action-BOGoodsOutConfirmAction.instance"/>
                     <file name="de-linogistix-inventory-browser-action-BOGoodsOutFinishAction.instance"/>
                     <file name="de-linogistix-inventory-browser-action-BOGoodsOutRemoveAction.instance"/>
+                    <file name="de-linogistix-inventory-browser-action-PacketListPrintAction.instance"/>
                 </folder>
             </folder>
 

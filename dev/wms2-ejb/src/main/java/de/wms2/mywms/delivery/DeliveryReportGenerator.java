@@ -72,65 +72,27 @@ public class DeliveryReportGenerator {
 	private static final String ITEM_TYPE_SERIAL = "6-SERIAL";
 	private static final String ITEM_TYPE_LINE = "7-LINE";
 
-	public Document generatePackList(Packet packet) throws BusinessException {
-		String logStr = "generatePackList ";
+	public Document generateContentList(Packet packet) throws BusinessException {
+		String logStr = "generateContentList ";
 		logger.log(Level.INFO, logStr + "packet=" + packet);
 
-		UnitLoad unitLoad = packet.getUnitLoad();
-		Client client = unitLoad.getClient();
-
-		DeliveryOrder deliveryOrder = packet.getDeliveryOrder();
-		PickingOrder pickingOrder = packet.getPickingOrder();
-		Address address = null;
-		if (deliveryOrder != null) {
-			address = deliveryOrder.getAddress();
-		}
-		if ((address == null || address.isEmpty()) && pickingOrder != null) {
-			address = pickingOrder.getAddress();
-		}
-		if (address == null) {
-			address = new Address();
-		}
-		String label = unitLoad.getLabelId();
-		String suffix = "-" + unitLoad.getId();
-		label = StringUtils.substringBefore(label, suffix);
-
-		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
-		registerItems(reportItemMap, unitLoad, packet, true);
-		List<DeliveryReportDto> reportItems = new ArrayList<>();
-		reportItems.addAll(reportItemMap.values());
-		Collections.sort(reportItems, new UnitLoadReportDtoComparator());
-
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("printDate", new Date());
-		parameters.put("packet", packet);
-		parameters.put("unitLoad", unitLoad);
-		parameters.put("unitLoadType", unitLoad.getUnitLoadType());
-		parameters.put("pickingOrder", pickingOrder);
-		parameters.put("deliveryOrder", deliveryOrder);
-		parameters.put("address", address);
-		parameters.put("label", label);
-
-		byte[] data = reportBusiness.createPdfDocument(client, "Packlist", Wms2BundleResolver.class, reportItems,
-				parameters);
-
-		Document doc = new Document();
-		doc.setData(data);
-		doc.setDocumentType(DocumentType.PDF);
-		doc.setName("Packlist");
-
-		return doc;
+		return generateContentList(packet.getUnitLoad(), packet);
 	}
 
-	public Document generatePackList(UnitLoad unitLoad) throws BusinessException {
-		String logStr = "generatePackList ";
+	public Document generateContentList(UnitLoad unitLoad) throws BusinessException {
+		String logStr = "generateContentList ";
 		logger.log(Level.INFO, logStr + "unitLoad=" + unitLoad);
 
+		Packet packet = packetService.readFirstByUnitLoad(unitLoad);
+
+		return generateContentList(unitLoad, packet);
+	}
+
+	private Document generateContentList(UnitLoad unitLoad, Packet packet) throws BusinessException {
 		Client client = unitLoad.getClient();
 
 		DeliveryOrder deliveryOrder = null;
 		PickingOrder pickingOrder = null;
-		Packet packet = packetService.readFirstByUnitLoad(unitLoad);
 		if (packet != null) {
 			deliveryOrder = packet.getDeliveryOrder();
 			pickingOrder = packet.getPickingOrder();
@@ -158,19 +120,20 @@ public class DeliveryReportGenerator {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("printDate", new Date());
 		parameters.put("unitLoad", unitLoad);
+		parameters.put("packet", packet);
 		parameters.put("unitLoadType", unitLoad.getUnitLoadType());
 		parameters.put("pickingOrder", pickingOrder);
 		parameters.put("deliveryOrder", deliveryOrder);
 		parameters.put("address", address);
 		parameters.put("label", label);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "Packlist", Wms2BundleResolver.class, reportItems,
+		byte[] data = reportBusiness.createPdfDocument(client, "Contentlist", Wms2BundleResolver.class, reportItems,
 				parameters);
 
 		Document doc = new Document();
 		doc.setData(data);
 		doc.setDocumentType(DocumentType.PDF);
-		doc.setName("Packlist");
+		doc.setName("Contentlist");
 
 		return doc;
 	}
@@ -180,14 +143,6 @@ public class DeliveryReportGenerator {
 		logger.log(Level.INFO, logStr + "pickingOrder=" + pickingOrder);
 
 		Client client = pickingOrder.getClient();
-
-		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
-		for (Packet packet : pickingOrder.getPackets()) {
-			registerItems(reportItemMap, packet.getUnitLoad(), packet, true);
-		}
-		List<DeliveryReportDto> reportItems = new ArrayList<>();
-		reportItems.addAll(reportItemMap.values());
-		Collections.sort(reportItems, new UnitLoadReportDtoComparator());
 
 		Address address = pickingOrder.getAddress();
 		if (address == null || address.isEmpty()) {
@@ -199,6 +154,14 @@ public class DeliveryReportGenerator {
 		if (address == null) {
 			address = new Address();
 		}
+
+		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
+		for (Packet packet : pickingOrder.getPackets()) {
+			registerItems(reportItemMap, packet.getUnitLoad(), packet, true);
+		}
+		List<DeliveryReportDto> reportItems = new ArrayList<>();
+		reportItems.addAll(reportItemMap.values());
+		Collections.sort(reportItems, new UnitLoadReportDtoComparator());
 
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("printDate", new Date());
@@ -252,6 +215,41 @@ public class DeliveryReportGenerator {
 		parameters.put("address", address);
 
 		byte[] data = reportBusiness.createPdfDocument(client, "ShippingPacketlist", Wms2BundleResolver.class,
+				reportItems, parameters);
+
+		Document doc = new Document();
+		doc.setData(data);
+		doc.setDocumentType(DocumentType.PDF);
+		doc.setName("Packetlist");
+
+		return doc;
+	}
+
+	public Document generatePacketList(DeliveryOrder deliveryOrder) throws BusinessException {
+		String logStr = "generatePacketList ";
+		logger.log(Level.INFO, logStr + "deliveryOrder=" + deliveryOrder);
+
+		Client client = deliveryOrder.getClient();
+
+		Address address = deliveryOrder.getAddress();
+		if (address == null) {
+			address = new Address();
+		}
+
+		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
+		for (Packet packet : packetService.readByDeliveryOrder(deliveryOrder)) {
+			registerItems(reportItemMap, packet.getUnitLoad(), packet, true);
+		}
+		List<DeliveryReportDto> reportItems = new ArrayList<>();
+		reportItems.addAll(reportItemMap.values());
+		Collections.sort(reportItems, new UnitLoadReportDtoComparator());
+
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("printDate", new Date());
+		parameters.put("deliveryOrder", deliveryOrder);
+		parameters.put("address", address);
+
+		byte[] data = reportBusiness.createPdfDocument(client, "DeliveryPacketlist", Wms2BundleResolver.class,
 				reportItems, parameters);
 
 		Document doc = new Document();

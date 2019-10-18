@@ -114,19 +114,30 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
             public void actionPerformed(ActionEvent ae) {
                 fUrl1.setEnabled(fPrintExternal.isSelected());
                 fUrl2.setEnabled(fPrintExternal.isSelected());
-                fPrinter.setEnabled( fPrintReceipt.isSelected() || fPrintExternal.isSelected() );
+                fPrinter.setEnabled( fPrintReceipt.isSelected() || fPrintExternal.isSelected() || fPrintPacketlist.isSelected() );
             }
         });
 
         fSaveReceipt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                fFile.setEnabled(fSaveReceipt.isSelected());
+                fFile.setEnabled(fSaveReceipt.isSelected() || fSavePacketlist.isSelected());
+            }
+        });
+        fSavePacketlist.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                fFile.setEnabled(fSaveReceipt.isSelected() || fSavePacketlist.isSelected());
             }
         });
 
         fPrintReceipt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                fPrinter.setEnabled( fPrintReceipt.isSelected() || fPrintExternal.isSelected() );
+                fPrinter.setEnabled( fPrintReceipt.isSelected() || fPrintExternal.isSelected() || fPrintPacketlist.isSelected() );
+            }
+        });
+
+        fPrintPacketlist.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                fPrinter.setEnabled( fPrintReceipt.isSelected() || fPrintExternal.isSelected() || fPrintPacketlist.isSelected() );
             }
         });
 
@@ -154,6 +165,8 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fPrinter.setTitle( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderPrintDialog.labelPrinter") );
         fSaveReceipt.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderPrintDialog.labelSaveReceipt") );
         fPrintReceipt.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderPrintDialog.labelPrintReceipt") );
+        fSavePacketlist.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderPrintDialog.labelSavePacketlist") );
+        fPrintPacketlist.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderPrintDialog.labelPrintPacketlist") );
         fPrintExternal.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderPrintDialog.labelPrintExternal") );
 
 
@@ -200,6 +213,8 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fFile = new de.linogistix.common.gui.component.controls.LOSTextField();
         btFile = new javax.swing.JButton();
         fUrl2 = new de.linogistix.common.gui.component.controls.LOSTextField();
+        fPrintPacketlist = new javax.swing.JCheckBox();
+        fSavePacketlist = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Change Picking Order Properties");
@@ -225,7 +240,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
         gridBagConstraints.weightx = 1.0;
@@ -234,7 +249,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         getContentPane().add(jPanel1, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
@@ -244,7 +259,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fUrl1.setTitle("URL");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 34, 0, 10);
@@ -267,7 +282,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fPrintReceipt.setText("Print Receipt");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         getContentPane().add(fPrintReceipt, gridBagConstraints);
@@ -275,7 +290,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fPrintExternal.setText("Print External Documents");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         getContentPane().add(fPrintExternal, gridBagConstraints);
@@ -283,14 +298,14 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fPrinter.setTitle("Printer");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
         getContentPane().add(fPrinter, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
@@ -317,7 +332,7 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 34, 0, 10);
@@ -327,11 +342,32 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         fUrl2.setTitle("URL");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 34, 0, 10);
         getContentPane().add(fUrl2, gridBagConstraints);
+
+        fPrintPacketlist.setText("Print Packetlist");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        getContentPane().add(fPrintPacketlist, gridBagConstraints);
+
+        fSavePacketlist.setText("Save Packetlist");
+        fSavePacketlist.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fSavePacketlistActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        getContentPane().add(fSavePacketlist, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -371,6 +407,10 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btFileActionPerformed
 
+    private void fSavePacketlistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fSavePacketlistActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fSavePacketlistActionPerformed
+
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -379,8 +419,10 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
     private javax.swing.JButton btSave;
     private de.linogistix.common.gui.component.controls.LOSTextField fFile;
     private javax.swing.JCheckBox fPrintExternal;
+    private javax.swing.JCheckBox fPrintPacketlist;
     private javax.swing.JCheckBox fPrintReceipt;
     private de.linogistix.common.gui.component.controls.LOSComboBox fPrinter;
+    private javax.swing.JCheckBox fSavePacketlist;
     private javax.swing.JCheckBox fSaveReceipt;
     private de.linogistix.common.gui.component.controls.LOSTextField fUrl1;
     private de.linogistix.common.gui.component.controls.LOSTextField fUrl2;
@@ -410,10 +452,14 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
         try {
             for( LOSCustomerOrderTO orderTO : orders ) {
                 Document receipt = null;
+                Document packetlist = null;
 //                LOSCustomerOrder order = orderQuery.queryById(orderTO.getId());
 
                 if( fPrintReceipt.isSelected() || fSaveReceipt.isSelected() ) {
                     receipt = orderFacade.generateReceipt(orderTO.getId());
+                }
+                if( fPrintPacketlist.isSelected() || fSavePacketlist.isSelected() ) {
+                    packetlist = orderFacade.generatePacketList(orderTO.getId());
                 }
 
                 if( fSaveReceipt.isSelected() && receipt != null ) {
@@ -430,8 +476,25 @@ public class CustomerOrderPrintDialog extends javax.swing.JDialog {
                     out.close();
                 }
                 
+                if( fSavePacketlist.isSelected() && packetlist != null ) {
+                    if (packetlist.getData().length == 0){
+                        FacadeException ex = new FacadeException("Document is empty", "BusinessException.DocumentEmpty", null);
+                        ex.setBundleResolver(CommonBundleResolver.class);
+                        ExceptionAnnotator.annotate(ex);
+                        return false;
+                    }
+                    File outf = new File(fFile.getText(), packetlist.getName() + ".pdf");
+                    FileOutputStream out = new FileOutputStream(outf);
+                    out.write(packetlist.getData());
+                    out.flush();
+                    out.close();
+                }
+                
                 if( fPrintReceipt.isSelected() && receipt != null && printService != null ) {
                     print( receipt.getData(), printService );
+                }
+                if( fPrintPacketlist.isSelected() && packetlist != null && printService != null ) {
+                    print( packetlist.getData(), printService );
                 }
 
                 if( fPrintExternal.isSelected() ) {

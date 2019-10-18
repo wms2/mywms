@@ -15,6 +15,9 @@ import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.query.LOSCustomerOrderQueryRemote;
 import de.linogistix.los.inventory.query.dto.LOSCustomerOrderTO;
+import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
+import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
+import de.linogistix.los.inventory.query.dto.LOSPickingOrderTO;
 import de.linogistix.los.inventory.query.dto.LOSPickingUnitLoadTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.util.StringTools;
@@ -339,30 +342,26 @@ public class UnitLoadPrintDialog extends javax.swing.JDialog {
         }
 
         PrintService printService = (PrintService)fPrinter.getSelectedItem();
-        
 
         try {
             for( BODTO bodto : orders ) {
-                String label = null;
-                Long packetId = null;
-                if( bodto instanceof LOSPickingUnitLoadTO ) {
-                    packetId = bodto.getId();
-                }
-                else {
-                    label = bodto.getName();
-                }
-                if( label == null && packetId==null) {
-                    continue;
-                }
-
+ 
                 Document doc = null;
 
                 if( fPrintLabel.isSelected() || fSaveLabel.isSelected() ) {
-                    if( packetId!=null) {
-                        doc = orderFacade.generatePacketLabel(packetId);
-                    } else {
-                        doc = orderFacade.generateUnitLoadLabel(label);
+                    if( bodto instanceof LOSPickingUnitLoadTO ) {
+                        doc = orderFacade.generatePacketLabel(bodto.getId());
                     }
+                    else if( bodto instanceof LOSGoodsOutRequestTO ) {
+                        doc = orderFacade.generatePacketList(bodto.getId());
+                    }
+                    else if( bodto instanceof LOSPickingOrderTO  ) {
+                        doc = orderFacade.generatePacketList(bodto.getId());
+                    }
+                    else {
+                        doc = orderFacade.generateUnitLoadLabel(bodto.getName());
+                    }
+
                 }
 
                 if( fSaveLabel.isSelected() && doc != null ) {

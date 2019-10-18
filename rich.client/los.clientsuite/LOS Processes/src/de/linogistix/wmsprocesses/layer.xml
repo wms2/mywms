@@ -24,7 +24,9 @@
             </folder>
             <folder name="LOSUnitLoads">
                 <folder name="MasterActions">
-                    <file name="de-linogistix-wmsprocesses-unitloadtransfer-BOUnitLoadTransferAction.instance"/>
+                    <file name="de-linogistix-wmsprocesses-unitloadtransfer-BOUnitLoadTransferAction.instance">
+                        <attr name="position" intvalue="100"/>
+                    </file>
                 </folder>
             </folder>
         </folder>
