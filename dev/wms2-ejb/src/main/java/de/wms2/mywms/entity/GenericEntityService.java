@@ -140,7 +140,9 @@ public class GenericEntityService {
 	 */
 	public <ENTITY_TYPE extends BasicEntity> ENTITY_TYPE readFirst(Class<ENTITY_TYPE> entityType, String attributeName,
 			Object attributeValue, String orderByAttribute) {
-		return readFirst(entityType, new String[] { attributeName }, new Object[] { attributeValue }, null);
+
+		return readFirst(entityType, new String[] { attributeName }, new Object[] { attributeValue },
+				orderByAttribute == null ? null : new String[] { orderByAttribute });
 	}
 
 	/**
@@ -348,7 +350,6 @@ public class GenericEntityService {
 				jpql += "entity." + orderByAttribute;
 			}
 		}
-
 		Query query = manager.createQuery(jpql);
 		i = 0;
 		for (Object value : attributeValues) {
