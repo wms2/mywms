@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.shipping;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -509,6 +510,11 @@ public class ShippingBusiness {
 
 		manager.persistValidated(pos);
 
+		if( order.getLines() == null) {
+			order.setLines(new ArrayList<>());
+		}
+		order.getLines().add(pos);
+
 		if (packet.getState() < OrderState.SHIPPING) {
 			int oldState = packet.getState();
 			packet.setState(OrderState.SHIPPING);
@@ -558,15 +564,17 @@ public class ShippingBusiness {
 		String logStr = "removeOrder ";
 		int orderState = shippingOrder.getState();
 
-		if (orderState < OrderState.FINISHED) {
+		if (orderState < OrderState.FINISHED && orderState>OrderState.PROCESSABLE) {
 			logger.log(Level.WARNING,
-					logStr + "Order not yet finished. shippingOrder=" + shippingOrder + ", state=" + orderState);
-			throw new BusinessException(Wms2BundleResolver.class, "Shipping.orderNotFinished");
+					logStr + "Order in progress. shippingOrder=" + shippingOrder + ", state=" + orderState);
+			throw new BusinessException(Wms2BundleResolver.class, "Shipping.orderAlreadyStarted");
 		}
 
 		for (ShippingOrderLine line : shippingOrder.getLines()) {
-			manager.removeValidated(line);
+			removeLine(line);
 		}
+		manager.flush();
+		shippingOrder.setLines(null);
 
 		Address address = shippingOrder.getAddress();
 		if (address != null) {
