@@ -1,22 +1,27 @@
 # myWMS - Release 2
 
-A fork of myWMS LOS Warehouse Management System
+A fork of myWMS LOS Warehouse Management System.
 
-This software is licensed under the GNU General Public License
+This software is licensed under the GNU General Public License.
 
-myWMS LOS is a professional open source Warehouse Management System WMS under GPL. It is running in industrial 24/7 environments and supports all basic processes. It runs on mobile terminals, works with barcodes & RFID. The software is a JEE architecture.
+myWMS is a professional open source WMS (Warehouse Management System) published under the GPL license. It is running in industrial 24/7 environments and supports the basic processes of a warehouse.
+
+The software is written in a multitear JEE architecture.
+The server component is running in a JEE application server like wildfly. Client applications are available for PC and mobile devices. 
+
+This project is maintained by [krane.engineer](https://krane.engineer).
 
 
-Features:
+## Features
 
 * Ready to use warehouse management system (WMS)
 * Designed for manual driven warehouses
 * Barcode/RFID identification, mobile terminals for paperless processes
 * Modular/ SOA architecture
-* Supported technologies: JEE8, Wildfly, Netbeans RCP, iReport, SOAP
+* Supported technologies: JEE8, Wildfly, Netbeans RCP, SOAP
 * Supports Wildfly-18 and Java-11
+* Open source software
 
-This project is maintained by [krane.engineer](https://krane.engineer).
 
 ## Original Sources
 
@@ -24,7 +29,6 @@ This fork is based on the latest public available version of the Logata SVN sour
 Another location of the original sources, but a little outdated, is located on [sourceforge.net](https://sourceforge.net/projects/mywmslos).
 
 A good location with additional information of the preivous versions is [mywms.org](http://www.mywms.org).
-
 
 
 ## Changes within this fork
@@ -42,6 +46,7 @@ The current sources and documetations are located on [github.com](https://github
 
 For mor detailed information about the changes have a look into the CHANGELOG file.
 
+
 ## Future changes
 
 It is planned to keep the project on the current development and runtime platforms. At least the LTS releases of the Java platform and used tools like wildfly application server should be supported.
@@ -52,7 +57,7 @@ Furthermore functional and technical enhancements will be added to the project.
 
 __Here some ideas:__
 This are only ideas of what could be done. There is no actual plan to do it at all nor a specific roadmap.
-Please contribute to the project. Bring your ideas, code and modules. Vote for new functionalities.
+Please contribute to the project. Bring your ideas, code and modules to the project. Vote for new functionalities or write issues to communicate your ideas.
 
 - Add images and attachments to master data objects
 - Change-history
