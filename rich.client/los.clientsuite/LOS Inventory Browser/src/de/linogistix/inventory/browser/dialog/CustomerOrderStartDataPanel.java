@@ -24,6 +24,7 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         initComponents();
 
         fRelease.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelRelease") );
+        fComplete.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelComplete") );
         fCombine.setText( NbBundle.getMessage(InventoryBundleResolver.class,"CustomerOrderStartWizard.labelCombine") );
         fPrio.setTitle(org.openide.util.NbBundle.getMessage(InventoryBundleResolver.class, "CustomerOrderStartWizard.labelPrio"));
 
@@ -84,6 +85,14 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
     public void setRelease(boolean val) {
         fRelease.setSelected(val);
     }
+    
+    public boolean isComplete() {
+        return fComplete.isSelected();
+    }
+    public void setComplete(boolean val) {
+        fComplete.setSelected(val);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -100,6 +109,7 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         fDestination = new de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox();
         fUser = new de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox();
         fCombine = new javax.swing.JCheckBox();
+        fComplete = new javax.swing.JCheckBox();
 
         setAlignmentX(0.0F);
         setAlignmentY(0.0F);
@@ -115,9 +125,9 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 0, 0);
         add(fRelease, gridBagConstraints);
 
         fPrio.setColumns(3);
@@ -148,19 +158,38 @@ public class CustomerOrderStartDataPanel extends javax.swing.JPanel {
         fCombine.setText("Combine Customer Orders");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
         add(fCombine, gridBagConstraints);
+
+        fComplete.setSelected(true);
+        fComplete.setText("Only complete");
+        fComplete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fCompleteActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
+        add(fComplete, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void fReleaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fReleaseActionPerformed
         // TODO add your handling code here:
 }//GEN-LAST:event_fReleaseActionPerformed
 
+    private void fCompleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fCompleteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fCompleteActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JCheckBox fCombine;
+    private javax.swing.JCheckBox fComplete;
     private de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox fDestination;
     private de.linogistix.common.gui.component.controls.LOSTextField fPrio;
     private javax.swing.JCheckBox fRelease;

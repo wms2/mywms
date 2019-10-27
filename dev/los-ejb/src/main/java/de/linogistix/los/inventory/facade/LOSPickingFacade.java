@@ -97,8 +97,9 @@ public interface LOSPickingFacade {
 	 * @throws FacadeException
 	 */
 	public void createOrders(List<Long> customerOrderIdList, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException;
+	public void createOrders(List<Long> customerOrderIdList, int prio, String destinationName, boolean setProcessable, boolean completeOnly, String userName, String comment ) throws FacadeException;
 	
 	public void finishPickingUnitLoad( String label, String location ) throws FacadeException;
 
 	public void confirmOrder( long orderId ) throws FacadeException;
-}	
+}

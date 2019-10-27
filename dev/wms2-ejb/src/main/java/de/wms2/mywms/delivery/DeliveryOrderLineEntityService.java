@@ -56,7 +56,7 @@ public class DeliveryOrderLineEntityService {
 		orderLine.setClient(order.getClient());
 		orderLine.setLineNumber(lineNumber);
 		orderLine.setDeliveryOrder(order);
-		orderLine.setState(OrderState.UNDEFINED);
+		orderLine.setState(OrderState.CREATED);
 
 		manager.persist(orderLine);
 

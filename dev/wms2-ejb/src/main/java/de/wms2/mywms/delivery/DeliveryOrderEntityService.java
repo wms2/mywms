@@ -32,6 +32,7 @@ import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.sequence.SequenceBusiness;
+import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 
@@ -65,6 +66,7 @@ public class DeliveryOrderEntityService {
 		order.setOrderNumber(number);
 		order.setClient(client);
 		order.setOrderStrategy(strat);
+		order.setState(OrderState.CREATED);
 		manager.persist(order);
 		manager.flush();
 

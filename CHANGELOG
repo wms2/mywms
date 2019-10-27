@@ -307,3 +307,32 @@ Release 2.3
     - Some customization user exits have been replaced by CDI events. Replace the on... Methods of your customization services by apropriate event observers.
     - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
 
+
+
+
+Release 2.4
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Partial operation of delivery orders
+
+
+    Functional changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Release and finish delivery orders with amount differences on single positions
+
+
+    Technical changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Changed database entities
+        -
+
+
+    Bugfixes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Switch to Release 2.4
+    -------------------------------------------------------------------------------
+

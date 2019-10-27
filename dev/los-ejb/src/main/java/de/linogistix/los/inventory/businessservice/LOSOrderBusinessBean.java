@@ -191,7 +191,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		
 		DeliveryOrder deliveryOrder = deliveryOrderLine.getDeliveryOrder();
 		int orderStateOld = deliveryOrder.getState();
-		if( deliveryOrder.getState()<State.STARTED ) {
+		if (deliveryOrder.getState() < State.STARTED && amountPicked.compareTo(BigDecimal.ZERO) != 0) {
 			deliveryOrder.setState(State.STARTED);
 
 		}

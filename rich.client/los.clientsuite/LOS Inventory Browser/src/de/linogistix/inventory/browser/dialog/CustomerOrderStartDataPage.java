@@ -118,6 +118,7 @@ final public class CustomerOrderStartDataPage implements WizardDescriptor.Valida
 
         getPanelUI().setCombine(wizard.combine);
         getPanelUI().setRelease(wizard.release);
+        getPanelUI().setComplete(wizard.complete);
     }
 
     /** Provides the wizard panel with the opportunity to update the
@@ -142,6 +143,7 @@ final public class CustomerOrderStartDataPage implements WizardDescriptor.Valida
 
         wizard.combine = getPanelUI().isCombine();
         wizard.release = getPanelUI().isRelease();
+        wizard.complete = getPanelUI().isComplete();
     }
 
     public boolean isFinishPanel() {

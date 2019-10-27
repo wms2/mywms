@@ -147,13 +147,13 @@ public final class BOCustomerOrderStartAction extends NodeAction {
                     for( LOSCustomerOrderTO order : orderList ) {
                         orderIdList.add(order.getId());
                     }
-                    pickingFacade.createOrders(orderIdList, wizard.prio, wizard.destinationName, wizard.release, wizard.userName, wizard.hint );
+                    pickingFacade.createOrders(orderIdList, wizard.prio, wizard.destinationName, wizard.release, wizard.complete, wizard.userName, wizard.hint );
                 }
                 else {
                     for( LOSCustomerOrderTO order : orderList ) {
                     List<Long> orderIdList = new ArrayList<Long>();
                     orderIdList.add(order.getId());
-                        pickingFacade.createOrders(orderIdList, wizard.prio, wizard.destinationName, wizard.release, wizard.userName, wizard.hint );
+                        pickingFacade.createOrders(orderIdList, wizard.prio, wizard.destinationName, wizard.release, wizard.complete, wizard.userName, wizard.hint );
                     }
                 }
             } catch (FacadeException ex) {

@@ -56,6 +56,8 @@ public class DeliveryEventObserver {
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
 	@Inject
 	private ShippingBusiness shippingBusiness;
+	@Inject
+	private PacketEntityService packetService;
 
 	public void listen(@Observes DeliveryOrderStateChangeEvent event) throws BusinessException {
 		if (event == null || event.getDeliveryOrder() == null) {
@@ -65,6 +67,41 @@ public class DeliveryEventObserver {
 		DeliveryOrder deliveryOrder = event.getDeliveryOrder();
 		int oldState = event.getOldState();
 		int newState = event.getNewState();
+
+		if (oldState < OrderState.PICKED && newState == OrderState.PICKED) {
+			logger.info("DeliveryOrder got state PICKED. deliveryOrder=" + deliveryOrder + ", oldState=" + oldState
+					+ ", newState=" + newState);
+
+			OrderStrategy orderStrategy = deliveryOrder.getOrderStrategy();
+
+			if (orderStrategy.isCreatePackingOrder()) {
+				logger.info("Create packing order for delivery deliveryOrder=" + deliveryOrder + ", orderStrategy="
+						+ orderStrategy);
+				deliveryOrder.setState(OrderState.PACKING);
+			} else if (orderStrategy.isCreateShippingOrder()) {
+				// Check all picked packets. Only trigger shipping order generation if all
+				// packets are finished
+				boolean hasUnfinishedPacket = packetService.exists(deliveryOrder, null, OrderState.PICKED - 1);
+				if (hasUnfinishedPacket) {
+					logger.info("Has not finish Packet. Wait with shipping order generation. deliveryOrder="
+							+ deliveryOrder);
+				} else {
+					logger.info("Create shipping order for delivery deliveryOrder=" + deliveryOrder + ", orderStrategy="
+							+ orderStrategy);
+					deliveryOrder.setState(OrderState.SHIPPING);
+					ShippingOrder shippingOrder = shippingBusiness.createOrder(deliveryOrder);
+					if (shippingOrder != null) {
+						shippingBusiness.releaseOperation(shippingOrder);
+					}
+				}
+			} else {
+				logger.info("Finish delivery deliveryOrder=" + deliveryOrder + ", orderStrategy=" + orderStrategy);
+				deliveryOrder.setState(OrderState.FINISHED);
+			}
+			if (deliveryOrder.getState() != OrderState.PICKED) {
+				fireDeliveryOrderStateChangeEvent(deliveryOrder, OrderState.PICKED);
+			}
+		}
 
 		if (oldState < OrderState.PACKED && newState == OrderState.PACKED) {
 			logger.info("DeliveryOrder got state PACKED. deliveryOrder=" + deliveryOrder + ", oldState=" + oldState

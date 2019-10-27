@@ -254,8 +254,14 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 
 		manager.remove(order);
 	}
-	
-	public void createOrders( List<Long> deliveryOrderIdList, int prio, String destinationName, boolean setProcessable, String userName, String comment ) throws FacadeException {
+
+	public void createOrders(List<Long> deliveryOrderIdList, int prio, String destinationName, boolean setProcessable,
+			String userName, String comment) throws FacadeException {
+		createOrders(deliveryOrderIdList, prio, destinationName, setProcessable, true, userName, comment);
+	}
+
+	public void createOrders(List<Long> deliveryOrderIdList, int prio, String destinationName, boolean setProcessable,
+			boolean completeOnly, String userName, String comment) throws FacadeException {
 		String logStr = "createOrders ";
 		log.debug(logStr);
 
@@ -309,7 +315,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			}
 
 			List<PickingOrderLine> pickListX;
-			pickListX = pickingPosGenerator.generatePicks(deliveryOrder, true);
+			pickListX = pickingPosGenerator.generatePicks(deliveryOrder, completeOnly);
 			pickList.addAll(pickListX);
 		}
 		

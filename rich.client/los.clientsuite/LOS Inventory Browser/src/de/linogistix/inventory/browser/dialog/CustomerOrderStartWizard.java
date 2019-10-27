@@ -40,6 +40,7 @@ public class CustomerOrderStartWizard extends WizardDescriptor implements Change
     public int numOrder = 0;
     public boolean combine = false;
     public boolean release = true;
+    public boolean complete = true;
 
     public String hint;
 

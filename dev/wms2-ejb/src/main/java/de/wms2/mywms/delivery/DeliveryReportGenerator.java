@@ -303,7 +303,7 @@ public class DeliveryReportGenerator {
 				unitLoadAmount = BigDecimal.ZERO;
 			}
 
-			if (orderAmount.compareTo(unitLoadAmount) > 0) {
+			if (orderAmount.compareTo(unitLoadAmount) > 0 || orderAmount.compareTo(BigDecimal.ZERO)==0) {
 				// More picked amount in order line than in packet
 				// Add difference to sheet
 				BigDecimal diffAmount = orderAmount.subtract(unitLoadAmount);

@@ -523,15 +523,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			}
 
 			int stateOld = deliveryOrder.getState();
-			OrderStrategy strat = deliveryOrder.getOrderStrategy();
-			if( strat != null && strat.isCreatePackingOrder() ) {
-				deliveryOrder.setState(OrderState.PACKING);
-			}
-			else if( strat != null && strat.isCreateShippingOrder() ) {
-				deliveryOrder.setState(OrderState.SHIPPING);
-			}
-			else {
-				deliveryOrder.setState(State.FINISHED);
+			if( stateOld<OrderState.PICKED) {
+				deliveryOrder.setState(OrderState.PICKED);
 			}
 			if( deliveryOrder.getState() != stateOld ) {
 				fireDeliveryOrderStateChangeEvent(deliveryOrder, stateOld);

@@ -119,23 +119,31 @@ public class PickingOrderLineGenerator {
 					remainingAmount = remainingAmount.subtract(pick.getAmount());
 				}
 				if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+					String info = deliveryOrderLine.getItemData().getNumber() + ", " + remainingAmount
+							+ deliveryOrderLine.getItemData().getItemUnit().getName();
 					logger.log(Level.INFO,
 							logStr + "Not enough amount to pick. itemData=" + deliveryOrderLine.getItemData()
 									+ ", ordered amount=" + deliveryOrderLine.getAmount() + ", not available amount="
 									+ remainingAmount);
-					throw new BusinessException(Wms2BundleResolver.class, "PickingGenerator.notEnoughAmount");
+					throw new BusinessException(Wms2BundleResolver.class, "PickingGenerator.notEnoughAmount", info);
 				}
 			}
 
 			// Calculate new states
-			deliveryOrderLine.setState(OrderState.PROCESSABLE);
-			if (deliveryOrder.getState() < OrderState.PROCESSABLE) {
-				deliveryOrder.setState(OrderState.PROCESSABLE);
+			if (newPickList.size() > 0) {
+				deliveryOrderLine.setState(OrderState.PROCESSABLE);
 			}
-			if (deliveryOrderLine.getPickedAmount().compareTo(BigDecimal.ZERO) > 0) {
+			if (newPickList.size() > 0 && deliveryOrderLine.getPickedAmount().compareTo(BigDecimal.ZERO) > 0) {
 				deliveryOrderLine.setState(OrderState.STARTED);
 			}
-			if (deliveryOrder.getState() == OrderState.PENDING) {
+			if (newPickList.size() == 0 && remainingAmount.compareTo(BigDecimal.ZERO)>0) {
+				deliveryOrderLine.setState(OrderState.PENDING);
+			}
+
+			if (newPickList.size() > 0 && deliveryOrder.getState() < OrderState.PROCESSABLE) {
+				deliveryOrder.setState(OrderState.PROCESSABLE);
+			}
+			if (newPickList.size() > 0 && deliveryOrder.getState() == OrderState.PENDING) {
 				deliveryOrder.setState(OrderState.PROCESSABLE);
 				for (DeliveryOrderLine checkStartedLine : deliveryOrder.getLines()) {
 					if (checkStartedLine.getAmount().compareTo(BigDecimal.ZERO) > 0) {
