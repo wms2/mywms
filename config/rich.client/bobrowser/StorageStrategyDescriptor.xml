@@ -17,7 +17,7 @@
                 <group>
                     <name>main</name>
                 </group>
-                <hidden>false</hidden>
+                <hidden>true</hidden>
                 <position>10</position>
             </value>
         </entry>

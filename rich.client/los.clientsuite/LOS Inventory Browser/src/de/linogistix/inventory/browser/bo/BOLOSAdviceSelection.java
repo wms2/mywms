@@ -125,6 +125,7 @@ public class BOLOSAdviceSelection extends BO {
         if( "state".equals(fieldName) ) {
             List<Object> entryList = new ArrayList<Object>();
             entryList.add(OrderState.CREATED);
+            entryList.add(OrderState.PROCESSABLE);
             entryList.add(OrderState.STARTED);
             entryList.add(OrderState.FINISHED);
             return entryList;

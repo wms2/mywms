@@ -71,7 +71,7 @@ public class StorageFacadeBean implements StorageFacade {
 		if (transport == null) {
 			transport = transportBusiness.createOrder(unitLoad, null, TransportOrderType.INBOUND, null);
 		}
-		if (startProcessing && transport.getState() < OrderState.STARTED) {
+		if (transport != null && startProcessing && transport.getState() < OrderState.STARTED) {
 			transportBusiness.startOperation(transport, null);
 		}
 

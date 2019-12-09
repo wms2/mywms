@@ -313,7 +313,9 @@ public class BasicEntity
 	 * @param s
 	 */
 	public void addAdditionalContent(String s){
-		
+		if (s == null || s.length() == 0) {
+			return;
+		}
 		String prev = getAdditionalContent()==null?"":getAdditionalContent();
 		
 		setAdditionalContent(s + "\n--- "+ new SimpleDateFormat().format(new Date()) +"  ----\n\n" + prev);

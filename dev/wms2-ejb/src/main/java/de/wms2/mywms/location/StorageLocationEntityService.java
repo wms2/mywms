@@ -197,9 +197,9 @@ public class StorageLocationEntityService {
 	@SuppressWarnings("unchecked")
 	public List<StorageLocation> readLocationsOfField(StorageLocation location) {
 		String jpql = "SELECT entity FROM " + StorageLocation.class.getName() + " entity ";
-		jpql += " WHERE entity.field=:field and entity.positionY=:positionY and entity.positionZ=:positionZ ";
+		jpql += " WHERE entity.field=:field and entity.YPos=:positionY and entity.ZPos=:positionZ ";
 		jpql += " and entity.locationCluster=:locationCluster";
-		jpql += " ORDER BY entity.positionX, entity.id";
+		jpql += " ORDER BY entity.XPos, entity.id";
 
 		Query query = manager.createQuery(jpql);
 
