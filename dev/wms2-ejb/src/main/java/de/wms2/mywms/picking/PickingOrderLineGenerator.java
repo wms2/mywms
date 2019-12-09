@@ -79,7 +79,7 @@ public class PickingOrderLineGenerator {
 
 	public List<PickingOrderLine> generatePicks(DeliveryOrder deliveryOrder, boolean completeOrderOnly)
 			throws BusinessException {
-		String logStr = "generatePickingLines ";
+		String logStr = "generatePicks ";
 		logger.log(Level.FINE, logStr + "deliveryOrder=" + deliveryOrder);
 
 		List<PickingOrderLine> pickList = new ArrayList<>();
@@ -120,7 +120,7 @@ public class PickingOrderLineGenerator {
 				}
 				if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
 					String info = deliveryOrderLine.getItemData().getNumber() + ", " + remainingAmount
-							+ deliveryOrderLine.getItemData().getItemUnit().getName();
+							+ " " + deliveryOrderLine.getItemData().getItemUnit().getName();
 					logger.log(Level.INFO,
 							logStr + "Not enough amount to pick. itemData=" + deliveryOrderLine.getItemData()
 									+ ", ordered amount=" + deliveryOrderLine.getAmount() + ", not available amount="
@@ -170,7 +170,7 @@ public class PickingOrderLineGenerator {
 
 	public List<PickingOrderLine> generatePicks(DeliveryOrderLine deliveryOrderLine, OrderStrategy strategy,
 			BigDecimal amount) throws BusinessException {
-		String logStr = "generatePickingLines ";
+		String logStr = "generatePicks ";
 
 		List<PickingOrderLine> pickList = new ArrayList<>();
 

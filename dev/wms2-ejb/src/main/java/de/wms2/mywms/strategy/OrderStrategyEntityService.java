@@ -171,6 +171,8 @@ public class OrderStrategyEntityService {
 		strategy.setDefaultDestination(locationService.getClearing());
 		strategy.setManualCreationIndex(0);
 		strategy.setCreateFollowUpPicks(false);
+		strategy.setSendToPacking(false);
+		strategy.setSendToShipping(false);
 		strategy.setCreateShippingOrder(false);
 		strategy.setManualCreationIndex(-1);
 		strategy.setPreferComplete(false);

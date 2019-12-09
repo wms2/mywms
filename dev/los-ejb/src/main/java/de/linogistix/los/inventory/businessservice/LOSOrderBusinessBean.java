@@ -57,6 +57,7 @@ import de.wms2.mywms.picking.PickingOrderLineStateChangeEvent;
 import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
 import de.wms2.mywms.picking.PickingType;
 import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.strategy.OrderStateCalculator;
 
 /**
  * 
@@ -87,6 +88,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private InventoryBusiness inventoryBusiness;
+	@Inject
+	private OrderStateCalculator orderStateCalculator;
 
 	@Inject
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
@@ -161,7 +164,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		deliveryOrderLine.setPickedAmount(amountPicked);
 
 		if( deliveryOrderLine.getState()>=State.PICKED ) {
-			log.warn(logStr+"Added picked amount to already finished customer order position. position="+deliveryOrderLine.getLineNumber()+", state="+deliveryOrderLine.getState()+", added amount="+amount+", new picked amount="+amountPicked);
+			log.warn(logStr+"Added picked amount to already finished delivery order line. line="+deliveryOrderLine.getLineNumber()+", state="+deliveryOrderLine.getState()+", added amount="+amount+", new picked amount="+amountPicked);
 		}
 
 		if( amountRequested.compareTo(amountPicked) <= 0 ) {
@@ -482,6 +485,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 		return pickingOrder;
 	}
+
 	/**
 	 * Finishes a picking order in the current state.<br>
 	 * Not finished unit loads of the picking order are moved to the clearing location.<br> 
@@ -534,13 +538,15 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			}
 		}		
 
+		orderStateCalculator.calculateDeliveryOrderState(pickingOrder);
+
 		if( pickingOrder.getState() != stateOld )  {
 			firePickingOrderStateChangeEvent(pickingOrder, stateOld);
 		}
 		
 		return pickingOrder;
 	}
-	
+
 	public void confirmPick(PickingOrderLine pick, Packet pickToUnitLoad, BigDecimal amountPicked, BigDecimal amountRemain, List<String> serialNoList) throws FacadeException {
 		confirmPick(pick, pickToUnitLoad, amountPicked, amountRemain, serialNoList, false);
 	}

@@ -52,7 +52,13 @@ public class OrderStrategy extends BasicEntity {
 	 * Send to packing order after picking order is finished
 	 */
 	@Column(nullable = false)
-	private boolean createPackingOrder = false;
+	private boolean sendToPacking = false;
+
+	/**
+	 * Send to shipping after all other sub-orders are finished
+	 */
+	@Column(nullable = false)
+	private boolean sendToShipping = true;
 
 	/**
 	 * Send to shipping after all other sub-orders are finished
@@ -145,12 +151,20 @@ public class OrderStrategy extends BasicEntity {
 		this.defaultDestination = defaultDestination;
 	}
 
-	public boolean isCreatePackingOrder() {
-		return createPackingOrder;
+	public boolean isSendToPacking() {
+		return sendToPacking;
 	}
 
-	public void setCreatePackingOrder(boolean createPackingOrder) {
-		this.createPackingOrder = createPackingOrder;
+	public void setSendToPacking(boolean sendToPacking) {
+		this.sendToPacking = sendToPacking;
+	}
+
+	public boolean isSendToShipping() {
+		return sendToShipping;
+	}
+
+	public void setSendToShipping(boolean sendToShipping) {
+		this.sendToShipping = sendToShipping;
 	}
 
 	public boolean isCreateShippingOrder() {
@@ -224,4 +238,5 @@ public class OrderStrategy extends BasicEntity {
 	public void setManualCreationIndex(int manualCreationIndex) {
 		this.manualCreationIndex = manualCreationIndex;
 	}
+
 }

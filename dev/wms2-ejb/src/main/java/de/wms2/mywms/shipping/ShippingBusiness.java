@@ -52,6 +52,7 @@ import de.wms2.mywms.picking.PacketStateChangeEvent;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.strategy.OrderStateCalculator;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2BundleResolver;
 import de.wms2.mywms.util.Wms2Properties;
@@ -96,6 +97,8 @@ public class ShippingBusiness {
 	private StorageLocationEntityService locationService;
 	@Inject
 	private AddressEntityService addressEntityService;
+	@Inject
+	private OrderStateCalculator orderStateCalculator;
 
 	/**
 	 * Release shipping order for operation
@@ -408,6 +411,8 @@ public class ShippingBusiness {
 			inventoryBusiness.transferUnitLoad(unitLoad, destination, shippingOrder.getOrderNumber(), null, null);
 		}
 
+		orderStateCalculator.calculateDeliveryOrderState(line);
+
 		if (line.getState() != oldLineState) {
 			fireShippingOrderLineStateChangeEvent(line, oldLineState);
 		}
@@ -456,15 +461,7 @@ public class ShippingBusiness {
 				shippingOrder.setState(OrderState.PROCESSABLE);
 			}
 
-			ShippingOrderLine line = null;
-			line = manager.createInstance(ShippingOrderLine.class);
-			line.setPacket(packet);
-			line.setShippingOrder(shippingOrder);
-			line.setState(OrderState.PROCESSABLE);
-			manager.persistValidated(line);
-			manager.flush();
-
-			fireShippingOrderLineStateChangeEvent(line, -1);
+			addLine(shippingOrder, packet);
 		}
 
 		return shippingOrder;
