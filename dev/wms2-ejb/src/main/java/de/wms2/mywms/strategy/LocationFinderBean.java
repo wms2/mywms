@@ -530,13 +530,15 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += "       and location.allocation<=(100-allocationRule.allocation) ) ";
 		jpql += "   or (allocationRule.allocation>100";
 		jpql += "       and location.allocation=0 ";
+		jpql += "       and location.field is not null and location.field!='' ";
 		jpql += "       and exists(";
 		jpql += "           select 1 from " + StorageLocation.class.getName() + " neighbor ";
 		jpql += "           where neighbor.id!=location.id";
 		jpql += "             and neighbor.field=location.field";
 		jpql += "             and neighbor.locationCluster=location.locationCluster";
 		jpql += "             and neighbor.YPos=location.YPos";
-		jpql += "             and neighbor.allocation=0)";
+		jpql += "             and neighbor.ZPos=location.ZPos";
+		jpql += "             and neighbor.allocation<100)";
 		jpql += "      ) ";
 		jpql += " ) ";
 

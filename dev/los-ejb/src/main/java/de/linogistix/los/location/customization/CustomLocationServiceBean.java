@@ -33,13 +33,10 @@ public class CustomLocationServiceBean implements CustomLocationService {
     
 	@Override
 	public void onLocationGetsEmpty(StorageLocation location) throws FacadeException {
-		onLocationGetsEmpty(location, true);
 	}
 	
 	@Override
 	public void onLocationGetsEmpty(StorageLocation location, boolean checkEmptyLocation) throws FacadeException {
-		location.setAllocation(BigDecimal.ZERO);
-		location.setCurrentTypeCapacityConstraint(null);
 	}
 	
 	public void checkAllocateLocation(StorageLocation location, UnitLoad unitLoad, TypeCapacityConstraint constraint) throws LOSLocationAlreadyFullException,LOSLocationNotSuitableException,LOSLocationWrongClientException,LOSLocationReservedException {

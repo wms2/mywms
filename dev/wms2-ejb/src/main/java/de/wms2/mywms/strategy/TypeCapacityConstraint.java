@@ -25,7 +25,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicEntity;
@@ -45,9 +44,6 @@ import de.wms2.mywms.location.LocationType;
 public class TypeCapacityConstraint extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
-	public final static int ALLOCATE_UNIT_LOAD_TYPE = 1;
-	public final static int ALLOCATE_PERCENTAGE = 2;
-
 	/**
 	 * The related location type
 	 */
@@ -59,12 +55,6 @@ public class TypeCapacityConstraint extends BasicEntity {
 	 */
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private UnitLoadType unitLoadType;
-
-	/**
-	 * The method to allocate the storage location
-	 */
-	@Column(nullable = false)
-	private int allocationType = ALLOCATE_UNIT_LOAD_TYPE;
 
 	/**
 	 * Percentage of location allocation
@@ -92,24 +82,6 @@ public class TypeCapacityConstraint extends BasicEntity {
 		return unitLoadType == null ? "" + getId() : unitLoadType.getName();
 	}
 
-	/**
-	 * @deprecated Use getLocationType
-	 */
-	@Transient
-	@Deprecated
-	public LocationType getStorageLocationType() {
-		return locationType;
-	}
-
-	/**
-	 * @deprecated Use setLocationType
-	 */
-	@Transient
-	@Deprecated
-	public void setStorageLocationType(LocationType locationType) {
-		this.locationType = locationType;
-	}
-
 	public LocationType getLocationType() {
 		return locationType;
 	}
@@ -124,14 +96,6 @@ public class TypeCapacityConstraint extends BasicEntity {
 
 	public void setUnitLoadType(UnitLoadType unitLoadType) {
 		this.unitLoadType = unitLoadType;
-	}
-
-	public int getAllocationType() {
-		return allocationType;
-	}
-
-	public void setAllocationType(int allocationType) {
-		this.allocationType = allocationType;
 	}
 
 	public BigDecimal getAllocation() {

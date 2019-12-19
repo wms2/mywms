@@ -316,17 +316,20 @@ Release 2.4
     Main topics
     -------------------------------------------------------------------------------
     - Partial operation of delivery orders
+    - Made shipping order generation optional
+    - Allocation of storagelocations with more than 100%
 
 
     Functional changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
     - Release and finish delivery orders with amount differences on single positions
+    - Print positions with zero amount on delivery note
+    - Removed current type capacity constraint from storage location
 
 
     Technical changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
     - Changed database entities
-        -
 
 
     Bugfixes (for details have a look to the git repository)
@@ -335,4 +338,6 @@ Release 2.4
 
     Switch to Release 2.4
     -------------------------------------------------------------------------------
-
+    - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
+    - Drop column allocationtype of table typecapacityconstraint
+    - Drop column currenttypecapacityconstraint_id of table storagelocation

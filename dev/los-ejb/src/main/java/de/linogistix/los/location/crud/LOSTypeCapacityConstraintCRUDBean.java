@@ -71,11 +71,5 @@ public class LOSTypeCapacityConstraintCRUDBean extends BusinessObjectCRUDBean<Ty
 		if( BigDecimal.ZERO.compareTo(entity.getAllocation())>=0 ) {
 			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_MORE_THAN_0, new Object[]{});
 		}
-		if( entity.getAllocationType() == TypeCapacityConstraint.ALLOCATE_PERCENTAGE && BigDecimal.valueOf(100).compareTo(entity.getAllocation())<0 ) { 
-			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_LESS_THAN_100, new Object[]{});
-		}
-		if( entity.getAllocationType() == TypeCapacityConstraint.ALLOCATE_UNIT_LOAD_TYPE && BigDecimal.valueOf(100).compareTo(entity.getAllocation())<0 ) { 
-			throw new LOSLocationException(LOSLocationExceptionKey.ALLOCATION_LESS_THAN_100, new Object[]{});
-		}
 	}
 }

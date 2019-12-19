@@ -215,7 +215,7 @@ public class LocationBasicDataServiceBean implements LocationBasicDataService {
 		constraint = capaService.getByTypes(slType, ulType);
 		if( constraint == null ) {
 			constraint = entityGenerator.generateEntity( TypeCapacityConstraint.class );
-			constraint.setStorageLocationType(slType);
+			constraint.setLocationType(slType);
 			constraint.setUnitLoadType(ulType);
 			manager.persist(constraint);
 		}

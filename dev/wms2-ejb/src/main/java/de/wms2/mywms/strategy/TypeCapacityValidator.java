@@ -28,7 +28,6 @@ import de.wms2.mywms.entity.EntityValidator;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.location.StorageLocation;
-import de.wms2.mywms.util.NumberUtils;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 /**
@@ -80,15 +79,6 @@ public class TypeCapacityValidator implements EntityValidator<TypeCapacityConstr
 			logger.log(Level.INFO, logStr + "Not unique. locationType=" + entity.getLocationType() + ", unitLoadType="
 					+ entity.getUnitLoadType() + ", entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
-		}
-
-		if (entity.getAllocation().compareTo(NumberUtils.HUNDRED) > 0) {
-			BigDecimal remainder = entity.getAllocation().remainder(NumberUtils.HUNDRED);
-			if (remainder.compareTo(BigDecimal.ZERO) != 0) {
-				logger.log(Level.INFO, logStr + "Cannot allocate not multiple of 100% for over occupation. allocation="
-						+ entity.getAllocation() + ", entity=" + entity);
-				throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidCapaMultiple100Percent");
-			}
 		}
 	}
 

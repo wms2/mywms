@@ -37,7 +37,6 @@ import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
-import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.businessservice.LocationBasicDataService;
 import de.linogistix.los.location.entityservice.LOSStorageLocationTypeService;
@@ -423,7 +422,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 		constraint = capaService.getByTypes(slType, ulType);
 		if( constraint == null ) {
 			constraint = entityGenerator.generateEntity( TypeCapacityConstraint.class );
-			constraint.setStorageLocationType(slType);
+			constraint.setLocationType(slType);
 			constraint.setUnitLoadType(ulType);
 			constraint.setAllocation(capa);
 			manager.persist(constraint);
@@ -433,9 +432,10 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	}
 
 	private void createRack(Client client, String name, String locationName, int noColumns, int noLoc, int noRows, Area area, LocationType type, LocationCluster cluster, Zone zone) {
-
+		int x = 0;
 		for(int x1=0; x1<noColumns; x1++){
 			for(int x2=0; x2<noLoc; x2++){
+				x++;
 				for(int y=0; y<noRows; y++){
 	//				String slName = locationName + "-" + String.format("%1$02d",y+1) + "-" + String.format("%1$03d",x+1) ;
 					String slName = locationName + "-" + String.format("%1$02d",x1+1) + String.format("%1$01d",x2+1) + "-" + String.format("%1$01d",y+1) ;
@@ -456,6 +456,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 					rl.setRack(name);
 					rl.setLocationCluster(cluster);
 					rl.setZone(zone);
+					rl.setYPos(y+1);
+					rl.setXPos(x);
 				}
 			}
 		}

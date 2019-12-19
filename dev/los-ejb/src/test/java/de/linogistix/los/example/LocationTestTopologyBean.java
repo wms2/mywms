@@ -298,7 +298,7 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			EINE_PALETTE = new TypeCapacityConstraint();
 //			EINE_PALETTE.setName(EINE_PALETTE_NAME);
 			EINE_PALETTE.setUnitLoadType(PALETTE);
-			EINE_PALETTE.setStorageLocationType(slTypeDefault);
+			EINE_PALETTE.setLocationType(slTypeDefault);
 			EINE_PALETTE.setAllocation( new BigDecimal(100) );
 			em.persist(EINE_PALETTE);
 		}
@@ -315,7 +315,7 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 			KOMM_FACH_DUMMY_LHM_CONSTR = new TypeCapacityConstraint();
 //			KOMM_FACH_DUMMY_LHM_CONSTR.setName(KOMM_FACH_DUMMY_LHM_CONSTR_NAME);
 			KOMM_FACH_DUMMY_LHM_CONSTR.setUnitLoadType(DUMMY_KOMM_ULTYPE);
-			KOMM_FACH_DUMMY_LHM_CONSTR.setStorageLocationType(KOMMPLATZ_TYP);
+			KOMM_FACH_DUMMY_LHM_CONSTR.setLocationType(KOMMPLATZ_TYP);
 			KOMM_FACH_DUMMY_LHM_CONSTR.setAllocation( new BigDecimal(100) );
 			em.persist(KOMM_FACH_DUMMY_LHM_CONSTR);
 		}
@@ -475,8 +475,6 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 					rl.setName(locName);
 					rl.setRack(TEST_RACK_1);
 					rl.setLocationType(KOMMPLATZ_TYP);
-					rl
-							.setCurrentTypeCapacityConstraint(KOMM_FACH_DUMMY_LHM_CONSTR);
 					rl.setXPos(x);
 					rl.setYPos(y);
 					em.persist(rl);
@@ -526,8 +524,6 @@ public class LocationTestTopologyBean implements LocationTestTopologyRemote {
 					rl.setName(locName);
 					rl.setRack(TEST_RACK_2);
 					rl.setType(KOMMPLATZ_TYP);
-					rl
-							.setCurrentTypeCapacityConstraint(KOMM_FACH_DUMMY_LHM_CONSTR);
 					rl.setXPos(x);
 					rl.setYPos(y);
 					em.persist(rl);

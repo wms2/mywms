@@ -22,19 +22,24 @@ package de.wms2.mywms.strategy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.util.NumberUtils;
@@ -63,7 +68,8 @@ public class LocationReserver {
 	public boolean checkAllocateLocation(StorageLocation location, UnitLoad unitLoad, boolean checkLock,
 			boolean throwException) throws BusinessException {
 
-		return checkAllocateLocation(location, unitLoad.getClient(), unitLoad.getUnitLoadType(), checkLock, throwException);
+		return checkAllocateLocation(location, unitLoad.getClient(), unitLoad.getUnitLoadType(), checkLock,
+				throwException);
 	}
 
 	/**
@@ -72,6 +78,8 @@ public class LocationReserver {
 	public boolean checkAllocateLocation(StorageLocation location, Client client, UnitLoadType unitLoadType,
 			boolean checkLock, boolean throwException) throws BusinessException {
 		String logStr = "checkAllocateLocation ";
+		logger.log(Level.FINE, logStr + "location=" + location);
+
 		if (location == null) {
 			logger.log(Level.SEVERE, logStr + "No loaction");
 			throw new BusinessException(Wms2BundleResolver.class, "LocationReserver.missingParameterLocation");
@@ -130,47 +138,16 @@ public class LocationReserver {
 
 		BigDecimal unitLoadAllocation = unitLoadCapa.getAllocation();
 		if (unitLoadAllocation.compareTo(NumberUtils.HUNDRED) > 0) {
-			// Check neighbors
-			List<StorageLocation> neighbors = readNeighbors(location, false);
-			BigDecimal remainingAllocation = unitLoadAllocation;
-			for (StorageLocation neighbor : neighbors) {
-				if (remainingAllocation.compareTo(BigDecimal.ZERO) <= 0) {
-					// done
-					break;
-				}
-				remainingAllocation = remainingAllocation.subtract(NumberUtils.HUNDRED);
 
-				// There must be no inbound locks
-				if (checkLock && neighbor.isLocked()) {
-					if (throwException) {
-						logger.log(Level.INFO, logStr + "Neighbor is locked. location=" + location + ", neighbor="
-								+ neighbor + ", lock=" + neighbor.getLock());
-						throw new BusinessException(Wms2BundleResolver.class, "LocationReserver.neighborIsLocked");
-					}
-					return false;
-				}
-
-				if (neighbor.getAllocation().compareTo(BigDecimal.ZERO) > 0) {
-					if (throwException) {
-						logger.log(Level.INFO,
-								logStr + "Neighbor is allocated. location=" + location + ", neighbor=" + neighbor);
-						throw new BusinessException(Wms2BundleResolver.class, "LocationReserver.neighborIsAllocated");
-					}
-					return false;
-				}
-			}
-
-			if (remainingAllocation.compareTo(BigDecimal.ZERO) > 0) {
+			FieldAllocations allocations = calculateFieldAllocation(location, unitLoadAllocation, true);
+			if (!StringUtils.isBlank(allocations.errorKey)) {
 				if (throwException) {
-					logger.log(Level.INFO, logStr + "Not enough neighbors. location=" + location
-							+ ", remainingAllocation=" + remainingAllocation);
-					throw new BusinessException(Wms2BundleResolver.class, "LocationReserver.notEnoughNeighbors");
+					throw new BusinessException(Wms2BundleResolver.class, allocations.errorKey);
+				} else {
+					return false;
 				}
-				return false;
 			}
 
-			logger.log(Level.FINE, logStr + "Allocation > 100 defined for location. OK. location=" + location
-					+ ", capaUnitLoad=" + unitLoadCapa);
 			return true;
 		}
 
@@ -233,6 +210,7 @@ public class LocationReserver {
 
 	private void writeAllocation(StorageLocation location, UnitLoad unitLoad) throws BusinessException {
 		String logStr = "writeAllocation ";
+		logger.log(Level.FINE, logStr + "location=" + location);
 
 		if (location == null) {
 			logger.log(Level.SEVERE, logStr + "No loaction");
@@ -252,24 +230,16 @@ public class LocationReserver {
 
 		BigDecimal unitLoadAllocation = unitLoadCapa.getAllocation();
 		if (unitLoadAllocation.compareTo(NumberUtils.HUNDRED) > 0) {
-			// Allocate multiple locations
-			BigDecimal remainingAllocation = unitLoadAllocation;
-			List<StorageLocation> neighbors = readNeighbors(location, false);
-			boolean originalLocation = true;
-			for (StorageLocation neighbor : neighbors) {
-				if (remainingAllocation.compareTo(BigDecimal.ZERO) <= 0) {
-					break;
+			FieldAllocations allocations = calculateFieldAllocation(location, unitLoadAllocation, true);
+			for (Entry<StorageLocation, BigDecimal> entry : allocations.allocations.entrySet()) {
+				StorageLocation allocationLocation = entry.getKey();
+				BigDecimal allocationValue = entry.getValue();
+				BigDecimal newAllocationValue = allocationLocation.getAllocation().add(allocationValue);
+				if (newAllocationValue.compareTo(NumberUtils.HUNDRED) > 0) {
+					newAllocationValue = NumberUtils.HUNDRED;
 				}
-				if (originalLocation) {
-					neighbor.setAllocation(unitLoadAllocation);
-					originalLocation = false;
-				} else {
-					neighbor.setAllocation(NumberUtils.HUNDRED);
-				}
-				remainingAllocation = remainingAllocation.subtract(NumberUtils.HUNDRED);
-				logger.log(Level.FINE, logStr + "neighbor location=" + neighbor + ", unitLoad=" + unitLoad);
+				allocationLocation.setAllocation(newAllocationValue);
 			}
-
 		} else {
 			BigDecimal locationAllocation = location.getAllocation();
 			locationAllocation = locationAllocation.add(unitLoadAllocation);
@@ -286,13 +256,14 @@ public class LocationReserver {
 	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad) throws BusinessException {
 		deallocateLocation(location, unitLoad, true);
 	}
-	
+
 	/**
 	 * Removes the allocation of a location
 	 */
 	public void deallocateLocation(StorageLocation location, UnitLoad unitLoad, boolean checkEmptyLocation)
 			throws BusinessException {
 		String logStr = "deallocateLocation ";
+		logger.log(Level.FINE, logStr + "location=" + location);
 
 		if (location == null) {
 			logger.log(Level.WARNING, logStr + "No loaction");
@@ -329,15 +300,17 @@ public class LocationReserver {
 			// Only 100 percent steps are supported.
 			// Start with locations allocation. Necessary when allocation master data is
 			// changed.
-			BigDecimal remainingAllocation = locationAllocation;
-			List<StorageLocation> neighbors = readNeighbors(location, true);
-			for (StorageLocation neighbor : neighbors) {
-				if (remainingAllocation.compareTo(BigDecimal.ZERO) <= 0) {
-					break;
+
+			FieldAllocations allocations = calculateFieldAllocation(location, unitLoadAllocation, false);
+
+			for (Entry<StorageLocation, BigDecimal> entry : allocations.allocations.entrySet()) {
+				StorageLocation allocationLocation = entry.getKey();
+				BigDecimal allocationValue = entry.getValue();
+				BigDecimal newAllocationValue = allocationLocation.getAllocation().subtract(allocationValue);
+				if (newAllocationValue.compareTo(BigDecimal.ZERO) < 0) {
+					newAllocationValue = BigDecimal.ZERO;
 				}
-				remainingAllocation = remainingAllocation.subtract(NumberUtils.HUNDRED);
-				neighbor.setAllocation(BigDecimal.ZERO);
-				logger.log(Level.FINE, logStr + "location=" + neighbor + ", unitLoad=" + unitLoad);
+				allocationLocation.setAllocation(newAllocationValue);
 			}
 
 		} else {
@@ -418,7 +391,8 @@ public class LocationReserver {
 				continue;
 			}
 
-			TypeCapacityConstraint unitLoadCapa = capaService.read(location.getLocationType(), unitLoad.getUnitLoadType());
+			TypeCapacityConstraint unitLoadCapa = capaService.read(location.getLocationType(),
+					unitLoad.getUnitLoadType());
 			if (unitLoadCapa == null) {
 				logger.log(Level.INFO,
 						logStr + "No capacity option for location=" + location + ", locationType="
@@ -431,44 +405,129 @@ public class LocationReserver {
 		}
 	}
 
-	/**
-	 * Generate a sorted list left-to-right. Beginning with the starting location
-	 */
-	private List<StorageLocation> readNeighbors(StorageLocation masterLocation, boolean readAllocated) {
-		List<StorageLocation> neighbors = new ArrayList<>();
+	private FieldAllocations calculateFieldAllocation(StorageLocation masterLocation, BigDecimal allocation,
+			boolean addAllocation) {
+		String logStr = "calculateFieldAllocation ";
+
+		FieldAllocations allocations = new FieldAllocations();
 
 		if (masterLocation == null) {
-			return neighbors;
+			logger.log(Level.SEVERE, logStr + "No loaction");
+			allocations.errorKey = "LocationReserver.missingParameterLocation";
+			return allocations;
+		}
+
+		if (allocation == null) {
+			logger.log(Level.SEVERE, logStr + "No allocation");
+			allocations.errorKey = "LocationReserver.missingParameterAllocation";
+			return allocations;
+		}
+		if (allocation.compareTo(NumberUtils.HUNDRED) <= 0) {
+			logger.log(Level.SEVERE, logStr + "Allocation is not > 100");
+			allocations.errorKey = "LocationReserver.missingParameterAllocation";
+			return allocations;
 		}
 
 		List<StorageLocation> locationsOfField = locationService.readLocationsOfField(masterLocation);
-		if (locationsOfField == null) {
-			return neighbors;
+		if (locationsOfField == null || locationsOfField.size() == 0) {
+			return allocations;
 		}
+		int fieldSize = locationsOfField.size();
+
+		LocationType masterLocationType = masterLocation.getLocationType();
+		StorageLocation predecessor = null;
+		List<StorageLocation> successors = new ArrayList<>();
 
 		boolean foundStartLocation = false;
-		for (StorageLocation neighbor : locationsOfField) {
-
-			if (masterLocation.equals(neighbor)) {
+		int mainLocationIndex = 0;
+		for (StorageLocation location : locationsOfField) {
+			if (masterLocation.equals(location)) {
 				foundStartLocation = true;
+				continue;
 			}
 			if (!foundStartLocation) {
+				predecessor = location;
+				mainLocationIndex++;
 				continue;
 			}
 
-			if (!neighbor.getLocationType().equals(masterLocation.getLocationType())) {
+			if (!location.getLocationType().equals(masterLocationType)) {
 				// The location has a different type.
 				// Don't touch it. Stop operation
 				break;
 			}
 
-			if (!readAllocated && neighbor.getAllocation().compareTo(BigDecimal.ZERO) > 0) {
+			if (addAllocation && location.getAllocation().compareTo(NumberUtils.HUNDRED) >= 0) {
 				break;
 			}
 
-			neighbors.add(neighbor);
+			successors.add(location);
 		}
 
-		return neighbors;
+		// Remove predecessor if the location type is not valid
+		if (predecessor != null && !predecessor.getLocationType().equals(masterLocationType)) {
+			predecessor = null;
+		}
+
+		allocations.allocations.put(masterLocation, allocation);
+		logger.log(Level.FINE, logStr + "masterLocation=" + masterLocation + ", allocation=" + allocation);
+		BigDecimal remainingAllocation = allocation.subtract(NumberUtils.HUNDRED);
+
+		if (fieldSize == 3 && mainLocationIndex == 1 && predecessor != null
+				&& remainingAllocation.compareTo(NumberUtils.HUNDRED) < 0) {
+			logger.log(Level.INFO, logStr + "Will no use middle location of field. location=" + masterLocation
+					+ ", allocation=" + allocation);
+			allocations.errorKey = "LocationReserver.notMiddleLocation";
+			return allocations;
+		}
+
+		if (fieldSize == 3 && predecessor != null && remainingAllocation.compareTo(NumberUtils.HUNDRED) < 0) {
+			// Partial additional allocation is possible
+			if (addAllocation) {
+				BigDecimal newPredecessorAllocation = predecessor.getAllocation().add(remainingAllocation);
+				if (newPredecessorAllocation.compareTo(NumberUtils.HUNDRED) <= 0) {
+					allocations.allocations.put(predecessor, remainingAllocation);
+					logger.log(Level.FINE, logStr + "predecessor location=" + predecessor + ", add allocation="
+							+ remainingAllocation + ", new allocation=" + newPredecessorAllocation);
+					return allocations;
+				}
+			} else {
+				allocations.allocations.put(predecessor, remainingAllocation);
+				logger.log(Level.FINE,
+						logStr + "predecessor location=" + predecessor + ", add allocation=" + remainingAllocation);
+				return allocations;
+			}
+		}
+
+		for (StorageLocation successor : successors) {
+			if (remainingAllocation.compareTo(BigDecimal.ZERO) <= 0) {
+				break;
+			}
+
+			if (remainingAllocation.compareTo(NumberUtils.HUNDRED) < 0) {
+				allocations.allocations.put(successor, remainingAllocation);
+				logger.log(Level.FINE,
+						logStr + "neighbor location=" + successor + ", allocation=" + remainingAllocation);
+			} else {
+				allocations.allocations.put(successor, NumberUtils.HUNDRED);
+				logger.log(Level.FINE, logStr + "neighbor location=" + successor + ", allocation=100");
+			}
+
+			remainingAllocation = remainingAllocation.subtract(NumberUtils.HUNDRED);
+		}
+
+		if (remainingAllocation.compareTo(BigDecimal.ZERO) > 0) {
+			logger.log(Level.INFO,
+					logStr + "Not enougth neighbors. location=" + masterLocation + ", allocation=" + allocation);
+			allocations.errorKey = "LocationReserver.notEnoughNeighbors";
+		}
+
+		return allocations;
 	}
+
+	class FieldAllocations {
+		Map<StorageLocation, BigDecimal> allocations = new HashMap<>();
+		String errorKey;
+	}
+
 }

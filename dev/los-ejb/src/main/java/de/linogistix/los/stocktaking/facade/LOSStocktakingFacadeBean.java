@@ -159,50 +159,43 @@ public class LOSStocktakingFacadeBean implements LOSStocktakingFacade {
 					LOSStockTakingExceptionKey.UNKNOWN_LOCATION, 
 					new Object[]{location});
 		}
+
+		// check if unit load type already specified through other counts
+		List<LOSStocktakingOrder> soList;
+		soList = queryStOrderService.getListByLocationAndState(sl.getName(), LOSStocktakingState.STARTED);
+
+		String alreadyCountedUnitLoadType = null;
+		for(LOSStocktakingOrder so:soList){
+
+			for(LOSStocktakingRecord rec : so.getRecords()){
+
+				alreadyCountedUnitLoadType = rec.getUlTypeNo();
+
+				if(alreadyCountedUnitLoadType != null){
+					break;
+				}
+			}
+		}
 		
-		if(sl.getCurrentTypeCapacityConstraint() != null){
-			ultList.add(sl.getCurrentTypeCapacityConstraint().getUnitLoadType().getName());
+		if(alreadyCountedUnitLoadType != null){
+			ultList.add(alreadyCountedUnitLoadType);
 			return ultList;
 		}
-		else {
-			
-			// check if unit load type already specified through other counts
-			List<LOSStocktakingOrder> soList;
-			soList = queryStOrderService.getListByLocationAndState(sl.getName(), LOSStocktakingState.STARTED);
-			
-			String alreadyCountedUnitLoadType = null;
-			for(LOSStocktakingOrder so:soList){
-				
-				for(LOSStocktakingRecord rec : so.getRecords()){
-					
-					alreadyCountedUnitLoadType = rec.getUlTypeNo();
-					
-					if(alreadyCountedUnitLoadType != null){
-						break;
-					}
-				}
-			}
-			
-			if(alreadyCountedUnitLoadType != null){
-				ultList.add(alreadyCountedUnitLoadType);
-				return ultList;
-			}
-			
-			List<TypeCapacityConstraint> tccList = queryTccService.getListByLocationType(sl.getType());
-			
-			if(tccList.size() == 0){
-				ultList.add(unitLoadTypeService.getDefault().getName());
-				return ultList;
-			}
-			else{
-				
-				for(TypeCapacityConstraint tcc:tccList){
-					ultList.add(tcc.getUnitLoadType().getName());
-				}
-				return ultList;
-			}
-			
+
+		List<TypeCapacityConstraint> tccList = queryTccService.getListByLocationType(sl.getLocationType());
+
+		if(tccList.size() == 0){
+			ultList.add(unitLoadTypeService.getDefault().getName());
+			return ultList;
 		}
+		else{
+
+			for(TypeCapacityConstraint tcc:tccList){
+				ultList.add(tcc.getUnitLoadType().getName());
+			}
+			return ultList;
+		}
+
 	}
 
 	public void removeOrder( Long orderId ) throws LOSStockTakingException {

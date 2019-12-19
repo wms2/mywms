@@ -184,16 +184,6 @@
             </value>
         </entry>
         <entry>
-            <key>currentTypeCapacityConstraint</key>
-            <value>
-                <group>
-                    <name>allocationGroup</name>
-                </group>
-                <hidden>false</hidden>
-                <position>3</position>
-            </value>
-        </entry>
-        <entry>
             <key>unitLoads</key>
             <value>
                 <group>

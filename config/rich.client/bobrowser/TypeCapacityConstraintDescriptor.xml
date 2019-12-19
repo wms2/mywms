@@ -2,7 +2,7 @@
 <ns2:boBeanNodeDescriptor xmlns:ns2="http://schema.linogistix.com/bobeandescriptor">
     <descriptions>
         <entry>
-            <key>storageLocationType</key>
+            <key>locationType</key>
             <value>
                 <group>
                     <name>main</name>
@@ -19,16 +19,6 @@
                 </group>
                 <hidden>false</hidden>
                 <position>3</position>
-            </value>
-        </entry>
-        <entry>
-            <key>allocationType</key>
-            <value>
-                <group>
-                    <name>main</name>
-                </group>
-                <hidden>false</hidden>
-                <position>4</position>
             </value>
         </entry>
         <entry>

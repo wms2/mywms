@@ -921,9 +921,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				
 				manager.persist(ul);
 				
-				sl.setCurrentTypeCapacityConstraint(queryTccService.getByTypes(sl.getType(), ulType));
-				
-
 			}
 			
 			// check the stock

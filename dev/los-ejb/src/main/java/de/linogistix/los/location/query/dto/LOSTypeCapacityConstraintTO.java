@@ -27,7 +27,7 @@ public class LOSTypeCapacityConstraintTO extends BODTO<TypeCapacityConstraint>{
 
 	public LOSTypeCapacityConstraintTO(TypeCapacityConstraint constraint){
 		super(constraint.getId(), constraint.getVersion(), constraint.getId());
-		this.locationTypeName = constraint.getStorageLocationType() == null ? "" : constraint.getStorageLocationType().getName();
+		this.locationTypeName = constraint.getLocationType() == null ? "" : constraint.getLocationType().getName();
 		this.unitLoadTypeName = constraint.getUnitLoadType() == null ? "" : constraint.getUnitLoadType().getName();
 		this.allocation = constraint.getAllocation();
 		this.name = locationTypeName+" \u21d4 "+unitLoadTypeName;

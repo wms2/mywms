@@ -98,9 +98,6 @@ public class StorageLocation extends BasicClientAssignedEntity {
 	@Column(nullable = false, precision = 15, scale = 2)
 	private BigDecimal allocation = BigDecimal.ZERO;
 
-	@ManyToOne(optional = true)
-	private TypeCapacityConstraint currentTypeCapacityConstraint;
-
 	/**
 	 * The rack or aisle of the storage location
 	 */
@@ -128,15 +125,6 @@ public class StorageLocation extends BasicClientAssignedEntity {
 	 * The place between two rack stands
 	 */
 	private String field;
-
-	/**
-	 * The position within one field.
-	 * <p>
-	 * Used to calculate storage location occupation when more than one storage
-	 * location is occupied by one unit load.
-	 */
-	@Column(nullable = false)
-	private int fieldIndex;
 
 	@Column(nullable = false)
 	private int allocationState = 0;
@@ -286,14 +274,6 @@ public class StorageLocation extends BasicClientAssignedEntity {
 		this.allocation = allocation;
 	}
 
-	public TypeCapacityConstraint getCurrentTypeCapacityConstraint() {
-		return currentTypeCapacityConstraint;
-	}
-
-	public void setCurrentTypeCapacityConstraint(TypeCapacityConstraint currentTypeCapacityConstraint) {
-		this.currentTypeCapacityConstraint = currentTypeCapacityConstraint;
-	}
-
 	public String getRack() {
 		return rack;
 	}
@@ -332,14 +312,6 @@ public class StorageLocation extends BasicClientAssignedEntity {
 
 	public void setField(String field) {
 		this.field = field;
-	}
-
-	public int getFieldIndex() {
-		return fieldIndex;
-	}
-
-	public void setFieldIndex(int fieldIndex) {
-		this.fieldIndex = fieldIndex;
 	}
 
 	public int getAllocationState() {
