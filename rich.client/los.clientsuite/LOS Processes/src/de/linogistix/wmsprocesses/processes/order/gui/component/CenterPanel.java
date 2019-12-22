@@ -8,6 +8,7 @@
 package de.linogistix.wmsprocesses.processes.order.gui.component;
 
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
+import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.wmsprocesses.processes.order.gui.gui_builder.AbstractCenterPanel;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.CursorControl;
@@ -54,11 +55,17 @@ public class CenterPanel extends AbstractCenterPanel {
     private final static Logger log = Logger.getLogger(CenterPanel.class.getName());
     TopComponentPanel topComponentPanel;
     ClientItemDataLotFilteringComponent cilComp;
-     
+    private BOAutoFilteringComboBox<Client> clientCombo;
+
     public CenterPanel(TopComponentPanel topComponentPanel) {
         this.topComponentPanel = topComponentPanel;
         try {
             cilComp = new ClientItemDataLotFilteringComponent();
+            clientCombo = new BOAutoFilteringComboBox<Client>();
+            clientCombo.setBoClass(Client.class);
+            clientCombo.initAutofiltering();
+            clientCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "Client"));
+
             clientComboBoxPanel.add(getClientComboBox(), BorderLayout.CENTER);
             lotComboBoxPanel.add(getLotComboBox(), BorderLayout.CENTER);
             itemComboBoxPanel.add(getItemDataComboBox(), BorderLayout.CENTER);
@@ -154,7 +161,7 @@ public class CenterPanel extends AbstractCenterPanel {
     }
 
     protected BOAutoFilteringComboBox<Client> getClientComboBox() {
-        return cilComp.getClientCombo();
+        return clientCombo;
     }
 
     protected BOAutoFilteringComboBox<Lot> getLotComboBox() {

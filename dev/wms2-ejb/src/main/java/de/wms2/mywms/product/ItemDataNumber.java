@@ -20,12 +20,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.mywms.model.BasicClientAssignedEntity;
+import org.mywms.model.BasicEntity;
 
 /**
  * This class replaces myWMS:ItemDataNumber
@@ -34,7 +32,7 @@ import org.mywms.model.BasicClientAssignedEntity;
  */
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "number", "itemData_id" }) })
-public class ItemDataNumber extends BasicClientAssignedEntity {
+public class ItemDataNumber extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -64,22 +62,6 @@ public class ItemDataNumber extends BasicClientAssignedEntity {
 	 */
 	@ManyToOne(optional = true, fetch = FetchType.EAGER)
 	private PackagingUnit packagingUnit;
-
-	@PreUpdate
-	public void preUpdate() {
-		super.preUpdate();
-		if (itemData != null && !itemData.getClient().equals(getClient())) {
-			setClient(itemData.getClient());
-		}
-	}
-
-	@PrePersist
-	public void prePersist() {
-		super.prePersist();
-		if (itemData != null && !itemData.getClient().equals(getClient())) {
-			setClient(itemData.getClient());
-		}
-	}
 
 	@Override
 	public String toString() {

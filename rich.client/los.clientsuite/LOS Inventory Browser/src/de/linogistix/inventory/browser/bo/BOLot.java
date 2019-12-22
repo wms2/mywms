@@ -90,7 +90,6 @@ public class BOLot extends BO {
 //    c.setName("Template");
 
     LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
-    c.setClient( login.getUsersClient() );
     c.setDate(new Date());
     return c;
     

@@ -343,7 +343,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			sb.append("(");
 			sb.append("su.id,");
 			sb.append("su.version,");
-			sb.append("su.labelId,");
 			sb.append("su.lock,");
 			sb.append("su.lot,");
 			sb.append("it.number,");
@@ -569,7 +568,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			sb.append("(");			
 			sb.append("su.id,");
 			sb.append("su.version,");
-			sb.append("su.labelId,");
 			sb.append("su.lock,");
 			sb.append("su.lot,");
 			sb.append("it.number,");

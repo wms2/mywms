@@ -43,7 +43,6 @@ public class LotEntityService {
 
 	public Lot create(ItemData itemData, String name, Date lotDate) {
 		Lot lot = manager.createInstance(Lot.class);
-		lot.setClient(itemData.getClient());
 		lot.setDate(lotDate);
 		lot.setItemData(itemData);
 		lot.setName(name);

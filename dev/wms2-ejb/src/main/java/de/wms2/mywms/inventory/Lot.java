@@ -29,7 +29,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import org.mywms.model.BasicClientAssignedEntity;
+import org.mywms.model.BasicEntity;
 
 import de.wms2.mywms.product.ItemData;
 
@@ -38,7 +38,7 @@ import de.wms2.mywms.product.ItemData;
  */
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "itemData_id" }) })
-public class Lot extends BasicClientAssignedEntity {
+public class Lot extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
 	private String name;

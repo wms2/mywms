@@ -321,7 +321,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	public ReplenishMobileOrder requestReplenish(ReplenishMobileOrder mOrder) throws FacadeException {
 		
 		Client client = clientService.getByNumber(mOrder.getClientNumber());
-		ItemData item = itemDataService.getByItemNumber(client, mOrder.getItemNumber());
+		ItemData item = itemDataService.getByItemNumber(mOrder.getItemNumber());
 		StorageLocation loc = locationService.read(mOrder.getDestinationLocationName());
 		
 		ReplenishOrder order = replenishBusiness.generateOrder(item, mOrder.getAmountRequested(), loc);

@@ -12,7 +12,6 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
 import de.wms2.mywms.inventory.Lot;
@@ -25,25 +24,25 @@ import de.wms2.mywms.inventory.Lot;
 public interface LOSLotService extends BasicService<Lot>{
 
     /**
-     * Returns List of {@link Lot} by {@link Client} which are too old. i.e. their bestBeforeEnd date has expired.
+     * Returns List of {@link Lot} which are too old. i.e. their bestBeforeEnd date has expired.
      * @param c only lots of this client
      * @return
      */
-    public List<Lot> getTooOld(Client c);
+    public List<Lot> getTooOld();
     
     /**
-     * Returns List of {@link Lot} by {@link Client} which are too young. i.e. their useNotBefore date has not been reached
+     * Returns List of {@link Lot} which are too young. i.e. their useNotBefore date has not been reached
      * @param c
      * @return
      */
-    public List<Lot>  getNotToUse(Client c);
+    public List<Lot>  getNotToUse();
     
     /**
      * Returns List of {@link Lot} which can be used from today, i.e. their useNotBefore date has been reached
      * @param c
      * @return
      */
-    public List<Lot> getToUseFromNow(Client c);
+    public List<Lot> getToUseFromNow();
 
 	/**
 	 * Sets dates as indicated and locks the Lot if necessary.

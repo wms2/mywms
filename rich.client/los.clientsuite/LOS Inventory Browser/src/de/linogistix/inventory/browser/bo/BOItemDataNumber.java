@@ -76,7 +76,6 @@ public class BOItemDataNumber extends BO {
     o.setNumber("Template");
 
     LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
-    o.setClient( login.getUsersClient() );
 
     return o;
     

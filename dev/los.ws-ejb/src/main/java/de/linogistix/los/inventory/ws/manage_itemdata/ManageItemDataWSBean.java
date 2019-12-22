@@ -130,7 +130,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 					"NAME OF ITEM DATA MUST NOT BE NULL !");
 		}
 		
-		ItemData item = queryItemService.getByItemNumber(cl, updateReq.getNumber());
+		ItemData item = queryItemService.getByItemNumber(updateReq.getNumber());
 		
 		// if item does not exist, create one
 		if(item == null){
@@ -268,7 +268,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 					"UNKNOWN CLIENT > "+deleteReq.getClientNumber());
 		}
 		
-		ItemData item = queryItemService.getByItemNumber(cl, deleteReq.getItemNumber());
+		ItemData item = queryItemService.getByItemNumber(deleteReq.getItemNumber());
 		
 		// if item does not exist, create one
 		if(item == null){
@@ -344,7 +344,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 					"Client not found: "+data.getClientNumber());
 		}
 		
-		ItemData parent = queryItemService.getByItemNumber(client, data.getParentNumber() );
+		ItemData parent = queryItemService.getByItemNumber(data.getParentNumber() );
 		if( parent == null ) {
 			log.error(logStr+"Parent not found: "+data.getParentNumber()+". Abort");
 			throw new ManageItemDataWSFault(
@@ -352,7 +352,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 					"Parent not found: "+data.getParentNumber());
 		}
 
-		ItemData child = queryItemService.getByItemNumber( client, data.getChildNumber() );
+		ItemData child = queryItemService.getByItemNumber(data.getChildNumber() );
 		if( child == null ) {
 			log.error(logStr+"Child not found: "+data.getChildNumber()+". Abort");
 			throw new ManageItemDataWSFault(
@@ -420,7 +420,7 @@ public class ManageItemDataWSBean implements ManageItemDataWS {
 					"Client not found: "+deleteReq.getClientNumber());
 		}
 		
-		ItemData parent = queryItemService.getByItemNumber(client, deleteReq.getItemNumber() );
+		ItemData parent = queryItemService.getByItemNumber(deleteReq.getItemNumber() );
 		if( parent == null ) {
 			log.error(logStr+"Parent not found: "+deleteReq.getItemNumber()+". Abort");
 			throw new ManageItemDataWSFault(

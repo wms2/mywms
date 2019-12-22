@@ -67,7 +67,7 @@ public class ManageItemDataServiceBean implements ManageItemDataService {
 			throw new NullPointerException(" --- ITEMUNIT NULL ---");
 		}
 		
-		ItemData item = itemService.getByItemNumber(cl, number);
+		ItemData item = itemService.getByItemNumber(number);
 		
 		// if an item with number already exists
 		if(item != null){

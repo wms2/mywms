@@ -10,6 +10,7 @@ package de.linogistix.wmsprocesses.processes.create_avis.gui.component;
 import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.wmsprocesses.processes.create_avis.gui.gui_builder.AbstractCenterPanel;
 import de.linogistix.common.gui.listener.TopComponentListener;
+import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.gui.component.controls.ClientItemDataLotFilteringComponent;
@@ -49,12 +50,18 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     private final static Logger log = Logger.getLogger(CenterPanel.class.getName());
 
     private boolean initialized  = false;
+    private BOAutoFilteringComboBox<Client> clientCombo;
 
     public CenterPanel(TopComponentPanel topComponentPanel) {
         this.topComponentPanel = topComponentPanel;
 
         try {
             clientItemDataLotFilteringComponent = new ClientItemDataLotFilteringComponent();
+            clientCombo = new BOAutoFilteringComboBox<Client>();
+            clientCombo.setBoClass(Client.class);
+            clientCombo.initAutofiltering();
+            clientCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "Client"));
+
             clientComboBoxPanel.add(getClientComboBox(), BorderLayout.CENTER);
             itemComboBoxPanel.add(getItemDataComboBox(), BorderLayout.CENTER);
 
@@ -234,7 +241,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     }
 
     protected BOAutoFilteringComboBox<Client> getClientComboBox() {
-        return clientItemDataLotFilteringComponent.getClientCombo();
+        return clientCombo;
 //        if(clientComboBox == null){
 //            clientComboBox = new BOAutoFilteringComboBox<Client>(Client.class);
 //            clientComboBoxPanel.add(clientComboBox, BorderLayout.CENTER);
@@ -282,7 +289,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         }
 
         if( clientItemDataLotFilteringComponent != null ) {
-            clientItemDataLotFilteringComponent.clientChanged(null);
+            clientItemDataLotFilteringComponent.clear();
         }
 
         getDeliveryTextField().setDate( new Date() );

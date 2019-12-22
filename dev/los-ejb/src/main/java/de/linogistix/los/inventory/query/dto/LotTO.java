@@ -20,8 +20,6 @@ public class LotTO extends BODTO<Lot>{
 	
 	public String itemDataName;
 	
-	public String clientNumber;
-
 	public int lock;
 	
 	public Date useNotBefore;
@@ -30,20 +28,16 @@ public class LotTO extends BODTO<Lot>{
 	
 	
 	public LotTO(Lot lot){
-		this(lot.getId(), lot.getVersion(), lot.getName(), lot.getItemData().getNumber(), lot.getItemData().getName(), lot.getLock(), lot.getUseNotBefore(), lot.getBestBeforeEnd(), lot.getClient().getNumber());
+		this(lot.getId(), lot.getVersion(), lot.getName(), lot.getItemData().getNumber(), lot.getItemData().getName(), lot.getLock(), lot.getUseNotBefore(), lot.getBestBeforeEnd());
 	}
 	
 	public LotTO(Long id, int version, String name, String idat, String idatName, int lock, Date useNotBefore, Date bestBeforeEnd){
-		this(id, version, name, idat, idatName, lock, useNotBefore, bestBeforeEnd, "");
-	}
-	public LotTO(Long id, int version, String name, String idat, String idatName, int lock, Date useNotBefore, Date bestBeforeEnd, String clientNumber){
 		super(id, version, name);
 		this.itemData = idat;
 		this.itemDataName = idatName;
 		this.lock = lock;
 		this.useNotBefore = useNotBefore;
 		this.bestBeforeEnd = bestBeforeEnd	;
-		this.clientNumber = clientNumber;
 		setClassName(Lot.class.getName());
 	}
 
@@ -87,15 +81,6 @@ public class LotTO extends BODTO<Lot>{
 		this.bestBeforeEnd = bestBeforeEnd;
 	}
 
-
-	public String getClientNumber() {
-		return clientNumber;
-	}
-
-
-	public void setClientNumber(String clientNumber) {
-		this.clientNumber = clientNumber;
-	}
 
 	public String getItemDataName() {
 		return itemDataName;

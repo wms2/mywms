@@ -653,9 +653,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public void checkSerial( String clientNumber, String itemNumber, String code ) throws FacadeException {
 		String logStr = "checkSerial ";
-		Client client = clientService.getByNumber(clientNumber);
 		
-		ItemData item = itemDataService.getByItemNumber(client, itemNumber);
+		ItemData item = itemDataService.getByItemNumber(itemNumber);
 		
 		// 01.07.2013, krane. Service does not work correct. It's ignoring the item.
 //		List<StockUnit> stockList = stockUnitService.getBySerialNumber(item, code);

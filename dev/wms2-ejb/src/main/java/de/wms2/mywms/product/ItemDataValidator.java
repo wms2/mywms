@@ -55,24 +55,11 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 	@Override
 	public void validateCreate(ItemData entity) throws BusinessException {
 		validate(entity);
-
-		if (productSerivce.existsByNumberIgnoreCase(entity.getNumber(), null)) {
-			logger.log(Level.INFO, "Not unique. number=" + entity.getNumber());
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueNumber");
-		}
-
 	}
 
 	@Override
 	public void validateUpdate(ItemData entityOld, ItemData entityNew) throws BusinessException {
 		validate(entityNew);
-
-		if (entityOld != null && !StringUtils.equals(entityOld.getName(), entityNew.getName())) {
-			if (productSerivce.existsByNumberIgnoreCase(entityNew.getNumber(), entityNew.getId())) {
-				logger.log(Level.INFO, "Not unique. number=" + entityNew.getNumber());
-				throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueNumber");
-			}
-		}
 	}
 
 	public void validate(ItemData entity) throws BusinessException {
@@ -98,14 +85,10 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingUnit");
 		}
 
-		String[] attributes = { "client", "number" };
-		Object[] values = { entity.getClient(), entity.getNumber() };
-		if (entitySerivce.exists(ItemData.class, attributes, values, entity.getId())) {
-			logger.log(Level.INFO, logStr + "not unique. entity=" + entity + ", client=" + entity.getClient()
-					+ ", number=" + entity.getNumber());
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
+		if (productSerivce.existsByNumberIgnoreCase(entity.getNumber(), entity.getId())) {
+			logger.log(Level.INFO, "Not unique. number=" + entity.getNumber());
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUniqueNumber");
 		}
-
 	}
 
 	@Override

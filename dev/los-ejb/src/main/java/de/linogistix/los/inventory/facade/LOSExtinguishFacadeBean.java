@@ -106,7 +106,6 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	}
 
 	public void generateOrder( Client client, List<StockUnit> stockList ) throws FacadeException {
-		String logStr = "generateOrder ";
 		StorageLocation nirwana = locationService.getTrash();
 		List<PickingOrderLine> pickList = new ArrayList<PickingOrderLine>();
 		OrderStrategy strat = strategyService.getExtinguish(client);
@@ -146,13 +145,8 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 	
 	public void calculateLotLocks() throws FacadeException {
 		String logStr = "calculateLotLocks ";
-		
-		Client client = contextService.getCallersClient();
-		
-		log.info(logStr+"client="+client.getNumber());
 
-		
-		List<Lot> lots = lotService.getTooOld(client);
+		List<Lot> lots = lotService.getTooOld();
 		for (Lot l : lots) {
 			if( l.getLock() != BusinessObjectLockState.NOT_LOCKED.getLock() && l.getLock() != LotLockState.LOT_TOO_YOUNG.getLock() ) {
 				log.warn(logStr+"Lot is locked. Will not set to EXPIRED. lock="+l.getLock()+", lot="+ l.toUniqueString());
@@ -162,7 +156,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 			l.setLock(LotLockState.LOT_EXPIRED.getLock());
 		}
 
-		lots = lotService.getNotToUse(client);
+		lots = lotService.getNotToUse();
 		for (Lot l : lots) {
 			if( l.getLock() != BusinessObjectLockState.NOT_LOCKED.getLock() && l.getLock() != LotLockState.LOT_EXPIRED.getLock() ) {
 				log.warn(logStr+"Lot is locked. Will not set to LOT_TOO_YOUNG. lock="+l.getLock()+", lot="+ l.toUniqueString());
@@ -172,7 +166,7 @@ public class LOSExtinguishFacadeBean implements LOSExtinguishFacade {
 			l.setLock(LotLockState.LOT_TOO_YOUNG.getLock());
 		}
 
-		lots = lotService.getToUseFromNow(client);
+		lots = lotService.getToUseFromNow();
 		for (Lot l : lots) {
 			if (l.getLock() != LotLockState.LOT_TOO_YOUNG.getLock() && l.getLock() != LotLockState.LOT_EXPIRED.getLock() ) {
 				log.warn(logStr+"Lot is locked. Will not set to NOT_LOCKED. lock="+l.getLock()+", lot="+ l.toUniqueString());

@@ -32,11 +32,9 @@ public class ClientItemDataLotFilteringComponent {
 
     private static final Logger log =  Logger.getLogger(ClientItemDataLotFilteringComponent.class.getName());
     
-    private BOAutoFilteringComboBox<Client> clientCombo;
     private BOAutoFilteringComboBox<ItemData> itemDataCombo;
     private BOAutoFilteringComboBox<Lot> lotCombo;
     
-    private boolean clientMandatory = false;
     private boolean itemDataMandatory = false;
     private boolean lotMandatory = false;
     
@@ -53,9 +51,6 @@ public class ClientItemDataLotFilteringComponent {
              new BOAutoFilteringComboBox<ItemData>(),
              new BOAutoFilteringComboBox<Lot>());
         
-        clientCombo.setBoClass(Client.class);
-        clientCombo.initAutofiltering();
-        clientCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "Client"));
         itemDataCombo.setBoClass(ItemData.class);
         itemDataCombo.initAutofiltering();
         itemDataCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "ItemData"));
@@ -68,12 +63,6 @@ public class ClientItemDataLotFilteringComponent {
                                                BOAutoFilteringComboBox<ItemData> itemDataCombo,
                                                BOAutoFilteringComboBox<Lot> lotCombo) throws Exception
     {
-        this.clientCombo = clientCombo;
-        this.clientCombo.addItemChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                clientChanged(evt);
-            }
-        });
 
         this.itemDataCombo = itemDataCombo;
         this.itemDataCombo.setComboBoxModel(new ItemDataComboBoxModel());
@@ -92,20 +81,7 @@ public class ClientItemDataLotFilteringComponent {
         });
 
     }
-    
-    public void clientChanged(PropertyChangeEvent evt){
-       
-        this.lotCombo.clear();
-        this.itemDataCombo.clear();
 
-        BODTO<Client> client = clientCombo.getSelectedItem();
-
-        ((LotComboBoxModel)lotCombo.getComboBoxModel()).setClientTO(client);
-
-        ((ItemDataComboBoxModel)itemDataCombo.getComboBoxModel()).setClientTO(client);
-            
-    }
-    
     protected void itemDataChanged(PropertyChangeEvent evt){
         
         System.out.println("--- ItemChanged Event ---");
@@ -143,20 +119,8 @@ public class ClientItemDataLotFilteringComponent {
             return;
         }
         
-        // if user did not select a client before
-        BODTO<Client> client = clientCombo.getSelectedItem();
-        if(client == null){
-//            clientCombo.clear();
-            clientCombo.addItem(itemData.getClient());
-            
-            client = clientCombo.getSelectedItem();
-        }
-        
         lotCombo.clear();
         ((LotComboBoxModel)lotCombo.getComboBoxModel()).setItemDataTO(itemTO);
-        ((LotComboBoxModel)lotCombo.getComboBoxModel()).setClientTO(client);
-        
-        ((ItemDataComboBoxModel)itemDataCombo.getComboBoxModel()).setClientTO(client);
     }
     
     private void initCombosFromLot(){
@@ -174,17 +138,6 @@ public class ClientItemDataLotFilteringComponent {
             return;
         }
         
-        // if user did not select a client before
-        BODTO<Client> client = clientCombo.getSelectedItem();
-        if(client == null){
-            clientCombo.clear();
-            clientCombo.addItem(new BODTO<Client>(lot.getClient().getId(), 
-                                                  lot.getClient().getVersion(), 
-                                                  lot.getClient().getNumber()));
-            
-            client = clientCombo.getSelectedItem();
-        }
-        
         // if lot is set, itemData is fixed      
         ItemData itemData = lot.getItemData();
         
@@ -195,17 +148,8 @@ public class ClientItemDataLotFilteringComponent {
         itemDataCombo.addItem(itemTO);
         
         ((ItemDataComboBoxModel)itemDataCombo.getComboBoxModel()).setLotTO(lotTO);
-        ((ItemDataComboBoxModel)itemDataCombo.getComboBoxModel()).setClientTO(client);
         
         ((LotComboBoxModel)lotCombo.getComboBoxModel()).setItemDataTO(itemTO);
-    }
-    
-    public BODTO<Client> getClient(){
-        if (getClientCombo() != null){
-            return getClientCombo().getSelectedItem();
-        } else{
-            return null;
-        }
     }
     
     public BODTO<Lot> getLot(){
@@ -224,12 +168,6 @@ public class ClientItemDataLotFilteringComponent {
         }
     }
 
-    public BOAutoFilteringComboBox<Client> getClientCombo() {
-        
-        return clientCombo;
-
-    }
-
     public BOAutoFilteringComboBox<ItemData> getItemDataCombo() {
         return itemDataCombo;
     }
@@ -239,17 +177,8 @@ public class ClientItemDataLotFilteringComponent {
     }
     
     public void clear(){
-        this.clientCombo.clear();
         this.itemDataCombo.clear();
         this.lotCombo.clear();
-    }
-
-    public boolean isClientMandatory() {
-        return clientMandatory;
-    }
-
-    public void setClientMandatory(boolean clientMandatory) {
-        this.clientMandatory = clientMandatory;
     }
 
     public boolean isItemDataMandatory() {
@@ -273,9 +202,6 @@ public class ClientItemDataLotFilteringComponent {
         SortedMap<Integer, Component[]> map = LiveHelp.getInstance().getComponentMap();
         //default enable all. Disable all components which named in second param
         map.put(1, LiveHelp.getInstance().getComponents(parentContainer, new Component[]{
-            getClientCombo().getEditorLabel(),
-            getClientCombo().getAutoFilteringComboBox(),
-            getClientCombo().getOpenChooserButton(),
             getLotCombo().getEditorLabel(),
             getLotCombo().getAutoFilteringComboBox(),
             getLotCombo().getOpenChooserButton(),
@@ -284,9 +210,6 @@ public class ClientItemDataLotFilteringComponent {
             getItemDataCombo().getOpenChooserButton()}));
         //default enable all
         map.put(10, new Component[]{
-            getClientCombo().getEditorLabel(),
-            getClientCombo().getAutoFilteringComboBox(),
-            getClientCombo().getOpenChooserButton(),
             getLotCombo().getEditorLabel(),
             getLotCombo().getAutoFilteringComboBox(),
             getLotCombo().getOpenChooserButton(),
@@ -300,7 +223,6 @@ public class ClientItemDataLotFilteringComponent {
 
     protected Vector<Component[]> getEmptyFieldsArguments() {
         Vector<Component[]> v = new Vector<Component[]>();
-        if (clientMandatory) v.add(new Component[]{getClientCombo().getEditorLabel(), getClientCombo().getAutoFilteringComboBox()});
         if (itemDataMandatory) v.add(new Component[]{getItemDataCombo().getEditorLabel(), getItemDataCombo().getAutoFilteringComboBox()});
         if (lotMandatory) v.add(new Component[]{getLotCombo().getEditorLabel() , getLotCombo().getAutoFilteringComboBox()});
         

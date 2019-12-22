@@ -69,9 +69,6 @@ public class ReplenishOrderValidator implements EntityValidator<ReplenishOrder> 
 			logger.log(Level.INFO, logStr + "missing itemData. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingItemData");
 		}
-		if (entity.getClient() == null) {
-			entity.setClient(entity.getItemData().getClient());
-		}
 
 		if (entity.getDestinationLocation() == null) {
 			logger.log(Level.INFO, logStr + "missing destination. entity=" + entity);

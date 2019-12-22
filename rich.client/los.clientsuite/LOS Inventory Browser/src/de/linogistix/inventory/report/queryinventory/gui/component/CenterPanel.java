@@ -7,6 +7,7 @@
  */
 package de.linogistix.inventory.report.queryinventory.gui.component;
 
+import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
 import de.linogistix.inventory.report.queryinventory.gui.gui_builder.AbstractCenterPanel;
 
 import de.linogistix.common.gui.component.other.LiveHelp;
@@ -46,6 +47,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
     TopComponentPanel topComponentPanel;
     ClientItemDataLotFilteringComponent cilCombo;
+    private BOAutoFilteringComboBox<Client> clientCombo;
 
     public CenterPanel(TopComponentPanel topComponentPanel) {
         this.topComponentPanel = topComponentPanel;
@@ -58,20 +60,25 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
     private void initAutofiltering() throws Exception{
         
         this.cilCombo = new ClientItemDataLotFilteringComponent(autofilteringPanel);
+        clientCombo = new BOAutoFilteringComboBox<Client>();
+        clientCombo.setBoClass(Client.class);
+        clientCombo.initAutofiltering();
+        clientCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "Client"));
+
 //        this.cilCombo.setClientMandatory(true);
-        cilCombo.getClientCombo().setMandatory(true);
-        if( cilCombo.getClientCombo().getSelectedItem() == null ) {
+        clientCombo.setMandatory(true);
+        if( clientCombo.getSelectedItem() == null ) {
             LoginService login = Lookup.getDefault().lookup(LoginService.class);
             Client client = login.getUsersClient();
             try {
-                cilCombo.getClientCombo().clear();
-                cilCombo.getClientCombo().addItem(client);
+                clientCombo.clear();
+                clientCombo.addItem(client);
             }
             catch( Exception e) {}
         }
         Dimension d = new Dimension(5,5);
        
-        this.clientComboBoxPanel.add(this.cilCombo.getClientCombo());
+        this.clientComboBoxPanel.add(clientCombo);
         
         this.lotComboBoxPanel.add(this.cilCombo.getLotCombo());
         
@@ -89,13 +96,13 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 //        cilCombo.processLiveHelp();
 
         
-        if( cilCombo.getClient() == null ) {
+        if( clientCombo.getSelectedItem() == null ) {
             NotifyDescriptor.Message nd = new NotifyDescriptor.Message(NbBundle.getMessage(CommonBundleResolver.class, "Please fixed all errors"), NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
         }
         
         treeTablePanel.setNodes(
-                cilCombo.getClient() != null ? cilCombo.getClient().getName() : null,
+                clientCombo.getSelectedItem() != null ? clientCombo.getSelectedItem().getName() : null,
                 cilCombo.getItemData() != null ? cilCombo.getItemData().getName() : null,
                 cilCombo.getLot() != null ? cilCombo.getLot().getName() : null,
                 articelRadioButton.isSelected(),
@@ -112,7 +119,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
     public void clear() {
         if (cilCombo != null) {
-            cilCombo.getClientCombo().clear();
+            clientCombo.clear();
         }
 
     }

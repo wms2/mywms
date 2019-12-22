@@ -15,7 +15,6 @@ import javax.ejb.Stateless;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.Client;
 import org.mywms.service.BasicServiceBean;
 
 import de.linogistix.los.util.DateHelper;
@@ -33,13 +32,10 @@ public class LOSLotServiceBean extends BasicServiceBean<Lot> implements
 	
 
 	@SuppressWarnings("unchecked")
-	public List<Lot> getTooOld(Client c) {
+	public List<Lot> getTooOld() {
 		
 		List<Lot> ret;
 		
-		if (c == null) {
-			throw new NullPointerException("Client must not be null");
-		}
 		GregorianCalendar today = new GregorianCalendar();
 		today.set(GregorianCalendar.HOUR_OF_DAY, 0);
 		today.set(GregorianCalendar.MINUTE,0);
@@ -49,29 +45,19 @@ public class LOSLotServiceBean extends BasicServiceBean<Lot> implements
 		+ Lot.class.getSimpleName() + " lot "
 		+ " WHERE lot.bestBeforeEnd < :today ";
 		
-		if (!c.isSystemClient()){
-			s = s + " AND lot.client=:client ";
-		}
 		Query query = manager.createQuery(s);
 
 		query.setParameter("today", today.getTime());
-		if (!c.isSystemClient()){
-			query.setParameter("client", c);
-		}
 		ret  = (query.getResultList());
 		return ret;
 	
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Lot> getNotToUse(Client c) {
+	public List<Lot> getNotToUse() {
 		
 		List<Lot> ret;
 		
-		if (c == null) {
-			throw new NullPointerException("Client must not be null");
-		}
-
 		GregorianCalendar today = new GregorianCalendar();
 		
 		today.set(GregorianCalendar.HOUR_OF_DAY, 23);
@@ -81,29 +67,20 @@ public class LOSLotServiceBean extends BasicServiceBean<Lot> implements
 		+ Lot.class.getSimpleName() + " lot "
 		+ " WHERE lot.useNotBefore > :today ";
 		
-		if (!c.isSystemClient()){
-			s = s + " AND lot.client=:client ";
-		}
 		Query query = manager.createQuery(s);
 
 		query.setParameter("today", today.getTime());
-		if (!c.isSystemClient()){
-			query.setParameter("client", c);
-		}
+
 		ret = (query.getResultList());
 		return ret;
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Lot> getToUseFromNow(Client c) {
+	public List<Lot> getToUseFromNow() {
 		
 		List<Lot> ret;
 		
-		if (c == null) {
-			throw new NullPointerException("Client must not be null");
-		}
-
 		GregorianCalendar today = new GregorianCalendar();
 		
 		today.set(GregorianCalendar.HOUR_OF_DAY, 0);
@@ -113,15 +90,10 @@ public class LOSLotServiceBean extends BasicServiceBean<Lot> implements
 		+ Lot.class.getSimpleName() + " lot "
 		+ " WHERE lot.useNotBefore <= :today "
 		+ " AND lot.lock=:lock ";
-		if (!c.isSystemClient()){
-			s = s + " AND lot.client=:client ";
-		}
 		Query query = manager.createQuery(s);
 
 		query.setParameter("today", today.getTime());
-		if (!c.isSystemClient()){
-			query.setParameter("client", c);
-		}
+
 		query.setParameter("lock", LotLockState.LOT_TOO_YOUNG.getLock());
 		ret = (query.getResultList());
 		return ret;

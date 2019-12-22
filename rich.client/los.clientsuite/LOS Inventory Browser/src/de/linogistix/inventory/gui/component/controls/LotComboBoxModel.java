@@ -49,7 +49,7 @@ public class LotComboBoxModel extends BOAutoFilteringComboBoxModel<Lot>{
             }
         }
         
-        return lotQuery.autoCompletionByClientAndItemData(searchString, clientTO, itemDataTO);
+        return lotQuery.autoCompletionByClientAndItemData(searchString, itemDataTO);
     }
     
      @Override

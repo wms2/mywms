@@ -162,7 +162,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append(QueryInventoryTO.class.getName());
 		// client
 		b.append("(");
-		b.append("lot.client.number, ");
+		b.append("lot.itemData.client.number, ");
 		b.append("lot.itemData.number, ");
 		b.append("lot.name, ");
 		b.append("lot.itemData.scale ");
@@ -172,7 +172,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append(Lot.class.getSimpleName());
 		b.append(" lot ");
 
-		b.append(" WHERE lot.client = :client ");
+		b.append(" WHERE lot.itemData.client = :client ");
 		
 		if (lot != null) {
 			b.append(" AND lot = :lot ");

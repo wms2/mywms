@@ -13,8 +13,6 @@ package de.linogistix.los.inventory.query;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.Client;
-
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSResultList;
@@ -29,7 +27,7 @@ import de.wms2.mywms.product.ItemData;
 public interface LotQueryRemote extends BusinessObjectQueryRemote<Lot> {
 
 	public LOSResultList<BODTO<Lot>> autoCompletionByClientAndItemData(String lotExp,
-			BODTO<Client> client, BODTO<ItemData> idat);
+			BODTO<ItemData> idat);
 
 	Lot queryByNameAndItemData(String lotName, ItemData itemData);
 }

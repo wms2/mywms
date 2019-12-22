@@ -8,7 +8,6 @@ package de.linogistix.los.inventory.service;
 
 import javax.ejb.Local;
 
-import org.mywms.model.Client;
 import org.mywms.service.BasicService;
 
 import de.wms2.mywms.product.ItemData;
@@ -37,5 +36,5 @@ public interface ItemDataService
      * @param itemNumber the item number to find
      * @return the found entity or NULL if there is no matching item
      */
-    ItemData getByItemNumber(Client client, String itemNumber);
+    ItemData getByItemNumber(String itemNumber);
 }

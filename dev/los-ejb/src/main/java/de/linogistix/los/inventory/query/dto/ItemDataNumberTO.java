@@ -20,14 +20,12 @@ public class ItemDataNumberTO extends BODTO<ItemData> {
 	private static final long serialVersionUID = 1L;
 
 	private int index;
-	private String clientNumber;
 	private String itemDataNumber;
 	private String itemDataName;
 
 	public ItemDataNumberTO( ItemDataNumber idat ) {
 		super(idat.getId(), idat.getVersion(), idat.getNumber());
 		this.index = idat.getOrderIndex();
-		this.clientNumber = idat.getClient().getNumber();
 		this.itemDataName = idat.getItemData().getName();
 		this.itemDataNumber = idat.getItemData().getNumber();
 	}
@@ -37,20 +35,11 @@ public class ItemDataNumberTO extends BODTO<ItemData> {
 	}
 	
 	public ItemDataNumberTO(Long id, int version, String number, 
-			int index, String clientNumber, String itemDataNumber, String itemDataName) {
+			int index, String itemDataNumber, String itemDataName) {
 		super(id, version, number);
 		this.index = index;
-		this.clientNumber = clientNumber;
 		this.itemDataName = itemDataName;
 		this.itemDataNumber = itemDataNumber;
-	}
-
-	public String getClientNumber() {
-		return clientNumber;
-	}
-
-	public void setClientNumber(String clientNumber) {
-		this.clientNumber = clientNumber;
 	}
 
 	public String getItemDataNumber() {

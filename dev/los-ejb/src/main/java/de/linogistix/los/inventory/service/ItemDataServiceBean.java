@@ -31,17 +31,15 @@ public class ItemDataServiceBean
      * @see de.linogistix.los.inventory.service.ItemDataService#getByItemNumber(Client,
      *      java.lang.String)
      */
-    public ItemData getByItemNumber(Client client, String itemNumber){
+    public ItemData getByItemNumber(String itemNumber){
     	
         Query query =
             manager.createQuery("SELECT id FROM "
                 + ItemData.class.getSimpleName()
                 + " id "
-                + "WHERE id.number=:itemNumber "
-                + "AND id.client=:cl");
+                + "WHERE id.number=:itemNumber");
 
         query.setParameter("itemNumber", itemNumber);
-        query.setParameter("cl", client);
 
         try {
             ItemData id = (ItemData) query.getSingleResult();

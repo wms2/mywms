@@ -104,7 +104,6 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
             fl.setAlignment(FlowLayout.LEFT);
             this.queryPanel = new JPanel();
             
-            this.queryPanel.add(cilComp.getClientCombo());
             this.queryPanel.add(cilComp.getLotCombo());
             this.queryPanel.add(cilComp.getItemDataCombo());
             this.queryPanel.add(slCombo);
@@ -129,7 +128,7 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
             null, null, null, null,detail};
         } else{
             return new Object[]{
-            cilComp.getClient(),
+            null,
             cilComp.getLot(),
             cilComp.getItemData(),
             slCombo.getSelectedItem(),
@@ -161,11 +160,7 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
     public void setProviderChangeEventListener(ProviderChangeEventListener providerChangeEventListener) {
         this.providerChangeEventListener = providerChangeEventListener;
     }
-    
-    public BOAutoFilteringComboBox<Client> getClientCombo(){
-        return cilComp.getClientCombo();
-    }
-    
+
     public BOAutoFilteringComboBox<ItemData> getItemDataCombo(){
         return cilComp.getItemDataCombo();
     }

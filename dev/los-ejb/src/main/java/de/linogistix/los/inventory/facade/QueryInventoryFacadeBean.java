@@ -73,7 +73,7 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_CLIENT, clientRef);
 		}
 		
-		ItemData idat = itemDataService.getByItemNumber(c,  articleRef);
+		ItemData idat = itemDataService.getByItemNumber(articleRef);
 		
 		if(idat == null){
 			log.error("--- !!! NO ITEM WITH NUMBER > "+articleRef+" !!! ---");
@@ -107,7 +107,7 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_CLIENT, clientRef);
 		}
 
-		idat = itemDataService.getByItemNumber(c, articleRef);
+		idat = itemDataService.getByItemNumber(articleRef);
 		if (idat == null){
 			log.error("--- !!! NO ITEM WITH NUMBER > "+articleRef+" !!! ---");
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_ITEMDATA, articleRef);

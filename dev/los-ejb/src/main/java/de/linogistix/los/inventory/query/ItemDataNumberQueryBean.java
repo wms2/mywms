@@ -27,7 +27,6 @@ public class ItemDataNumberQueryBean extends BusinessObjectQueryBean<ItemDataNum
 
 	private static final String[] dtoProps = new String[] { "id", "version", "number",
 		"orderIndex",
-		"client.number",
 		"itemData.number" , "itemData.name"};
 
 	@Override
@@ -47,12 +46,6 @@ public class ItemDataNumberQueryBean extends BusinessObjectQueryBean<ItemDataNum
     @Override
 	protected List<TemplateQueryWhereToken> getAutoCompletionTokens(String value) {
 		List<TemplateQueryWhereToken> ret =  new ArrayList<TemplateQueryWhereToken>();
-		
-		TemplateQueryWhereToken clientNumber = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "client.number",
-				value);
-		clientNumber.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		ret.add(clientNumber);
 		
 		TemplateQueryWhereToken number = new TemplateQueryWhereToken(
 				TemplateQueryWhereToken.OPERATOR_LIKE, "number",

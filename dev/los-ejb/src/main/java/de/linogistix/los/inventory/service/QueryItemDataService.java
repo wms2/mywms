@@ -18,16 +18,6 @@ import de.wms2.mywms.product.ItemData;
 
 @Local
 public interface QueryItemDataService {
-	
-	/**
-     * Search for an {@link ItemData} having the specified number
-     * and belonging to specified {@link Client}.
-     * 
-     * @param client the client owning the item data entity
-     * @param itemNumber the item number to find
-     * @return matching {@link ItemData} or NULL if there is none
-     */
-    public ItemData getByItemNumber(Client client, String itemNumber);
     
     /**
      * Search for an {@link ItemData} having the specified number.

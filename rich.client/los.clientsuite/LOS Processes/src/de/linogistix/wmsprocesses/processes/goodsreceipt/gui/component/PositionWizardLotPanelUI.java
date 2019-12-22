@@ -47,6 +47,7 @@ public class PositionWizardLotPanelUI extends AbstractPositionWizardLotPanelUI{
             
             J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
             this.itemQueryRemote = loc.getStateless(ItemDataQueryRemote.class);
+            this.lotQueryRemote = loc.getStateless(LotQueryRemote.class);
             
         } catch (Exception ex) {
             ExceptionAnnotator.annotate(ex);

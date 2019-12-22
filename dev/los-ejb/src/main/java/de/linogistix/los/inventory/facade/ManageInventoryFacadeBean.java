@@ -179,7 +179,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			return false;
 		}
 		
-		ItemData iDat = itemDataQuery.getByItemNumber(c, articleRef);
+		ItemData iDat = itemDataQuery.getByItemNumber(articleRef);
 		
 		if(iDat == null){
 			log.error("--- !!! NO SUCH ITEM DATA "+clientRef+ " / "+articleRef+" !!! ---");
@@ -211,7 +211,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			return false;
 		}
 		
-		ItemData iDat = itemDataQuery.getByItemNumber(c, existingRef);
+		ItemData iDat = itemDataQuery.getByItemNumber(existingRef);
 		
 		if(iDat == null){
 			log.error("--- !!! NO SUCH ITEM DATA "+clientRef+ " / "+existingRef+" !!! ---");
@@ -245,7 +245,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				return false;
 			}
 			
-			ItemData itemData = itemDataQuery.getByItemNumber(c, articleRef);
+			ItemData itemData = itemDataQuery.getByItemNumber(articleRef);
 			
 			if(itemData == null){
 				log.error("--- !!! NO SUCH ITEM DATA "+clientRef+ " / " +articleRef+" !!! ---");
@@ -303,7 +303,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				return false;
 			}
 			
-			ItemData itemData = itemDataQuery.getByItemNumber(c, articleRef);
+			ItemData itemData = itemDataQuery.getByItemNumber(articleRef);
 			
 			if(itemData == null){
 				log.error("--- !!! NO SUCH ITEM DATA "+clientRef+ " / "+articleRef+" !!! ---");
@@ -379,7 +379,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				sl = locationService.create(slName, c, type, null, null);
 			}
 
-			ItemData idat = itemDataService1.getByItemNumber(c, articleRef);
+			ItemData idat = itemDataService1.getByItemNumber(articleRef);
 
 			if (idat == null) {
 				log.error("--- !!! NO ITEM WITH NUMBER " + articleRef + " !!! ---");

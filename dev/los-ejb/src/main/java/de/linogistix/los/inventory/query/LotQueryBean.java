@@ -17,7 +17,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.query.dto.LotTO;
 import de.linogistix.los.query.BODTO;
@@ -43,7 +42,7 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 	private static final Logger log = Logger.getLogger(LotQueryBean.class);
 
 	private static final String[] dtoProps = new String[] { "id", "version",
-			"name", "itemData.number", "itemData.name", "lock", "useNotBefore", "bestBeforeEnd", "client.number" };
+			"name", "itemData.number", "itemData.name", "lock", "useNotBefore", "bestBeforeEnd" };
 
 	@Inject
 	private LotEntityService lotEntityService;
@@ -70,15 +69,10 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 	}
 	
 	public LOSResultList<BODTO<Lot>> autoCompletionByClientAndItemData(
-			String lotExp, BODTO<Client> c, BODTO<ItemData> idat) {
+			String lotExp, BODTO<ItemData> idat) {
 		
 		TemplateQuery q = new TemplateQuery();
 		q.setBoClass(tClass);
-		
-		if (c != null) {
-			q.addNewFilter().addWhereToken(new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client.id", c.getId()));
-		}
 		
 		if(idat != null){
 			TemplateQueryWhereToken it = new TemplateQueryWhereToken(
@@ -110,12 +104,6 @@ public class LotQueryBean extends BusinessObjectQueryBean<Lot> implements
 	protected List<TemplateQueryWhereToken> getAutoCompletionTokens(String value) {
 
 		List<TemplateQueryWhereToken> ret = new ArrayList<TemplateQueryWhereToken>();
-
-		TemplateQueryWhereToken clientNumber = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "client.number",
-				value);
-		clientNumber.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-		ret.add(clientNumber);
 
 		TemplateQueryWhereToken item = new TemplateQueryWhereToken(
 				TemplateQueryWhereToken.OPERATOR_LIKE, "itemData.number", value);

@@ -242,7 +242,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			LOT_N1_A1 = lotQuery.queryByIdentity(LOT_N1_A1_NAME);
 		} catch (BusinessObjectNotFoundException ex) {
 			LOT_N1_A1 = new Lot();
-			LOT_N1_A1.setClient(TESTCLIENT);
 			LOT_N1_A1.setName(LOT_N1_A1_NAME);
 			LOT_N1_A1.setBestBeforeEnd(nextMonth.getTime());
 			LOT_N1_A1.setUseNotBefore(today.getTime());
@@ -255,7 +254,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			LOT_N2_A2 = lotQuery.queryByIdentity(LOT_N2_A2_NAME);
 		} catch (BusinessObjectNotFoundException ex) {
 			LOT_N2_A2 = new Lot();
-			LOT_N2_A2.setClient(TESTCLIENT);
 			LOT_N2_A2.setName(LOT_N2_A2_NAME);
 			LOT_N2_A2.setBestBeforeEnd(nextMonth.getTime());
 			LOT_N2_A2.setUseNotBefore(today.getTime());

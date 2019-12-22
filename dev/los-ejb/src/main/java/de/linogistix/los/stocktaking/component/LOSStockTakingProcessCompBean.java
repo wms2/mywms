@@ -1289,8 +1289,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 					new Object[] { rec.getClientNo() });
 		}
 
-		resolved.item = queryItemService.getByItemNumber(resolved.client, rec
-				.getItemNo());
+		resolved.item = queryItemService.getByItemNumber(rec.getItemNo());
 
 		if (resolved.item == null) {
 			log.info(methodName+"Unknown ItemData<"+rec.getItemNo()+">");
