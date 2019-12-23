@@ -58,6 +58,7 @@ import de.wms2.mywms.picking.PickingOrderStateChangeEvent;
 import de.wms2.mywms.picking.PickingType;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStateCalculator;
+import de.wms2.mywms.user.UserBusiness;
 
 /**
  * 
@@ -90,6 +91,8 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	private InventoryBusiness inventoryBusiness;
 	@Inject
 	private OrderStateCalculator orderStateCalculator;
+	@Inject
+	private UserBusiness userBusiness;
 
 	@Inject
 	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
@@ -831,6 +834,16 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 			inventoryBusiness.changeState(pickFromUnitLoad, OrderState.PICKED);
 		}
 
+		String activityCode = pickingOrder.getOrderNumber();
+		User operator = userBusiness.getCurrentUser();
+
+		// change client
+		if (!pickFromUnitLoad.getClient().equals(pickingOrder.getClient())) {
+			log.info(logStr + "switch client. unitLoad=" + pickFromUnitLoad + ", from client="
+					+ pickFromUnitLoad.getClient() + ", to client=" + pickingOrder.getClient());
+			inventoryBusiness.changeClient(pickFromUnitLoad, pickingOrder.getClient(), activityCode, operator, null);
+		}
+
 		firePacketStateChangeEvent(packet, -1);
 		if (pick.getState() != stateOld) {
 			firePickingOrderLineStateChangeEvent(pick, stateOld);
@@ -851,7 +864,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		if (!pickFromUnitLoad.getStorageLocation().equals(destination)) {
-			inventoryBusiness.transferUnitLoad(pickFromUnitLoad, destination, null, null, null);
+			inventoryBusiness.transferUnitLoad(pickFromUnitLoad, destination, activityCode, operator, null);
 		}
 	}
 
@@ -1128,9 +1141,15 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 	public Packet confirmPickingUnitLoad( Packet pickingUnitLoad, StorageLocation destination, int state ) throws FacadeException {
 		
 		UnitLoad unitLoad = pickingUnitLoad.getUnitLoad();
+		String activityCode = null;
+		PickingOrder pickingOrder = pickingUnitLoad.getPickingOrder();
+		if (pickingOrder != null) {
+			activityCode = pickingOrder.getOrderNumber();
+		}
+
 		if( ! unitLoad.getStorageLocation().equals(destination) ) {
 			// Transfer posting only necessary if location is changed
-			inventoryBusiness.transferUnitLoad(pickingUnitLoad.getUnitLoad(), destination, null, null, null);
+			inventoryBusiness.transferUnitLoad(pickingUnitLoad.getUnitLoad(), destination, activityCode, null, null);
 		}
 
 		pickingUnitLoad.getUnitLoad().setState(StockState.PICKED);

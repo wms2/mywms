@@ -33,6 +33,7 @@ import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.picking.Packet;
@@ -77,7 +78,8 @@ public class TrashHandler {
 
 			return true;
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.WARNING, logStr + "Cannot remove StockUnit=" + entity + ", " + t.getClass().getName() + ", "
+					+ t.getMessage());
 		}
 		return false;
 	}
@@ -115,8 +117,11 @@ public class TrashHandler {
 			manager.flush();
 
 			return true;
+		} catch (BusinessException e) {
+			logger.log(Level.INFO, logStr + "Cannot remove UnitLoad=" + unitLoad + ", " + e.getMessage());
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.WARNING, logStr + "Cannot remove UnitLoad=" + unitLoad + ", " + t.getClass().getName()
+					+ ", " + t.getMessage());
 		}
 
 		return false;
@@ -142,8 +147,11 @@ public class TrashHandler {
 			manager.flush();
 
 			return true;
+		} catch (BusinessException e) {
+			logger.log(Level.INFO, logStr + "Cannot remove GoodsReceipt=" + goodsReceipt + ", " + e.getMessage());
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.WARNING, logStr + "Cannot remove GoodsReceipt=" + goodsReceipt + ", "
+					+ t.getClass().getName() + ", " + t.getMessage());
 		}
 
 		return false;
@@ -180,8 +188,11 @@ public class TrashHandler {
 			manager.flush();
 
 			return true;
+		} catch (BusinessException e) {
+			logger.log(Level.INFO, logStr + "Cannot remove Advice=" + advice + ", " + e.getMessage());
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.WARNING,
+					logStr + "Cannot remove Advice=" + advice + ", " + t.getClass().getName() + ", " + t.getMessage());
 		}
 
 		return false;
@@ -203,8 +214,11 @@ public class TrashHandler {
 			manager.flush();
 
 			return true;
+		} catch (BusinessException e) {
+			logger.log(Level.INFO, logStr + "Cannot remove ReplenishOrder=" + replenishOrder + ", " + e.getMessage());
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE, logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.WARNING, logStr + "Cannot remove ReplenishOrder=" + replenishOrder + ", "
+					+ t.getClass().getName() + ", " + t.getMessage());
 		}
 
 		return false;
@@ -218,7 +232,7 @@ public class TrashHandler {
 			manager.setFlushMode(FlushModeType.COMMIT);
 			transportOrder = manager.reload(transportOrder, false);
 			if (transportOrder == null) {
-				logger.log(Level.WARNING, logStr + "RelocateOrder is already deleted. Cannot remove.");
+				logger.log(Level.WARNING, logStr + "TransportOrder is already deleted. Cannot remove.");
 				return false;
 			}
 
@@ -226,9 +240,11 @@ public class TrashHandler {
 			manager.flush();
 
 			return true;
+		} catch (BusinessException e) {
+			logger.log(Level.INFO, logStr + "Cannot remove TransportOrder=" + transportOrder + ", " + e.getMessage());
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE,
-					logStr + "Cannot remove item. " + t.getClass().getName() + ", " + t.getMessage());
+			logger.log(Level.WARNING, logStr + "Cannot remove TransportOrder=" + transportOrder + ", "
+					+ t.getClass().getName() + ", " + t.getMessage());
 		}
 
 		return false;

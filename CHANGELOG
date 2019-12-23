@@ -318,18 +318,23 @@ Release 2.4
     - Partial operation of delivery orders
     - Made shipping order generation optional
     - Allocation of storagelocations with more than 100%
+    - Enabled consignment stock
 
 
     Functional changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
     - Release and finish delivery orders with amount differences on single positions
     - Print positions with zero amount on delivery note
-    - Removed current type capacity constraint from storage location
+    - Enabled delivery orders to have lines with material of the orders client and the system client
+    - Enabled advices and goods receipts to have lines with material of the orders client and the system client
 
 
     Technical changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
     - Changed database entities
+    - Removed current type capacity constraint from storage location
+    - Removed client from lot and itemdatanumber
+    - Switch client of received and picked material to ordering client
 
 
     Bugfixes (for details have a look to the git repository)
@@ -341,3 +346,5 @@ Release 2.4
     - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
     - Drop column allocationtype of table typecapacityconstraint
     - Drop column currenttypecapacityconstraint_id of table storagelocation
+    - Drop column client_id of table lot
+    - Drop column client_id of table itemdatanumber
