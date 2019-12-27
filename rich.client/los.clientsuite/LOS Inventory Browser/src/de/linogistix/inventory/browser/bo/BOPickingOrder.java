@@ -163,6 +163,10 @@ public class BOPickingOrder extends BO {
 
             return entryList;
         }
+        if( "address".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            return entryList;
+        }
 
         return super.getValueList(fieldName);
     }

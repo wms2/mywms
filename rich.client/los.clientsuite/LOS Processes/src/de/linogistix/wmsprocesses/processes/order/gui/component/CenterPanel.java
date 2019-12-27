@@ -16,6 +16,7 @@ import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.gui.component.controls.ClientItemDataLotFilteringComponent;
 import de.linogistix.inventory.gui.component.controls.ItemDataComboBoxModel;
 import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
+import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
 import de.linogistix.los.inventory.query.LOSOrderStrategyQueryRemote;
@@ -79,6 +80,10 @@ public class CenterPanel extends AbstractCenterPanel {
         getDeliveryDateTextField().setMandatory(true);
         getDeliveryDateTextField().setColumns(8);
         getDeliveryDateTextField().getTextFieldLabel().setTitleText(NbBundle.getMessage(WMSProcessesBundleResolver.class,"DATE_OF_ALLOCATION"));
+
+        getAddressTextField().setEnabled(true);
+        getAddressTextField().setMandatory(false);
+        getAddressTextField().getTextFieldLabel().setTitleText(NbBundle.getMessage(InventoryBundleResolver.class,"address"));
         
 //        getAmountTextField().setEnabled(false);
         getAmountTextField().setMinimumValue(new BigDecimal(0), false);
@@ -264,6 +269,7 @@ public class CenterPanel extends AbstractCenterPanel {
         
         getClientComboBox().setEnabled(enabled);
         getDeliveryDateTextField().setEnabled(enabled);
+        getAddressTextField().setEnabled(enabled);
         documentTextField.setEnabled(enabled);
         targetplaceComboBox.setEnabled(enabled);
         orderTypeCombo.setEnabled(enabled);

@@ -33,7 +33,17 @@
         </entry>
 
         <entry>
-            <key>createShippingOrder</key>
+            <key>sendToPacking</key>
+            <value>
+                <group>
+                    <name>processing</name>
+                </group>
+                <hidden>true</hidden>
+                <position>11</position>
+            </value>
+        </entry>
+        <entry>
+            <key>sendToShipping</key>
             <value>
                 <group>
                     <name>processing</name>
@@ -43,12 +53,12 @@
             </value>
         </entry>
         <entry>
-            <key>createPackingOrder</key>
+            <key>createShippingOrder</key>
             <value>
                 <group>
                     <name>processing</name>
                 </group>
-                <hidden>true</hidden>
+                <hidden>false</hidden>
                 <position>13</position>
             </value>
         </entry>
@@ -59,7 +69,7 @@
                     <name>processing</name>
                 </group>
                 <hidden>false</hidden>
-                <position>11</position>
+                <position>14</position>
             </value>
         </entry>
         <entry>

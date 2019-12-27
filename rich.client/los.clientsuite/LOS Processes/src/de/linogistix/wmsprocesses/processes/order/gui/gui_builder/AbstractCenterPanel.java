@@ -15,6 +15,7 @@ import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField;
 import de.linogistix.common.gui.component.controls.LosLabel;
 import de.linogistix.common.gui.listener.TopComponentListener;
+import de.linogistix.inventory.browser.dialog.AddressTextField;
 import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
@@ -40,6 +41,8 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
 //
 //    private BOAutoFilteringComboBox<Lot> lotComboBox = null;
     private LOSDateFormattedTextField deliveryDateField = null;
+
+    private AddressTextField addressField = null;
 
     /** Creates new form AbstractCenterPanel */
     public AbstractCenterPanel() {
@@ -72,6 +75,10 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
 
         deliveryDateField = new LOSDateFormattedTextField();
         deliveryDatePanel.add(deliveryDateField);
+
+        addressField = new AddressTextField();
+        addressPanel.add(addressField);
+
     }
     
 
@@ -87,6 +94,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         header = new javax.swing.JPanel();
         clientComboBoxPanel = new javax.swing.JPanel();
         deliveryDatePanel = new javax.swing.JPanel();
+        addressPanel = new javax.swing.JPanel();
         orderNumberLabel = new javax.swing.JLabel();
         orderNumberTextField = new javax.swing.JTextField();
         targetplaceLabel = new LosLabel();
@@ -129,16 +137,25 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         header.add(deliveryDatePanel, gridBagConstraints);
 
-        orderNumberLabel.setText("Order number"); // NOI18N
+        addressPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        header.add(addressPanel, gridBagConstraints);
+
+        orderNumberLabel.setText("Order number"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
@@ -148,7 +165,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         orderNumberTextField.setText("");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -157,14 +174,14 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         targetplaceLabel.setText("Targetplace"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 0, 0);
         header.add(targetplaceLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
@@ -172,13 +189,13 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         header.add(targetplaceComboBox, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         header.add(orderTypeLabel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
@@ -187,7 +204,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         documentLabel.setText("Document"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
@@ -197,7 +214,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         documentTextField.setText("");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -206,7 +223,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         labelLabel.setText("Label"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 50, 0, 0);
         header.add(labelLabel, gridBagConstraints);
@@ -215,7 +232,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         labelTextField.setText("");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 50, 10, 0);
@@ -254,7 +271,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
         commentLayout.setHorizontalGroup(
             commentLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(commentLayout.createSequentialGroup()
-                .add(50, 50, 50)
+                .add(112, 112, 112)
                 .add(commentLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(commentLabel)
                     .add(commentScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -264,7 +281,9 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
             .add(commentLayout.createSequentialGroup()
                 .add(10, 10, 10)
                 .add(commentLabel)
-                .add(commentScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(0, 0, 0)
+                .add(commentScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(28, 28, 28))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -361,6 +380,7 @@ private void delButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton addButton;
+    private javax.swing.JPanel addressPanel;
     private javax.swing.JPanel amountTextField;
     protected javax.swing.JPanel clientComboBoxPanel;
     private javax.swing.JPanel comment;
@@ -427,6 +447,10 @@ private void delButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     
     protected LOSDateFormattedTextField getDeliveryDateTextField(){
         return deliveryDateField;
+    }
+
+    protected AddressTextField getAddressTextField(){
+        return addressField;
     }
 
     protected JLabel getCommentLabel(){

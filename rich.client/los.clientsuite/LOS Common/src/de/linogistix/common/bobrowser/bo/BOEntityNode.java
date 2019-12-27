@@ -10,6 +10,9 @@ import de.linogistix.common.bobrowser.action.RefreshBOBeanNodeAction;
 import de.linogistix.common.bobrowser.bo.binding.PropertyDescriptorElement;
 import de.linogistix.common.bobrowser.bo.editor.BOCollectionEditor;
 import de.linogistix.common.bobrowser.bo.editor.BOEditorChoose;
+import de.linogistix.common.bobrowser.bo.editor.BOEditorReadOnly;
+import de.linogistix.common.bobrowser.bo.editor.BOEditorReadWrite;
+import de.linogistix.common.bobrowser.bo.editor.BOInplaceEditor;
 import de.linogistix.common.bobrowser.bo.editor.BOLockEditorI18N;
 import de.linogistix.common.bobrowser.bo.editor.ComboPropertyEditor;
 import de.linogistix.common.bobrowser.bo.editor.EnumPropertyEditorI18N;
@@ -100,7 +103,9 @@ public class BOEntityNode extends BOBeanNode {
    */
   protected Class propertyEditorClass(java.beans.PropertyDescriptor p,FeatureDescriptor suppoer,Class defaultEditorClass) {
     //    log.info("determining propertyEditorClass for " + p.getPropertyType());
-    if (BasicEntity.class.isAssignableFrom(p.getPropertyType())) {
+    if (BasicEntity.class.isAssignableFrom(p.getPropertyType()) && this.bo.getValueList(p.getName())!=null){
+        return (BOEditorReadWrite.class);
+    } else if (BasicEntity.class.isAssignableFrom(p.getPropertyType())) {
 //      log.info("propertyEditorClass found " + BOEditorReadOnly.class.getName());
       return (BOEditorChoose.class);
     } else if (Collection.class.isAssignableFrom(p.getPropertyType())) {

@@ -319,6 +319,7 @@ Release 2.4
     - Made shipping order generation optional
     - Allocation of storagelocations with more than 100%
     - Enabled consignment stock
+    - Editable addresses in outbound orders
 
 
     Functional changes (for details have a look to the git repository)
