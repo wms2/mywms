@@ -81,13 +81,13 @@ public class ManageInventoryFacadeBeanTest extends TestCase {
 	        }
 	        
 	        bean.createAvis(CommonTestTopologyRemote.TESTCLIENT_NUMBER,
-	                TEST_ITEM, TEST_LOT, new BigDecimal(1000), today.getTime(), nextNextMonth.getTime() , today.getTime(), false);
+	                TEST_ITEM, TEST_LOT, new BigDecimal(1000), today.getTime(), nextNextMonth.getTime() , today.getTime());
 	        
 	        bean.createAvis(CommonTestTopologyRemote.TESTCLIENT_NUMBER,
-	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, InventoryTestTopologyRemote.LOT_N1_A1_NAME, new BigDecimal(100000), today.getTime(), nextNextMonth.getTime() , today.getTime(), false);
+	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, InventoryTestTopologyRemote.LOT_N1_A1_NAME, new BigDecimal(100000), today.getTime(), nextNextMonth.getTime() , today.getTime());
 	        
 	        bean.createAvis(CommonTestTopologyRemote.TESTCLIENT_NUMBER,
-	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, TEST_LOT_X, new BigDecimal(7000),today.getTime(), nextNextMonth.getTime() , today.getTime(), true);
+	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, TEST_LOT_X, new BigDecimal(7000),today.getTime(), nextNextMonth.getTime() , today.getTime());
 	            
         } catch (InventoryException ex){
             InventoryExceptionKey k = ex.getInventoryExceptionKey();
@@ -125,13 +125,13 @@ public class ManageInventoryFacadeBeanTest extends TestCase {
 
 	        
 	        bean.createAvis(CommonTestTopologyRemote.TESTMANDANT_NUMBER,
-	                TEST_ITEM, TEST_LOT, new BigDecimal(1000), today.getTime(), nextNextMonth.getTime() , today.getTime(), false);
+	                TEST_ITEM, TEST_LOT, new BigDecimal(1000), today.getTime(), nextNextMonth.getTime() , today.getTime());
 	        
 	        bean.createAvis(CommonTestTopologyRemote.TESTMANDANT_NUMBER,
-	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, InventoryTestTopologyRemote.LOT_N1_A1_NAME, new BigDecimal(100000), today.getTime(), nextNextMonth.getTime() , today.getTime(), false);
+	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, InventoryTestTopologyRemote.LOT_N1_A1_NAME, new BigDecimal(100000), today.getTime(), nextNextMonth.getTime() , today.getTime());
 	        
 	        bean.createAvis(CommonTestTopologyRemote.TESTMANDANT_NUMBER,
-	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, TEST_LOT_X, new BigDecimal(7000),today.getTime(), nextNextMonth.getTime() , today.getTime(), true);
+	                InventoryTestTopologyRemote.ITEM_A1_NUMBER, TEST_LOT_X, new BigDecimal(7000),today.getTime(), nextNextMonth.getTime() , today.getTime());
             
         } catch (InventoryException ex){
             InventoryExceptionKey k = ex.getInventoryExceptionKey();

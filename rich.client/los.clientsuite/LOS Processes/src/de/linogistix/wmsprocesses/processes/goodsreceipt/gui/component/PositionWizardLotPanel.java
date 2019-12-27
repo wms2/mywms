@@ -129,7 +129,6 @@ final public class PositionWizardLotPanel implements WizardDescriptor.Validating
         wizard.model.lotStr = getPanelUI().getLotOptionPanel().getLotNumberTextField().getText();
         wizard.model.validFrom = getPanelUI().getLotOptionPanel().getValidFromTextField().getDate();
         wizard.model.validTo = getPanelUI().getLotOptionPanel().getValidToTextField().getDate();
-        wizard.model.expire = getPanelUI().getLotOptionPanel().getReplaceOldLotCheckBox().isSelected();
         
     }
 

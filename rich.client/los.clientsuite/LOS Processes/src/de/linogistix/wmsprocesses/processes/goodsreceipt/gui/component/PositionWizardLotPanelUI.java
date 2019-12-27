@@ -115,7 +115,6 @@ public class PositionWizardLotPanelUI extends AbstractPositionWizardLotPanelUI{
             getLotOptionPanel().getValidToTextField().setText(new SimpleDateFormat("dd.MM.yyyy").format(validTo));
         }
         
-        getLotOptionPanel().getReplaceOldLotCheckBox().setSelected(wm.expire);
         try{
             ItemData idat = itemQueryRemote.queryById(wm.item.getId());
             getLotOptionPanel().setMandatory(idat.isLotMandatory());

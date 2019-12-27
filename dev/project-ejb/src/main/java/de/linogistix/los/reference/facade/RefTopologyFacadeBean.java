@@ -564,7 +564,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	
 	private void createAdvice( Client client, ItemData idat, BigDecimal amount ) {
 		try {
-			inventoryFacade.createAvis(client.getNumber(), idat.getNumber(), null, amount, new Date(), null, null, false);
+			inventoryFacade.createAvis(client.getNumber(), idat.getNumber(), null, amount, new Date(), null, null);
 		} catch (Exception e) {
 			log.error("Error creating Advice: "+e.getMessage(), e);
 		}

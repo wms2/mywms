@@ -44,7 +44,6 @@ public class PositionWizardModel {
     String info;
     
     int sameCount = 1;
-    boolean expire;
     Date validTo;
     Date validFrom;
     

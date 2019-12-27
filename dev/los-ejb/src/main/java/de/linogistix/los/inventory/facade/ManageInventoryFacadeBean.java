@@ -230,8 +230,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			@WebParam(name="amount") BigDecimal amount,
 			@WebParam( name="expectedDelivery") Date expectedDelivery,
 			@WebParam( name="bestBeforeEnd") Date bestBeforeEnd,
-			@WebParam( name="useNotBefore") Date useNotBefore,
-			@WebParam(name="expireBatch") boolean expireBatch)
+			@WebParam( name="useNotBefore") Date useNotBefore)
 			{
 		
         Lot batch = null;
@@ -279,17 +278,17 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 
 	public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch,
+			Date bestBeforeEnd, Date useNotBefore, 
 			String requestID) {
 		return createAvis(clientRef, articleRef,
 				batchRef, amount, expectedDelivery,
-				bestBeforeEnd, useNotBefore, expireBatch,
+				bestBeforeEnd, useNotBefore, 
 				requestID, "");
 	}
 
 	public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch,
+			Date bestBeforeEnd, Date useNotBefore,
 			String requestID, String comment) {
 		
         Lot batch = null;

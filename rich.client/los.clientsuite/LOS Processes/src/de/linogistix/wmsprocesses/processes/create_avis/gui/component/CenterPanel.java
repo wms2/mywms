@@ -168,8 +168,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         }
         try {
             
-            boolean expire = getLotOptionPanel().getReplaceOldLotCheckBox().isSelected();
-            
             Date dExpected = getDeliveryTextField().getDate();
             Date dTill = getValidToTextField().getDate();
             Date dFrom = getValidFromTextField().getDate();
@@ -193,7 +191,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                         dExpected, 
                                         dTill, 
                                         dFrom, 
-                                        expire, "", comment);
+                                        "", comment);
             
             if (!ret) {
                 ExceptionAnnotator.annotate(new InventoryException(InventoryExceptionKey.CREATE_AVIS_FAILED, ""));

@@ -123,7 +123,6 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             String lotName,
             Date validFrom,
             Date validTo,
-            boolean expireLot,
             BODTO<ItemData> item,
             String labelId,
             BODTO<UnitLoadType> ulType, 

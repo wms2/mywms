@@ -28,7 +28,6 @@ public class AbstractLotOptionPanel extends javax.swing.JPanel {
     private javax.swing.JPanel lotCreationIndentionPanel;
     private javax.swing.JPanel lotCreationPanel;
     private LOSTextField lotNumberTextField;
-    protected javax.swing.JCheckBox printnormCheckBox;
     private javax.swing.JPanel validFromTextField;
     private javax.swing.JPanel validToTextField;
     
@@ -61,7 +60,6 @@ public class AbstractLotOptionPanel extends javax.swing.JPanel {
         lotNumberTextField = new LOSTextField();
         validFromTextField = new LOSDateFormattedTextField();
         validToTextField = new LOSDateFormattedTextField();
-        printnormCheckBox = new javax.swing.JCheckBox();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder(" "+NbBundle.getMessage(de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver.class, "lot")+" "));
         setLayout(new java.awt.GridBagLayout());
@@ -143,15 +141,6 @@ public class AbstractLotOptionPanel extends javax.swing.JPanel {
         lotCreationPanel.add(validToTextField, gridBagConstraints);
         validToTextField.getAccessibleContext().setAccessibleParent(null);
 
-        printnormCheckBox.setText(org.openide.util.NbBundle.getMessage(de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver.class, "AbstractLotOptionPanel.printnormCheckBox.text")); // NOI18N
-        printnormCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        lotCreationPanel.add(printnormCheckBox, gridBagConstraints);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         if(alignHorizontal){
             gridBagConstraints.gridx = 3;
@@ -192,10 +181,6 @@ public class AbstractLotOptionPanel extends javax.swing.JPanel {
     
     public LOSDateFormattedTextField getValidToTextField(){
         return (LOSDateFormattedTextField) validToTextField;
-    }
-    
-    public JCheckBox getReplaceOldLotCheckBox(){
-        return printnormCheckBox;
     }
     
     public boolean isMandatory() {

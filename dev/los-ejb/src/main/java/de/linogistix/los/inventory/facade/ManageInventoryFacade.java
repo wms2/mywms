@@ -110,9 +110,7 @@ public interface ManageInventoryFacade {
             
             @WebParam(name = "bestBeforeEnd") Date bestBeforeEnd,
             
-            @WebParam(name = "useNotBefore") Date useNotBefore,
-            
-            @WebParam(name = "expireBatch") boolean expireBatch);
+            @WebParam(name = "useNotBefore") Date useNotBefore);
 
     /**
      * Creates an avis for the given article. 
@@ -133,7 +131,7 @@ public interface ManageInventoryFacade {
      */
     public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch, String requestId);
+			Date bestBeforeEnd, Date useNotBefore, String requestId);
 
     /**
      * Creates an avis for the given article. 
@@ -155,7 +153,7 @@ public interface ManageInventoryFacade {
      */
     public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, boolean expireBatch, String requestId, String comment);
+			Date bestBeforeEnd, Date useNotBefore, String requestId, String comment);
     
     /**
      * Creates a {@link StockUnit} on given {@link StorageLocation}

@@ -73,7 +73,6 @@ public class LotOptionPanel extends AbstractLotOptionPanel implements ActionList
         getLotNumberTextField().setText("");
         getValidFromTextField().setText("");
         getValidToTextField().setText("");
-        getReplaceOldLotCheckBox().setSelected(false);
     }
 
     public boolean isLotChoosen(){
@@ -124,7 +123,6 @@ public class LotOptionPanel extends AbstractLotOptionPanel implements ActionList
         createLotButton.setSelected(enabled);
         getValidToTextField().setEnabled(enabled);
         getValidFromTextField().setEnabled(enabled);
-        getReplaceOldLotCheckBox().setEnabled(enabled);
         getLotNumberTextField().setEnabled(enabled);
         
         if(enabled){
@@ -136,7 +134,6 @@ public class LotOptionPanel extends AbstractLotOptionPanel implements ActionList
             getLotNumberTextField().setText("");
             getValidFromTextField().setText("");
             getValidToTextField().setText("");
-            getReplaceOldLotCheckBox().setSelected(false);
         }
         
     }

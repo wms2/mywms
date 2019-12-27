@@ -121,9 +121,7 @@ public interface ManageInventory extends java.rmi.Remote {
             
             @WebParam(name = "bestBeforeEnd") Date bestBeforeEnd,
             
-            @WebParam(name = "useNotBefore") Date useNotBefore,
-            
-            @WebParam(name = "expireBatch") boolean expireBatch);
+            @WebParam(name = "useNotBefore") Date useNotBefore);
 
     @WebMethod
     void createStockUnitOnStorageLocation(

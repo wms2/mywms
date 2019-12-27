@@ -477,7 +477,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                                             w.model.lotStr,
                                                             w.model.validFrom,
                                                             w.model.validTo,
-                                                            w.model.expire,
                                                             w.model.item,
                                                             w.model.unitLoadLabelId,
                                                             w.model.ulType,
@@ -765,7 +764,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                         null,
                                         null,
                                         null,
-                                        false,
                                         adviceNumber,
                                         comment);           
 
