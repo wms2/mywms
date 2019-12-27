@@ -25,6 +25,7 @@ import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQuery;
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ public class BOCustomerOrder extends BO {
         DeliveryOrder c;
 
         c = new DeliveryOrder();
+        c.setAddress(new Address());
 
         return c;
 
