@@ -423,6 +423,7 @@ public class CenterPanel extends AbstractCenterPanel {
                               orderStrategyName,
                               getDeliveryDateTextField().getDate(),
                               50,
+                              getAddressTextField().getAddress(),
                               processAutomaticly, true,
                               getCommentArea().getText());
             clear();
