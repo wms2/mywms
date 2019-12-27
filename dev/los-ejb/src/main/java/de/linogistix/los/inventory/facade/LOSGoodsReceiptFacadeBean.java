@@ -250,7 +250,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			try {
 				for (StockUnit stock : stockUnitEntityService.readByUnitLoad(unitLoad)) {
 					inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
-					inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), null, null, null);
+					inventoryBusiness.transferStock(stock, targetUnitLoad, null, targetUnitLoad.getState(), null, null, null);
 				}
 			} catch (FacadeException e) {
 				logger.error("Error in Transfer to target=" + targetUnitLoadName);
@@ -588,7 +588,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         	try {
         		for(StockUnit stock:stockUnitEntityService.readByUnitLoad(ul)) {
             		inventoryBusiness.checkTransferStock(stock, targetUnitLoad, null);
-            		inventoryBusiness.transferStock(stock, targetUnitLoad, null, stock.getState(), null, null, null);
+            		inventoryBusiness.transferStock(stock, targetUnitLoad, null, targetUnitLoad.getState(), null, null, null);
         		}
 			} catch (FacadeException e) {
 				logger.error("Error in Transfer to target="+targetUnitLoadName);
