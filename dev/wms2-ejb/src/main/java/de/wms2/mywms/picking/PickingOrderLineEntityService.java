@@ -61,13 +61,13 @@ public class PickingOrderLineEntityService {
 	 * optional.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PickingOrderLine> readList(StockUnit sourceStockUnit, PickingOrder pickingOrder,
+	public List<PickingOrderLine> readList(StockUnit pickFromStockUnit, PickingOrder pickingOrder,
 			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Packet paket, Integer stateMin, Integer stateMax) {
 
 		String jpql = " SELECT entity FROM " + PickingOrderLine.class.getName() + " entity ";
 		jpql += " WHERE 1=1";
-		if (sourceStockUnit != null) {
-			jpql += " and entity.sourceStockUnit=:sourceStockUnit";
+		if (pickFromStockUnit != null) {
+			jpql += " and entity.pickFromStockUnit=:pickFromStockUnit";
 		}
 		if (pickingOrder != null) {
 			jpql += " and entity.pickingOrder=:pickingOrder";
@@ -86,8 +86,8 @@ public class PickingOrderLineEntityService {
 		}
 		jpql += " ORDER BY entity.id ";
 		Query query = manager.createQuery(jpql);
-		if (sourceStockUnit != null) {
-			query.setParameter("sourceStockUnit", sourceStockUnit);
+		if (pickFromStockUnit != null) {
+			query.setParameter("pickFromStockUnit", pickFromStockUnit);
 		}
 		if (pickingOrder != null) {
 			query.setParameter("pickingOrder", pickingOrder);
