@@ -35,8 +35,8 @@ import org.mywms.model.User;
 
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.user.query.UserQueryRemote;
-import de.linogistix.los.util.BundleHelper;
 import de.linogistix.mobile.processes.login.gui.bean.CenterBean;
+import de.wms2.mywms.util.Translator;
 
 /**
  * Basic utility operations for all BAcking Beans.
@@ -140,7 +140,7 @@ public class BasicBackingBean {
 
 			try {
 				User user = userQuery.queryByIdentity(getPrincipalName());
-				this.locale = BundleHelper.getLocale(user.getLocale());
+				this.locale = Translator.parseLocale(user.getLocale());
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
 				this.locale = getUIViewRoot().getLocale();

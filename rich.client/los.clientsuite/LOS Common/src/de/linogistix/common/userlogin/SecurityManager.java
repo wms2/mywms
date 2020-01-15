@@ -10,12 +10,12 @@ package de.linogistix.common.userlogin;
 import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.common.services.J2EEServiceLocator;
 import de.linogistix.common.services.J2EEServiceNotAvailable;
-import de.linogistix.los.util.BundleHelper;
 import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.common.util.StatusLineServer;
 import de.linogistix.los.user.LoginServiceRemote;
 import de.linogistix.los.user.query.UserQueryRemote;
+import de.wms2.mywms.util.Translator;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -145,7 +145,7 @@ public class SecurityManager {
         }
         
         try{
-            Locale locale = BundleHelper.getLocale(login.getAuthentification().locale);
+            Locale locale = Translator.parseLocale(login.getAuthentification().locale);
             Locale.setDefault(locale);
         } catch (Throwable t){
             fex = new FacadeException("Locale could not be set", "BusinessException.LocaleException", new String[]{login.getAuthentification().locale});

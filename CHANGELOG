@@ -349,3 +349,31 @@ Release 2.4
     - Drop column currenttypecapacityconstraint_id of table storagelocation
     - Drop column client_id of table lot
     - Drop column client_id of table itemdatanumber
+
+
+
+Release 2.5
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    -
+
+
+    Functional changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - 
+
+
+    Technical changes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Reduce the amount of translation helper classes
+
+
+    Bugfixes (for details have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Switch to Release 2.5
+    -------------------------------------------------------------------------------
+    - 

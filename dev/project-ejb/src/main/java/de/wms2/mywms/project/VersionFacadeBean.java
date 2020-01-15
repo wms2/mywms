@@ -28,12 +28,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mywms.util.BundleHelper;
 
 import de.linogistix.los.common.facade.VersionFacade;
 import de.wms2.mywms.module.ModuleRuntime;
 import de.wms2.mywms.module.ModuleRuntimeBusiness;
 import de.wms2.mywms.project.module.ProjectRuntimeService;
+import de.wms2.mywms.util.Translator;
 
 @Stateless
 public class VersionFacadeBean implements VersionFacade {
@@ -85,8 +85,8 @@ public class VersionFacadeBean implements VersionFacade {
 	}
 
 	private static String getProperty(String key) {
-		String prop = BundleHelper.resolve(key, key, new Object[] {}, "translation.VersionBundle",
-				VersionFacadeBean.class, Locale.getDefault());
+		String prop = Translator.getString(VersionFacadeBean.class, "translation.VersionBundle", null, key, null,
+				Locale.getDefault(), new Object[] {});
 		if (prop == null) {
 			return "";
 		}
