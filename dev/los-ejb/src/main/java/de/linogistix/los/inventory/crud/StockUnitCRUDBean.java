@@ -69,6 +69,7 @@ public class StockUnitCRUDBean extends BusinessObjectCRUDBean<StockUnit> impleme
 		}
 
 		try {
+			entity = manager.find(entity.getClass(), entity.getId());
 			inventoryBusiness.addStockUnitLock(entity, lock);
 		} catch (FacadeException e) {
 			// Sorry for special exceptions. The real cause will be hidden
