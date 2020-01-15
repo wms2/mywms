@@ -105,8 +105,8 @@ public class StorageStrategyEntityService {
 
 		strategy.setName(name);
 		strategy.setAdditionalContent(desc);
-		strategy.setSorts(StorageStrategySortType.ZONE + "," + StorageStrategySortType.POSITION_X + ","
-				+ StorageStrategySortType.POSITION_Y);
+		strategy.setSorts(StorageStrategySortType.ZONE + "," + StorageStrategySortType.POSITION_Y + ","
+				+ StorageStrategySortType.POSITION_X);
 
 		manager.persist(strategy);
 
