@@ -13,11 +13,11 @@ import java.util.List;
 import javax.ejb.Stateless;
 
 import de.linogistix.los.inventory.query.dto.LOSPickingUnitLoadTO;
-import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.picking.Packet;
+import de.wms2.mywms.strategy.OrderState;
 
 /**
  * @author krane
@@ -101,7 +101,7 @@ public class LOSPickingUnitLoadQueryBean extends BusinessObjectQueryBean<Packet>
 		TemplateQueryWhereToken token;
 
 		if( "OPEN".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", State.FINISHED);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.SHIPPED);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			token.setParameterName("finishedState");
 			ret.add(token);

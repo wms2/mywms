@@ -475,7 +475,12 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			ret.add(token);
 		}
 		if( "OUT".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", StockState.PICKED);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_GREATER, "state", StockState.ON_STOCK);
+			token.setParameterName("state1");
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.SHIPPED);
+			token.setParameterName("state2");
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
 		}

@@ -16,7 +16,6 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.linogistix.los.location.query.dto.UnitLoadTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
@@ -123,6 +122,9 @@ public class LOSUnitLoadQueryBean
   			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "lock", 9);
   			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
   			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.SHIPPED);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
   		}
   		if( "EMPTY".equals(filterString) ) {
   			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_ISEMPTY, "stockUnitList", "");
@@ -134,13 +136,16 @@ public class LOSUnitLoadQueryBean
   			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_NOT_EQUAL, "lock", 9);
   			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
   			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.SHIPPED);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
   		}
 		if( "OUT".equals(filterString) ) {
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_GREATER, "state", StockState.PICKED-1);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_GREATER, "state", StockState.ON_STOCK);
   			token.setParameterName("state1");
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
-			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.SHIPPED+1);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.SHIPPED);
   			token.setParameterName("state2");
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
