@@ -211,7 +211,8 @@ public class PickingStockFinder {
 			if (!stock.locationUseForPicking) {
 				continue;
 			}
-			if (stock.maxFixPickAmount != null && stock.maxFixPickAmount.compareTo(amount) < 0) {
+			if (stock.maxFixPickAmount != null && stock.maxFixPickAmount.compareTo(BigDecimal.ZERO) > 0
+					&& stock.maxFixPickAmount.compareTo(amount) < 0) {
 				logger.log(Level.FINER, logStr + "Amount for fixed location exceeded. location=" + stock.locationName
 						+ ", amount=" + amount + ", maxFixPickAmount=" + stock.maxFixPickAmount);
 				continue;
