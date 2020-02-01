@@ -154,6 +154,7 @@ public class BOLOSUnitLoad extends BO {
             quickSearch.addFilterValue(1, NbBundle.getMessage(LocationBundleResolver.class, "filter.available"), "AVAILABLE");
             quickSearch.addFilterValue(1, NbBundle.getMessage(LocationBundleResolver.class, "filter.empty"), "EMPTY");
             quickSearch.addFilterValue(1, NbBundle.getMessage(LocationBundleResolver.class, "filter.carrier"), "CARRIER");
+            quickSearch.addFilterValue(1, NbBundle.getMessage(LocationBundleResolver.class, "filter.in"), "IN");
             quickSearch.addFilterValue(1, NbBundle.getMessage(LocationBundleResolver.class, "filter.out"), "OUT");
 
             quickSearch.setFilterSelected(1, 1);

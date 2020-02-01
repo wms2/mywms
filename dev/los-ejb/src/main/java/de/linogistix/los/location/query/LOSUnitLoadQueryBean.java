@@ -150,6 +150,11 @@ public class LOSUnitLoadQueryBean
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
 		}
+		if( "IN".equals(filterString) ) {
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.ON_STOCK);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
+		}
 
 
   		return ret;

@@ -155,6 +155,7 @@ public class BOStockUnit extends BO {
             quickSearch.addFilterValue(1, NbBundle.getMessage(InventoryBundleResolver.class, "filter.all"), "ALL");
             quickSearch.addFilterValue(1, NbBundle.getMessage(InventoryBundleResolver.class, "filter.available"), "AVAILABLE");
             quickSearch.addFilterValue(1, NbBundle.getMessage(InventoryBundleResolver.class, "filter.qs"), "QS");
+            quickSearch.addFilterValue(1, NbBundle.getMessage(InventoryBundleResolver.class, "filter.in"), "IN");
             quickSearch.addFilterValue(1, NbBundle.getMessage(InventoryBundleResolver.class, "filter.out"), "OUT");
             quickSearch.setFilterSelected(1, 1);
             retDesired.add( quickSearch );
