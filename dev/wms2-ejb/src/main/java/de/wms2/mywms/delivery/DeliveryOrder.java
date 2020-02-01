@@ -110,9 +110,9 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	private String labelUrl;
 
 	/**
-	 * The number of the customer
+	 * The name of the customer
 	 */
-	private String customerNumber;
+	private String customerName;
 
 	/**
 	 * The delivery address
@@ -124,6 +124,11 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	 * Name of the carrier
 	 */
 	private String carrierName;
+
+	/**
+	 * Name of the sender
+	 */
+	private String senderName;
 
 	/**
 	 * The priority of the order
@@ -284,12 +289,12 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 		this.labelUrl = labelUrl;
 	}
 
-	public String getCustomerNumber() {
-		return customerNumber;
+	public String getCustomerName() {
+		return customerName;
 	}
 
-	public void setCustomerNumber(String customerNumber) {
-		this.customerNumber = customerNumber;
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
 	}
 
 	public Address getAddress() {
@@ -306,6 +311,14 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	public void setCarrierName(String carrierName) {
 		this.carrierName = carrierName;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
 
 	public int getPrio() {

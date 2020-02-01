@@ -23,6 +23,7 @@ import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.delivery.DeliveryOrder;
+import de.wms2.mywms.strategy.OrderState;
 
 /** 
 *
@@ -58,7 +59,7 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<DeliveryO
 		propList.add(new BODTOConstructorProperty("deliveryDate", false));
 		propList.add(new BODTOConstructorProperty("state", false));
 		propList.add(new BODTOConstructorProperty("destination.name", null, BODTOConstructorProperty.JoinType.LEFT, "destination"));
-		propList.add(new BODTOConstructorProperty("customerNumber", false));
+		propList.add(new BODTOConstructorProperty("customerName", false));
 		propList.add(new BODTOConstructorProperty("prio", false));
 		propList.add(new BODTOConstructorProperty("orderStrategy.name", false));
 //		propList.add(new BODTOConstructorProperty("positions.size", false));
@@ -128,6 +129,10 @@ public class LOSCustomerOrderQueryBean extends BusinessObjectQueryBean<DeliveryO
 		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "state", State.PENDING);
 		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		token.setParameterName("state2");
+		tokenList.add(token);
+		token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "state", OrderState.CREATED);
+		token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+		token.setParameterName("state3");
 		tokenList.add(token);
 		// 05.07.2013, krane. 
 		// If state = started there may be a valid picking order. In this case it is not good

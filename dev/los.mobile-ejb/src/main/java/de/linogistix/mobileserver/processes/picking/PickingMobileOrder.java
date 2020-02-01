@@ -81,7 +81,7 @@ public class PickingMobileOrder implements Serializable {
 	}
 	
 	public void setCustomerOrder( DeliveryOrder order ) {
-		this.customerNumber = order.getCustomerNumber();
+		this.customerNumber = order.getCustomerName();
 		this.customerName = (order.getAddress() == null ? null : order.getAddress().toUniqueString());
 	}
 	

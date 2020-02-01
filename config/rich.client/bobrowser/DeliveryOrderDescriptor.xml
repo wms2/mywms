@@ -104,7 +104,7 @@
 			</value>
 		</entry>
         <entry>
-			<key>customerNumber</key>
+			<key>customerName</key>
             <value>
                 <group>
 					<name>main</name>
@@ -124,13 +124,33 @@
 			</value>
 		</entry>
         <entry>
+			<key>senderName</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>10</position>
+            </value>
+        </entry>
+        <entry>
+			<key>carrierName</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>11</position>
+            </value>
+        </entry>
+        <entry>
 			<key>externalNumber</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>10</position>
+				<position>12</position>
 			</value>
 		</entry>
 		<entry>
@@ -140,7 +160,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>11</position>
+				<position>13</position>
 			</value>
 		</entry>
         <entry>
@@ -150,7 +170,7 @@
 					<name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>12</position>
+                <position>14</position>
             </value>
         </entry>
 
@@ -164,26 +184,6 @@
 				<position>99</position>
 			</value>
 		</entry>
-        <entry>
-			<key>customerName</key>
-            <value>
-                <group>
-					<name>main</name>
-                </group>
-                <hidden>true</hidden>
-                <position>99</position>
-            </value>
-        </entry>
-        <entry>
-			<key>carrierName</key>
-            <value>
-                <group>
-					<name>main</name>
-                </group>
-                <hidden>true</hidden>
-                <position>99</position>
-            </value>
-        </entry>
         <entry>
 			<key>packingHint</key>
             <value>
