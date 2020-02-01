@@ -12,7 +12,6 @@ import java.util.Date;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
@@ -23,8 +22,6 @@ import de.linogistix.los.inventory.businessservice.QueryInventoryTO;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.service.ItemDataService;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.product.ItemData;
 
 
@@ -45,9 +42,6 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 	
 	@EJB
 	private ClientService clientService;
-	
-	@Inject
-	private LotEntityService lotService;
 	
 	@EJB
 	private QueryInventoryBusiness invBusiness;
@@ -99,7 +93,6 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 		log.debug(logStr+"client="+clientRef+", item="+articleRef+", lot="+lotRef);
 
 		Client c = clientService.getByNumber(clientRef);
-		Lot lot;
 		ItemData idat;
 		
 		if(c == null){
@@ -113,13 +106,7 @@ public class QueryInventoryFacadeBean implements QueryInventoryFacade{
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_ITEMDATA, articleRef);
 		}
 		
-		lot = lotService.read(idat, lotRef);
-		if (lot == null) {
-			log.error("--- !!! NO LOT WITH NUMBER > " + lotRef + " !!! ---");
-			throw new InventoryException(InventoryExceptionKey.NO_SUCH_LOT, lotRef);
-		}
-		
-		QueryInventoryTO ret = invBusiness.getInventory(c, lot, withAmountOnly); 
+		QueryInventoryTO ret = invBusiness.getInventory(c, idat, lotRef, withAmountOnly); 
 		Date dateEnd=new Date();
 		log.debug(logStr+"time="+(dateEnd.getTime()-dateStart.getTime())+" ms");
 		return ret;

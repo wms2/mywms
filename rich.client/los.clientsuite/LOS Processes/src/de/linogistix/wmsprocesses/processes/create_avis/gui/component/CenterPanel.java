@@ -18,9 +18,7 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.facade.ManageInventoryFacade;
 import de.linogistix.los.query.BODTO;
-import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
@@ -83,6 +81,11 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         getDeliveryTextField().setMandatory(true);
         getDeliveryTextField().setColumns(8);
         getDeliveryTextField().getTextFieldLabel().setTitleText( NbBundle.getMessage(WMSProcessesBundleResolver.class, "DELIVERY_DATE"));
+
+        getLotNumberField().setEnabled(false);
+        getLotNumberField().setMandatory(false);
+        getLotNumberField().setColumns(8);
+        getLotNumberField().getTextFieldLabel().setTitleText( NbBundle.getMessage(WMSProcessesBundleResolver.class, "LOT_NUMBER"));
         
     }
     
@@ -91,8 +94,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         getClientComboBox().setEnabled(true);
         getClientComboBox().setMandatory(true);
         getClientComboBox().setEditorLabelTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class,"client"));
-        
-        getLotOptionPanel().initAutofiltering();
         
         getItemDataComboBox().setEnabled(true);
         getItemDataComboBox().setMandatory(true);
@@ -104,10 +105,14 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                
                 ItemData selItemData = getItemDataComboBox().getSelectedAsEntity();
 
+                getLotNumberField().setEnabled(false);
                 if(selItemData != null){
 //                    getAmountTextField().setEnabled(true);
                     getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
                     getAmountTextField().setScale(selItemData.getScale());
+                    if( selItemData.isLotMandatory()) {
+                        getLotNumberField().setEnabled(true);
+                    }
                 }
                 else {
 //                    getAmountTextField().setEnabled(false);
@@ -115,34 +120,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                 
             }
         });
-        
-        getLotComboBox().addItemChangeListener(new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                
-                if(getLotComboBox().getSelectedAsEntity() == null){
-                    return;
-                }
-                
-                ItemData selItemData = getLotComboBox().getSelectedAsEntity().getItemData();
-
-                if(selItemData != null){
-//                    getAmountTextField().setEnabled(true);
-                    getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
-                    getAmountTextField().setScale(selItemData.getScale());
-                }
-                else {
-//                    getAmountTextField().setEnabled(false);
-                }
-                
-            }
-        });
-        
-//        try{
-//            clientItemDataLotFilteringComponent = new ClientItemDataLotFilteringComponent(getClientComboBox(), getItemDataComboBox(), getLotComboBox());
-//        } catch (Exception ex) {
-//            ExceptionAnnotator.annotate(ex);
-//        }
         
         validate();
     }
@@ -152,8 +129,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         if(!getClientComboBox().checkSanity()
             || !getItemDataComboBox().checkSanity()
             || !getAmountTextField().checkSanity()
-            || !getDeliveryTextField().checkSanity()
-            || !getLotOptionPanel().checkSanity())
+            || !getDeliveryTextField().checkSanity())
         {
             return;
         }
@@ -169,28 +145,14 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         try {
             
             Date dExpected = getDeliveryTextField().getDate();
-            Date dTill = getValidToTextField().getDate();
-            Date dFrom = getValidFromTextField().getDate();
             
-            String lotName = null;
-            if(getLotOptionPanel().isLotChoosen() 
-               && getLotOptionPanel().getSelectedLot() != null)
-            {
-                lotName = getLotOptionPanel().getSelectedLot().getName();
-            }
-            else if(!getLotOptionPanel().isLotChoosen()){
-                
-                lotName = getLotNumberTextField().getText();
-            }
             String comment = getCommentField().getText() == null ? "" : getCommentField().getText();
             
             boolean ret = mi.createAvis(getClientComboBox().getSelectedItem().getName(), 
                                         getItemDataComboBox().getSelectedItem().getName(), 
-                                        lotName, 
+                                        getLotNumberField().getText(), 
                                         getAmountTextField().getValue(), 
                                         dExpected, 
-                                        dTill, 
-                                        dFrom, 
                                         "", comment);
             
             if (!ret) {
@@ -205,10 +167,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         }
     }
     
-     protected BOAutoFilteringComboBox<Lot> getLotComboBox() {  
-        return ((LotOptionPanel)lotOptionPanel).getLotComboBox();
-    }
-
     protected BOAutoFilteringComboBox<ItemData> getItemDataComboBox() {
         return clientItemDataLotFilteringComponent.getItemDataCombo();
 //        if(itemDataComboBox == null){
@@ -231,7 +189,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         getAmountTextField().setValue(new BigDecimal(0));
         getDeliveryTextField().setText("");
         
-        getLotOptionPanel().clear();
+        getLotNumberField().setText("");
         
         initDefaults();
         getClientComboBox().requestFocus();

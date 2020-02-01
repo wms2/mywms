@@ -20,7 +20,6 @@ import de.linogistix.los.inventory.model.LOSAdviceType;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvicePosition;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdviceState;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 
 @Local
@@ -51,14 +50,14 @@ public interface ManageUnitLoadAdviceService {
 	 * Each {@link LOSUnitLoadAdvicePosition} meets one stock unit on the advised unit load. 
 	 * 
 	 * @param unitLoadAdvice the advice the position should be added. Must not be NULL.
-	 * @param lot {@link Lot} of the announced stock.
+	 * @param lotNumber Number of the lot of the announced stock.
 	 * @param itemData {@link ItemData} of the announced stock. Must not be NULL.
 	 * @param notifiedAmount amount of the announced stock. Must not be NULL.
 	 * @return the given {@link LOSUnitLoadAdvice} with a new position added.
 	 * @throws OutOfRangeException if notified amount is negative.
 	 */
 	public LOSUnitLoadAdvice addPosition(LOSUnitLoadAdvice unitLoadAdvice, 
-										 Lot lot, 
+										 String lotNumber, 
 										 ItemData itemData, 
 										 BigDecimal notifiedAmount) throws OutOfRangeException;
 

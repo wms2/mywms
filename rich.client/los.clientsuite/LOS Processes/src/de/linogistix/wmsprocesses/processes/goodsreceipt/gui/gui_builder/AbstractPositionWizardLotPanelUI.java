@@ -7,7 +7,7 @@
  */
 package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder;
 
-import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
+import javax.swing.JPanel;
 
 /**
  *
@@ -30,23 +30,25 @@ public abstract class AbstractPositionWizardLotPanelUI extends javax.swing.JPane
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        lotOptionPanel = new LotOptionPanel(true);
+        lotPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
+
+        lotPanel.setLayout(new java.awt.GridLayout(3, 1, 0, 10));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        add(lotOptionPanel, gridBagConstraints);
+        add(lotPanel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    protected javax.swing.JPanel lotOptionPanel;
+    private javax.swing.JPanel lotPanel;
     // End of variables declaration//GEN-END:variables
 
-    public LotOptionPanel getLotOptionPanel(){
-        return (LotOptionPanel) lotOptionPanel;
+    public JPanel getLotPanel(){
+        return lotPanel;
     }
 
 }

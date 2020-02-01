@@ -24,7 +24,6 @@ import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
@@ -54,16 +53,11 @@ public interface LOSGoodsReceiptFacade {
 	GoodsReceipt createGoodsReceipt(BODTO<Client> clientDto, String senderName, String forwarder, String deliveryNoteNumber, Date receiptDate,
 			BODTO<StorageLocation> goodsInLocation, String additionalContent, int orderType);
 
-	GoodsReceiptLine createGoodsReceiptLineAndLot(BODTO<Client> clientDto, GoodsReceipt goodsReceipt,
-			String lotName, Date validFrom, Date validTo, BODTO<ItemData> itemDataDto, String unitLoadLabel,
-			BODTO<UnitLoadType> unitLoadTypeDto, BigDecimal amount, BODTO<AdviceLine> adviceDto, int lock,
-			String lockCause) throws FacadeException, ReportException;
-
-	GoodsReceiptLine createGoodsReceiptLine(BODTO<Client> client, GoodsReceipt gr, BODTO<Lot> batch,
+	GoodsReceiptLine createGoodsReceiptLine(BODTO<Client> client, GoodsReceipt gr, String lotNumber, Date bestBefore,
 			BODTO<ItemData> item, String unitLoadLabel, BODTO<UnitLoadType> unitLoadType, BigDecimal amount,
 			BODTO<AdviceLine> advice, int lock, String lockCause) throws FacadeException, ReportException;
 
-	GoodsReceiptLine createGoodsReceiptLine(BODTO<Client> client, GoodsReceipt gr, BODTO<Lot> batch,
+	GoodsReceiptLine createGoodsReceiptLine(BODTO<Client> client, GoodsReceipt gr, String lotNumber, Date bestBefore,
 			BODTO<ItemData> item, String unitLoadLabel, BODTO<UnitLoadType> unitLoadType, BigDecimal amount,
 			BODTO<AdviceLine> advice, int lock, String lockCause, String serialNumber, String targetLocationName,
 			String targetUnitLoadName, String printer) throws FacadeException, ReportException;
@@ -101,8 +95,6 @@ public interface LOSGoodsReceiptFacade {
     void finishGoodsReceipt(GoodsReceipt r) throws InventoryException, BusinessException;
 
 	
-    public Lot createLot(String lotNameInput, ItemData itemData, Date validTo);
-    
 	/**
 	 * Create and print labels for all positions of the goods receipt
 	 */
@@ -120,6 +112,7 @@ public interface LOSGoodsReceiptFacade {
 	public void createStock(
 		    String clientNumber,
 		    String lotName,
+		    Date bestBefore,
 		    String itemDataNumber,
 		    String unitLoadLabel,
 		    String unitLoadTypeName, 
@@ -136,6 +129,6 @@ public interface LOSGoodsReceiptFacade {
 	 * @return
 	 * @throws FacadeException
 	 */
-	public String getOldestLocationToAdd( ItemData itemData, Lot lot ) throws FacadeException;
+	public String getOldestLocationToAdd( ItemData itemData, String lotNumber, Date bestBefore) throws FacadeException;
 	
 }

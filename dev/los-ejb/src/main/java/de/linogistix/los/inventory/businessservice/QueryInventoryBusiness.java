@@ -14,7 +14,6 @@ import javax.ejb.Local;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.exception.InventoryException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 
 /**
@@ -28,7 +27,7 @@ public interface QueryInventoryBusiness {
 	
 	/**
 	 * Returns an array of {@link QueryInventoryTO}. 
-	 * One entry per lot i.e. {@link Lot} if consolidateLot is false. One entry per article otherwise.
+	 * One entry per lot i.e. lot if consolidateLot is false. One entry per article otherwise.
 	 * 
 	 * @param c
 	 * @return Array of {@link QueryInventoryTO}
@@ -38,7 +37,7 @@ public interface QueryInventoryBusiness {
 	public QueryInventoryTO[] getInventory(Client c, boolean consolidateLot, boolean withAmountOnly) throws InventoryException;
 	
 	/**
-	 * Returns an array of {@link QueryInventoryTO}, one entry per lot i.e. {@link Lot} of given {@link ItemData}.
+	 * Returns an array of {@link QueryInventoryTO}, one entry per lot i.e. lot of given {@link ItemData}.
 	 * 
 	 * @param c
 	 * @return Array of {@link QueryInventoryTO}
@@ -48,15 +47,15 @@ public interface QueryInventoryBusiness {
 	
 	
 	/**
-	 * Returns one {@link QueryInventoryTO} of given {@link Lot}.
+	 * Returns one {@link QueryInventoryTO} of given lot.
 	 * 
 	 * @param c
 	 * @return {@link QueryInventoryTO}
 	 * @throws InventoryException 
 	 */
-	public QueryInventoryTO getInventory(Client c, Lot lot, boolean withAmountOnly) throws InventoryException;
+	public QueryInventoryTO getInventory(Client c, ItemData itemData, String lotNumber, boolean withAmountOnly) throws InventoryException;
 
-	public Map<String, QueryInventoryTO> getInvMap(Client c, Lot lot, ItemData idat, boolean consolidateLot, boolean withAmountOnly) throws InventoryException ;
+	public Map<String, QueryInventoryTO> getInvMap(Client c, String lotNumber, ItemData idat, boolean consolidateLot, boolean withAmountOnly) throws InventoryException ;
 		
 	
 	

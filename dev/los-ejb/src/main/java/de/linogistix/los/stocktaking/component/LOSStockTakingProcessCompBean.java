@@ -46,8 +46,6 @@ import de.linogistix.los.stocktaking.service.QueryStockTakingOrderService;
 import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.JournalHandler;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -71,9 +69,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 	@EJB
 	private QueryItemDataService queryItemService;
-
-	@Inject
-	private LotEntityService queryLotService;
 
 	@EJB
 	private QueryTypeCapacityConstraintService queryTccService;
@@ -311,7 +306,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 							rec.setItemNo(su.getItemData().getNumber());
 //							rec.setLotNo(su.getLot() == null ? "---" : su.getLot().getName());
 //							rec.setSerialNo("---");
-							rec.setLotNo(su.getLot() == null ? "" : su.getLot().getName());
+							rec.setLotNo(su.getLotNumber());
 							rec.setSerialNo("");
 							rec.setUnitLoadLabel(ul.getLabelId());
 							rec.setLocationName(sl.getName());
@@ -503,7 +498,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			rec.setItemNo(su.getItemData().getNumber());
 //			rec.setLotNo(su.getLot() == null ? "---" : su.getLot().getName());
 //			rec.setSerialNo("---");
-			rec.setLotNo(su.getLot() == null ? "" : su.getLot().getName());
+			rec.setLotNo(su.getLotNumber());
 			rec.setSerialNo("");
 			rec.setUnitLoadLabel(su.getUnitLoad().getLabelId());
 			rec.setLocationName(sl.getName());
@@ -652,7 +647,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				rec.setItemNo(su.getItemData().getNumber());
 //				rec.setLotNo(su.getLot() == null ? "---" : su.getLot().getName());
 //				rec.setSerialNo("---");
-				rec.setLotNo(su.getLot() == null ? "" : su.getLot().getName());
+				rec.setLotNo(su.getLotNumber());
 				rec.setSerialNo("");
 				rec.setUnitLoadLabel(ul.getLabelId());
 				rec.setLocationName(sl.getName());
@@ -990,7 +985,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				resNew.countedQuantity = BigDecimal.ZERO;
 				resNew.countedStockId = su.getId();
 				resNew.item = su.getItemData();
-				resNew.lot = su.getLot();
+				resNew.lotNumber = su.getLotNumber();
 				resNew.serialNumber = su.getSerialNumber();
 
 				recordList.add(resNew);
@@ -1028,7 +1023,9 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 				}
 			} else{
 				// new stock unit
-				inventoryBusiness.createStock(ul, res.item, res.countedQuantity, res.lot, res.serialNumber, null, ul.getState(), "ST "+stOrder.getId().toString(), operator, null, true);
+				inventoryBusiness.createStock(ul, res.item, res.countedQuantity, res.lotNumber, null,
+						res.serialNumber, null, ul.getState(), "ST " + stOrder.getId().toString(), operator, null,
+						true);
 			}
 
 		}
@@ -1041,8 +1038,9 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		if (!su.getItemData().equals(res.item)){
 			throw new LOSStockTakingException(LOSStockTakingExceptionKey.ITEM_MISMATCH, new String[]{res.item.toUniqueString(), su.getItemData().toUniqueString()});
 		}
-		if (su.getLot() != null && res.lot != null && !(su.getLot().equals(res.lot))){
-			throw new LOSStockTakingException(LOSStockTakingExceptionKey.LOT_MISMATCH, new String[]{res.lot.toUniqueString(), su.getLot().toUniqueString()});
+		if (!StringUtils.equals(su.getLotNumber(), res.lotNumber)) {
+			throw new LOSStockTakingException(LOSStockTakingExceptionKey.LOT_MISMATCH,
+					new String[] { res.lotNumber, su.getLotNumber() });
 		}
 		if (!su.getClient().equals(res.client)){
 			throw new LOSStockTakingException(LOSStockTakingExceptionKey.CLIENT_MISMATCH, new String[]{res.client.toUniqueString(), su.getClient().toUniqueString()});
@@ -1301,22 +1299,11 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 		rec.setLotNo( manageStocktakingService.checkLotNo( resolved.client, resolved.item, rec.getLotNo() ) );
 		
-		resolved.lot = null;
-		if (rec.getLotNo() != null && rec.getLotNo().length() > 0) {
-			resolved.lot = queryLotService.read(resolved.item, rec.getLotNo());
-
-			if (resolved.lot == null) {
-				log.info(methodName+"Unknown Lot <"+rec.getItemNo()+" / "+rec.getLotNo()+">");
-				throw new LOSStockTakingException(
-						LOSStockTakingExceptionKey.UNKOWN_LOT,
-						new Object[] { rec.getLotNo(), rec.getItemNo() });
-			}
-		}
-		if( resolved.item.isLotMandatory() ) {
-			if( resolved.lot == null ) {
-				log.info(methodName+"Missing lot for item data <"+rec.getItemNo()+">");
-				throw new LOSStockTakingException(
-						LOSStockTakingExceptionKey.LOT_MISSING, new Object[]{});
+		resolved.lotNumber = rec.getLotNo();
+		if (resolved.item.isLotMandatory()) {
+			if (StringUtils.isBlank(resolved.lotNumber)) {
+				log.info(methodName + "Missing lot for item data <" + rec.getItemNo() + ">");
+				throw new LOSStockTakingException(LOSStockTakingExceptionKey.LOT_MISSING, new Object[] {});
 			}
 		}
 		
@@ -1350,7 +1337,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 		
 		public UnitLoadType ulType = null;
 
-		public Lot lot;
+		public String lotNumber;
 
 		public String serialNumber;
 		

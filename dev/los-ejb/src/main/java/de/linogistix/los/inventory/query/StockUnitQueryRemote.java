@@ -25,7 +25,6 @@ import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
@@ -45,13 +44,9 @@ public interface StockUnitQueryRemote extends BusinessObjectQueryRemote<StockUni
 			BODTO<ItemData> idat,
 			QueryDetail detail) throws BusinessObjectQueryException;
 	
-	public List<StockUnitTO> queryByLot(
-			BODTO<Lot> lot,
-			QueryDetail detail) throws BusinessObjectQueryException;
-	
 	public LOSResultList<StockUnitTO> queryByDefault(
 			BODTO<Client> client, 
-			BODTO<Lot> lot,
+			String lotNumber,
 			BODTO<ItemData> itemData,
 			BODTO<StorageLocation> storageLocation,
 			QueryDetail detail) throws BusinessObjectNotFoundException, BusinessObjectQueryException;

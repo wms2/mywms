@@ -41,7 +41,6 @@ import org.mywms.model.Client;
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
@@ -54,8 +53,6 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.transport.TransportOrderEntityService;
-//import de.wms2.mywms.transport.TransportOrder;
-//import de.wms2.mywms.transport.TransportOrderEntityService;
 import de.wms2.mywms.util.ListUtils;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
@@ -98,7 +95,8 @@ public class LocationFinderBean implements LocationFinder {
 		String logStr = "findAddToLocation ";
 		logger.log(Level.INFO, logStr + "sourceStock=" + sourceStock + ", vetoStocks=" + vetoStocks);
 
-		Lot lot = sourceStock.getLot();
+		String lot = sourceStock.getLotNumber();
+		Date bestBefore = sourceStock.getBestBefore();
 		ItemData itemData = sourceStock.getItemData();
 
 		if (sourceStock.getState() != StockState.ON_STOCK) {
@@ -130,7 +128,7 @@ public class LocationFinderBean implements LocationFinder {
 				if (vetoStocks != null && vetoStocks.contains(stock)) {
 					hasVeto = true;
 				}
-				if (!Objects.equals(stock.getLot(), lot)) {
+				if (!StringUtils.equals(stock.getLotNumber(), lot)) {
 					hasWrongLot = true;
 				}
 			}
@@ -147,7 +145,7 @@ public class LocationFinderBean implements LocationFinder {
 		}
 
 		// Try to use pickable stock
-		List<StockUnit> stockList = readStockList(itemData, lot);
+		List<StockUnit> stockList = readStockList(itemData, lot, bestBefore);
 		for (StockUnit stock : stockList) {
 			if (vetoStocks != null && vetoStocks.contains(stock)) {
 				logger.log(Level.FINE, logStr + "Do not add to veto stock.");
@@ -666,7 +664,7 @@ public class LocationFinderBean implements LocationFinder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<StockUnit> readStockList(ItemData itemData, Lot lot) {
+	private List<StockUnit> readStockList(ItemData itemData, String lotNumber, Date bestBefore) {
 		String logStr = "readStockList ";
 
 		String jpql = " SELECT stock FROM " + StockUnit.class.getName() + " stock, ";
@@ -675,8 +673,11 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += " WHERE location=stock.unitLoad.storageLocation ";
 		jpql += " AND area = location.area";
 		jpql += " AND stock.itemData=:itemData";
-		if (lot != null) {
-			jpql += " AND stock.lot=:lot";
+		if (!StringUtils.isBlank(lotNumber)) {
+			jpql += " AND stock.lotNumber=:lotNumber";
+		}
+		if (bestBefore != null) {
+			jpql += " AND stock.bestBefore=:bestBefore";
 		}
 		jpql += " AND stock.state=" + StockState.ON_STOCK;
 		jpql += " AND area.usages like '%" + AreaUsages.PICKING + "%' ";
@@ -687,8 +688,11 @@ public class LocationFinderBean implements LocationFinder {
 		Query query = manager.createQuery(jpql);
 
 		query.setParameter("itemData", itemData);
-		if (lot != null) {
-			query.setParameter("lot", lot);
+		if (!StringUtils.isBlank(lotNumber)) {
+			query.setParameter("lotNumber", lotNumber);
+		}
+		if (bestBefore != null) {
+			query.setParameter("bestBefore", bestBefore);
 		}
 
 		List<StockUnit> result = query.getResultList();

@@ -13,10 +13,10 @@ import de.linogistix.wmsprocesses.processes.order.gui.object.OrderItem;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField;
+import de.linogistix.common.gui.component.controls.LOSTextField;
 import de.linogistix.common.gui.component.controls.LosLabel;
 import de.linogistix.common.gui.listener.TopComponentListener;
 import de.linogistix.inventory.browser.dialog.AddressTextField;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -43,6 +43,7 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
     private LOSDateFormattedTextField deliveryDateField = null;
 
     private AddressTextField addressField = null;
+    private LOSTextField lotNumberField = null;
 
     /** Creates new form AbstractCenterPanel */
     public AbstractCenterPanel() {
@@ -78,6 +79,9 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
 
         addressField = new AddressTextField();
         addressPanel.add(addressField);
+
+        lotNumberField = new LOSTextField();
+        lotComboBoxPanel.add(lotNumberField);
 
     }
     
@@ -303,24 +307,24 @@ public abstract class AbstractCenterPanel extends javax.swing.JPanel implements 
 
         lotComboBoxPanel.setLayout(new java.awt.BorderLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 5, 0);
         positionPanel.add(lotComboBoxPanel, gridBagConstraints);
 
         itemComboBoxPanel.setLayout(new java.awt.BorderLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 0);
         positionPanel.add(itemComboBoxPanel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 5, 0);
         positionPanel.add(amountTextField, gridBagConstraints);
 
         addButton.setText("Add"); // NOI18N
@@ -420,7 +424,9 @@ private void delButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 //        return clientComboBox;
 //    }
 
-    abstract protected BOAutoFilteringComboBox<Lot> getLotComboBox();
+    protected LOSTextField getLotNumberField() {
+        return lotNumberField;
+    }
 //
 //        if(lotComboBox == null){
 //            lotComboBox = new BOAutoFilteringComboBox<Lot>(Lot.class);

@@ -114,7 +114,7 @@
             </value>
         </entry>
         <entry>
-    	    <key>lotSubstitutionType</key>
+            <key>bestBeforeMandatory</key>
             <value>
                 <group>
                     <name>controlproperties</name>
@@ -124,7 +124,7 @@
             </value>
         </entry>
         <entry>
-            <key>serialNoRecordType</key>
+    	    <key>lotSubstitutionType</key>
             <value>
                 <group>
                     <name>controlproperties</name>
@@ -134,13 +134,23 @@
             </value>
         </entry>
         <entry>
+            <key>serialNoRecordType</key>
+            <value>
+                <group>
+                    <name>controlproperties</name>
+                </group>
+                <hidden>false</hidden>
+                <position>6</position>
+            </value>
+        </entry>
+        <entry>
    		    <key>shelflife</key>
             <value>
                 <group>
                     <name>controlproperties</name>
                 </group>
                 <hidden>false</hidden>
-                <position>5</position>
+                <position>7</position>
             </value>
         </entry>
 

@@ -11,7 +11,6 @@
 package de.linogistix.los.example;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -43,7 +42,6 @@ import de.linogistix.los.inventory.query.LOSGoodsReceiptQueryRemote;
 import de.linogistix.los.inventory.query.LOSPickingOrderQueryRemote;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.inventory.query.LOSUnitLoadAdviceQueryRemote;
-import de.linogistix.los.inventory.query.LotQueryRemote;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
@@ -58,7 +56,6 @@ import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.runtime.BusinessObjectSecurityException;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.picking.PickingOrder;
@@ -90,8 +87,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	
 	protected ItemData ITEM_A1;
 	protected ItemData ITEM_A2;
-	protected Lot LOT_N1_A1;
-	protected Lot LOT_N2_A2;
 		
 	protected ItemUnit ITEM_KG;
 	
@@ -111,8 +106,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	private ItemDataQueryRemote itemQuery;
 	@EJB
 	private ItemUnitQueryRemote itemUnitQuery;
-	@EJB
-	private LotQueryRemote lotQuery;
 	@EJB
 	private LOSPickingOrderQueryRemote pickQuery;
 	@EJB
@@ -160,7 +153,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			createItemUnit();
 			createItemData();
 			createFixedLocationAssignments();
-			createLots();
 			
 			em.flush();
 		} catch (FacadeException ex) {
@@ -222,44 +214,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			ITEM_A2.setNumber(ITEM_A2_NUMBER);
 			ITEM_A2.setItemUnit(ITEM_STK);
 			em.persist(ITEM_A2);
-		}
-	}
-
-	public void createLots() throws InventoryTopologyException {
-
-		GregorianCalendar nextMonth = (GregorianCalendar) GregorianCalendar
-				.getInstance();
-		nextMonth.add(GregorianCalendar.MONTH, 1);
-
-		GregorianCalendar today = (GregorianCalendar) GregorianCalendar
-				.getInstance();
-
-		GregorianCalendar nextNextMonth = (GregorianCalendar) GregorianCalendar
-				.getInstance();
-		nextNextMonth.add(GregorianCalendar.MONTH, 2);
-
-		try {
-			LOT_N1_A1 = lotQuery.queryByIdentity(LOT_N1_A1_NAME);
-		} catch (BusinessObjectNotFoundException ex) {
-			LOT_N1_A1 = new Lot();
-			LOT_N1_A1.setName(LOT_N1_A1_NAME);
-			LOT_N1_A1.setBestBeforeEnd(nextMonth.getTime());
-			LOT_N1_A1.setUseNotBefore(today.getTime());
-			LOT_N1_A1.setDate(today.getTime());
-			LOT_N1_A1.setItemData(ITEM_A1);
-			em.persist(LOT_N1_A1);
-		}
-
-		try {
-			LOT_N2_A2 = lotQuery.queryByIdentity(LOT_N2_A2_NAME);
-		} catch (BusinessObjectNotFoundException ex) {
-			LOT_N2_A2 = new Lot();
-			LOT_N2_A2.setName(LOT_N2_A2_NAME);
-			LOT_N2_A2.setBestBeforeEnd(nextMonth.getTime());
-			LOT_N2_A2.setUseNotBefore(today.getTime());
-			LOT_N2_A2.setDate(today.getTime());
-			LOT_N2_A2.setItemData(ITEM_A2);
-			em.persist(LOT_N2_A2);
 		}
 	}
 
@@ -354,7 +308,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 			
 			clearStockUnits();
 			
-			clearLots();
 			clearFixedLocationAssignments();
 			clearItemData();
 			//clearItemUnit();
@@ -651,35 +604,6 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 
 	}
 	
-	public void clearLots() throws InventoryTopologyException {
-		try {
-			QueryDetail d = new QueryDetail(0, Integer.MAX_VALUE);
-			TemplateQueryWhereToken t = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTCLIENT);
-			TemplateQueryWhereToken t2 = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client",
-					TESTMANDANT);
-			t2.setParameterName("client2");t2.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
-			TemplateQuery q = new TemplateQuery();
-			q.addWhereToken(t);
-			q.addWhereToken(t2);
-			q.setBoClass(Lot.class);
-
-			List<Lot> l = lotQuery.queryByTemplate(d, q);
-			for (Lot u : l) {
-				
-				u = em.find(Lot.class, u.getId());
-				em.remove(u);
-			}
-			em.flush();
-		} catch (Throwable e) {
-			log.error(e, e);
-			throw new InventoryTopologyException();
-		}
-	}
-	
-
 	private void clearOrderStrat() {
 		List<OrderStrategy> strats = orderStratService.getList(TESTCLIENT);
 		for( OrderStrategy strat : strats ) {

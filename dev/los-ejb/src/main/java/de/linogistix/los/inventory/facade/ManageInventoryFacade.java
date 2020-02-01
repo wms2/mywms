@@ -16,12 +16,10 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Client;
 import org.mywms.service.EntityNotFoundException;
 
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.query.BODTO;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -106,11 +104,7 @@ public interface ManageInventoryFacade {
             
             @WebParam(name = "amount") BigDecimal amount,
             
-            @WebParam(name = "expectedDelivery") Date expectedDelivery,
-            
-            @WebParam(name = "bestBeforeEnd") Date bestBeforeEnd,
-            
-            @WebParam(name = "useNotBefore") Date useNotBefore);
+            @WebParam(name = "expectedDelivery") Date expectedDelivery);
 
     /**
      * Creates an avis for the given article. 
@@ -131,7 +125,7 @@ public interface ManageInventoryFacade {
      */
     public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, String requestId);
+			String requestId);
 
     /**
      * Creates an avis for the given article. 
@@ -153,7 +147,7 @@ public interface ManageInventoryFacade {
      */
     public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, String requestId, String comment);
+			String requestId, String comment);
     
     /**
      * Creates a {@link StockUnit} on given {@link StorageLocation}
@@ -251,25 +245,6 @@ public interface ManageInventoryFacade {
       */
      public void changeAmount(BODTO<StockUnit> su, BigDecimal amount, BigDecimal reserved, String packaging, String comment) throws FacadeException;
 
-     /**
-      * Create a new {@link Lot}.
-      * 
-      * @param client the client the lot belongs to
-      * @param item the item data of the lot
-      * @param lotnumber the lot name
-      * @param useNotBefore lot should not be used before this date date
-      * @param bestBeforeEnd lot must not be used after that date
-      * @param expireBatch if true, older lots are extinguished on arrvial of new lot
-      * @return the created Lot
-      * @throws InventoryException
-      */
-     public BODTO<Lot> createLot(BODTO<Client> client, 
-    		 					 BODTO<ItemData> item, 
-    		 					 String lotnumber, 
-    		 					 Date useNotBefore,
-    		 					 Date bestBeforeEnd, 
-    		 					 boolean expireBatch) throws InventoryException;
-     
      /** 
       * Reserves amount on {@link StockUnit}, e.g. for being picked later on.
       

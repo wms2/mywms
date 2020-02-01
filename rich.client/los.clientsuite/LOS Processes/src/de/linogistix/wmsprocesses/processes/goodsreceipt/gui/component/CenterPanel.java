@@ -36,7 +36,6 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.strategy.OrderState;
 import java.awt.BorderLayout;
@@ -469,28 +468,10 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
 
                     for (int i=0;i<w.model.sameCount;i++){
                     
-                        if (w.model.createLot() && i==0){ // create lot just once!
-
-                            GoodsReceiptLine grPos;
-                            grPos = topComponentPanel.controller.createPositionAndLot(
-                                                            w.model.client,
-                                                            w.model.lotStr,
-                                                            w.model.validFrom,
-                                                            w.model.validTo,
-                                                            w.model.item,
-                                                            w.model.unitLoadLabelId,
-                                                            w.model.ulType,
-                                                            w.model.amount,
-                                                            advice,
-                                                            w.model.lock,
-                                                            w.model.info
-                                                            );
-                            
-                        } else{
-
                         topComponentPanel.controller.createPosition(
                                 w.model.client,
-                                w.model.lot,
+                                w.model.lotStr,
+                                w.model.validTo,
                                 w.model.item,
                                 w.model.unitLoadLabelId,
                                 w.model.ulType,
@@ -500,7 +481,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                 w.model.info
                                 );
                         }
-                    }
+
                 }
                 this.topComponentPanel.controller.readUnitLoad = w.model.isSingleUnitLoad;
                 this.topComponentPanel.controller.defaultLock = w.model.lock;
@@ -761,8 +742,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
                                         itemData,
                                         null,
                                         amount,
-                                        null,
-                                        null,
                                         null,
                                         adviceNumber,
                                         comment);           

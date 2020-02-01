@@ -19,7 +19,6 @@ import de.linogistix.los.inventory.query.StockUnitQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.QueryDetail;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import java.awt.FlowLayout;
@@ -31,7 +30,6 @@ import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.mywms.model.Client;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -59,7 +57,7 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
         this.queryRemote = queryRemote;
         try {
             
-            this.m = this.queryRemote.getClass().getDeclaredMethod("queryByDefault", new Class[]{BODTO.class, BODTO.class,BODTO.class,BODTO.class,QueryDetail.class});
+            this.m = this.queryRemote.getClass().getDeclaredMethod("queryByDefault", new Class[]{BODTO.class, String.class,BODTO.class,BODTO.class,QueryDetail.class});
             
         } catch (Throwable ex) {
             log.log(Level.SEVERE,ex.getMessage(),ex);
@@ -104,7 +102,6 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
             fl.setAlignment(FlowLayout.LEFT);
             this.queryPanel = new JPanel();
             
-            this.queryPanel.add(cilComp.getLotCombo());
             this.queryPanel.add(cilComp.getItemDataCombo());
             this.queryPanel.add(slCombo);
             
@@ -129,7 +126,6 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
         } else{
             return new Object[]{
             null,
-            cilComp.getLot(),
             cilComp.getItemData(),
             slCombo.getSelectedItem(),
             detail};
@@ -163,10 +159,6 @@ public class StockUnitDefaultQueryProvider implements BOQueryComponentProvider {
 
     public BOAutoFilteringComboBox<ItemData> getItemDataCombo(){
         return cilComp.getItemDataCombo();
-    }
-    
-    public BOAutoFilteringComboBox<Lot> getLotCombo(){
-        return cilComp.getLotCombo();
     }
     
     public BOAutoFilteringComboBox<StorageLocation> getStorageLocationCombo(){

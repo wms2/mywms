@@ -177,7 +177,6 @@ public class OrderStrategyEntityService {
 		strategy.setManualCreationIndex(-1);
 		strategy.setPreferComplete(false);
 		strategy.setUseLockedStock(true);
-		strategy.setUseLockedLot(true);
 
 		manager.persist(strategy);
 

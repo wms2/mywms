@@ -40,7 +40,6 @@ import org.mywms.model.User;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
@@ -389,7 +388,7 @@ public class ReplenishBusiness {
 			// The old stock on the location is added to the new stock
 			// Find stock to add the amount
 			List<StockUnit> addToStocks = stockUnitEntityService.readList(sourceStockUnit.getClient(),
-					sourceStockUnit.getItemData(), sourceStockUnit.getLot(), null, toLocation,
+					sourceStockUnit.getItemData(), sourceStockUnit.getLotNumber(), null, toLocation,
 					sourceStockUnit.getSerialNumber(), null, null);
 			for (StockUnit addToStock : addToStocks) {
 				if (addToStock.getUnitLoad().equals(sourceStockUnit.getUnitLoad())) {
@@ -510,12 +509,12 @@ public class ReplenishBusiness {
 			logger.log(Level.FINE, logStr + "Check reserve location " + fix.getStorageLocation());
 
 			BigDecimal sumAmount = BigDecimal.ZERO;
-			Set<Lot> lotsOnLocation = new HashSet<>();
+			Set<String> lotsOnLocation = new HashSet<>();
 			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByItemDataLocation(fix.getItemData(), fix.getStorageLocation());
 			for (StockUnit stock : stocksOnLocation) {
 				sumAmount = sumAmount.add(stock.getAmount());
-				if (stock.getLot() != null) {
-					lotsOnLocation.add(stock.getLot());
+				if (!StringUtils.isBlank(stock.getLotNumber())) {
+					lotsOnLocation.add(stock.getLotNumber());
 				}
 			}
 			if (sumAmount.compareTo(fix.getMinAmount()) > 0) {
@@ -556,13 +555,13 @@ public class ReplenishBusiness {
 
 			// check amounts
 			BigDecimal sumAmount = BigDecimal.ZERO;
-			Set<Lot> lotsOnLocation = new HashSet<>();
+			Set<String> lotsOnLocation = new HashSet<>();
 			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByItemDataLocation(fix.getItemData(),
 					fix.getStorageLocation());
 			for (StockUnit stock : stocksOnLocation) {
 				sumAmount = sumAmount.add(stock.getAmount());
-				if (stock.getLot() != null) {
-					lotsOnLocation.add(stock.getLot());
+				if (!StringUtils.isBlank(stock.getLotNumber())) {
+					lotsOnLocation.add(stock.getLotNumber());
 				}
 			}
 			if (sumAmount.compareTo(fix.getMinAmount()) > 0) {
@@ -583,12 +582,12 @@ public class ReplenishBusiness {
 	public ReplenishOrder generateOrder(ItemData itemData, BigDecimal requestedAmount, StorageLocation location)
 			throws BusinessException {
 		BigDecimal sumAmount = BigDecimal.ZERO;
-		Set<Lot> lotSet = new HashSet<>();
+		Set<String> lotSet = new HashSet<>();
 		List<StockUnit> locationStockList = stockUnitEntityService.readByItemDataLocation(itemData, location);
 		for (StockUnit stock : locationStockList) {
 			sumAmount = sumAmount.add(stock.getAmount());
-			if (stock.getLot() != null) {
-				lotSet.add(stock.getLot());
+			if (!StringUtils.isBlank(stock.getLotNumber())) {
+				lotSet.add(stock.getLotNumber());
 			}
 		}
 
@@ -596,7 +595,7 @@ public class ReplenishBusiness {
 	}
 
 	private ReplenishOrder generateOrderForPicking(ItemData itemData, StorageLocation location,
-			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<Lot> lotsOnLocation)
+			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<String> lotsOnLocation)
 			throws BusinessException {
 		String logStr = "generateOrderForPicking ";
 		logger.log(Level.INFO, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
@@ -634,7 +633,7 @@ public class ReplenishBusiness {
 		return order;
 	}
 
-	private StockUnit findReplenishStockForPicking(ItemData itemData, Collection<Lot> lotsOnLocation) {
+	private StockUnit findReplenishStockForPicking(ItemData itemData, Collection<String> lotsOnLocation) {
 		String logStr = "findReplenishStockForPicking ";
 		boolean replenishFromPicking = systemPropertyBusiness.getBoolean(Wms2Properties.KEY_REPLENISH_FROM_PICKING,
 				false);
@@ -655,7 +654,7 @@ public class ReplenishBusiness {
 		jpql += " AND stock.reservedAmount < stock.amount ";
 		jpql += " AND stock.itemData =:itemData ";
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
-			jpql += " AND stock.lot in (:lots) ";
+			jpql += " AND stock.lotNumber in (:lots) ";
 		}
 		jpql += " ORDER BY stock.strategyDate, stock.amount, stock.created, stock.id ";
 		Query query = manager.createQuery(jpql);
@@ -697,7 +696,7 @@ public class ReplenishBusiness {
 		jpql += " AND stock.reservedAmount < stock.amount ";
 		jpql += " AND stock.itemData =:itemData ";
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
-			jpql += " AND stock.lot in (:lots) ";
+			jpql += " AND stock.lotNumber in (:lots) ";
 		}
 		jpql += " ORDER BY stock.strategyDate, stock.amount, stock.created, stock.id ";
 		query = manager.createQuery(jpql);
@@ -721,7 +720,7 @@ public class ReplenishBusiness {
 	}
 
 	private ReplenishOrder generateOrderForStorage(ItemData itemData, StorageLocation location,
-			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<Lot> lotsOnLocation)
+			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<String> lotsOnLocation)
 			throws BusinessException {
 		String logStr = "generateOrderForStorage ";
 		logger.log(Level.INFO, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
@@ -759,7 +758,7 @@ public class ReplenishBusiness {
 		return order;
 	}
 
-	private StockUnit findReplenishStockForStorage(ItemData itemData, Collection<Lot> lotsOnLocation) {
+	private StockUnit findReplenishStockForStorage(ItemData itemData, Collection<String> lotsOnLocation) {
 		String jpql = " SELECT stock FROM ";
 		jpql += StockUnit.class.getName() + " stock, ";
 		jpql += StorageLocation.class.getName() + " location, ";
@@ -782,7 +781,7 @@ public class ReplenishBusiness {
 		jpql += " AND not exists( select 1 from " + StockUnit.class.getName() + " stock2 ";
 		jpql += "     where stock2.unitLoad = stock.unitLoad and stock2.itemData!=stock.itemData )";
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
-			jpql += " AND stock.lot in (:lots) ";
+			jpql += " AND stock.lotNumber in (:lots) ";
 		}
 		jpql += " ORDER BY stock.strategyDate, stock.amount, stock.created, stock.id ";
 		Query query = manager.createQuery(jpql);

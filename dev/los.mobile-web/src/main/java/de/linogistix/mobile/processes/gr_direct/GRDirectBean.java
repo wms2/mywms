@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
@@ -33,7 +34,6 @@ import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.service.QueryAdviceServiceRemote;
 import de.linogistix.los.inventory.service.QueryGoodsReceiptServiceRemote;
 import de.linogistix.los.inventory.service.QueryItemDataServiceRemote;
-import de.linogistix.los.inventory.service.QueryLotServiceRemote;
 import de.linogistix.los.inventory.service.QueryStockServiceRemote;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
 import de.linogistix.los.location.query.UnitLoadQueryRemote;
@@ -51,7 +51,6 @@ import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
@@ -128,7 +127,7 @@ public class GRDirectBean extends BasicDialogBean {
 	protected boolean currentUlLabelSelected;
 	protected BigDecimal currentAmount;
 	protected AdviceLine currentAdvice;
-	protected Lot currentLot;
+	protected String currentLotNumber;
 	protected ItemData currentItemData;
 	protected UnitLoadType currentUnitLoadType;
 	protected int currentAmountOfProcessedUnitLoads = 0;
@@ -148,8 +147,6 @@ public class GRDirectBean extends BasicDialogBean {
 	
 
 
-	protected QueryLotServiceRemote queryLotService;
-	
 	protected QueryUnitLoadTypeServiceRemote queryUltService;
 	
 	protected QueryUnitLoadServiceRemote queryUlService;
@@ -178,7 +175,6 @@ public class GRDirectBean extends BasicDialogBean {
 		super();
 		
 		propertyService = super.getStateless(LOSSystemPropertyServiceRemote.class);
-		queryLotService = super.getStateless(QueryLotServiceRemote.class);
 		queryAdviceService = super.getStateless(QueryAdviceServiceRemote.class);
 		queryUltService = super.getStateless(QueryUnitLoadTypeServiceRemote.class);
 		queryUlService = super.getStateless(QueryUnitLoadServiceRemote.class);
@@ -252,8 +248,8 @@ public class GRDirectBean extends BasicDialogBean {
 	
 	protected void resetPos() {
 		currentFixTarget = null;
-		currentLot = null;
 		currentLotDate = null;
+		currentLotNumber = null;
 		currentUlLabel = null;
 		currentUlLabelSelected = false;
 		currentAmount = BigDecimal.ZERO;
@@ -281,8 +277,8 @@ public class GRDirectBean extends BasicDialogBean {
 	protected void initPos() {
 		log.debug("Initialize position");
 		currentFixTarget = null;
-		currentLot = null;
 		currentLotDate = null;
+		currentLotNumber = null;
 		currentUlLabel = null;
 		currentUlLabelSelected = false;
 		currentAmount = BigDecimal.ZERO;
@@ -507,6 +503,9 @@ public class GRDirectBean extends BasicDialogBean {
 		if( collectLotAlways || itemData.isLotMandatory() ) {
 			return GRDirectNavigationEnum.GRD_ENTER_LOT.name();
 		}
+		else if( itemData.isBestBeforeMandatory() ) {
+			return GRDirectNavigationEnum.GRD_ENTER_LOTDATE.name();
+		}
 		else if( itemData.getSerialNoRecordType() == SerialNoRecordType.ALWAYS_RECORD ) {
 			return GRDirectNavigationEnum.GRD_ENTER_SERIAL.name();
 		}
@@ -590,6 +589,12 @@ public class GRDirectBean extends BasicDialogBean {
 		if( collectLotAlways || mat.isLotMandatory() ) {
 			return GRDirectNavigationEnum.GRD_ENTER_LOT.name();
 		}
+		else if( mat.isBestBeforeMandatory() ) {
+			return GRDirectNavigationEnum.GRD_ENTER_LOTDATE.name();
+		}
+		else if (mat.getShelflife() != null && mat.getShelflife().intValue() > 0) {
+			return GRDirectNavigationEnum.GRD_ENTER_LOTDATE.name();
+		}
 		else if( mat.getSerialNoRecordType() == SerialNoRecordType.ALWAYS_RECORD ) {
 			return GRDirectNavigationEnum.GRD_ENTER_SERIAL.name();
 		}
@@ -601,7 +606,7 @@ public class GRDirectBean extends BasicDialogBean {
 		reset();
 		return GRDirectNavigationEnum.GRD_BACK_TO_MENU.name();
 	}
-	
+
 	// ***********************************************************************
 	// EnterLot.jsp / EnterLotDate.jsp
 	// ***********************************************************************
@@ -618,19 +623,25 @@ public class GRDirectBean extends BasicDialogBean {
 			return GRDirectNavigationEnum.GRD_BACK_TO_MENU.name();
 		}
 		
-		currentLot = queryLotService.getByNameAndItemData(inputLotName, currentItemData);
-		if( currentLot == null ) {
+		currentLotNumber = null;
+		if(!StringUtils.isBlank(inputLotName)) {
+			currentLotNumber = inputLotName;
+		}
+		if(currentItemData.isBestBeforeMandatory()) {
 			return GRDirectNavigationEnum.GRD_ENTER_LOTDATE.name();
 		}
-		
+		if(currentItemData.getShelflife() != null && currentItemData.getShelflife() > 0) {
+			return GRDirectNavigationEnum.GRD_ENTER_LOTDATE.name();
+		}
+
 		// Check if the valid period of received goods is long enough
-		if(currentItemData.getResidualTermOfUsageGI() > 0){
-			if( currentLot.getBestBeforeEnd() != null) {
+		if (currentItemData.getShelflife() != null && currentItemData.getShelflife() > 0) {
+			if(currentLotDate!=null) {
 				Calendar cal = Calendar.getInstance();
 				cal.add(Calendar.DAY_OF_YEAR, currentItemData.getResidualTermOfUsageGI());
 				Date minimumValidTo = cal.getTime();
 				
-				if(minimumValidTo.after(currentLot.getBestBeforeEnd())){
+				if(minimumValidTo.after(currentLotDate)){
 					JSFHelper.getInstance().message( resolve("MsgLotNotValid", ""+currentItemData.getResidualTermOfUsageGI() ) );
 					return "";
 				}
@@ -649,7 +660,7 @@ public class GRDirectBean extends BasicDialogBean {
 					log.info("Wrong item data on fixed location. Do not use");
 					currentFixTarget = null;
 				}
-				if( !stockList.get(0).getLot().getName().equals(inputLotName) ) {
+				if (!StringUtils.equals(stockList.get(0).getLotNumber(), inputLotName)) {
 					log.info("Wrong lot on fixed location. Do not use");
 					currentFixTarget = null;
 				}
@@ -682,6 +693,10 @@ public class GRDirectBean extends BasicDialogBean {
 				JSFHelper.getInstance().message( resolve("MsgEnterLotDate") );
 				return "";
 			}
+			if(currentItemData.isBestBeforeMandatory()){
+				JSFHelper.getInstance().message( resolve("MsgEnterLotDate") );
+				return "";
+			}
 		}
 		else{
 			currentLotDate = DateHelper.parseInputString(code);
@@ -704,17 +719,6 @@ public class GRDirectBean extends BasicDialogBean {
 			}
 		}
 
-
-		if( inputLotName == null || inputLotName.length() == 0 ) {
-			JSFHelper.getInstance().message( resolve("MsgEnterLot") );
-			return GRDirectNavigationEnum.GRD_ENTER_LOT.name();
-		}
-
-		currentLot = goodsReceiptFacade.createLot(
-				inputLotName, 
-				currentItemData, 
-				currentLotDate);
-		
 		inputCode = null;
 		
 		if( currentItemData.getSerialNoRecordType() == SerialNoRecordType.ALWAYS_RECORD ) {
@@ -724,7 +728,7 @@ public class GRDirectBean extends BasicDialogBean {
 		return GRDirectNavigationEnum.GRD_ENTER_AMOUNT.name();
 	}
 	public String processEnterLotDateCancel() {
-		return GRDirectNavigationEnum.GRD_ENTER_LOT.name();
+		return GRDirectNavigationEnum.GRD_CHOOSE_POS.name();
 	}
 	
 	
@@ -1170,7 +1174,8 @@ public class GRDirectBean extends BasicDialogBean {
 
 			goodsReceiptFacade.createStock(
 										currentItemData.getClient().getNumber(), 
-										currentLot == null ? null : currentLot.getName(), 
+										currentLotNumber,
+										currentLotDate,
 										currentItemData.getNumber(),
 										currentUlLabel,
 										currentUnitLoadType.getName(),
@@ -1213,15 +1218,11 @@ public class GRDirectBean extends BasicDialogBean {
 		String printer = propertyService.getStringDefault(null, getWorkstationName(), LOSInventoryPropertyKey.GOODS_RECEIPT_PRINTER, LOSPrintService.NO_PRINTER);
 
 		try {
-			BODTO<Lot> lotTo = null;
-			if( currentLot != null ) {
-				lotTo = new BODTO<Lot>(currentLot.getId(), currentLot.getVersion(), currentLot.getName());
-			}
-
 			goodsReceiptFacade.createGoodsReceiptLine(
 										new BODTO<Client>(cl.getId(), cl.getVersion(), cl.getNumber()), 
 										currentGoodsReceipt, 
-										lotTo, 
+										currentLotNumber,
+										currentLotDate,
 										new BODTO<ItemData>(item.getId(), item.getVersion(), item.getNumber()),
 										currentUlLabel,
 										new BODTO<UnitLoadType>(currentUnitLoadType.getId(), currentUnitLoadType.getVersion(), currentUnitLoadType.getName()),
@@ -1259,11 +1260,11 @@ public class GRDirectBean extends BasicDialogBean {
 	// Attributes
 	// ***********************************************************************
 	public String getlot() {
-		return currentLot == null ? "" : currentLot.getName();
+		return currentLotNumber;
 	}
 	
 	public boolean isShowLot() {
-		return currentLot != null;
+		return !StringUtils.isBlank(currentLotNumber);
 	}
 	public boolean isShowOrder() {
 		return currentAdvice != null;
@@ -1336,7 +1337,7 @@ public class GRDirectBean extends BasicDialogBean {
 			return currentAddLocation;
 		}
 		try {
-			currentAddLocation = goodsReceiptFacade.getOldestLocationToAdd(currentItemData, currentLot);
+			currentAddLocation = goodsReceiptFacade.getOldestLocationToAdd(currentItemData, currentLotNumber, currentLotDate);
 		} catch (Exception e) { 
 			log.error("Exception. Cannot find Target to add: "+e.getMessage(), e );
 		}

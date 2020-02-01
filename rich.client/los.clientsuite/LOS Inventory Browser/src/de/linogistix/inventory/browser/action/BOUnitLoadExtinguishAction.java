@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2006 - 2012 LinogistiX GmbH
- * 
- *  www.linogistix.com
- *  
- *  Project myWMS-LOS
- */
 package de.linogistix.inventory.browser.action;
 
 import de.linogistix.common.bobrowser.bo.BOMasterNode;
@@ -28,15 +21,19 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
-public final class BOLotExtinguishAction extends NodeAction {
+/**
+ * @author krane
+ *
+ */
+public final class BOUnitLoadExtinguishAction extends NodeAction {
 
-    private static final Logger log = Logger.getLogger(BOLotExtinguishAction.class.getName());
+    private static final Logger log = Logger.getLogger(BOUnitLoadExtinguishAction.class.getName());
     private static String[] allowedRoles = new String[]{
         Role.ADMIN.toString(),Role.INVENTORY_STR,Role.FOREMAN_STR
     };
 
     public String getName() {
-        return NbBundle.getMessage(InventoryBundleResolver.class, "extinguish");
+        return NbBundle.getMessage(InventoryBundleResolver.class, "extinguishUnitLoad");
     }
 
     protected String iconResource() {
@@ -67,13 +64,12 @@ public final class BOLotExtinguishAction extends NodeAction {
 
         try {
             NotifyDescriptor d = new NotifyDescriptor.Confirmation(
-                    NbBundle.getMessage(InventoryBundleResolver.class, "NotifyDescriptor.ReallyExtinguish"),
-                    NbBundle.getMessage(InventoryBundleResolver.class, "extinguish"),
+                    NbBundle.getMessage(InventoryBundleResolver.class, "NotifyDescriptor.ReallyExtinguishUnitLoad"),
+                    NbBundle.getMessage(InventoryBundleResolver.class, "extinguishUnitLoad"),
                     NotifyDescriptor.OK_CANCEL_OPTION);
 
             if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-                
-                List<Long> l = new ArrayList<Long>();
+                List<Long> ids = new ArrayList<Long>();
                 for (Node n : activatedNodes) {
                     if (n == null) {
                         continue;
@@ -81,11 +77,11 @@ public final class BOLotExtinguishAction extends NodeAction {
                     if (!(n instanceof BOMasterNode)) {
                         log.warning("Not a BOMasterNodeType: " + n.toString());
                     }
-                    l.add(((BOMasterNode)n).getId());
+                    ids.add(((BOMasterNode)n).getId());
                 }
                 J2EEServiceLocator loc = (J2EEServiceLocator) Lookup.getDefault().lookup(J2EEServiceLocator.class);
-                LOSExtinguishFacade m = loc.getStateless(LOSExtinguishFacade.class);
-                m.generateOrder(l);
+                LOSExtinguishFacade extinguishFacade = loc.getStateless(LOSExtinguishFacade.class);
+                extinguishFacade.generateUnitLoadOrder(ids);
             }
         } catch (FacadeException ex) {
             ExceptionAnnotator.annotate(ex);

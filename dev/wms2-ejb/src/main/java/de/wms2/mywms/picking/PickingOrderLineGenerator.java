@@ -39,6 +39,7 @@ import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockUnit;
+import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
@@ -76,6 +77,8 @@ public class PickingOrderLineGenerator {
 	private PickingOrderLineEntityService pickingLineService;
 	@Inject
 	private FixAssignmentEntityService fixAssignmentEntityService;
+	@Inject
+	private StockUnitEntityService stockUnitEntityService;
 
 	public List<PickingOrderLine> generatePicks(DeliveryOrder deliveryOrder, boolean completeOrderOnly)
 			throws BusinessException {
@@ -119,8 +122,8 @@ public class PickingOrderLineGenerator {
 					remainingAmount = remainingAmount.subtract(pick.getAmount());
 				}
 				if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-					String info = deliveryOrderLine.getItemData().getNumber() + ", " + remainingAmount
-							+ " " + deliveryOrderLine.getItemData().getItemUnit().getName();
+					String info = deliveryOrderLine.getItemData().getNumber() + ", " + remainingAmount + " "
+							+ deliveryOrderLine.getItemData().getItemUnit().getName();
 					logger.log(Level.INFO,
 							logStr + "Not enough amount to pick. itemData=" + deliveryOrderLine.getItemData()
 									+ ", ordered amount=" + deliveryOrderLine.getAmount() + ", not available amount="
@@ -136,7 +139,7 @@ public class PickingOrderLineGenerator {
 			if (newPickList.size() > 0 && deliveryOrderLine.getPickedAmount().compareTo(BigDecimal.ZERO) > 0) {
 				deliveryOrderLine.setState(OrderState.STARTED);
 			}
-			if (newPickList.size() == 0 && remainingAmount.compareTo(BigDecimal.ZERO)>0) {
+			if (newPickList.size() == 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
 				deliveryOrderLine.setState(OrderState.PENDING);
 			}
 
@@ -192,7 +195,7 @@ public class PickingOrderLineGenerator {
 		BigDecimal remainingAmount = amount;
 		while (true) {
 			StockUnit sourceStock = pickingStockService.findFirstSourceStock(deliveryOrderLine.getItemData(),
-					remainingAmount, client, deliveryOrderLine.getLot(), strategy);
+					remainingAmount, client, deliveryOrderLine.getLotNumber(), strategy);
 			if (sourceStock == null) {
 				break;
 			}
@@ -263,6 +266,11 @@ public class PickingOrderLineGenerator {
 			return PickingType.PICK;
 		}
 		if (unitLoad.isOpened()) {
+			return PickingType.PICK;
+		}
+
+		List<StockUnit> stocksOnUnitLoad = stockUnitEntityService.readByUnitLoad(unitLoad);
+		if (stocksOnUnitLoad.size() > 1) {
 			return PickingType.PICK;
 		}
 

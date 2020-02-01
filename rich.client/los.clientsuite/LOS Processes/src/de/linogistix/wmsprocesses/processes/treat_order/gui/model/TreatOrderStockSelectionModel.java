@@ -21,7 +21,6 @@ import de.linogistix.los.query.QueryDetail;
 import de.linogistix.wmsprocesses.processes.treat_order.TreatOrderStockUnitBO;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.control.TreatOrderDialogController;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.control.TreatOrderStockQueryProvider;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
@@ -40,7 +39,7 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
 
     private BODTO<DeliveryOrderLine> orderPositionTO;
     
-    private BODTO<Lot> lotTO;
+    private String lotNumber;
     
     private BODTO<StorageLocation> locationTO;
     
@@ -87,7 +86,7 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
     @SuppressWarnings("unchecked")
     public LOSResultList getResults(BOQueryComponentProvider provider, QueryDetail detail) {
         try{
-            List l = orderFacade.querySuitableStocksByOrderPosition(orderPositionTO, lotTO, locationTO);
+            List l = orderFacade.querySuitableStocksByOrderPosition(orderPositionTO, lotNumber, locationTO);
             return     (LOSResultList<BODTO>) l;
         }catch(FacadeException fex){
             ExceptionAnnotator.annotate(fex);
@@ -113,7 +112,7 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
             LOSOrderStockUnitTO showAmountTO = new LOSOrderStockUnitTO(selStockTO.getId(), 
                                                                        selStockTO.getVersion(), 
                                                                        selStockTO.getId()+" / "+chosenAmount,
-                                                                       selStockTO.lotEntity,
+                                                                       selStockTO.lot,
                                                                        selStockTO.unitLoad,
                                                                        selStockTO.storageLocation,
                                                                        selStockTO.availableAmount,
@@ -140,7 +139,7 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
         
     public void clear(){
         
-        lotTO = null;
+        lotNumber = null;
         locationTO = null;
         orderPositionTO = null;
         
@@ -157,14 +156,14 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
         this.locationTO = locationTO;
     }
 
-    public BODTO<Lot> getLotTO() {
-        return lotTO;
+    public String getLotNumber() {
+        return lotNumber;
     }
 
-    public void setLotTO(BODTO<Lot> lotTO) {
-        this.lotTO = lotTO;
+    public void setLotNumber(String lotNumber) {
+        this.lotNumber = lotNumber;
         
-        stockQueryProvider.setLotTO(lotTO);
+//        stockQueryProvider.setLotNumber(lotNumber);
     }
 
     public void setItemDataTO(BODTO<ItemData> item){
@@ -178,12 +177,5 @@ public class TreatOrderStockSelectionModel extends LOSListChooserViewModel<Stock
     public void setOrderPositionTO(BODTO<DeliveryOrderLine> orderPositionTO) {
         this.orderPositionTO = orderPositionTO;
     }
-    
-    public BOAutoFilteringComboBox<Lot> getLotCombo(){
-        return stockQueryProvider.getLotCombo();
-    }
-    
-    public BOAutoFilteringComboBox<StorageLocation> getStorageLocationCombo(){
-        return stockQueryProvider.getStorageLocationCombo();
-    }
+
 }

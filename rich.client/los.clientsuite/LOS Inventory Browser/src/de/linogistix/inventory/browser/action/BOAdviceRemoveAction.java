@@ -31,7 +31,7 @@ import org.openide.util.actions.NodeAction;
 
 public final class BOAdviceRemoveAction extends NodeAction {
 
-    private static final Logger log = Logger.getLogger(BOLotExtinguishAction.class.getName());
+    private static final Logger log = Logger.getLogger(BOAdviceRemoveAction.class.getName());
     private static String[] allowedRoles = new String[]{
         Role.ADMIN.toString(),Role.INVENTORY_STR,Role.FOREMAN_STR
     };

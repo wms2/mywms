@@ -33,7 +33,10 @@ public class LOSCustomerOrderPositionTO extends BODTO<DeliveryOrderLine>{
 
 	
 	public LOSCustomerOrderPositionTO(DeliveryOrderLine pos){
-		this(pos.getId(),pos.getVersion(), pos.getLineNumber(), pos.getItemData().getNumber(), pos.getItemData().getName(), pos.getItemData().getScale(), pos.getLot()==null?null:pos.getLot().getName(), pos.getAmount(), pos.getPickedAmount(), pos.getState(), pos.getDeliveryOrder().getOrderNumber(), pos.getClient().getNumber(), pos.getExternalId());
+		this(pos.getId(), pos.getVersion(), pos.getLineNumber(), pos.getItemData().getNumber(),
+				pos.getItemData().getName(), pos.getItemData().getScale(), pos.getLotNumber(), pos.getAmount(),
+				pos.getPickedAmount(), pos.getState(), pos.getDeliveryOrder().getOrderNumber(),
+				pos.getClient().getNumber(), pos.getExternalId());
 	}
 	public LOSCustomerOrderPositionTO(Long id, int version, String name, String itemNumber, String itemName, int itemScale, 
 			String lotName, BigDecimal amount, BigDecimal amountPicked, int positionState, String orderNumber, String clientNumber, String externalId){

@@ -10,7 +10,6 @@ package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 import de.linogistix.los.query.BODTO;
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.product.ItemData;
 import java.math.BigDecimal;
@@ -33,7 +32,6 @@ public class PositionWizardModel {
     
     public boolean isSingleUnitLoad = false;
     
-    BODTO<Lot> lot;
     String lotStr;
     
     BODTO<ItemData> item;
@@ -45,9 +43,5 @@ public class PositionWizardModel {
     
     int sameCount = 1;
     Date validTo;
-    Date validFrom;
     
-    public boolean createLot(){
-        return (lotStr != null && lotStr.length() > 0) && lot == null;
-    }
 }

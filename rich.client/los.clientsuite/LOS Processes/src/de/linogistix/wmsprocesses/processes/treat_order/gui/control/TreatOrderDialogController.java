@@ -19,7 +19,6 @@ import de.linogistix.location.gui.component.controls.LOSStorageLocationComboBoxM
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.facade.LOSCompatibilityFacade;
 import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
-import de.linogistix.los.inventory.query.dto.LotTO;
 import de.linogistix.los.model.State;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.component.TreatOrderCenterPanel;
@@ -27,7 +26,6 @@ import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderDial
 import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderPickRequestTO;
 import de.linogistix.wmsprocesses.processes.treat_order.gui.model.TreatOrderStockSelectionModel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.delivery.DeliveryOrder;
@@ -40,6 +38,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
@@ -215,22 +214,15 @@ public class TreatOrderDialogController {
 
             myCenterPanel.itemDataValueLabel.setText(pos.getItemData().getNumber());
             
-            if(pos.getLot() != null){
-                Lot presetLot = pos.getLot();
-                myCenterPanel.getLotLabel().setText(presetLot.getName());
-                LotTO lotTO = new LotTO(presetLot.getId(), 
-                                        presetLot.getVersion(), 
-                                        presetLot.getName(), 
-                                        presetLot.getItemData().getNumber(),
-                                        presetLot.getItemData().getName(),
-                                        presetLot.getLock(), 
-                                        presetLot.getUseNotBefore(), 
-                                        presetLot.getBestBeforeEnd());
-                ((TreatOrderStockSelectionModel)myCenterPanel.getStockChooserView().getModel()).setLotTO(lotTO);
+            if(!StringUtils.isBlank(pos.getLotNumber())) {
+                String presetLot = pos.getLotNumber();
+                myCenterPanel.getLotLabel().setText(presetLot);
+                ((TreatOrderStockSelectionModel)myCenterPanel.getStockChooserView().getModel()).setLotNumber(presetLot);
+                
             }
             else{
                 myCenterPanel.getLotLabel().setText("");
-                ((TreatOrderStockSelectionModel)myCenterPanel.getStockChooserView().getModel()).setLotTO(null);
+                ((TreatOrderStockSelectionModel)myCenterPanel.getStockChooserView().getModel()).setLotNumber(null);
             }
 
             if (actuPickRequest != null && pos.getAmount().compareTo(pos.getPickedAmount())>0 ) {

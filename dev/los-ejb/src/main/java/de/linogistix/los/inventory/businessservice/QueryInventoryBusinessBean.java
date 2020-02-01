@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
@@ -29,7 +30,6 @@ import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.location.constants.LOSUnitLoadLockState;
 import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.advice.AdviceLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -64,25 +64,21 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 	
 	//-------------------------------------------------------------------------
 	
-	public Map<String, QueryInventoryTO> getInvMap(Client c, Lot lot, ItemData idat, boolean consolidateLot, boolean withAmountOnly) throws InventoryException {
+	public Map<String, QueryInventoryTO> getInvMap(Client c, String lotNumber, ItemData idat, boolean consolidateLot, boolean withAmountOnly) throws InventoryException {
 
 		Map<String, QueryInventoryTO> result = new HashMap<String, QueryInventoryTO>();
 
-		if (lot != null && idat != null && ! lot.getItemData().equals(idat)){
-			throw new InventoryException(InventoryExceptionKey.ITEMDATA_LOT_MISMATCH, new String[]{idat.getNumber(), lot.getName()});
-		}
-		
 		if( !withAmountOnly ) {
-			if (consolidateLot && lot==null){
+			if (consolidateLot && StringUtils.isBlank(lotNumber)){
 				result = getItemData(c, idat);
 			} else{
-				result = getLots(c, lot, idat);
+				result = getLots(c, lotNumber, idat);
 			}
 		}
 		
-		getStockUnitAmount(c, lot, idat, result, consolidateLot);
+		getStockUnitAmount(c, lotNumber, idat, result, consolidateLot);
 
-		getAdvicedAmount(c, lot, idat, result, consolidateLot);
+		getAdvicedAmount(c, lotNumber, idat, result, consolidateLot);
 		
 		// ---------------------------------------------------------------------
 		// Return All
@@ -141,10 +137,10 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		return ret;
 	}
 	
-	private Map<String, QueryInventoryTO> getLots(Client c, Lot lot, ItemData idat) {
+	private Map<String, QueryInventoryTO> getLots(Client c, String lotNumber, ItemData idat) {
 		
 		Map<String, QueryInventoryTO> result = new HashMap<String, QueryInventoryTO>();
-		List<QueryInventoryTO> items = getLotsInv(c, lot, idat);
+		List<QueryInventoryTO> items = getLotsInv(c, lotNumber, idat);
 
 		for (QueryInventoryTO to : items){
 			result.put(getKey(to.lotRef, to.articleRef, false), to);
@@ -154,41 +150,48 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<QueryInventoryTO> getLotsInv(Client c, Lot lot, ItemData idat) {
+	private List<QueryInventoryTO> getLotsInv(Client c, String lotNumber, ItemData idat) {
 		StringBuffer b = new StringBuffer();
 
 		// Query StockUnits
-		b.append("SELECT NEW ");
+		b.append("SELECT distinct NEW ");
 		b.append(QueryInventoryTO.class.getName());
 		// client
 		b.append("(");
-		b.append("lot.itemData.client.number, ");
-		b.append("lot.itemData.number, ");
-		b.append("lot.name, ");
-		b.append("lot.itemData.scale ");
+		b.append("stockUnit.itemData.client.number, ");
+		b.append("stockUnit.itemData.number, ");
+		b.append("stockUnit.lotNumber, ");
+		b.append("stockUnit.itemData.scale ");
 		b.append(")");
 
 		b.append(" FROM ");
-		b.append(Lot.class.getSimpleName());
-		b.append(" lot ");
+		b.append(StockUnit.class.getSimpleName());
+		b.append(" stockUnit ");
 
-		b.append(" WHERE lot.itemData.client = :client ");
+		b.append(" WHERE stockUnit.client = :client ");
 		
-		if (lot != null) {
-			b.append(" AND lot = :lot ");
-		} else if (idat != null){
-			b.append(" AND lot.itemData = :idat ");
+		if (!StringUtils.isBlank(lotNumber)) {
+			b.append(" AND stockUnit.lotNumber = :lotNumber ");
+		} 
+		if (idat != null){
+			b.append(" AND stockUnit.itemData = :idat ");
 		}
 		
-		b.append(" AND lot.itemData.lock <> :dellock ");
+		b.append(" AND stockUnit.itemData.lock <> :dellock ");
+
+		b.append(" and stockUnit.state<"+StockState.PICKED);
+		b.append(" and stockUnit.lock!="+BusinessObjectLockState.GOING_TO_DELETE.getLock());
+		b.append(" AND stockUnit.amount > 0 ");
+		b.append(" and stockUnit.lock!="+LOSUnitLoadLockState.SHIPPED.getLock());
 
 		Query query = manager.createQuery(new String(b));
 		query = query.setParameter("client", c);
 		query = query.setParameter("dellock", BusinessObjectLockState.GOING_TO_DELETE.getLock());
 		
-		if (lot != null) {
-			query = query.setParameter("lot", lot);
-		} else if (idat != null){
+		if (!StringUtils.isBlank(lotNumber)) {
+			query = query.setParameter("lotNumber", lotNumber);
+		} 
+		if (idat != null){
 			query = query.setParameter("idat", idat);
 		}
 		
@@ -203,14 +206,14 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 	 * 
 	 * @return
 	 */
-	private Map<String, QueryInventoryTO> getStockUnitAmount(Client c, Lot lot,
+	private Map<String, QueryInventoryTO> getStockUnitAmount(Client c, String lotNuumber,
 			ItemData idat, Map<String, QueryInventoryTO> result, boolean consolidateLot) {
 //		String logStr = "getStockUnitAmount ";
 		String key;
 		QueryInventoryTO inv;
 
 		List<StockUnitResult> sus;
-		sus = getStockUnitInv(c, lot, idat);
+		sus = getStockUnitInv(c, lotNuumber, idat);
 
 		for (StockUnitResult r : sus) {
 			key = getKey(r.lotRef, r.articleRef, consolidateLot);
@@ -245,7 +248,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<StockUnitResult> getStockUnitInv(Client c, Lot lot, ItemData idat) {
+	private List<StockUnitResult> getStockUnitInv(Client c, String lotNumber, ItemData idat) {
 		String logStr = "getStockUnitInv ";
 		StringBuffer b = new StringBuffer();
 
@@ -256,7 +259,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append("client.number, ");
 		b.append("item.number, ");
 		b.append("item.scale, item.itemUnit.name, ");
-		b.append("lot.name, ");
+		b.append("su.lotNumber, ");
 		b.append("su.amount, ");
 		b.append("su.reservedAmount, ");
 		b.append("su.lock, ");
@@ -268,14 +271,13 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append(UnitLoad.class.getSimpleName()+" ul, ");
 		b.append(Client.class.getSimpleName()+" client, ");
 		b.append(ItemData.class.getSimpleName()+" item ");
-		b.append("LEFT OUTER JOIN su.lot as lot ");
 
 		b.append(" WHERE client = :client and su.client=client and item=su.itemData and ul=su.unitLoad");
 		if (idat != null) {
 			b.append(" AND su.itemData = :idat ");
 		}
-		if (lot != null) {
-			b.append(" AND lot = :lot ");
+		if (!StringUtils.isBlank(lotNumber)) {
+			b.append(" AND lotNumber = :lotNumber ");
 		} 
 
 		b.append(" and su.state<"+StockState.PICKED);
@@ -290,8 +292,8 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		if (idat != null) {
 			query = query.setParameter("idat", idat);
 		}
-		if (lot != null) {
-			query = query.setParameter("lot", lot);
+		if (!StringUtils.isBlank(lotNumber)) {
+			query = query.setParameter("lotNumber", lotNumber);
 		}
 
 		List<StockUnitResult> suList = query.getResultList();
@@ -307,7 +309,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 	 * @param idat
 	 * @return
 	 */
-	private Map<String, QueryInventoryTO> getAdvicedAmount(Client c, Lot lot,
+	private Map<String, QueryInventoryTO> getAdvicedAmount(Client c, String lotNumber,
 			ItemData idat, Map<String, QueryInventoryTO> result, boolean consolidateLot) {
 
 //		String logStr = "getAdvicedAmount ";
@@ -315,7 +317,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		QueryInventoryTO inv;
 
 		List<AdviseLotResult> ads;
-		ads = getAdviseLotInv(c, lot, idat);
+		ads = getAdviseLotInv(c, lotNumber, idat);
 
 		for (AdviseLotResult r : ads) {
 			key = getKey(r.lotRef, r.articleRef, consolidateLot);
@@ -337,7 +339,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<AdviseLotResult> getAdviseLotInv(Client c, Lot lot, ItemData idat) {
+	private List<AdviseLotResult> getAdviseLotInv(Client c, String lotNumber, ItemData idat) {
 		String logStr = "getAdviseLotInv ";
 
 		StringBuffer b = new StringBuffer();
@@ -353,7 +355,7 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		b.append(ItemData.class.getSimpleName()+" item ");
 		b.append(" WHERE client = :client and adv.client=client and ad.advice=adv and item=ad.itemData");
 		
-		if (lot != null) {
+		if (!StringUtils.isBlank(lotNumber)) {
 			b.append(" AND lotNumber = :lotNumber ");
 		} 
 		if (idat != null) {
@@ -367,8 +369,8 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		Query query = manager.createQuery(new String(b));
 		query = query.setParameter("client", c);
 
-		if (lot != null) {
-			query = query.setParameter("lotNumber", lot.getName());
+		if (!StringUtils.isBlank(lotNumber)) {
+			query = query.setParameter("lotNumber", lotNumber);
 		}
 		if (idat != null) {
 			query = query.setParameter("idat", idat);
@@ -383,15 +385,15 @@ public class QueryInventoryBusinessBean implements QueryInventoryBusiness {
 		
 	//-------------------------------------------------------------------------
 	
-	public QueryInventoryTO getInventory(Client c, Lot lot, boolean withAmountOnly) throws InventoryException {
+	public QueryInventoryTO getInventory(Client c,  ItemData itemData, String lotNumber, boolean withAmountOnly) throws InventoryException {
 
-		Map<String, QueryInventoryTO> m = getInvMap(c, lot, lot.getItemData(), false, withAmountOnly);
+		Map<String, QueryInventoryTO> m = getInvMap(c, lotNumber, itemData, false, withAmountOnly);
 		
 		for (QueryInventoryTO to : m.values()){
 			return to;
 		}
 
-		throw new InventoryException(InventoryExceptionKey.NO_INVENTORY_FOR_LOT, lot.getName());
+		throw new InventoryException(InventoryExceptionKey.NO_INVENTORY_FOR_LOT, lotNumber);
 		
 	}
 

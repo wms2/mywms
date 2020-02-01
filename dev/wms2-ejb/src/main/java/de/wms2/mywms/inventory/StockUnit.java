@@ -52,11 +52,8 @@ public class StockUnit extends BasicClientAssignedEntity {
 	@Column(nullable = false, precision = 17, scale = 4)
 	private BigDecimal amount = BigDecimal.ZERO;
 
-	@Column(precision = 17, scale = 4)
+	@Column(nullable = false, precision = 17, scale = 4)
 	private BigDecimal reservedAmount = BigDecimal.ZERO;
-
-	@ManyToOne(optional = true)
-	private Lot lot;
 
 	private String serialNumber;
 
@@ -72,6 +69,11 @@ public class StockUnit extends BasicClientAssignedEntity {
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private UnitLoad unitLoad;
+
+	@Temporal(TemporalType.DATE)
+	private Date bestBefore;
+
+	private String lotNumber;
 
 	@Transient
 	public String getName() {
@@ -161,14 +163,6 @@ public class StockUnit extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	public Lot getLot() {
-		return lot;
-	}
-
-	public void setLot(Lot lot) {
-		this.lot = lot;
-	}
-
 	public String getSerialNumber() {
 		return serialNumber;
 	}
@@ -215,6 +209,22 @@ public class StockUnit extends BasicClientAssignedEntity {
 
 	public void setState(int state) {
 		this.state = state;
+	}
+
+	public Date getBestBefore() {
+		return bestBefore;
+	}
+
+	public void setBestBefore(Date bestBefore) {
+		this.bestBefore = bestBefore;
+	}
+
+	public String getLotNumber() {
+		return lotNumber;
+	}
+
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
 	}
 
 }

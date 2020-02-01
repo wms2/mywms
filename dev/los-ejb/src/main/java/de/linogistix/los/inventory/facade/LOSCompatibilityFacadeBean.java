@@ -34,7 +34,6 @@ import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
@@ -145,7 +144,7 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 	
 	
 	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(BODTO<DeliveryOrderLine> orderPosTO,
-			  																	 BODTO<Lot> lotTO,
+			  																	 String lotNumber,
 			  																	 BODTO<StorageLocation> locationTO) 
 		throws InventoryException
 	{
@@ -159,16 +158,11 @@ log.debug(logStr+" amountReserved="+su.getReservedAmount());
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_ORDERPOSITION, new Object[0]);
 		}
 		
-		Lot lot = null;
-		if(lotTO != null){
-			lot = manager.find(Lot.class, lotTO.getId());
-		}
-		
-		List<StockUnit> stockList = pickingStockService.findSourceStockList( orderPos.getItemData(), orderPos.getClient(), lot, orderPos.getDeliveryOrder().getOrderStrategy());
+		List<StockUnit> stockList = pickingStockService.findSourceStockList( orderPos.getItemData(), orderPos.getClient(), lotNumber, orderPos.getDeliveryOrder().getOrderStrategy());
 		List<LOSOrderStockUnitTO> toList = new ArrayList<LOSOrderStockUnitTO>();
 		
 		for( StockUnit su : stockList ) {
-			LOSOrderStockUnitTO suto = new LOSOrderStockUnitTO(su.getId(), su.getVersion(), su.getLot(), su.getUnitLoad().getLabelId(), su.getUnitLoad().getStorageLocation().getName(), su.getAmount(), su.getReservedAmount());
+			LOSOrderStockUnitTO suto = new LOSOrderStockUnitTO(su.getId(), su.getVersion(), su.getLotNumber(), su.getUnitLoad().getLabelId(), su.getUnitLoad().getStorageLocation().getName(), su.getAmount(), su.getReservedAmount());
 			toList.add(suto);
 		}
 		

@@ -117,11 +117,7 @@ public interface ManageInventory extends java.rmi.Remote {
             
             @WebParam(name = "amount") BigDecimal amount,
             
-            @WebParam(name = "expectedDelivery") Date expectedDelivery,
-            
-            @WebParam(name = "bestBeforeEnd") Date bestBeforeEnd,
-            
-            @WebParam(name = "useNotBefore") Date useNotBefore);
+            @WebParam(name = "expectedDelivery") Date expectedDelivery);
 
     @WebMethod
     void createStockUnitOnStorageLocation(

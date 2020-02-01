@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.ejb.EJB;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
@@ -26,7 +25,6 @@ import de.linogistix.los.common.exception.UnAuthorizedException;
 import de.linogistix.los.inventory.service.QueryItemDataServiceRemote;
 import de.linogistix.los.inventory.service.QueryStockServiceRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
-import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryStorageLocationServiceRemote;
 import de.linogistix.los.location.service.QueryUnitLoadServiceRemote;
 import de.linogistix.los.query.ClientQueryRemote;
@@ -392,7 +390,7 @@ public class StockTakingBean extends BasicDialogBean {
 				currentStock = expectedStock.getId().toString();
 				currentItem = expectedStock.getItemData().getNumber();
 				currentUnit = expectedStock.getItemUnit().getName();
-				currentLot = expectedStock.getLot() == null ? "" : expectedStock.getLot().getName();
+				currentLot = expectedStock.getLotNumber();
 				currentSerial = expectedStock.getSerialNumber() == null ? "" : expectedStock.getSerialNumber();
 				
 				return StockTakingNavigation.COUNT_STOCKS.name();
@@ -547,7 +545,7 @@ public class StockTakingBean extends BasicDialogBean {
 					currentStock = expectedStock.getId().toString();
 					currentItem = expectedStock.getItemData().getNumber();
 					currentUnit = expectedStock.getItemUnit().getName();
-					currentLot = expectedStock.getLot() == null ? "" : expectedStock.getLot().getName();
+					currentLot = expectedStock.getLotNumber();
 					currentSerial = expectedStock.getSerialNumber() == null ? "" : expectedStock.getSerialNumber();
 				}
 				

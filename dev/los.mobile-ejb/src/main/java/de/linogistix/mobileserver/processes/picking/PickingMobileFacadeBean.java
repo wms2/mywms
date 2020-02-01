@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
@@ -710,8 +711,8 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 		}
 		
 		if( pick.getDeliveryOrderLine() != null ) {
-			if( pick.getDeliveryOrderLine().getLot() != null ) {
-				if( !pick.getDeliveryOrderLine().getLot().equals(stockNew.getLot()) ) {
+			if( !StringUtils.isBlank(pick.getDeliveryOrderLine().getLotNumber())) {
+				if( !StringUtils.equals(pick.getDeliveryOrderLine().getLotNumber(), stockNew.getLotNumber()) ) {
 					log.info(logStr+"Wrong lot on unit load. label="+label);
 					throw new LOSExceptionRB("SwitchWrongItemLot", this.getClass());
 				}

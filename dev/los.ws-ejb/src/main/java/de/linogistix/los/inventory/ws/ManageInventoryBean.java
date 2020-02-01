@@ -101,12 +101,10 @@ public class ManageInventoryBean implements ManageInventory {
 			@WebParam( name="articleRef") String articleRef,
 			@WebParam( name="batchRef") String batchRef,
 			@WebParam(name="amount") BigDecimal amount,
-			@WebParam( name="expectedDelivery") Date expectedDelivery,
-			@WebParam( name="bestBeforeEnd") Date bestBeforeEnd,
-			@WebParam( name="useNotBefore") Date useNotBefore)
+			@WebParam( name="expectedDelivery") Date expectedDelivery)
 			{
 		
-        return delegate.createAvis(clientRef,articleRef, batchRef, amount, expectedDelivery, bestBeforeEnd, useNotBefore);
+        return delegate.createAvis(clientRef,articleRef, batchRef, amount, expectedDelivery);
 		
 	}
 	
@@ -121,12 +119,10 @@ public class ManageInventoryBean implements ManageInventory {
 			@WebParam( name="batchRef") String batchRef,
 			@WebParam(name="amount") BigDecimal amount,
 			@WebParam( name="expectedDelivery") Date expectedDelivery,
-			@WebParam( name="bestBeforeEnd") Date bestBeforeEnd,
-			@WebParam( name="useNotBefore") Date useNotBefore,
 			@WebParam(name="parentRequest") String parentRequest)
 			{
 		
-        return delegate.createAvis(clientRef,articleRef, batchRef, amount, expectedDelivery, bestBeforeEnd, useNotBefore, parentRequest);
+        return delegate.createAvis(clientRef,articleRef, batchRef, amount, expectedDelivery, parentRequest);
 		
 	}
 

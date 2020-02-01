@@ -32,7 +32,7 @@ public class StockUnitReportDto implements Serializable {
 	private UnitLoad unitLoad;
 	private UnitLoadType unitLoadType;
 	private ItemData itemData;
-	private Lot lot;
+	private String lotNumber;
 
 	public StockUnitReportDto(StockUnit stockUnit) {
 		if (stockUnit == null) {
@@ -42,7 +42,7 @@ public class StockUnitReportDto implements Serializable {
 		this.unitLoad = stockUnit.getUnitLoad();
 		this.unitLoadType = unitLoad.getUnitLoadType();
 		this.itemData = stockUnit.getItemData();
-		this.lot = stockUnit.getLot();
+		this.lotNumber = stockUnit.getLotNumber();
 	}
 
 	public Document getImage() {
@@ -85,12 +85,12 @@ public class StockUnitReportDto implements Serializable {
 		this.itemData = itemData;
 	}
 
-	public Lot getLot() {
-		return lot;
+	public String getLotNumber() {
+		return lotNumber;
 	}
 
-	public void setLot(Lot lot) {
-		this.lot = lot;
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
 	}
 
 }

@@ -53,7 +53,7 @@ public class InfoStockUnitTO implements Serializable{
 		}
 		this.unit = su.getItemData().getItemUnit().getName();
 		
-		this.lotName = (su.getLot() == null ? "" : su.getLot().getName());
+		this.lotName = su.getLotNumber();
 		this.serialNumber = su.getSerialNumber();
 	}
 	

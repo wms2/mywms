@@ -690,22 +690,26 @@ public class InventoryBusiness {
 	// ***********************************************************************
 	// Stock handling
 	// ***********************************************************************
-	public void checkCreateStockUnit(ItemData itemData, BigDecimal amount, Lot lot, String serialNumber)
-			throws BusinessException {
+	public void checkCreateStockUnit(ItemData itemData, BigDecimal amount, String lotNumber, Date bestBefore,
+			String serialNumber) throws BusinessException {
 		String logStr = "checkCreateStockUnit ";
 
-		if (lot == null && itemData.isLotMandatory()) {
-			logger.log(Level.INFO, logStr + "Missing Lot. product=" + itemData);
+		if (StringUtils.isBlank(lotNumber) && itemData.isLotMandatory()) {
+			logger.log(Level.INFO, logStr + "Missing lot. product=" + itemData);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLot");
 		}
+		if (bestBefore == null && itemData.isBestBeforeMandatory()) {
+			logger.log(Level.INFO, logStr + "Missing best before. product=" + itemData);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingBestBefore");
+		}
 
-		if (itemData.isLotMandatory() && lot.getBestBeforeEnd() != null) {
+		if (bestBefore != null) {
 			Integer shelflife = itemData.getShelflife();
-			if (shelflife != null) {
+			if (shelflife != null && shelflife.intValue() > 0) {
 				Date min = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), shelflife);
-				if (lot.getBestBeforeEnd().compareTo(min) < 0) {
+				if (bestBefore.compareTo(min) < 0) {
 					logger.log(Level.WARNING, logStr + "Not enough shelflife. itemData=" + itemData + ", shelflife="
-							+ shelflife + ", min best-before=" + min + ", best-before=" + lot.getBestBeforeEnd());
+							+ shelflife + ", min best-before=" + min + ", best-before=" + bestBefore);
 					throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidShelfLife",
 							new Object[] { shelflife });
 				}
@@ -731,12 +735,14 @@ public class InventoryBusiness {
 		}
 	}
 
-	public StockUnit createStock(UnitLoad unitLoad, ItemData itemData, BigDecimal amount, Lot lot, String serialNumber,
-			PackagingUnit packagingUnit, int state, String activityCode, User operator, String note, boolean sendNotify)
-			throws BusinessException {
+	public StockUnit createStock(UnitLoad unitLoad, ItemData itemData, BigDecimal amount, String lotNumber,
+			Date bestBefore, String serialNumber, PackagingUnit packagingUnit, int state, String activityCode,
+			User operator, String note, boolean sendNotify) throws BusinessException {
 		String logStr = "createStock ";
-		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", amount=" + amount + ", unitLoad=" + unitLoad
-				+ ", lot=" + lot + ", serial=" + serialNumber + ", packagingUnit=" + packagingUnit);
+		logger.log(Level.FINE,
+				logStr + "itemData=" + itemData + ", amount=" + amount + ", unitLoad=" + unitLoad + ", lotNumber="
+						+ lotNumber + ", bestBefore=" + bestBefore + ", serial=" + serialNumber + ", packagingUnit="
+						+ packagingUnit);
 
 		if (amount == null) {
 			logger.log(Level.WARNING, logStr + "no amount given. abort");
@@ -762,15 +768,16 @@ public class InventoryBusiness {
 		stockUnit.setClient(client);
 		stockUnit.setItemData(itemData);
 		stockUnit.setAmount(amount);
-		stockUnit.setLot(lot);
+		stockUnit.setBestBefore(bestBefore);
+		stockUnit.setLotNumber(lotNumber);
 		stockUnit.setUnitLoad(unitLoad);
 		stockUnit.setSerialNumber(serialNumber);
 		stockUnit.setAdditionalContent(note);
 		stockUnit.setState(state);
 		stockUnit.setPackagingUnit(packagingUnit);
 		unitLoad.setState(state);
-		if (lot != null && lot.getBestBeforeEnd() != null) {
-			stockUnit.setStrategyDate(lot.getBestBeforeEnd());
+		if (bestBefore != null) {
+			stockUnit.setStrategyDate(bestBefore);
 		}
 
 		manager.persist(stockUnit);
@@ -944,7 +951,7 @@ public class InventoryBusiness {
 
 		if (toUnitLoad.getUnitLoadType().isAggregateStocks() && amount.compareTo(BigDecimal.ZERO) > 0) {
 			List<StockUnit> addToStockList = stockService.readList(stock.getClient(), stock.getItemData(),
-					stock.getLot(), toUnitLoad, null, stock.getSerialNumber(), null, null);
+					stock.getLotNumber(), toUnitLoad, null, stock.getSerialNumber(), null, null);
 			for (StockUnit addToStock : addToStockList) {
 				if (isSummableItem(stock, amount, addToStock, addToStock.getAmount())) {
 					int stockState = stock.getState();
@@ -997,8 +1004,9 @@ public class InventoryBusiness {
 		} else {
 			// Move partial stock unit
 
-			stockNew = createStock(toUnitLoad, stock.getItemData(), BigDecimal.ZERO, stock.getLot(),
-					stock.getSerialNumber(), stock.getPackagingUnit(), toState, activityCode, operator, note, false);
+			stockNew = createStock(toUnitLoad, stock.getItemData(), BigDecimal.ZERO, stock.getLotNumber(),
+					stock.getBestBefore(), stock.getSerialNumber(), stock.getPackagingUnit(), toState, activityCode,
+					operator, note, false);
 			stockNew.setPackagingUnit(stock.getPackagingUnit());
 			stockNew.setStrategyDate(stock.getStrategyDate());
 			stockNew.setLock(stock.getLock());
@@ -1173,11 +1181,16 @@ public class InventoryBusiness {
 					logStr + "itemData not equal. item1=" + stock1.getItemData() + ", item2=" + stock2.getItemData());
 			return false;
 		}
-		if (!Objects.equals(stock1.getLot(), stock2.getLot())) {
-			logger.log(Level.FINE, logStr + "Lot not equal. lot1=" + stock1.getLot() + ", item2=" + stock2.getLot());
+		if (!StringUtils.equals(stock1.getLotNumber(), stock2.getLotNumber())) {
+			logger.log(Level.FINE, logStr + "Lot not equal. lot1=" + stock1.getLotNumber() + ", item2=" + stock2.getLotNumber());
 			return false;
 		}
-		if (!Objects.equals(stock1.getSerialNumber(), stock2.getSerialNumber())) {
+		if (!Objects.equals(stock1.getBestBefore(), stock2.getBestBefore())) {
+			logger.log(Level.FINE, logStr + "Best before not equal. bestbefore1=" + stock1.getBestBefore()
+					+ ", bestbefore2=" + stock2.getBestBefore());
+			return false;
+		}
+		if (!StringUtils.equals(stock1.getSerialNumber(), stock2.getSerialNumber())) {
 			logger.log(Level.FINE, logStr + "Serial != null. ser1=" + stock1.getSerialNumber() + ", item2="
 					+ stock2.getSerialNumber());
 			return false;

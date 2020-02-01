@@ -53,7 +53,7 @@
 			</value>
 		</entry>
 		<entry>
-			<key>lot</key>
+			<key>lotNumber</key>
 			<value>
 				<group>
 					<name>main</name>

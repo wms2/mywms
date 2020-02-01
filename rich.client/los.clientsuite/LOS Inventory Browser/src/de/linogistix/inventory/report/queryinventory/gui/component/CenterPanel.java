@@ -80,7 +80,6 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
        
         this.clientComboBoxPanel.add(clientCombo);
         
-        this.lotComboBoxPanel.add(this.cilCombo.getLotCombo());
         
         this.itemDataComboBoxPanel.add(this.cilCombo.getItemDataCombo());
 
@@ -104,7 +103,7 @@ public class CenterPanel extends AbstractCenterPanel implements TopComponentList
         treeTablePanel.setNodes(
                 clientCombo.getSelectedItem() != null ? clientCombo.getSelectedItem().getName() : null,
                 cilCombo.getItemData() != null ? cilCombo.getItemData().getName() : null,
-                cilCombo.getLot() != null ? cilCombo.getLot().getName() : null,
+                null,
                 articelRadioButton.isSelected(),
                 fWithAmountOnly.isSelected());
     }

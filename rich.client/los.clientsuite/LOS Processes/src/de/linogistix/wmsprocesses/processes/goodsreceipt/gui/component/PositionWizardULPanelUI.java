@@ -72,6 +72,7 @@ public class PositionWizardULPanelUI extends AbstractPositionWizardULPanelUI imp
     protected void systemULButtonItemStateChangedListener(ItemEvent evt) {
        if (evt.getStateChange() == evt.SELECTED){
            unitLoadLabelTextField.setEnabled(false);
+           unitLoadLabelTextField.setText(null);
            propertyChange(null);
        }  
     }

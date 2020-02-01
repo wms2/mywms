@@ -7,23 +7,15 @@
  */
 package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 
-import de.linogistix.common.gui.component.controls.BOAutoFilteringComboBox;
-import de.linogistix.common.services.J2EEServiceLocator;
-import de.linogistix.common.util.ExceptionAnnotator;
-import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
-import de.linogistix.los.inventory.query.ItemDataQueryRemote;
-import de.linogistix.los.inventory.query.LotQueryRemote;
-import de.linogistix.los.query.BODTO;
-import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
+import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
+import de.linogistix.common.gui.component.controls.LOSTextField;
 import de.linogistix.wmsprocesses.processes.goodsreceipt.gui.gui_builder.AbstractPositionWizardLotPanelUI;
-import de.wms2.mywms.inventory.Lot;
+import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.product.ItemData;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -34,27 +26,24 @@ public class PositionWizardLotPanelUI extends AbstractPositionWizardLotPanelUI{
     private static final Logger log = Logger.getLogger(PositionWizardLotPanelUI.class.getName());
     private PropertyChangeListener delegateTo;
     
-    private ItemDataQueryRemote itemQueryRemote;
-    private LotQueryRemote lotQueryRemote;
-    
+    LOSTextField lotNumberField = new LOSTextField();
+    LOSDateFormattedTextField bestBeforeField = new LOSDateFormattedTextField();
+
     public PositionWizardLotPanelUI(PropertyChangeListener delegate){
         
         this.delegateTo = delegate;
         
-        try {
-            LotComboBoxModel m = new LotComboBoxModel();
-            getLotComboBox().setComboBoxModel(m);
-            
-            J2EEServiceLocator loc = Lookup.getDefault().lookup(J2EEServiceLocator.class);
-            this.itemQueryRemote = loc.getStateless(ItemDataQueryRemote.class);
-            this.lotQueryRemote = loc.getStateless(LotQueryRemote.class);
-            
-        } catch (Exception ex) {
-            ExceptionAnnotator.annotate(ex);
-        }
-       
-        getLotOptionPanel().setBorder(null);
-        getLotOptionPanel().initAutofiltering();
+        lotNumberField.setEnabled(true);
+        lotNumberField.setMandatory(false);
+        lotNumberField.setColumns(8);
+        lotNumberField.getTextFieldLabel().setTitleText( NbBundle.getMessage(WMSProcessesBundleResolver.class, "LOT_NUMBER"));
+        getLotPanel().add(lotNumberField);
+
+        bestBeforeField.setEnabled(true);
+        bestBeforeField.setMandatory(false);
+        bestBeforeField.setColumns(8);
+        bestBeforeField.getTextFieldLabel().setTitleText( NbBundle.getMessage(WMSProcessesBundleResolver.class, "bestBefore"));
+        getLotPanel().add(bestBeforeField);
         
     }
     
@@ -62,92 +51,54 @@ public class PositionWizardLotPanelUI extends AbstractPositionWizardLotPanelUI{
                           
         String lotStr = wm.lotStr;
         
-        getLotOptionPanel().setMandatory(true);
         
         if (lotStr != null && lotStr.length() > 0){
-            getLotOptionPanel().getLotNumberTextField().setText(lotStr);
-            getLotOptionPanel().setChooseLotOptionEnabled(false);
-            getLotOptionPanel().setCreateLotOptionEnabled(true);
-        }
-        else if(wm.lot != null){
-            
-            getLotComboBox().getComboBoxModel().setSingleResult(wm.lot);
-            
-            getLotOptionPanel().setChooseLotOptionEnabled(true);
-            getLotOptionPanel().setCreateLotOptionEnabled(false); 
+            lotNumberField.setText(lotStr);
         }
         else if (wm.selectedAdvice != null){
-            ItemData item;
-            Lot lot = null;
-            if(wm.selectedAdvice.getLotNumber() != null){
-                lot = lotQueryRemote.queryByNameAndItemData(wm.selectedAdvice.getLotNumber(), wm.selectedAdvice.getItemData());
+            ItemData item = wm.selectedAdvice.getItemData();
+
+            lotNumberField.setText(wm.selectedAdvice.getLotNumber());
+            lotNumberField.setMandatory(false);
+            if( item!=null && item.isLotMandatory()) {
+                lotNumberField.setMandatory(true);
             }
-            if(lot!=null) {
-                item = lot.getItemData();
-                BODTO<Lot> lotTO = new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.getName());
-                getLotComboBox().addItem(lotTO);
-                getLotComboBox().getComboBoxModel().setSingleResult(lotTO);
-                
-                getLotOptionPanel().lockCreateLotOption(true);
-                getLotOptionPanel().setChooseLotOptionEnabled(true);
-                getLotOptionPanel().setCreateLotOptionEnabled(false);
+
+            bestBeforeField.setText("");
+            if(wm.validTo!=null){
+                bestBeforeField.setDate(wm.validTo);
             }
-            else{
-                
-                item = wm.selectedAdvice.getItemData();
-                BODTO<ItemData> itemTO = new BODTO<ItemData>(item.getId(), 
-                                                         item.getVersion(), 
-                                                         item.getNumber());
-                
-                ((LotComboBoxModel)getLotComboBox().getComboBoxModel()).setItemDataTO(itemTO);
+            bestBeforeField.setMandatory(false);
+            if( item!=null && item.isBestBeforeMandatory()) {
+                bestBeforeField.setMandatory(true);
             }
-                
         }
          
-        Date validFrom = wm.validFrom;
-        
-        if (validFrom != null){
-            getLotOptionPanel().getValidFromTextField().setText(new SimpleDateFormat("dd.MM.yyyy").format(validFrom));
-        }
-        
-        Date validTo = wm.validTo;
-        if (validTo != null){
-            getLotOptionPanel().getValidToTextField().setText(new SimpleDateFormat("dd.MM.yyyy").format(validTo));
-        }
-        
-        try{
-            ItemData idat = itemQueryRemote.queryById(wm.item.getId());
-            getLotOptionPanel().setMandatory(idat.isLotMandatory());
-        } catch (Throwable ex){
-            log.log(Level.SEVERE, ex.getMessage(), ex);
-            getLotOptionPanel().setMandatory(true);
-        }
         if (delegateTo != null) {
             delegateTo.propertyChange(null);
         }
-        
+
      }
     
     public void clear() {
-        getLotOptionPanel().clear();
+        lotNumberField.setText("");
+        bestBeforeField.setText("");
     }
 
     public boolean validateLot(){
-        
-        if(getLotOptionPanel().isLotChoosen()){
-            return getLotComboBox().checkSanity();
-        }
-        else{
-            return getLotOptionPanel().getLotNumberTextField().checkSanity();
-        }
-        
+        return lotNumberField.checkSanity();
     }
     
-      //------------------------------------------------------------------------
-    protected BOAutoFilteringComboBox<Lot> getLotComboBox() {
-        return ((LotOptionPanel) lotOptionPanel).getLotComboBox();
+    public String getLotNumber() {
+        return lotNumberField.getText();
     }
     
-    
+    public Date getBestBefore() {
+        return bestBeforeField.getDate();
+    }
+
+    public boolean validateBestBefore(){
+        return bestBeforeField.checkSanity();
+    }
 
 }

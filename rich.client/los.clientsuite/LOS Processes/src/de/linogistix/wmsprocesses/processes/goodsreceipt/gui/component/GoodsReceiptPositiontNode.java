@@ -13,7 +13,6 @@ import de.linogistix.common.res.CommonBundleResolver;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import java.math.BigDecimal;
 import org.openide.nodes.AbstractNode;

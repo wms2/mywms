@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import org.apache.log4j.Logger;
 
 import de.linogistix.los.query.BODTO;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 
 public class StockUnitTO  extends BODTO<StockUnit>{
@@ -31,7 +30,7 @@ public class StockUnitTO  extends BODTO<StockUnit>{
 	public String unitLoad;
 	
 	//dgrys portierung wildfly 8.2
-	public StockUnitTO(Long id, int version, int lock, Lot l, String itemData, String itemDataName, int ulVersion, String unitLoad, String storageLocation, BigDecimal amount, BigDecimal reservedAmount, int scale){
+	public StockUnitTO(Long id, int version, int lock, String l, String itemData, String itemDataName, int ulVersion, String unitLoad, String storageLocation, BigDecimal amount, BigDecimal reservedAmount, int scale){
 		this(id, version, ""+id, lock, l, itemData, itemDataName, ulVersion, unitLoad, storageLocation, amount, reservedAmount, scale);
 	}
 	
@@ -49,12 +48,10 @@ public class StockUnitTO  extends BODTO<StockUnit>{
 	 * @param reservedAmount
 	 * @param scale
 	 */
-	public StockUnitTO(Long id, int version, String name, int lock, Lot l, String itemData, String itemDataName, int ulVersion, String unitLoad, String storageLocation, BigDecimal amount, BigDecimal reservedAmount, int scale){
+	public StockUnitTO(Long id, int version, String name, int lock, String l, String itemData, String itemDataName, int ulVersion, String unitLoad, String storageLocation, BigDecimal amount, BigDecimal reservedAmount, int scale){
 		super(id, version+ulVersion, name);
 		
-		if(l != null){
-			this.lot= l.getName();
-		}
+		this.lot= l;
 		this.lock = lock;
 		this.itemData= itemData;
 		this.itemDataName= itemDataName;
@@ -108,7 +105,7 @@ public class StockUnitTO  extends BODTO<StockUnit>{
 		//dgrys portierung wildfly 8.2
 		//super(su.getId(), su.getVersion()+su.getUnitLoad().getVersion(), su.getLabelId());
 		super(su.getId(), su.getVersion()+su.getUnitLoad().getVersion(), su.getId());
-		this.lot= su.getLot() != null ? su.getLot().getName() : "";
+		this.lot= su.getLotNumber();
 		this.lock = su.getLock();
 		this.itemData= su.getItemData().getNumber();
 		this.itemDataName= su.getItemData().getName();

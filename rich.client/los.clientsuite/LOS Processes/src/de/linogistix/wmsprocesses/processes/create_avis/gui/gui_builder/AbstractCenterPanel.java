@@ -10,7 +10,6 @@ package de.linogistix.wmsprocesses.processes.create_avis.gui.gui_builder;
 import de.linogistix.common.gui.component.controls.LOSDateFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField;
 import de.linogistix.common.gui.component.controls.LOSTextField;
-import de.linogistix.wmsprocesses.lot.gui.component.LotOptionPanel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import javax.swing.JTextArea;
 
@@ -42,6 +41,7 @@ public class AbstractCenterPanel extends javax.swing.JPanel {
         jPanel2 = new javax.swing.JPanel();
         clientComboBoxPanel = new javax.swing.JPanel();
         itemComboBoxPanel = new javax.swing.JPanel();
+        lotNumberField = new de.linogistix.common.gui.component.controls.LOSTextField();
         amountTextField = new de.linogistix.common.gui.component.controls.LOSNumericFormattedTextField();
         deliveryTextField = new LOSDateFormattedTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -50,7 +50,6 @@ public class AbstractCenterPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         comment = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
-        lotOptionPanel = new LotOptionPanel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -86,6 +85,14 @@ public class AbstractCenterPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         jPanel2.add(itemComboBoxPanel, gridBagConstraints);
+
+        lotNumberField.setRequestFocusEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel2.add(lotNumberField, gridBagConstraints);
 
         amountTextField.setRequestFocusEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -161,15 +168,6 @@ public class AbstractCenterPanel extends javax.swing.JPanel {
         jPanel1.setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weighty = 0.5;
-        gridBagConstraints.insets = new java.awt.Insets(30, 10, 0, 0);
-        jPanel1.add(lotOptionPanel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -195,33 +193,21 @@ public class AbstractCenterPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
-    protected javax.swing.JPanel lotOptionPanel;
+    private javax.swing.JPanel lotNumberField;
     // End of variables declaration//GEN-END:variables
 
         
-    
-    public LotOptionPanel getLotOptionPanel(){
-        return (LotOptionPanel) lotOptionPanel;
-    }
 
     protected LOSNumericFormattedTextField getAmountTextField(){
         return (LOSNumericFormattedTextField) amountTextField;
     }
+
+    protected LOSTextField getLotNumberField(){
+        return (LOSTextField) lotNumberField;
+    }
     
     protected LOSDateFormattedTextField getDeliveryTextField(){
         return (LOSDateFormattedTextField) deliveryTextField;
-    }
-
-    protected LOSTextField getLotNumberTextField(){
-        return getLotOptionPanel().getLotNumberTextField();
-    }
-    
-    protected LOSDateFormattedTextField getValidFromTextField(){
-        return getLotOptionPanel().getValidFromTextField();
-    }
-    
-    protected LOSDateFormattedTextField getValidToTextField(){
-        return getLotOptionPanel().getValidToTextField();
     }
     
     protected JTextArea getCommentField(){

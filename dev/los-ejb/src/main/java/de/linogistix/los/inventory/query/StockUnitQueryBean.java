@@ -21,6 +21,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.model.Client;
 
@@ -38,7 +39,6 @@ import de.linogistix.los.query.TemplateQueryFilter;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
 import de.linogistix.los.query.exception.BusinessObjectQueryException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -72,7 +72,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 //		String conditionStr = "WHERE ";
 		StringBuffer sbCount = new StringBuffer(" SELECT COUNT(su) FROM ");
 		sbCount.append(StockUnit.class.getName()+" su  ");
-		sbCount.append(" LEFT OUTER JOIN su.lot AS l ");
 		sbCount.append(" JOIN su.unitLoad ul ");
 		sbCount.append("WHERE su.unitLoad = ul ");
 		
@@ -84,7 +83,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 		//dgrys portierung wildfly 8.2
 		//sbQuery.append("su.labelId,");
 		sbQuery.append("su.lock,");
-		sbQuery.append("su.lot,");
+		sbQuery.append("su.lotNumber,");
 		sbQuery.append("su.itemData.number,");
 		sbQuery.append("su.itemData.name,");
 		sbQuery.append("ul.version,");
@@ -95,7 +94,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 		sbQuery.append("su.itemData.scale");		
 		sbQuery.append(") FROM ");			
 		sbQuery.append(StockUnit.class.getSimpleName()+" su ");
-		sbQuery.append(" LEFT OUTER JOIN su.lot AS l ");
 		sbQuery.append(" JOIN su.unitLoad ul ");
 		sbQuery.append("WHERE su.unitLoad = ul ");
 		
@@ -267,31 +265,6 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 	}
 
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public LOSResultList<StockUnitTO> queryByLot(
-			BODTO<Lot> lot,
-			QueryDetail detail) throws BusinessObjectQueryException{
-		
-		TemplateQuery q = new TemplateQuery();
-		q.setBoClass(tClass);
-		TemplateQueryWhereToken l = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_EQUAL, "lot.id", lot.getId());
-		q.addWhereToken(l);
-		LOSResultList ret;
-		try {
-			ret = queryByTemplateHandles(detail, q);
-			return ret;
-		} catch (BusinessObjectNotFoundException e) {
-			logger.error(e.getMessage(), e);
-			return new LOSResultList<StockUnitTO>();
-		} catch (BusinessObjectQueryException e) {
-			return new LOSResultList<StockUnitTO>();
-		}
-		
-		
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	public LOSResultList<StockUnitTO> queryByStorageLocation(
 			BODTO<StorageLocation> sl,
@@ -344,7 +317,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			sb.append("su.id,");
 			sb.append("su.version,");
 			sb.append("su.lock,");
-			sb.append("su.lot,");
+			sb.append("su.lotNumber,");
 			sb.append("it.number,");
 			sb.append("it.name,");
 			sb.append("ul.version,");
@@ -354,8 +327,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			sb.append("su.reservedAmount,");
 			sb.append("it.scale");						
 			sb.append(") FROM ");			
-			sb.append(StockUnit.class.getName()+" su ");
-			sb.append(" LEFT OUTER JOIN su.lot AS l, ");
+			sb.append(StockUnit.class.getName()+" su, ");
 			sb.append(UnitLoad.class.getSimpleName()+" ul, ");
 			sb.append(ItemData.class.getSimpleName()+" it ");
 			sb.append("WHERE su.unitLoad = ul AND ");
@@ -429,7 +401,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 		itemName.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 
 		TemplateQueryWhereToken lot = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "lot.name",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lotNumber",
 				value);
 		lot.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		
@@ -484,6 +456,11 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
 			ret.add(token);
 		}
+		if( "IN".equals(filterString) ) {
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", StockState.ON_STOCK);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
+		}
 		if( "QS".equals(filterString) ) {
 			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lock", StockUnitLockState.QUALITY_FAULT.getLock());
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
@@ -496,11 +473,11 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 	@Override
 	public LOSResultList<StockUnitTO> queryByDefault(
 			BODTO<Client> client, 
-			BODTO<Lot> lot,
+			String lotNumber,
 			BODTO<ItemData> itemData,
 			BODTO<StorageLocation> storageLocation,
 			QueryDetail detail) throws BusinessObjectNotFoundException, BusinessObjectQueryException{
-		return queryByParameter(client, lot, itemData, storageLocation, detail);
+		return queryByParameter(client, lotNumber, itemData, storageLocation, detail);
 		
 	}
 	//dgrys portierung wildfly 8.2
@@ -518,17 +495,16 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 
 
 	@SuppressWarnings("unchecked")
-	public LOSResultList<StockUnitTO> queryByParameter(
+	private LOSResultList<StockUnitTO> queryByParameter(
 			BODTO<Client> client, 
-			BODTO<Lot> lot,
+			String lotNumber,
 			BODTO<ItemData> itemData,
 			BODTO<StorageLocation> storageLocation,
 			QueryDetail detail) throws BusinessObjectQueryException{
 		try{
 			
 			StringBuffer sb = new StringBuffer();
-			sb.append(" FROM " + StockUnit.class.getName()+" su  ");
-			sb.append(" LEFT OUTER JOIN su.lot AS l, ");
+			sb.append(" FROM " + StockUnit.class.getName()+" su,  ");
 			sb.append(UnitLoad.class.getSimpleName()+" ul, ");
 			sb.append(ItemData.class.getSimpleName()+" it ");
 			sb.append("WHERE su.unitLoad = ul AND ");
@@ -547,8 +523,8 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			if( itemData != null ) {
 				sb.append(" AND it.id="+itemData.getId());
 			}
-			if( lot != null ) {
-				sb.append(" AND su.lot.id="+lot.getId());
+			if( !StringUtils.isBlank(lotNumber)) {
+				sb.append(" AND su.lotNumber=:lotNumber");
 			}
 			if( client != null ) {
 				sb.append(" AND su.client.id="+client.getId());
@@ -574,7 +550,7 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			sb.append("su.id,");
 			sb.append("su.version,");
 			sb.append("su.lock,");
-			sb.append("su.lot,");
+			sb.append("su.lotNumber,");
 			sb.append("it.number,");
 			sb.append("it.name,");
 			sb.append("ul.version,");
@@ -608,6 +584,9 @@ public class StockUnitQueryBean extends BusinessObjectQueryBean<StockUnit>
 			
 			if(!getCallersUser().getClient().isSystemClient()){
 				query.setParameter("cl", getCallersUser().getClient());
+			}
+			if( !StringUtils.isBlank(lotNumber)) {
+				query.setParameter("lotNumber", lotNumber);
 			}
 			
 			ret = query.getResultList();

@@ -13,8 +13,6 @@ package de.linogistix.wmsprocesses.processes.goodsreceipt.gui.component;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
@@ -125,10 +123,8 @@ final public class PositionWizardLotPanel implements WizardDescriptor.Validating
     public void storeSettings(Object settings) {
         this.wizard = (PositionWizard) settings;
         
-        wizard.model.lot = getPanelUI().getLotOptionPanel().getSelectedLot();
-        wizard.model.lotStr = getPanelUI().getLotOptionPanel().getLotNumberTextField().getText();
-        wizard.model.validFrom = getPanelUI().getLotOptionPanel().getValidFromTextField().getDate();
-        wizard.model.validTo = getPanelUI().getLotOptionPanel().getValidToTextField().getDate();
+        wizard.model.lotStr = getPanelUI().getLotNumber();
+        wizard.model.validTo = getPanelUI().getBestBefore();
         
     }
 
@@ -144,6 +140,9 @@ final public class PositionWizardLotPanel implements WizardDescriptor.Validating
         
         if (!getPanelUI().validateLot()) {
             throw new WizardValidationException(getPanelUI(), "no valid lot", NbBundle.getMessage(WMSProcessesBundleResolver.class, "WizardValidationException.NO_VALID_LOT"));
+        }
+        if (!getPanelUI().validateBestBefore()) {
+            throw new WizardValidationException(getPanelUI(), "no valid lot", NbBundle.getMessage(WMSProcessesBundleResolver.class, "WizardValidationException.NO_VALID_BEST_BEFORE"));
         }
 
     }

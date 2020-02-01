@@ -57,13 +57,24 @@
         </entry>
         
         <entry>
-            <key>lot</key>
+            <key>lotNumber</key>
             <value>
                 <group>
                     <name>itemData</name>
                 </group>
                 <hidden>false</hidden>
                 <position>3</position>
+            </value>
+        </entry>
+
+        <entry>
+            <key>bestBefore</key>
+            <value>
+                <group>
+                    <name>itemData</name>
+                </group>
+                <hidden>false</hidden>
+                <position>4</position>
             </value>
         </entry>
         

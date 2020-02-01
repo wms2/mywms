@@ -83,7 +83,7 @@ public class StockUnitEntityService {
 	 * optional.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<StockUnit> readList(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad,
+	public List<StockUnit> readList(Client client, ItemData itemData, String lotNumber, UnitLoad unitLoad,
 			StorageLocation location, String serialNumber, Integer maxState, Integer limit) {
 		String hql = "SELECT stock, stock.unitLoad, stock.itemData FROM " + StockUnit.class.getName() + " stock";
 		hql += " WHERE 1=1";
@@ -99,8 +99,8 @@ public class StockUnitEntityService {
 		if (location != null) {
 			hql += " AND stock.unitLoad.storageLocation=:location";
 		}
-		if (lot != null) {
-			hql += " AND stock.lot=:lot";
+		if (!StringUtils.isBlank(lotNumber)) {
+			hql += " AND stock.lotNumber=:lotNumber";
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			hql += " AND stock.serialNumber=:serial";
@@ -126,8 +126,8 @@ public class StockUnitEntityService {
 		if (location != null) {
 			query.setParameter("location", location);
 		}
-		if (lot != null) {
-			query.setParameter("lot", lot);
+		if (!StringUtils.isBlank(lotNumber)) {
+			query.setParameter("lotNumber", lotNumber);
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			query.setParameter("serial", serialNumber);
@@ -150,7 +150,7 @@ public class StockUnitEntityService {
 	 * Checks whether an entity exists, which is matching the given criteria. All
 	 * parameters are optional.
 	 */
-	public boolean exists(Client client, ItemData itemData, Lot lot, UnitLoad unitLoad, StorageLocation location,
+	public boolean exists(Client client, ItemData itemData, String lotNumber, UnitLoad unitLoad, StorageLocation location,
 			String serialNumber, Integer maxState) {
 		String hql = "SELECT stock.id FROM " + StockUnit.class.getName() + " stock";
 		hql += " WHERE 1=1";
@@ -166,8 +166,8 @@ public class StockUnitEntityService {
 		if (location != null) {
 			hql += " AND stock.unitLoad.storageLocation=:location";
 		}
-		if (lot != null) {
-			hql += " AND stock.lot=:lot";
+		if (!StringUtils.isBlank(lotNumber)) {
+			hql += " AND stock.lotNumber=:lotNumber";
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			hql += " AND stock.serialNumber=:serial";
@@ -189,8 +189,8 @@ public class StockUnitEntityService {
 		if (location != null) {
 			query = query.setParameter("location", location);
 		}
-		if (lot != null) {
-			query = query.setParameter("lot", lot);
+		if (!StringUtils.isBlank(lotNumber)) {
+			query = query.setParameter("lotNumber", lotNumber);
 		}
 		if (!StringUtils.isBlank(serialNumber)) {
 			query = query.setParameter("serial", serialNumber);

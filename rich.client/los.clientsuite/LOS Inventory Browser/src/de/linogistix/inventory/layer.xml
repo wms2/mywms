@@ -6,29 +6,37 @@
     <folder name="Actions">
         <folder name="Window">
             <file name="de-linogistix-inventory-report-queryinventory-QueryInventoryAction.instance"/>
-            <file name="de-linogistix-inventory-browser-action-LotProcessDatesAction.instance"/>
             <file name="de-linogistix-inventory-browser-action-ReplenishIfNeededAction.instance"/>
         </folder>
         
         <folder name="BOBrowser">
             <folder name="StockUnits">
                 <folder name="MasterActions">
-                    <file name="de-linogistix-inventory-browser-action-BOStockUnitNirwanaAction.instance"/>
-                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
-                </folder>
-            </folder>
-            <folder name="Lots">
-                <folder name="MasterActions">
-                    <file name="de-linogistix-inventory-browser-action-BOLotExtinguishAction.instance"/>
+                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance">
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="de-linogistix-inventory-browser-action-BOStockUnitNirwanaAction.instance">
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="de-linogistix-inventory-browser-action-BOStockUnitExtinguishAction.instance">
+                        <attr name="position" intvalue="300"/>
+                    </file>
                 </folder>
             </folder>
             <folder name="LOSUnitLoads">
                 <folder name="MasterActions">
+                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance">
+                        <attr name="position" intvalue="100"/>
+                    </file>
                     <file name="de-linogistix-location-bobrowser-action-BOUnitLoadNirwanaAction.hidden"/>
-                    <file name="de-linogistix-inventory-browser-action-BOUnitLoadNirwanaAction.instance"/>
-                    <file name="de-linogistix-common-bobrowser-action-BOLockAction.instance"/>
-                    <file name="de-linogistix-inventory-browser-action-BOUnitLoadPrintAction.instance">
+                    <file name="de-linogistix-inventory-browser-action-BOUnitLoadNirwanaAction.instance">
                         <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="de-linogistix-inventory-browser-action-BOUnitLoadExtinguishAction.instance">
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="de-linogistix-inventory-browser-action-BOUnitLoadPrintAction.instance">
+                        <attr name="position" intvalue="400"/>
                     </file>
                 </folder>
             </folder>
@@ -133,10 +141,6 @@
              <file name="Sep-599[javax-swing-JSeparator].instance">
                 <attr name="position" intvalue="599"/>
             </file>
-            <file name="BOLotProcessDatesAction.shadow">
-                <attr name="position" intvalue="600"/>
-                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-inventory-browser-action-LotProcessDatesAction.instance"/>
-            </file>
             <file name="BOReplenishIfNeededAction.shadow">
                 <attr name="position" intvalue="610"/>
                 <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-inventory-browser-action-ReplenishIfNeededAction.instance"/>
@@ -193,9 +197,6 @@
             </folder>
         </folder>
         <folder name="InventoryData">
-            <file name="de-linogistix-inventory-browser-bo-BOLot.instance">
-                <attr name="position" intvalue="100"/>
-            </file>
             <file name="de-linogistix-inventory-browser-bo-BOStockUnit.instance">
                 <attr name="position" intvalue="200"/>
             </file>

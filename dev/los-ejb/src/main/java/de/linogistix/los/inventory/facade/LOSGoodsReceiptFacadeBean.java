@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
@@ -47,8 +48,6 @@ import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptBusiness;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.inventory.InventoryBusiness;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
@@ -77,8 +76,6 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     @EJB
     private InventoryGeneratorService genService;
     @EJB
-    private LotEntityService lotService;
-    @EJB
     private LOSSystemPropertyService propertyService;
 	@EJB
 	private ContextService contextService;
@@ -103,8 +100,6 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	private StockUnitEntityService stockUnitEntityService;
 	@Inject
 	private GoodsReceiptBusiness goodsReceiptBusiness;
-	@Inject
-	private LotEntityService lotEntityService;
 	@Inject
 	private ItemDataEntityService itemDataEntityService;
 	@Inject
@@ -156,7 +151,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     public GoodsReceiptLine createGoodsReceiptLine(
             BODTO<Client> client,
             GoodsReceipt gr,
-            BODTO<Lot> batch,
+            String lotNumber, 
+            Date bestBefore,
             BODTO<ItemData> item,
             String unitLoadLabel,
             BODTO<UnitLoadType> unitLoadType, 
@@ -165,7 +161,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
             int lock,
             String lockCause) throws FacadeException, ReportException {
         return createGoodsReceiptLine(
-                client, gr, batch,item, unitLoadLabel, unitLoadType, amount, advice,
+                client, gr, lotNumber, bestBefore,item, unitLoadLabel, unitLoadType, amount, advice,
                 lock, lockCause, null, null, null, null);
     }
 
@@ -173,7 +169,8 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     public GoodsReceiptLine createGoodsReceiptLine(
             BODTO<Client> clientDto,
             GoodsReceipt goodsReceiptDto,
-            BODTO<Lot> lotDto,
+            String lotNumber,
+            Date bestBefore,
             BODTO<ItemData> itemDataDto,
             String unitLoadLabel,
             BODTO<UnitLoadType> unitLoadTypeDto, 
@@ -184,7 +181,6 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 
         GoodsReceipt goodsReceipt = manager.find(GoodsReceipt.class, goodsReceiptDto.getId());
         ItemData itemData = manager.find(ItemData.class, itemDataDto.getId());
-		Lot lot = (lotDto == null ? null : manager.find(Lot.class, lotDto.getId()));
 		AdviceLine adviceLine = (adviceDto == null ? null : manager.find(AdviceLine.class, adviceDto.getId()));
 		UnitLoadType unitLoadType = (adviceDto == null ? null : manager.find(UnitLoadType.class, unitLoadTypeDto.getId()));
        
@@ -227,7 +223,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		}
 
 		GoodsReceiptLine goodsReceiptLine = goodsReceiptBusiness.receiveStock(goodsReceipt, adviceLine, unitLoadLabel,
-				unitLoadType, itemData, null, amount, lot, serialNumber, lock, lockCause, null, null);
+				unitLoadType, itemData, null, amount, lotNumber, bestBefore, serialNumber, lock, lockCause, null, lockCause);
 
 		UnitLoad unitLoad = unitLoadService.readByLabel(goodsReceiptLine.getUnitLoadLabel());
 		if (unitLoad == null) {
@@ -258,35 +254,13 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 			}
 		}
 
-		if (printLabel) {
+		if (printLabel && !StringUtils.isBlank(printer)) {
 			Document label = suLabelReport.generateReport(unitLoad);
 			printService.print(printer, label.getData(), label.getDocumentType());
 		}
 
 		return goodsReceiptLine;
     }
-
-	public GoodsReceiptLine createGoodsReceiptLineAndLot(BODTO<Client> clientDto, GoodsReceipt goodsReceipt,
-			String lotName, Date validFrom, Date validTo, BODTO<ItemData> itemDataDto, String unitLoadLabel,
-			BODTO<UnitLoadType> unitLoadTypeDto, BigDecimal amount, BODTO<AdviceLine> adviceDto, int lock,
-			String lockCause) throws FacadeException, ReportException {
-
-		ItemData itemData = manager.find(ItemData.class, itemDataDto.getId());
-
-		Lot lot = lotEntityService.read(itemData, lotName);
-		if (lot == null) {
-			lot = lotEntityService.create(itemData, lotName, new Date());
-			lot.setUseNotBefore(validFrom);
-			lot.setBestBeforeEnd(validTo);
-		} else {
-			logger.warn("Lot already exists. Will tak eexisting " + lot.toDescriptiveString());
-		}
-		BODTO<Lot> lotDto = new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.toUniqueString());
-
-		return createGoodsReceiptLine(clientDto, goodsReceipt, lotDto, itemDataDto, unitLoadLabel, unitLoadTypeDto,
-				amount, adviceDto, lock, lockCause);
-	}
-    	
 
     public void acceptGoodsReceipt(GoodsReceipt goodsReceipt) throws InventoryException, BusinessException {
     	goodsReceipt = manager.find(GoodsReceipt.class, goodsReceipt.getId());
@@ -328,23 +302,6 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 		AdviceLine adviceLine = manager.find(AdviceLine.class, adviceLineDto.getId());
 		goodsReceipt = manager.find(GoodsReceipt.class, goodsReceipt.getId());
 		goodsReceiptBusiness.removeAssignedAdviceLine(goodsReceipt, adviceLine);
-	}
-
-	@Override
-	public Lot createLot(String lotName, ItemData item, Date validTo) 
-	{
-		item = manager.merge(item);
-		
-		Lot lot = lotService.read(item, lotName);
-		
-		if(lot != null){
-			return lot;
-		}
-		else{
-			lot = lotService.create(item, lotName, new Date());
-			lot.setBestBeforeEnd(validTo);
-			return lot;
-		}
 	}
 
 	public void createStockUnitLabel(GoodsReceipt goodsReceipt, String printer) 	throws FacadeException {
@@ -425,6 +382,7 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	public void createStock(
 		    String clientNumber,
 		    String lotName,
+		    Date bestBefore,
 		    String itemDataNumber,
 		    String unitLoadLabel,
 		    String unitLoadTypeName, 
@@ -466,16 +424,12 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
     	sl = sls.get(0);
         
         
-        Lot lot = null;
-        if (lotName != null){
-				lot = lotEntityService.read(idat, lotName);
-				if (lot == null){
-            	throw new InventoryException(InventoryExceptionKey.NO_LOT_WITH_NAME, lotName);
-            }
-        } else if (idat.isLotMandatory()){
-        	throw new InventoryException(InventoryExceptionKey.LOT_MANDATORY, idat.getNumber());
-        }
-        
+		if (StringUtils.isBlank(lotName) && idat.isLotMandatory()) {
+			throw new InventoryException(InventoryExceptionKey.LOT_MANDATORY, idat.getNumber());
+		}
+		if (bestBefore==null && idat.isBestBeforeMandatory()) {
+			throw new InventoryException(InventoryExceptionKey.LOT_MANDATORY, idat.getNumber());
+		}
         boolean printLabel = true;
         boolean isFixedLocation = false;
         StorageLocation targetLocation = null;
@@ -557,8 +511,9 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         
 		ul.setState(StockState.ON_STOCK);
 		User operator = contextService.getCallersUser();
-		StockUnit su = inventoryBusiness.createStock(ul, idat, amount, lot, serialNumber, null, ul.getState(), null,
-				operator, null, true);
+		inventoryBusiness.checkCreateStockUnit(idat, amount, lotName, bestBefore, serialNumber);
+		StockUnit su = inventoryBusiness.createStock(ul, idat, amount, lotName, bestBefore, serialNumber, null,
+				ul.getState(), null, operator, null, true);
         if(lock > 0){
 	        try {
 				suCrud.lock(su, lock, lockCause);
@@ -604,21 +559,15 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
 	}
 
 	@Override
-	public String getOldestLocationToAdd( ItemData itemData, Lot lot ) throws FacadeException {
+	public String getOldestLocationToAdd( ItemData itemData, String lotNumber, Date bestBefore) throws FacadeException {
 		Client callersClient = contextService.getCallersClient();
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("SELECT loc.name, su.id, su.amount, su.created ");
-		if( lot != null ) {
-			sb.append(", lot.bestBeforeEnd ");
-		}
 		sb.append("FROM ");
 		sb.append(StockUnit.class.getSimpleName()+" su ");
 		sb.append(" JOIN su.unitLoad ul  ");
 		sb.append(" JOIN su.unitLoad.storageLocation loc  ");
-		if( lot != null ) {
-			sb.append("JOIN su.lot lot ");
-		}
 		sb.append(" WHERE su.lock=0 ");
 		sb.append(" and su.itemData=:itemData ");
 		sb.append(" and su.amount>0 ");
@@ -627,11 +576,12 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         }
 		sb.append(" and loc.lock=0 ");
 		sb.append(" and ul.lock=0 ");
-		if( lot != null ) {
-			sb.append(" and lot=:lot ");
-			sb.append(" and lot.lock=0 ");
+		if (!StringUtils.isBlank(lotNumber)) {
+			sb.append(" and su.lotNumber=:lotNumber ");
 		}
-
+		if (bestBefore != null) {
+			sb.append(" and su.bestBefore=:bestBefore");
+		}
 		sb.append(" ORDER BY su.amount, su.created ");
 
 		
@@ -644,9 +594,12 @@ public class LOSGoodsReceiptFacadeBean implements LOSGoodsReceiptFacade {
         if (!callersClient.isSystemClient()) {
         	query.setParameter("cl", callersClient);
         }
-		if( lot != null ) {
-        	query.setParameter("lot", lot);
-        }
+		if (!StringUtils.isBlank(lotNumber)) {
+			query.setParameter("lotNumber", lotNumber);
+		}
+		if (bestBefore != null) {
+			query.setParameter("bestBefore", bestBefore);
+		}
 
         query.setMaxResults(1);
         Object o = null;

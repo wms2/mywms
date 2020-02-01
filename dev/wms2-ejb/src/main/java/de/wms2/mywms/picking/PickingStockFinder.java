@@ -30,13 +30,13 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -74,7 +74,7 @@ public class PickingStockFinder {
 	/**
 	 * Find the first source stock which can be used in a picking order.
 	 */
-	public StockUnit findFirstSourceStock(ItemData itemData, BigDecimal amount, Client client, Lot lot,
+	public StockUnit findFirstSourceStock(ItemData itemData, BigDecimal amount, Client client, String lotNumber,
 			OrderStrategy strategy) throws BusinessException {
 		String logStr = "findFirstSourceStock ";
 
@@ -87,7 +87,7 @@ public class PickingStockFinder {
 			strategy = orderStrategyService.getDefault(client);
 		}
 
-		StockUnit stock = findFirstSourceStockIntern(itemData, client, lot, amount, strategy);
+		StockUnit stock = findFirstSourceStockIntern(itemData, client, lotNumber, amount, strategy);
 		if (stock != null) {
 			return stock;
 		}
@@ -106,7 +106,7 @@ public class PickingStockFinder {
 			logger.log(Level.FINE,
 					logStr + "No stock available for client. search for system client. requesting client=" + client
 							+ ", itemData=" + itemData);
-			stock = findFirstSourceStockIntern(itemData, clientBusiness.getSystemClient(), lot, amount, strategy);
+			stock = findFirstSourceStockIntern(itemData, clientBusiness.getSystemClient(), lotNumber, amount, strategy);
 			if (stock != null) {
 				return stock;
 			}
@@ -115,21 +115,21 @@ public class PickingStockFinder {
 		logger.log(Level.FINE,
 				logStr + "No stock available for system client. search for all clients. requesting client=" + client
 						+ ", itemData=" + itemData);
-		stock = findFirstSourceStockIntern(itemData, null, lot, amount, strategy);
+		stock = findFirstSourceStockIntern(itemData, null, lotNumber, amount, strategy);
 
 		return stock;
 	}
 
-	private StockUnit findFirstSourceStockIntern(ItemData itemData, Client client, Lot lot, BigDecimal amount,
+	private StockUnit findFirstSourceStockIntern(ItemData itemData, Client client, String lotNumber, BigDecimal amount,
 			OrderStrategy strategy) throws BusinessException {
 		String logStr = "findFirstSourceStockIntern ";
 
-		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", amount=" + amount + ",client=" + client + ", lot="
-				+ lot + ", strategy=" + strategy);
+		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", amount=" + amount + ",client=" + client + ", lotNumber="
+				+ lotNumber + ", strategy=" + strategy);
 
-		List<PickingStockUnit> stockList = readSourceStockList(itemData, client, lot, strategy);
+		List<PickingStockUnit> stockList = readSourceStockList(itemData, client, lotNumber, strategy);
 		if (stockList.isEmpty()) {
-			logger.log(Level.INFO, logStr + "No stock. client=" + client + ", itemData=" + itemData + ", lot=" + lot
+			logger.log(Level.INFO, logStr + "No stock. client=" + client + ", itemData=" + itemData + ", lotNumber=" + lotNumber
 					+ ", strategy=" + strategy);
 			return null;
 		}
@@ -198,7 +198,7 @@ public class PickingStockFinder {
 			logger.log(Level.INFO, logStr
 					+ "No usable stock found. Only complete handling is allowed but no valid complete unit load has been found. candidates="
 					+ stockList.size() + ", itemData=" + itemData + ", amount=" + amount + ", client=" + client
-					+ ", lot=" + lot
+					+ ", lotNumber=" + lotNumber
 					+ ", (unitLoadOpened=false, reservedAmount=0, locationUseForStorage=true, onFixedLocation=false, mixed=false)");
 			return null;
 		}
@@ -262,19 +262,19 @@ public class PickingStockFinder {
 		}
 
 		logger.log(Level.INFO, logStr + "No usable stock found. cadidates=" + stockList.size() + ", client=" + client
-				+ ", itemData=" + itemData + ", lot=" + lot + ", amount=" + amount);
+				+ ", itemData=" + itemData + ", lotNumber=" + lotNumber + ", amount=" + amount);
 		return null;
 	}
 
 	/**
 	 * Find all usable source stocks which can be used in a picking order.
 	 */
-	public List<StockUnit> findSourceStockList(ItemData itemData, Client client, Lot lot, OrderStrategy strategy) {
+	public List<StockUnit> findSourceStockList(ItemData itemData, Client client, String lotNumber, OrderStrategy strategy) {
 		if (strategy == null) {
 			strategy = orderStrategyService.getDefault(client);
 		}
 
-		List<PickingStockUnit> stockList = readSourceStockList(itemData, client, lot, strategy);
+		List<PickingStockUnit> stockList = readSourceStockList(itemData, client, lotNumber, strategy);
 		List<StockUnit> entityList = new ArrayList<StockUnit>(stockList.size());
 		for (PickingStockUnit to : stockList) {
 			StockUnit stockUnit = manager.find(StockUnit.class, to.stockId);
@@ -287,11 +287,11 @@ public class PickingStockFinder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<PickingStockUnit> readSourceStockList(ItemData itemData, Client client, Lot lot,
+	private List<PickingStockUnit> readSourceStockList(ItemData itemData, Client client, String lotNumber,
 			OrderStrategy strategy) {
 		String logStr = "readSourceStockList ";
 		logger.log(Level.FINE,
-				logStr + " itemData=" + itemData + ", client=" + client + ", lot=" + lot + ", strategy=" + strategy);
+				logStr + " itemData=" + itemData + ", client=" + client + ", lotNumber=" + lotNumber + ", strategy=" + strategy);
 
 		String jpql = "";
 
@@ -312,10 +312,6 @@ public class PickingStockFinder {
 		if (!strategy.isUseLockedStock()) {
 			jpql += " and stock.lock=0 ";
 		}
-		if (!strategy.isUseLockedLot()) {
-			jpql += " and not exists( select 1 FROM " + Lot.class.getSimpleName()
-					+ " lot where stock.lot=lot and lot.lock!=0) ";
-		}
 
 		jpql += " and stock.amount > 0 ";
 
@@ -325,8 +321,8 @@ public class PickingStockFinder {
 
 		jpql += " and stock.itemData =:itemData ";
 
-		if (lot != null) {
-			jpql += " and stock.lot =:lot ";
+		if (!StringUtils.isBlank(lotNumber)) {
+			jpql += " and stock.lotNumber =:lotNumber ";
 		}
 
 		jpql += " order by ";
@@ -341,8 +337,8 @@ public class PickingStockFinder {
 		}
 		query.setParameter("itemData", itemData);
 
-		if (lot != null) {
-			query.setParameter("lot", lot);
+		if (!StringUtils.isBlank(lotNumber)) {
+			query.setParameter("lotNumber", lotNumber);
 		}
 
 		List<Object[]> results = query.getResultList();

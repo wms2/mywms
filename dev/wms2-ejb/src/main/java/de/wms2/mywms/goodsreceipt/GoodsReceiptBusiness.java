@@ -43,7 +43,6 @@ import de.wms2.mywms.advice.AdviceLineAssignEvent;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitStateChangeEvent;
@@ -284,9 +283,9 @@ public class GoodsReceiptBusiness {
 	}
 
 	public GoodsReceiptLine receiveStock(GoodsReceipt order, AdviceLine adviceLine, String unitLoadLabel,
-			UnitLoadType unitLoadType, ItemData itemData, StorageStrategy storageStrategy, BigDecimal amount, Lot lot,
-			String serialNumber, int lock, String lockNote, PackagingUnit packagingUnit, String note)
-			throws BusinessException {
+			UnitLoadType unitLoadType, ItemData itemData, StorageStrategy storageStrategy, BigDecimal amount,
+			String lotNumber, Date bestBefore, String serialNumber, int lock, String lockNote,
+			PackagingUnit packagingUnit, String note) throws BusinessException {
 		String logStr = "receiveStock ";
 		logger.log(Level.FINE, logStr + "order=" + order + ", adviceLine=" + adviceLine + ", itemData=" + itemData
 				+ ", amount=" + amount + ", packagingUnit=" + packagingUnit);
@@ -306,18 +305,23 @@ public class GoodsReceiptBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLocation");
 		}
 
-		if (itemData.isLotMandatory() && lot == null) {
+		if (itemData.isLotMandatory() && StringUtils.isBlank(lotNumber)) {
 			logger.log(Level.WARNING, logStr + "Missing Lot");
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLot");
 		}
 
-		if (itemData.isLotMandatory() && lot.getBestBeforeEnd() != null) {
+		if (itemData.isBestBeforeMandatory() && bestBefore==null) {
+			logger.log(Level.WARNING, logStr + "Missing BestBefore");
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingBestBefore");
+		}
+
+		if (bestBefore != null) {
 			Integer shelflife = itemData.getShelflife();
 			if (shelflife != null) {
 				Date min = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), shelflife);
-				if (lot.getBestBeforeEnd().compareTo(min) < 0) {
+				if (bestBefore.compareTo(min) < 0) {
 					logger.log(Level.WARNING, logStr + "Not enough shelflife. itemData=" + itemData + ", shelflife="
-							+ shelflife + ", min best-before=" + min + ", best-before=" + lot.getBestBeforeEnd());
+							+ shelflife + ", min best-before=" + min + ", best-before=" + bestBefore);
 					throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidShelfLife",
 							new Object[] { shelflife });
 				}
@@ -349,8 +353,12 @@ public class GoodsReceiptBusiness {
 		}
 
 		unitLoad.addAdditionalContent(note);
-		StockUnit stock = inventoryBusiness.createStock(unitLoad, itemData, amount, lot, serialNumber, packagingUnit,
-				StockState.INCOMING, activityCode, operator, note, false);
+		StockUnit stock = inventoryBusiness.createStock(unitLoad, itemData, amount, lotNumber, bestBefore, serialNumber,
+				packagingUnit, StockState.INCOMING, activityCode, operator, note, false);
+
+		if (lock > 0) {
+			inventoryBusiness.addStockUnitLock(stock, lock);
+		}
 
 		GoodsReceiptLine goodsReceiptLine = manager.createInstance(GoodsReceiptLine.class);
 		goodsReceiptLine.setLineNumber(lineNumber);
@@ -360,11 +368,11 @@ public class GoodsReceiptBusiness {
 		goodsReceiptLine.setItemData(itemData);
 		goodsReceiptLine.setStorageStrategy(storageStrategy);
 		goodsReceiptLine.setAmount(amount);
-		goodsReceiptLine.setLotNumber(lot == null ? null : lot.getName());
-		goodsReceiptLine.setBestBefore(lot == null ? null : lot.getBestBeforeEnd());
+		goodsReceiptLine.setLotNumber(lotNumber);
+		goodsReceiptLine.setBestBefore(bestBefore);
 		goodsReceiptLine.setSerialNumber(serialNumber);
 
-		goodsReceiptLine.setLock(lock);
+		goodsReceiptLine.setLockType(lock);
 		goodsReceiptLine.setLockNote(lockNote);
 		goodsReceiptLine.setAdditionalContent(note);
 		goodsReceiptLine.setOperator(operator);
@@ -398,8 +406,8 @@ public class GoodsReceiptBusiness {
 	}
 
 	public StockUnit receiveStock(Client client, StorageLocation location, String unitLoadLabel,
-			UnitLoadType unitLoadType, ItemData itemData, BigDecimal amount, Lot lot, String serialNumber,
-			PackagingUnit packagingUnit, String note) throws BusinessException {
+			UnitLoadType unitLoadType, ItemData itemData, BigDecimal amount, String lotNumber, Date bestBefore,
+			String serialNumber, PackagingUnit packagingUnit, String note) throws BusinessException {
 		String logStr = "receiveStock ";
 		logger.log(Level.FINE,
 				logStr + "itemData=" + itemData + ", amount=" + amount + ", packagingUnit=" + packagingUnit);
@@ -418,18 +426,23 @@ public class GoodsReceiptBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLocation");
 		}
 
-		if (itemData.isLotMandatory() && lot == null) {
+		if (itemData.isLotMandatory() && StringUtils.isBlank(lotNumber)) {
 			logger.log(Level.WARNING, logStr + "Missing Lot");
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingLot");
 		}
 
-		if (itemData.isLotMandatory() && lot.getBestBeforeEnd() != null) {
+		if (itemData.isBestBeforeMandatory() && bestBefore==null) {
+			logger.log(Level.WARNING, logStr + "Missing bestBefore");
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingBestBefore");
+		}
+
+		if (bestBefore != null) {
 			Integer shelflife = itemData.getShelflife();
 			if (shelflife != null) {
 				Date min = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), shelflife);
-				if (lot.getBestBeforeEnd().compareTo(min) < 0) {
+				if (bestBefore.compareTo(min) < 0) {
 					logger.log(Level.WARNING, logStr + "Not enough shelflife. itemData=" + itemData + ", shelflife="
-							+ shelflife + ", min best-before=" + min + ", best-before=" + lot.getBestBeforeEnd());
+							+ shelflife + ", min best-before=" + min + ", best-before=" + bestBefore);
 					throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidShelfLife",
 							new Object[] { shelflife });
 				}
@@ -456,8 +469,8 @@ public class GoodsReceiptBusiness {
 		}
 
 		unitLoad.addAdditionalContent(note);
-		StockUnit stock = inventoryBusiness.createStock(unitLoad, itemData, amount, lot, serialNumber, packagingUnit,
-				StockState.ON_STOCK, null, operator, note, false);
+		StockUnit stock = inventoryBusiness.createStock(unitLoad, itemData, amount, lotNumber, bestBefore, serialNumber,
+				packagingUnit, StockState.ON_STOCK, null, operator, note, false);
 
 		return stock;
 	}

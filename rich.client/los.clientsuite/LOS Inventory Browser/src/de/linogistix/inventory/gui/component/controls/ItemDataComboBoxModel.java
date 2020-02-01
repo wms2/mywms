@@ -13,7 +13,6 @@ import de.linogistix.los.inventory.query.ItemDataQueryRemote;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
@@ -30,7 +29,6 @@ public class ItemDataComboBoxModel extends BOAutoFilteringComboBoxModel<ItemData
     
     private BODTO<Client> clientTO = null;
     
-    private BODTO<Lot> lotTO = null;
     
     public ItemDataComboBoxModel() throws Exception {
         super(ItemData.class);
@@ -49,22 +47,18 @@ public class ItemDataComboBoxModel extends BOAutoFilteringComboBoxModel<ItemData
             }
         }
         
-        return itemQuery.autoCompletionClientAndLot(searchString, clientTO, null, detail);
+        return itemQuery.autoCompletionClient(searchString, clientTO, detail);
     }
 
     @Override
     public void clear() {
         super.clear();
         clientTO = null;
-        lotTO = null;
     }
         
     public void setClientTO(BODTO<Client> clientTO) {
         this.clientTO = clientTO;
     }
 
-    public void setLotTO(BODTO<Lot> lotTO) {
-        this.lotTO = lotTO;
-    }
 
 }

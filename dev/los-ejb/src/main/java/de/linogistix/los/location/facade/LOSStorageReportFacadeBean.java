@@ -70,11 +70,11 @@ public class LOSStorageReportFacadeBean implements LOSStorageReportFacade {
 		}
 		
 		StringBuffer sb = new StringBuffer("SELECT NEW de.linogistix.los.location.facade.");
-		sb.append("LOSStockListItem(su.client.name, su.itemData.number, l.name, su.amount, ul.labelId, sl.name) ");
+		sb.append("LOSStockListItem(su.client.name, su.itemData.number, su.lotNumber, su.amount, ul.labelId, sl.name) ");
 		sb.append("FROM ");
 		sb.append(StockUnit.class.getSimpleName());
 		sb.append(" su ");
-		sb.append("JOIN su.unitLoad ul JOIN ul.storageLocation sl LEFT JOIN su.lot l ");
+		sb.append("JOIN su.unitLoad ul JOIN ul.storageLocation sl ");
 		
 		String concat = "WHERE";
 		if(limitClient){

@@ -34,7 +34,6 @@ import de.linogistix.los.inventory.exception.InventoryTransactionException;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
 import de.linogistix.los.inventory.service.ItemDataService;
 import de.linogistix.los.inventory.service.ItemUnitService;
-import de.linogistix.los.inventory.service.LOSLotService;
 import de.linogistix.los.inventory.service.QueryItemDataService;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.BODTO;
@@ -42,8 +41,6 @@ import de.linogistix.los.util.businessservice.ContextService;
 import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.advice.AdviceBusiness;
 import de.wms2.mywms.inventory.InventoryBusiness;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -87,9 +84,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	@EJB
 	private ClientService clientService;
 	
-    @EJB 
-    private LOSLotService losLotService;
-	
     @EJB
     private ContextService contextService;
     
@@ -126,8 +120,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	private UnitLoadEntityService unitLoadService;
 	@Inject
 	private AdviceBusiness adviceBusiness;
-    @Inject
-    private LotEntityService lotEntityService;
 
 	/* 
 	 * @see ManageInventoryRemote#createItemData(java.lang.String, java.lang.String)
@@ -228,12 +220,8 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			@WebParam( name="articleRef") String articleRef,
 			@WebParam( name="batchRef") String batchRef,
 			@WebParam(name="amount") BigDecimal amount,
-			@WebParam( name="expectedDelivery") Date expectedDelivery,
-			@WebParam( name="bestBeforeEnd") Date bestBeforeEnd,
-			@WebParam( name="useNotBefore") Date useNotBefore)
+			@WebParam( name="expectedDelivery") Date expectedDelivery)
 			{
-		
-        Lot batch = null;
 		
 		try {
 			
@@ -249,17 +237,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			if(itemData == null){
 				log.error("--- !!! NO SUCH ITEM DATA "+clientRef+ " / " +articleRef+" !!! ---");
 				return false;
-			}
-			
-			if(batchRef != null){
-				batch = lotEntityService.read(itemData, batchRef);
-				if(batch==null) {
-					batch = lotEntityService.create(itemData, batchRef, new Date());
-					batch.setUseNotBefore(useNotBefore);
-					batch.setBestBeforeEnd(bestBeforeEnd);
-				}
-				
-				losLotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
 			Advice advice = adviceBusiness.createOrder(c, null);
@@ -278,20 +255,15 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 
 	public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore, 
 			String requestID) {
 		return createAvis(clientRef, articleRef,
 				batchRef, amount, expectedDelivery,
-				bestBeforeEnd, useNotBefore, 
 				requestID, "");
 	}
 
 	public boolean createAvis(String clientRef, String articleRef,
 			String batchRef, BigDecimal amount, Date expectedDelivery,
-			Date bestBeforeEnd, Date useNotBefore,
 			String requestID, String comment) {
-		
-        Lot batch = null;
 		
 		try {
 			
@@ -307,17 +279,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			if(itemData == null){
 				log.error("--- !!! NO SUCH ITEM DATA "+clientRef+ " / "+articleRef+" !!! ---");
 				return false;
-			}
-			
-			if(batchRef != null){
-				batch = lotEntityService.read(itemData, batchRef);
-				if(batch==null) {
-					batch = lotEntityService.create(itemData, batchRef, new Date());
-					batch.setUseNotBefore(useNotBefore);
-					batch.setBestBeforeEnd(bestBeforeEnd);
-				}
-				
-				losLotService.processLotDates(batch, bestBeforeEnd, useNotBefore);
 			}
 			
 			Advice advice = adviceBusiness.createOrder(c, requestID);
@@ -351,7 +312,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 
 		Client c;
 		StorageLocation sl;
-		Lot lot = null;
 		UnitLoad ul;
 
 		try {
@@ -385,15 +345,11 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 				throw new InventoryException(InventoryExceptionKey.NO_SUCH_ITEMDATA, articleRef);
 			}
 
-			if ((lotRef != null && lotRef.length() > 0) || idat.isLotMandatory()) {
-				try {
-					lot = getOrCreateLot(c, lotRef, idat);
-				} catch (Throwable ex) {
-					log.error(ex.getMessage(), ex);
-					throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED,
-							slName);
-				}
+			if ((lotRef == null || lotRef.length() <= 0) && idat.isLotMandatory()) {
+				log.error("Missing mandatory lot of itemData=" + idat);
+				throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ON_STORAGELOCATION_FAILED, slName);
 			}
+
 			try {
 				ul = getOrCreateUnitLoad(c, idat, sl, unitLoadRef, StockState.ON_STOCK);
 			} catch (Throwable ex) {
@@ -405,7 +361,7 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			// it in advance
 			ul.getStockUnitList().size();
 
-			inventoryBusiness.createStock(ul, idat, amount, lot, null, null, ul.getState(), null, null, null, true);
+			inventoryBusiness.createStock(ul, idat, amount, lotRef, null, null, null, ul.getState(), null, null, null, true);
 
 		} catch (FacadeException ex) {
 			throw ex;
@@ -413,22 +369,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 			log.error(t.getMessage(), t);
 			throw new InventoryException(InventoryExceptionKey.CREATE_STOCKUNIT_ONSTOCK, "");
 		}
-	}
-
-	private Lot getOrCreateLot(Client c, String lotRef, ItemData idat) {
-		Lot lot;
-		if (lotRef != null && lotRef.length() != 0) {
-			lot = lotEntityService.read(idat, lotRef);
-			if (lot == null) {
-				lot = lotEntityService.create(idat, lotRef, new Date());
-			}
-			if (!lot.getItemData().equals(idat)) {
-				throw new RuntimeException("ItemData does not match Lot");
-			}
-		} else {
-			throw new IllegalArgumentException("Missing orderRef");
-		}
-		return lot;
 	}
 
 	private UnitLoad getOrCreateUnitLoad(Client c, ItemData idat, StorageLocation sl, String ref, int state)
@@ -565,47 +505,6 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 
 		stockUnit.setReservedAmount(reserved);
 	}
-
-	public BODTO<Lot> createLot(BODTO<Client> client, 
-								BODTO<ItemData> item,
-								String lotNumber, 
-								Date useNotBefore, 
-								Date bestBeforeEnd,
-								boolean expireBatch) 
-		throws InventoryException 
-	{
-		Client cl;
-		try {
-			cl = clientService.get(client.getId());
-		} catch (EntityNotFoundException e) {
-			throw new InventoryException(
-					InventoryExceptionKey.NO_SUCH_CLIENT, 
-					new Object[]{client.getName()});
-		}
-		
-		ItemData it;
-		try {
-			it = itemDataServiceMyWMSWithoutProject.get(item.getId());
-		} catch (EntityNotFoundException e) {
-			throw new InventoryException(
-					InventoryExceptionKey.NO_SUCH_ITEMDATA, 
-					new Object[]{item.getName()});
-		}
-				
-
-		Lot lot = lotEntityService.read(it, lotNumber);
-		if (lot != null) {
-			throw new InventoryException(InventoryExceptionKey.LOT_ALREADY_EXIST, new Object[] { lotNumber });
-		}
-		lot = lotEntityService.create(it, lotNumber, new Date());
-		lot.setUseNotBefore(useNotBefore);
-		lot.setBestBeforeEnd(bestBeforeEnd);
-		
-		losLotService.processLotDates(lot, bestBeforeEnd, useNotBefore);
-		
-		return new BODTO<Lot>(lot.getId(), lot.getVersion(), lot.getName());
-	}
-
 	
 	public void reserveStock(BODTO<StockUnit> stockTO, BigDecimal amountToReserve) throws InventoryException{
 		

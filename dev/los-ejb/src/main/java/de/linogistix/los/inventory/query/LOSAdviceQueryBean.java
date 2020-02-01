@@ -16,18 +16,11 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import org.mywms.model.Client;
-
 import de.linogistix.los.inventory.query.dto.LOSAdviceTO;
-import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BODTOConstructorProperty;
 import de.linogistix.los.query.BusinessObjectQueryBean;
-import de.linogistix.los.query.LOSResultList;
-import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.advice.AdviceLine;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.OrderState;
 
 /**
@@ -73,36 +66,6 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<AdviceLine>
 		
 		return propList;
 	}
-
-	public LOSResultList<BODTO<AdviceLine>> autoCompletionByClientLotItemdata(
-                                                                String exp,
-								BODTO<Client> client, 
-								BODTO<ItemData> item, 
-								BODTO<Lot> lot,
-                                                                QueryDetail detail)
-	{
-		List<TemplateQueryWhereToken> tokenList = new ArrayList<TemplateQueryWhereToken>();
-		
-		Client cl = null;
-		if(client != null){
-			cl = manager.find(Client.class, client.getId());
-		}
-		
-		ItemData itemData = null;
-		if(item != null){
-			itemData = manager.find(ItemData.class, item.getId());
-			tokenList.add(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "itemData", itemData));
-		}
-		
-		Lot l = null;
-		if(lot != null){
-			l = manager.find(Lot.class, lot.getId());
-			tokenList.add(new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "lot", l));
-		}
-		
-		return autoCompletion(exp, cl, tokenList.toArray(new TemplateQueryWhereToken[0]), detail);
-	}
-	
 
 	@Override
 	protected List<TemplateQueryWhereToken> getAutoCompletionTokens(String value) {

@@ -14,15 +14,8 @@ package de.linogistix.los.inventory.query;
 
 import javax.ejb.Remote;
 
-import org.mywms.model.Client;
-
-import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
-import de.linogistix.los.query.LOSResultList;
-import de.linogistix.los.query.QueryDetail;
 import de.wms2.mywms.advice.AdviceLine;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.product.ItemData;
 
 
 /**
@@ -32,11 +25,5 @@ import de.wms2.mywms.product.ItemData;
 @Remote
 public interface LOSAdviceQueryRemote extends BusinessObjectQueryRemote<AdviceLine>{ 
   
-	public LOSResultList<BODTO<AdviceLine>> autoCompletionByClientLotItemdata(
-                                                            String exp,
-                                                            BODTO<Client> client, 
-                                                            BODTO<ItemData> item,
-                                                            BODTO<Lot> lot,
-                                                            QueryDetail detail);
 	public boolean hasSingleClient();
 }

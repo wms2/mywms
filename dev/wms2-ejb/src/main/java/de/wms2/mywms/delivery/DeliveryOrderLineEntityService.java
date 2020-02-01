@@ -26,7 +26,6 @@ import javax.inject.Inject;
 
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.strategy.OrderState;
@@ -43,7 +42,7 @@ public class DeliveryOrderLineEntityService {
 	@Inject
 	private SequenceBusiness sequenceBusiness;
 
-	public DeliveryOrderLine create(DeliveryOrder order, ItemData item, Lot lot, BigDecimal amount, int startCounter)
+	public DeliveryOrderLine create(DeliveryOrder order, ItemData item, String lotNumber, BigDecimal amount, int startCounter)
 			throws BusinessException {
 		String orderNumber = order.getOrderNumber();
 		String lineNumber = sequenceBusiness.readNextCounterValue(orderNumber, startCounter, DeliveryOrderLine.class,
@@ -51,7 +50,7 @@ public class DeliveryOrderLineEntityService {
 
 		DeliveryOrderLine orderLine = manager.createInstance(DeliveryOrderLine.class);
 		orderLine.setItemData(item);
-		orderLine.setLot(lot);
+		orderLine.setLotNumber(lotNumber);
 		orderLine.setAmount(amount);
 		orderLine.setClient(order.getClient());
 		orderLine.setLineNumber(lineNumber);

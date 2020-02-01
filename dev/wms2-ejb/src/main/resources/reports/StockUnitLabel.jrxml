@@ -20,7 +20,7 @@
 	<field name="unitLoadType" class="de.wms2.mywms.inventory.UnitLoadType"/>
 	<field name="itemData" class="de.wms2.mywms.product.ItemData"/>
 	<field name="stockUnit" class="de.wms2.mywms.inventory.StockUnit"/>
-	<field name="lot" class="de.wms2.mywms.inventory.Lot"/>
+	<field name="lotNumber" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -75,21 +75,19 @@
 			</textField>
 			<textField>
 				<reportElement x="30" y="120" width="60" height="20" uuid="7a9d9182-359b-4749-91fd-f24a2a440b49">
-					<printWhenExpression><![CDATA[$F{lot}!=null]]></printWhenExpression>
+					<printWhenExpression><![CDATA[$F{lotNumber}!=null && $F{lotNumber}.length()>0]]></printWhenExpression>
 				</reportElement>
 				<textElement>
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{StockUnitLabel.lotNumber}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement x="80" y="120" width="140" height="20" isRemoveLineWhenBlank="true" uuid="a1d00e81-ba75-4588-afc3-da0aa48c4589">
-					<printWhenExpression><![CDATA[$F{lot}!=null]]></printWhenExpression>
-				</reportElement>
+			<textField isBlankWhenNull="true">
+				<reportElement x="80" y="120" width="140" height="20" isRemoveLineWhenBlank="true" uuid="a1d00e81-ba75-4588-afc3-da0aa48c4589"/>
 				<textElement>
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{lot}==null?"":$F{lot}.getName()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{lotNumber}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="190" y="120" width="80" height="20" uuid="d01ad7e8-53df-40d4-9a5a-bda3b8279aea"/>

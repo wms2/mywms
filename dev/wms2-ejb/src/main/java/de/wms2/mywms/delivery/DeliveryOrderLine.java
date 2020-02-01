@@ -30,7 +30,6 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.util.Wms2Constants;
@@ -83,8 +82,7 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 	/**
 	 * The ordered lot
 	 */
-	@ManyToOne(optional = true)
-	private Lot lot;
+	private String lotNumber;
 
 	/**
 	 * A hint for picking operation
@@ -222,14 +220,6 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 		this.itemData = itemData;
 	}
 
-	public Lot getLot() {
-		return lot;
-	}
-
-	public void setLot(Lot lot) {
-		this.lot = lot;
-	}
-
 	public String getPickingHint() {
 		return pickingHint;
 	}
@@ -292,6 +282,14 @@ public class DeliveryOrderLine extends BasicClientAssignedEntity {
 
 	public void setShippingHint(String shippingHint) {
 		this.shippingHint = shippingHint;
+	}
+
+	public String getLotNumber() {
+		return lotNumber;
+	}
+
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
 	}
 
 }

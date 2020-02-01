@@ -80,12 +80,6 @@ public class OrderStrategy extends BasicEntity {
 	private boolean useLockedStock = false;
 
 	/**
-	 * Allow usage of locked lots
-	 */
-	@Column(nullable = false)
-	private boolean useLockedLot = false;
-
-	/**
 	 * Prefer material on not opened unit loads. Overrides FIFO.
 	 * <p>
 	 * A unit load is marked as opened after the first change of the amount is done.
@@ -189,14 +183,6 @@ public class OrderStrategy extends BasicEntity {
 
 	public void setUseLockedStock(boolean useLockedStock) {
 		this.useLockedStock = useLockedStock;
-	}
-
-	public boolean isUseLockedLot() {
-		return useLockedLot;
-	}
-
-	public void setUseLockedLot(boolean useLockedLot) {
-		this.useLockedLot = useLockedLot;
 	}
 
 	public boolean isPreferComplete() {

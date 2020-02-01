@@ -26,7 +26,6 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.LOSResultList;
 import de.linogistix.los.query.QueryDetail;
 import de.linogistix.los.query.TemplateQueryWhereToken;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataNumber;
 import de.wms2.mywms.product.ItemDataNumberEntityService;
@@ -108,30 +107,16 @@ public class ItemDataQueryBean extends BusinessObjectQueryBean<ItemData> impleme
 		return ret;
 	}
 
-    public LOSResultList<BODTO<ItemData>> autoCompletionClientAndLot(String exp, 
+    public LOSResultList<BODTO<ItemData>> autoCompletionClient(String exp, 
     																 BODTO<Client> client, 
-    																 BODTO<Lot> lot,
     																 QueryDetail detail) {
         try {
-
-            Lot l;
-            LOSResultList<BODTO<ItemData>> ret;
-            
             Client cl = null;
     		if(client != null){
     			cl = manager.find(Client.class, client.getId());
     		}
 
-            if (lot != null) {
-                l = manager.find(Lot.class, lot.getId());
-                ret = new LOSResultList<BODTO<ItemData>>();
-                ret.add(new BODTO<ItemData>(l.getItemData().getId(), l.getItemData().getVersion(), l.getItemData().getNumber()));
-                ret.setResultSetSize(1L);
-                ret.setStartResultIndex(0L);
-                return ret;
-            } else {
-            	return this.autoCompletion(exp, null, cl, new TemplateQueryWhereToken[0], detail, false);
-            }
+        	return this.autoCompletion(exp, null, cl, new TemplateQueryWhereToken[0], detail, false);
 
         } catch (Throwable ex) {
             log.error(ex.getMessage(), ex);

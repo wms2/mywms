@@ -10,7 +10,6 @@ package de.linogistix.los.inventory.query.dto;
 import java.math.BigDecimal;
 
 import de.linogistix.los.query.BODTO;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 
 public class LOSOrderStockUnitTO extends BODTO<StockUnit> {
@@ -18,7 +17,6 @@ public class LOSOrderStockUnitTO extends BODTO<StockUnit> {
 	private static final long serialVersionUID = 1L;
 
 	public String lot = "";
-	public Lot lotEntity;
 	public String unitLoad;
 	public String storageLocation;
 	public BigDecimal availableAmount;
@@ -29,19 +27,19 @@ public class LOSOrderStockUnitTO extends BODTO<StockUnit> {
 
 	public LOSOrderStockUnitTO(Long id, 
 							   int version,
-							   Lot lot, 
+							   String lotNumber, 
 							   String unitLoad, 
 							   String storageLocation,  
 							   BigDecimal amount, 
 							   BigDecimal reservedAmount)
 	{
-		this(id, version, id.toString(), lot, unitLoad, storageLocation, amount, reservedAmount);
+		this(id, version, id.toString(), lotNumber, unitLoad, storageLocation, amount, reservedAmount);
 	}
 	
 	public LOSOrderStockUnitTO(Long id, 
 							   int version, 
 							   String name,
-							   Lot lot, 
+							   String lotNumber, 
 							   String unitLoad, 
 							   String storageLocation,  
 							   BigDecimal amount, 
@@ -49,10 +47,7 @@ public class LOSOrderStockUnitTO extends BODTO<StockUnit> {
 	{
 		super(id, version, name);
 		
-		if(lot != null){
-			this.lot = lot.getName();
-		}
-		lotEntity = lot;
+		this.lot = lotNumber;
 		this.unitLoad = unitLoad;
 		this.storageLocation = storageLocation;
 		this.availableAmount = amount.subtract(reservedAmount);

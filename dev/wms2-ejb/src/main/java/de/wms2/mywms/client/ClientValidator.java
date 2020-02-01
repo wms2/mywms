@@ -33,7 +33,6 @@ import de.wms2.mywms.entity.EntityValidator;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
@@ -109,10 +108,6 @@ public class ClientValidator implements EntityValidator<Client> {
 		if (entitySerivce.exists(ItemData.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to ItemData. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByItemData");
-		}
-		if (entitySerivce.exists(Lot.class, "client", entity)) {
-			logger.log(Level.INFO, logStr + "Existing reference to Lot. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByLot");
 		}
 		if (entitySerivce.exists(PickingOrder.class, "client", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to PickingOrder. entity=" + entity);

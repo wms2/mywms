@@ -83,10 +83,16 @@ public class ItemData extends BasicClientAssignedEntity {
 	private Zone zone = null;
 
 	/**
-	 * Stocks of the product must have a lot assignment
+	 * Stocks of the product must have a lot value
 	 */
 	@Column(nullable = false)
 	private boolean lotMandatory = false;
+
+	/**
+	 * Stocks of the product must have a best before value
+	 */
+	@Column(nullable = false)
+	private boolean bestBeforeMandatory = false;
 
 	/**
 	 * Minimum required days before best before ends.
@@ -280,6 +286,14 @@ public class ItemData extends BasicClientAssignedEntity {
 		this.lotMandatory = lotMandatory;
 	}
 
+	public boolean isBestBeforeMandatory() {
+		return bestBeforeMandatory;
+	}
+
+	public void setBestBeforeMandatory(boolean bestBeforeMandatory) {
+		this.bestBeforeMandatory = bestBeforeMandatory;
+	}
+
 	public Integer getShelflife() {
 		return shelflife;
 	}
@@ -383,4 +397,5 @@ public class ItemData extends BasicClientAssignedEntity {
 	public void setDefaultPackagingUnit(PackagingUnit defaultPackagingUnit) {
 		this.defaultPackagingUnit = defaultPackagingUnit;
 	}
+
 }

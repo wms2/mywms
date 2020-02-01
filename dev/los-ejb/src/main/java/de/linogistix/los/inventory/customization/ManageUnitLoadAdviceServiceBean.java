@@ -25,7 +25,6 @@ import de.linogistix.los.inventory.model.LOSUnitLoadAdvice;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdvicePosition;
 import de.linogistix.los.inventory.model.LOSUnitLoadAdviceState;
 import de.linogistix.los.inventory.service.InventoryGeneratorService;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 
 public class ManageUnitLoadAdviceServiceBean implements ManageUnitLoadAdviceService 
@@ -96,7 +95,7 @@ public class ManageUnitLoadAdviceServiceBean implements ManageUnitLoadAdviceServ
 	 * (non-Javadoc)
 	 * @see de.linogistix.los.inventory.customization.ManageUnitLoadAdviceService#addPosition(de.linogistix.los.inventory.model.LOSUnitLoadAdvice, org.mywms.model.Lot, org.mywms.model.ItemData, java.math.BigDecimal)
 	 */
-	public LOSUnitLoadAdvice addPosition(LOSUnitLoadAdvice unitLoadAdvice, Lot lot, 
+	public LOSUnitLoadAdvice addPosition(LOSUnitLoadAdvice unitLoadAdvice, String lotNumber, 
 										 ItemData item, BigDecimal notifiedAmount)
 			throws OutOfRangeException 
 	{
@@ -130,14 +129,14 @@ public class ManageUnitLoadAdviceServiceBean implements ManageUnitLoadAdviceServ
 		pos.setPositionNumber(unitLoadAdvice.getNumber()+"-"+posNo);
 		pos.setItemData(item);
 		pos.setNotifiedAmount(notifiedAmount);
-		pos.setLot(lot);
+		pos.setLotNumber(lotNumber);
 		
 		manager.persist(pos);
 		
 		unitLoadAdvice.getPositionList().add(pos);
 		
 		log.info("[ADDED]-[ULADVICE POS]-ADV "+unitLoadAdvice.getNumber()+"-IT "+item.getNumber()
-				+"-LOT "+lot+"-AMOUNT "+notifiedAmount);
+				+"-lotNumber "+lotNumber+"-AMOUNT "+notifiedAmount);
 		
 		return unitLoadAdvice;
 	}

@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
@@ -29,7 +30,6 @@ import de.linogistix.los.inventory.facade.LOSGoodsReceiptFacade;
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
 import de.linogistix.los.inventory.query.LOSAdviceQueryRemote;
 import de.linogistix.los.inventory.service.QueryGoodsReceiptServiceRemote;
-import de.linogistix.los.inventory.service.QueryLotServiceRemote;
 import de.linogistix.los.inventory.service.dto.GoodsReceiptTO;
 import de.linogistix.los.location.query.UnitLoadTypeQueryRemote;
 import de.linogistix.los.location.service.QueryUnitLoadTypeServiceRemote;
@@ -42,7 +42,6 @@ import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.OrderState;
@@ -52,8 +51,6 @@ public class GoodsReceiptBean extends BasicDialogBean {
 
 	private UnitLoadTypeQueryRemote unitLoadTypeQuery;
 
-	protected QueryLotServiceRemote queryLotService;
-	
 	protected QueryUnitLoadTypeServiceRemote queryUltService;
 	
 	protected LOSAdviceQueryRemote queryAdviceService;
@@ -74,7 +71,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 	
 	protected HashMap<String, AdviceLine> adviceMap;
 	
-	protected Lot currentLot;
+	protected String currentLotNumber;
 	
 	protected Date currentValidToDate;
 	
@@ -110,7 +107,6 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		super();
 		
 		propQuery = super.getStateless(LOSSystemPropertyServiceRemote.class);
-		queryLotService = super.getStateless(QueryLotServiceRemote.class);
 		queryAdviceService = super.getStateless(LOSAdviceQueryRemote.class);
 		queryUltService = super.getStateless(QueryUnitLoadTypeServiceRemote.class);
 		queryGoodsReceiptService = super.getStateless(QueryGoodsReceiptServiceRemote.class);
@@ -309,18 +305,21 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		currentUnitLoadType = item.getDefaultUnitLoadType();
 		currentUnitLoadType = reloadUnitLoadType(currentUnitLoadType);
 
-		if( lotName_Input.length() == 0 ){
+		if(StringUtils.isBlank(lotName_Input)){
 			if( item.isLotMandatory() ){
 				JSFHelper.getInstance().message(super.resolve("LOT_INPUT_REQUIRED", new Object[]{}));
 				return GoodsReceiptNavigationEnum.CHOOSE_ADVICE.name();
 			}
 			else {
-				currentLot = null;
-				return GoodsReceiptNavigationEnum.PROCESS_UNITLOAD.name();
+				currentLotNumber = null;
 			}
 		}
-		if(validTo_Input == ""){
+		if(StringUtils.isBlank(validTo_Input)){
 			if(item.getShelflife()!=null && item.getShelflife().intValue() > 0){
+				JSFHelper.getInstance().message(super.resolve("VALIDTO_INPUT_REQUIRED", new Object[]{}));
+				return GoodsReceiptNavigationEnum.CHOOSE_ADVICE.name();
+			}
+			if(item.isBestBeforeMandatory()){
 				JSFHelper.getInstance().message(super.resolve("VALIDTO_INPUT_REQUIRED", new Object[]{}));
 				return GoodsReceiptNavigationEnum.CHOOSE_ADVICE.name();
 			}
@@ -349,27 +348,16 @@ public class GoodsReceiptBean extends BasicDialogBean {
 			}
 			
 		}
-		
+
 		currentUnitLoadType = item.getDefaultUnitLoadType();
 		currentUnitLoadType = reloadUnitLoadType(currentUnitLoadType);
+		currentLotNumber = lotName_Input;
 		
-		currentLot = queryLotService.getByNameAndItemData(lotName_Input, item);
-		if(currentLot != null){
-			return GoodsReceiptNavigationEnum.PROCESS_UNITLOAD.name();
-		}
-		else{
-			return GoodsReceiptNavigationEnum.CONFIRM_NEW_LOT.name();
-		}
+		return GoodsReceiptNavigationEnum.PROCESS_UNITLOAD.name();
 	}
 	
 	//---------------------------------------------------------------------
 	public String confirmNewLot(){
-		
-		currentLot = goodsReceiptFacade.createLot(
-							lotName_Input, 
-							currentAdvice.getItemData(), 
-							currentValidToDate);
-		
 		return GoodsReceiptNavigationEnum.PROCESS_UNITLOAD.name();
 	}
 	
@@ -402,15 +390,11 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		int lock = (int)propQuery.getLongDefault(cl, getWorkstationName(), LOSInventoryPropertyKey.GOODS_IN_DEFAULT_LOCK, 0);
 
 		try {
-			BODTO<Lot> lotTo = null;
-			if( currentLot != null ) {
-				lotTo = new BODTO<Lot>(currentLot.getId(), currentLot.getVersion(), currentLot.getName());
-			}
-
 			goodsReceiptFacade.createGoodsReceiptLine(
 										new BODTO<Client>(cl.getId(), cl.getVersion(), cl.getNumber()), 
 										currentGoodsReceipt, 
-										lotTo, 
+										currentLotNumber,
+										currentValidToDate, 
 										new BODTO<ItemData>(item.getId(), item.getVersion(), item.getNumber()),
 										unitLoadLabel_Input,
 										new BODTO<UnitLoadType>(currentUnitLoadType.getId(), currentUnitLoadType.getVersion(), currentUnitLoadType.getName()),
@@ -512,7 +496,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		
 		currentAdvice = null;
 		currentAmountPerUnitLoad = null;
-		currentLot = null;
+		currentLotNumber = null;
 		currentUnitLoadType = null;
 		currentValidToDate = null;
 		currentPostedAmount = BigDecimal.ZERO;
@@ -530,9 +514,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 	
 	//---------------------------------------------------------------------
 	public String getLotName_Input(){
-		if(currentAdvice.getLotNumber() != null
-			&& lotName_Input.equals(""))
-		{
+		if (!StringUtils.isBlank(currentAdvice.getLotNumber()) && lotName_Input.equals(""))		{
 			lotName_Input = currentAdvice.getLotNumber();
 		}
 		
@@ -675,7 +657,7 @@ public class GoodsReceiptBean extends BasicDialogBean {
 		
 		currentGoodsReceipt = null;
 		currentAdvice = null;
-		currentLot = null;
+		currentLotNumber = null;
 		currentValidToDate = null;
 		currentUnitLoadType = null;
 		currentAmountOfProcessedUnitLoads = 0;

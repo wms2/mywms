@@ -34,7 +34,6 @@ import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
@@ -91,7 +90,8 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
 
     void createPosition(
             BODTO<Client> client,
-            BODTO<Lot> lot,
+            String lotNumber,
+            Date bestBefore,
             BODTO<ItemData> item,
             String labelId,
             BODTO<UnitLoadType> ulType, 
@@ -103,7 +103,7 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             
             goodsReceiptFacade.createGoodsReceiptLine(client, 
                     this.goodsReceiptNode.getGoodsReceipt(),
-                    lot,
+                    lotNumber, bestBefore,
                     item,
                     labelId, 
                     ulType,
@@ -118,39 +118,6 @@ public class GoodsReceiptController implements BOCollectionEditorSelectionListen
             goodsReceiptFacade.acceptGoodsReceipt(this.goodsReceiptNode.getGoodsReceipt());
     }
     
-    GoodsReceiptLine createPositionAndLot(
-            BODTO<Client> client,
-            String lotName,
-            Date validFrom,
-            Date validTo,
-            BODTO<ItemData> item,
-            String labelId,
-            BODTO<UnitLoadType> ulType, 
-            BigDecimal amount,
-            BODTO<AdviceLine> adv,
-            int lock,
-            String info) throws FacadeException {
-        
-            GoodsReceiptLine grPos;
-            grPos = goodsReceiptFacade.createGoodsReceiptLineAndLot(client, 
-                                        this.goodsReceiptNode.getGoodsReceipt(),
-                                        lotName,
-                                        validFrom,
-                                        validTo,
-                                        item,
-                                        labelId, 
-                                        ulType,
-                                        amount, adv, 
-                                        lock, 
-                                        info
-                                        );
-            
-            reloadGoodsReceipt();
-            
-            return grPos;
-        
-    }
-
     void edit(BODTO<Client> client, String string, String string0, String deliverer, String externNumber, Date date, BODTO<StorageLocation> gate, String info, int orderType, String senderName) throws FacadeException {
         
         LOSGoodsReceiptCRUDRemote crud = loc.getStateless(LOSGoodsReceiptCRUDRemote.class);

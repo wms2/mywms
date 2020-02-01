@@ -66,7 +66,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<D
 //		propList.add(new BODTOConstructorProperty("itemData.number", false));
 		propList.add(new BODTOConstructorProperty("itemData.name", false));
 		propList.add(new BODTOConstructorProperty("itemData.scale", false));
-		propList.add(new BODTOConstructorProperty("lot.name", null, BODTOConstructorProperty.JoinType.LEFT, "lot"));
+		propList.add(new BODTOConstructorProperty("lotNumber", false));
 		propList.add(new BODTOConstructorProperty("amount", false));
 		propList.add(new BODTOConstructorProperty("pickedAmount", false));
 		propList.add(new BODTOConstructorProperty("state", false));
@@ -89,7 +89,7 @@ public class LOSCustomerOrderPositionQueryBean extends BusinessObjectQueryBean<D
 		ret.add(number);
 		
 		TemplateQueryWhereToken lot = new TemplateQueryWhereToken(
-				TemplateQueryWhereToken.OPERATOR_LIKE, "lot.name",
+				TemplateQueryWhereToken.OPERATOR_LIKE, "lotNumber",
 				value);
 		lot.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 		ret.add(lot);

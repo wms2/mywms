@@ -16,7 +16,6 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.product.ItemData;
 
 @Entity
@@ -31,8 +30,7 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 	@Column(nullable=false)
 	private String positionNumber;
 	
-	@ManyToOne(optional=true)
-	private Lot lot;
+	private String lotNumber;
 	
 	@ManyToOne(optional=false)
 	private ItemData itemData;
@@ -56,14 +54,6 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 		this.positionNumber = positionNumber;
 	}
 
-	public Lot getLot() {
-		return lot;
-	}
-
-	public void setLot(Lot lot) {
-		this.lot = lot;
-	}
-
 	public ItemData getItemData() {
 		return itemData;
 	}
@@ -78,6 +68,14 @@ public class LOSUnitLoadAdvicePosition extends BasicClientAssignedEntity {
 
 	public void setNotifiedAmount(BigDecimal notifiedAmount) {
 		this.notifiedAmount = notifiedAmount;
+	}
+
+	public String getLotNumber() {
+		return lotNumber;
+	}
+
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
 	}
 	
 }

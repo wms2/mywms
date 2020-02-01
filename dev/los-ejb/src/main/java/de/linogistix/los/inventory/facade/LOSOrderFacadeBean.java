@@ -47,8 +47,6 @@ import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.delivery.DeliveryReportGenerator;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.inventory.Lot;
-import de.wms2.mywms.inventory.LotEntityService;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
@@ -95,8 +93,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	private LOSOrderBusiness orderBusiness;
 	@Inject
 	private ItemDataEntityService itemService;
-	@Inject
-	private LotEntityService lotService;
 	@Inject
 	private PickingOrderLineGenerator pickingPosGenerator;
 	@Inject
@@ -217,15 +213,6 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				log.error(logStr+msg);
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 			}
-			Lot lot = null;
-			if( posTO.batchRef != null && posTO.batchRef.length()>0 ) {
-				lot = lotService.read(item, posTO.batchRef);
-				if( lot == null ) {
-					String msg = "Lot data does not exist. name="+posTO.batchRef+", item="+posTO.articleRef;
-					log.error(logStr+msg);
-					throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
-				}
-			}
 			BigDecimal amount = posTO.amount;
 			if( BigDecimal.ZERO.compareTo(amount)>=0 ) {
 				String msg = "Amount must not be <= 0. amount="+posTO.amount+", item="+posTO.articleRef;
@@ -233,7 +220,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				throw new InventoryException(InventoryExceptionKey.CUSTOM_TEXT, msg);
 			}
 			
-			deliveryOrderLineService.create(order, item, lot, amount, ++line);
+			deliveryOrderLineService.create(order, item, posTO.batchRef, amount, ++line);
 		}
 
 		if( startPicking ) {

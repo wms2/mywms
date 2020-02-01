@@ -39,7 +39,6 @@ import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.JournalHandler;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -611,7 +610,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		String activityCode = pickingOrder.getOrderNumber();
 		StockUnit pickFromStock = pick.getPickFromStockUnit();
 		BigDecimal amountPickFrom = pickFromStock.getAmount();
-		Lot lotPicked = pickFromStock.getLot();
+		String lotPicked = pickFromStock.getLotNumber();
 		
 		// Release the reservation on pick from stock unit. 
 		// Maybe that some services would fail on the original reservations
@@ -721,7 +720,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		pick.setPickedAmount(amountPosted);
-		pick.setPickedLotNumber(lotPicked==null?null:lotPicked.getName());
+		pick.setPickedLotNumber(lotPicked);
 		pick.setPickFromStockUnit(null);
 		pick.setPickingType(PickingType.PICK);
 
@@ -799,7 +798,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		}
 
 		StockUnit pickFromStock = pick.getPickFromStockUnit();
-		Lot lotPicked = pickFromStock.getLot();
+		String lotPicked = pickFromStock.getLotNumber();
 
 		// Release the reservation on pick from stock unit.
 		// Maybe that some services would fail on the original reservations
@@ -818,7 +817,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		pick.setState(State.PICKED);
 		pick.setPacket(packet);
 		pick.setPickedAmount(pickFromStock.getAmount());
-		pick.setPickedLotNumber(lotPicked == null ? null : lotPicked.getName());
+		pick.setPickedLotNumber(lotPicked);
 		pick.setPickFromStockUnit(null);
 		pick.setPickingType(PickingType.COMPLETE);
 

@@ -40,7 +40,6 @@ import de.wms2.mywms.address.Address;
 import de.wms2.mywms.document.Document;
 import de.wms2.mywms.document.DocumentType;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -401,26 +400,25 @@ public class DeliveryReportGenerator {
 				}
 			}
 
-			Lot lot = stock.getLot();
-			if (lot != null) {
-				String lotKey = key + "-" + lot.getName().hashCode();
+			if (!StringUtils.isBlank(stock.getLotNumber())) {
+				String lotKey = key + "-" + stock.getLotNumber().hashCode();
 				DeliveryReportDto reportItem = registerItem(itemMap, lotKey, ITEM_TYPE_LOT, registerUnitLoad,
 						stock.getItemData(), stock.getAmount());
-				reportItem.setLotNumber(lot.getName());
+				reportItem.setLotNumber(stock.getLotNumber());
 			}
-			if (lot != null && lot.getBestBeforeEnd() != null) {
-				String bestBeforeKey = key + "-" + lot.getBestBeforeEnd().hashCode();
+			if (stock.getBestBefore() != null) {
+				String bestBeforeKey = key + "-" + stock.getBestBefore().hashCode();
 				DeliveryReportDto reportItem = registerItem(itemMap, bestBeforeKey, ITEM_TYPE_BESTBEFORE,
 						registerUnitLoad, stock.getItemData(), stock.getAmount());
-				reportItem.setBestBefore(lot.getBestBeforeEnd());
+				reportItem.setBestBefore(stock.getBestBefore());
 			}
-			if (lot != null && lot.getBestBeforeEnd() != null) {
-				String lotBestBeforeKey = key + "-" + lot.getName().hashCode() + "-"
-						+ lot.getBestBeforeEnd().hashCode();
+			if (!StringUtils.isBlank(stock.getLotNumber()) && stock.getBestBefore() != null) {
+				String lotBestBeforeKey = key + "-" + stock.getLotNumber().hashCode() + "-"
+						+ stock.getBestBefore().hashCode();
 				DeliveryReportDto reportItem = registerItem(itemMap, lotBestBeforeKey, ITEM_TYPE_LOT_BESTBEFORE,
 						registerUnitLoad, stock.getItemData(), stock.getAmount());
-				reportItem.setLotNumber(lot.getName());
-				reportItem.setBestBefore(lot.getBestBeforeEnd());
+				reportItem.setLotNumber(stock.getLotNumber());
+				reportItem.setBestBefore(stock.getBestBefore());
 			}
 			if (!StringUtils.isBlank(stock.getSerialNumber())) {
 				String serialKey = key + "-" + stock.getSerialNumber().hashCode();

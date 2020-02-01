@@ -12,9 +12,6 @@ import java.util.List;
 import javax.ejb.Remote;
 
 import org.mywms.facade.FacadeException;
-import org.mywms.model.Client;
-
-import de.wms2.mywms.inventory.StockUnit;
 
 /**
  * @author krane
@@ -23,10 +20,7 @@ import de.wms2.mywms.inventory.StockUnit;
 @Remote
 public interface LOSExtinguishFacade {
 	
-	public void generateOrder( List<Long> stockIds ) throws FacadeException;
-
-	public void calculateLotLocks() throws FacadeException;
-	
-	public void generateOrder( Client client, List<StockUnit> stockList ) throws FacadeException;
+	public void generateStockUnitOrder( List<Long> stockIds ) throws FacadeException;
+	public void generateUnitLoadOrder( List<Long> unitLoadIds ) throws FacadeException;
 
 }

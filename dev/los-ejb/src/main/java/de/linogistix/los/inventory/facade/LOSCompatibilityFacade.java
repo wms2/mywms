@@ -19,7 +19,6 @@ import de.linogistix.los.inventory.query.dto.LOSOrderStockUnitTO;
 import de.linogistix.los.query.BODTO;
 import de.linogistix.los.query.LOSResultList;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.location.StorageLocation;
 
 @Remote
@@ -30,7 +29,7 @@ public interface LOSCompatibilityFacade {
 
 	@Deprecated
 	public LOSResultList<LOSOrderStockUnitTO> querySuitableStocksByOrderPosition(
-			BODTO<DeliveryOrderLine> orderPosTO, BODTO<Lot> lotTO,
+			BODTO<DeliveryOrderLine> orderPosTO, String lotNumber,
 			BODTO<StorageLocation> locationTO) throws InventoryException;
 	
 	@Deprecated

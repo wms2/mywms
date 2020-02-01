@@ -15,7 +15,6 @@ import de.linogistix.common.util.CursorControl;
 import de.linogistix.common.util.ExceptionAnnotator;
 import de.linogistix.inventory.gui.component.controls.ClientItemDataLotFilteringComponent;
 import de.linogistix.inventory.gui.component.controls.ItemDataComboBoxModel;
-import de.linogistix.inventory.gui.component.controls.LotComboBoxModel;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.facade.LOSOrderFacade;
 import de.linogistix.los.inventory.facade.OrderPositionTO;
@@ -25,7 +24,6 @@ import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.los.util.StringTools;
 import de.linogistix.wmsprocesses.processes.order.gui.object.OrderItem;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
-import de.wms2.mywms.inventory.Lot;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.util.Wms2Properties;
@@ -68,13 +66,17 @@ public class CenterPanel extends AbstractCenterPanel {
             clientCombo.setEditorLabelTitle(NbBundle.getMessage(CommonBundleResolver.class, "Client"));
 
             clientComboBoxPanel.add(getClientComboBox(), BorderLayout.CENTER);
-            lotComboBoxPanel.add(getLotComboBox(), BorderLayout.CENTER);
             itemComboBoxPanel.add(getItemDataComboBox(), BorderLayout.CENTER);
 
         }
         catch(Exception e) {
             e.printStackTrace();
         }
+
+        getLotNumberField().setEnabled(true);
+        getLotNumberField().setMandatory(false);
+        getLotNumberField().setColumns(8);
+        getLotNumberField().getTextFieldLabel().setTitleText(NbBundle.getMessage(WMSProcessesBundleResolver.class,"LOT_NUMBER"));
 
         getDeliveryDateTextField().setEnabled(true);
         getDeliveryDateTextField().setMandatory(true);
@@ -132,30 +134,7 @@ public class CenterPanel extends AbstractCenterPanel {
                 
             }
         });
-        
-        getLotComboBox().setMandatory(false); 
-        getLotComboBox().setEditorLabelTitle(NbBundle.getMessage(WMSProcessesBundleResolver.class, "lot"));
-        getLotComboBox().addItemChangeListener(new PropertyChangeListener() {
 
-            public void propertyChange(PropertyChangeEvent evt) {
-                
-                if(getLotComboBox().getSelectedAsEntity() == null){
-                    return;
-                }
-                
-                ItemData selItemData = getLotComboBox().getSelectedAsEntity().getItemData();
-
-                if(selItemData != null){
-//                    getAmountTextField().setEnabled(true);
-                    getAmountTextField().setUnitName(selItemData.getItemUnit().getUnitName());
-                    getAmountTextField().setScale(selItemData.getScale());
-                }
-//                else {
-//                    getAmountTextField().setEnabled(false);
-//                }
-                
-            }
-        });
         
 //        try{
 //            cilComp = new ClientItemDataLotFilteringComponent(getClientComboBox(), getItemDataComboBox(), getLotComboBox());
@@ -167,10 +146,6 @@ public class CenterPanel extends AbstractCenterPanel {
 
     protected BOAutoFilteringComboBox<Client> getClientComboBox() {
         return clientCombo;
-    }
-
-    protected BOAutoFilteringComboBox<Lot> getLotComboBox() {
-        return cilComp.getLotCombo();
     }
 
     protected BOAutoFilteringComboBox<ItemData> getItemDataComboBox() {
@@ -257,8 +232,7 @@ public class CenterPanel extends AbstractCenterPanel {
  
         BODTO<Client> clientTO = getClientComboBox().getSelectedItem();
         
-        getLotComboBox().clear();
-        ((LotComboBoxModel)getLotComboBox().getComboBoxModel()).setClientTO(clientTO);
+        getLotNumberField().setText("");
         
         getItemDataComboBox().clear();
         ((ItemDataComboBoxModel)getItemDataComboBox().getComboBoxModel()).setClientTO(clientTO);
@@ -296,7 +270,6 @@ public class CenterPanel extends AbstractCenterPanel {
     protected void addButtonActionPerformedListener(java.awt.event.ActionEvent evt) {
 
         if(!getClientComboBox().checkSanity()
-           || !getLotComboBox().checkSanity()
            || !getItemDataComboBox().checkSanity()
            || !getAmountTextField().checkSanity())
         {
@@ -309,26 +282,6 @@ public class CenterPanel extends AbstractCenterPanel {
             if( item.getLock() != 0 ) {
                 selectedItem = "* "+selectedItem;
             }
-        }
-        String selectedLot = "";
-        if(getLotComboBox().getSelectedItem() != null){
-            selectedLot = getLotComboBox().getSelectedItem().getName();
-            Lot lot = getLotComboBox().getSelectedAsEntity();
-            if( lot != null && lot.getLock() != 0 ) {
-                selectedLot = "* " + selectedLot;
-            }
-        }
-        
-        if(treeTable.contains(selectedItem, selectedLot)){
-            
-            FacadeException fex = new FacadeException("Duplicate position for item", 
-                                                      "ORDER_DUPLICATE_POSITION", 
-                                                      new Object[]{selectedItem, selectedLot});
-            fex.setBundleResolver(WMSProcessesBundleResolver.class);
-            
-            ExceptionAnnotator.annotate(fex);
-            
-            return;
         }
         
         int pos;
@@ -344,7 +297,7 @@ public class CenterPanel extends AbstractCenterPanel {
         }
         try {
             treeTable.addRow("" + pos, 
-                             selectedLot, 
+                             getLotNumberField().getText(), 
                              selectedItem,
                              getAmountTextField().getValue().toString());
         } catch (ParseException ex) {

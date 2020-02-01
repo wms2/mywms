@@ -93,16 +93,6 @@
                 <position>21</position>
             </value>
         </entry>
-        <entry>
-            <key>useLockedLot</key>
-            <value>
-                <group>
-                    <name>stockSelection</name>
-                </group>
-                <hidden>false</hidden>
-                <position>22</position>
-            </value>
-        </entry>
         
         <entry>
             <key>preferMatching</key>
