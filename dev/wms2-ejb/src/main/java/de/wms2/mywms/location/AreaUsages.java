@@ -30,6 +30,7 @@ public class AreaUsages {
 	public static final String CONSOLIDATION = "CONSOLIDATION";
 	public static final String GOODS_IN = "GOODS_IN";
 	public static final String GOODS_OUT = "GOODS_OUT";
+	public static final String PACKING = "PACKING";
 	public static final String PICKING = "PICKING";
 	public static final String REPLENISH = "REPLENISH";
 	public static final String STORAGE = "STORAGE";

@@ -61,9 +61,10 @@ public class AreaValidator implements EntityValidator<Area> {
 		}
 
 		if (StringUtils.contains(entity.getUsages(), AreaUsages.TRANSFER)) {
-			if (entity.getUsages().contains(AreaUsages.PICKING) || entity.getUsages().contains(AreaUsages.STORAGE)) {
+			if (entity.getUsages().contains(AreaUsages.PACKING) || entity.getUsages().contains(AreaUsages.PICKING)
+					|| entity.getUsages().contains(AreaUsages.STORAGE)) {
 				logger.log(Level.INFO, logStr
-						+ "invalid usage options. TRANSFER cannot be combined with one of PICKING, STORAGE. entity="
+						+ "invalid usage options. TRANSFER cannot be combined with one of PICKING, PICKING, STORAGE. entity="
 						+ entity + ", usages=" + entity.getUsages());
 				throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidTransferUsage");
 			}
