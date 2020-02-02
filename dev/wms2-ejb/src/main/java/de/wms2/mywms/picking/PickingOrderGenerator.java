@@ -240,7 +240,7 @@ public class PickingOrderGenerator {
 	public List<PickingOrderLine> addPicksToOrder(PickingOrder pickingOrder, Collection<PickingOrderLine> picks)
 			throws BusinessException {
 		String logStr = "addPicksToOrder ";
-		logger.log(Level.FINE, logStr);
+		logger.log(Level.FINE, logStr + "pickingOrder=" + pickingOrder);
 
 		List<PickingOrderLine> notMatchingPicks = new ArrayList<>();
 
@@ -250,14 +250,17 @@ public class PickingOrderGenerator {
 
 		for (PickingOrderLine pick : picks) {
 			if (!isOrderMatching(pickingOrder, pick, mainPickingType)) {
+				logger.log(Level.INFO, logStr + "pick is not matching. pick.pickingType=" + pick.getPickingType()
+						+ ", mainPickingType=" + mainPickingType + ", pickingOrder=" + pickingOrder);
 				notMatchingPicks.add(pick);
 				continue;
 			}
 			if (!pick.getOrderStrategy().equals(strategy)) {
-				logger.log(Level.SEVERE,
+				logger.log(Level.INFO,
 						logStr + "Cannot handle different strategies of picking order and line. Abort. order strategy="
 								+ strategy + ", pick strategy=" + pick.getOrderStrategy());
-				throw new BusinessException(Wms2BundleResolver.class, "PickingGenerator.inequalStrategies");
+				notMatchingPicks.add(pick);
+				continue;
 			}
 			pick.setPickingOrder(pickingOrder);
 			pickingOrder.getLines().add(pick);
@@ -276,6 +279,11 @@ public class PickingOrderGenerator {
 	 */
 	private boolean isOrderMatching(PickingOrder pickingOrder, PickingOrderLine pick, int mainPickingType) {
 		OrderStrategy strategy = pickingOrder.getOrderStrategy();
+
+		// check client
+		if (!pickingOrder.getClient().equals(pick.getClient())) {
+			return false;
+		}
 
 		// check type
 		if (strategy.isCreateTypeOrders()) {
