@@ -156,7 +156,7 @@ public class StatusLineServer extends javax.swing.JPanel implements StatusLineEl
   class ConnectionTester extends Thread {
 
     static final long POLL_INTERVALL = 10000L;
-    static final long POLL_INTERVALL_SHORT = 1000L;
+    static final long POLL_INTERVALL_SHORT = 4000L;
 
     StatusLineServer statusLine;
 
@@ -193,7 +193,6 @@ public class StatusLineServer extends javax.swing.JPanel implements StatusLineEl
 //            t.printStackTrace();
           log.warning("Ping failed: " + t.getMessage());
           poll = POLL_INTERVALL_SHORT;
-          this.statusLine.connected(false);
         } finally {
           try {
             synchronized (this) {
