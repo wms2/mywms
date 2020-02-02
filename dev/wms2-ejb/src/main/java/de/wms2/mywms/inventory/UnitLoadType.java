@@ -143,6 +143,25 @@ public class UnitLoadType extends BasicEntity {
 		}
 	}
 
+	/**
+	 * @deprecated Replaced by UnitLoadType.isUseFor(UnitLoadTypeUsages.SHIPPING);
+	 */
+	@Deprecated
+	@Transient
+	public boolean isUseForShipping() {
+		return isUseFor(UnitLoadTypeUsages.SHIPPING);
+	}
+
+	/**
+	 * @deprecated Replaced by UnitLoadType.setUseFor(UnitLoadTypeUsages.SHIPPING,
+	 *             useForPicking);
+	 */
+	@Deprecated
+	@Transient
+	public void setUseForShipping(boolean useForShipping) {
+		setUseFor(UnitLoadTypeUsages.SHIPPING, useForShipping);
+	}
+
 	public String getName() {
 		return name;
 	}

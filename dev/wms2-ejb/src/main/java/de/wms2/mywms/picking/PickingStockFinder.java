@@ -40,6 +40,8 @@ import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockState;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
+import de.wms2.mywms.inventory.UnitLoadTypeUsages;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
@@ -296,12 +298,15 @@ public class PickingStockFinder {
 		String jpql = "";
 
 		jpql += " select stock.id, stock.amount, stock.reservedAmount, ";
-		jpql += " location.id, location.name, unitLoad.id, unitLoad.opened, role.usages";
+		jpql += " location.id, location.name, unitLoad.id, unitLoad.opened, ";
+		jpql += " role.usages, unitLoadType.usages";
 		jpql += " from " + StockUnit.class.getName() + " stock, ";
 		jpql += UnitLoad.class.getName() + " unitLoad, ";
+		jpql += UnitLoadType.class.getName() + " unitLoadType, ";
 		jpql += StorageLocation.class.getName() + " location, ";
 		jpql += Area.class.getName() + " role ";
 		jpql += "where unitLoad=stock.unitLoad ";
+		jpql += " and unitLoadType = unitLoad.unitLoadType ";
 		jpql += " and location = unitLoad.storageLocation ";
 		jpql += " and role=location.area ";
 
@@ -352,7 +357,8 @@ public class PickingStockFinder {
 			String locationName = (String) result[4];
 			long unitLoadId = (long) result[5];
 			boolean unitLoadOpened = (boolean) result[6];
-			String usages = (String) result[7];
+			String areaUsages = (String) result[7];
+			String unitLoadTypeUsages = (String) result[8];
 
 			boolean onFixedLocation = false;
 			BigDecimal maxFixPickAmount = null;
@@ -364,7 +370,7 @@ public class PickingStockFinder {
 			}
 
 			PickingStockUnit stock = new PickingStockUnit(stockId, amount, reservedAmount, locationName, unitLoadId,
-					unitLoadOpened, usages, onFixedLocation, maxFixPickAmount);
+					unitLoadOpened, areaUsages, unitLoadTypeUsages, onFixedLocation, maxFixPickAmount);
 
 			stockList.add(stock);
 		}
@@ -384,6 +390,9 @@ public class PickingStockFinder {
 			return false;
 		}
 		if (stock.onFixedLocation) {
+			return false;
+		}
+		if(!stock.unitLoadForShipping) {
 			return false;
 		}
 		if (stock.mixed == null) {
@@ -408,12 +417,13 @@ public class PickingStockFinder {
 		public boolean onFixedLocation = false;
 		public boolean locationUseForPicking = false;
 		public boolean locationUseForStorage = false;
+		public boolean unitLoadForShipping = false;
 		public BigDecimal availableAmount;
 		public BigDecimal maxFixPickAmount;
 		public Boolean mixed = null;
 
 		public PickingStockUnit(long stockId, BigDecimal amount, BigDecimal reservedAmount, String locationName,
-				long unitLoadId, boolean opened, String usages, boolean onFixedLocation, BigDecimal maxFixPickAmount) {
+				long unitLoadId, boolean opened, String areaUsages, String unitLoadTypUsages, boolean onFixedLocation, BigDecimal maxFixPickAmount) {
 			this.stockId = stockId;
 			this.locationName = locationName;
 			this.amount = amount;
@@ -423,12 +433,16 @@ public class PickingStockFinder {
 			this.unitLoadOpened = opened;
 			this.onFixedLocation = onFixedLocation;
 			this.maxFixPickAmount = maxFixPickAmount;
-			List<String> usageList = ListUtils.stringToList(usages);
-			if (usageList.contains(AreaUsages.PICKING)) {
+			List<String> usages = ListUtils.stringToList(areaUsages);
+			if (usages.contains(AreaUsages.PICKING)) {
 				this.locationUseForPicking = true;
 			}
-			if (usageList.contains(AreaUsages.STORAGE)) {
+			if (usages.contains(AreaUsages.STORAGE)) {
 				this.locationUseForStorage = true;
+			}
+			usages = ListUtils.stringToList(unitLoadTypUsages);
+			if (usages.contains(UnitLoadTypeUsages.SHIPPING)) {
+				this.unitLoadForShipping = true;
 			}
 		}
 

@@ -27,6 +27,7 @@ package de.wms2.mywms.inventory;
 public class UnitLoadTypeUsages {
 
 	public static final String FORKLIFT = "FORKLIFT";
+	public static final String PACKING = "PACKING";
 	public static final String PICKING = "PICKING";
 	public static final String SHIPPING = "SHIPPING";
 	public static final String STORAGE = "STORAGE";

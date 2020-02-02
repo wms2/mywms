@@ -111,11 +111,23 @@
 				<position>7</position>
 			</value>
 		</entry>
+
+        <entry>
+            <key>useForShipping</key>
+            <value>
+                <group>
+                    <name>usage</name>
+                </group>
+                <hidden>false</hidden>
+                <position>1</position>
+            </value>
+        </entry>
+
 		<entry>
 			<key>usages</key>
 			<value>
 				<group>
-					<name>main</name>
+					<name>usage</name>
 				</group>
 				<hidden>true</hidden>
 				<position>7</position>
@@ -137,4 +149,9 @@
 		<hidden>false</hidden>
 		<name>measurement</name>
 	</groups>
+    <groups>
+        <groupPosition>60</groupPosition>
+        <hidden>false</hidden>
+        <name>usage</name>
+    </groups>
 </ns2:boBeanNodeDescriptor>

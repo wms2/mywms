@@ -41,6 +41,7 @@ import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.StockUnitEntityService;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadTypeUsages;
 import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
@@ -48,6 +49,7 @@ import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.util.ListUtils;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 /**
@@ -282,6 +284,11 @@ public class PickingOrderLineGenerator {
 		ItemData itemData = sourceStock.getItemData();
 		boolean hasFixedLocation = fixAssignmentEntityService.exists(itemData, location);
 		if (hasFixedLocation) {
+			return PickingType.PICK;
+		}
+
+		List<String> usages = ListUtils.stringToList(unitLoad.getUnitLoadType().getUsages());
+		if (!usages.contains(UnitLoadTypeUsages.SHIPPING)) {
 			return PickingType.PICK;
 		}
 
