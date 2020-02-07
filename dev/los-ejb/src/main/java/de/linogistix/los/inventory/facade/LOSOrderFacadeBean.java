@@ -204,7 +204,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		order.setLabelUrl(labelUrl);
 		order.setDestination(destination);
 		order.setDeliveryDate(deliveryDate);
-		order.setAddress(address);
+		order.setAddress(address == null ? new Address() : address);
 		int line = 0;
 		for( OrderPositionTO posTO : positions ) {
 			ItemData item = itemService.readByNumber(posTO.articleRef);
