@@ -497,7 +497,7 @@ public class ShippingBusiness {
 			if (affectedOrder.getState() < OrderState.FINISHED) {
 				logger.warning(logStr + "There is already a shipping order for packet. packet=" + packet
 						+ ", shippingOrder=" + affectedOrder);
-				throw new BusinessException(Wms2BundleResolver.class, "Shipping.existsShippingOrder");
+				throw new BusinessException(Wms2BundleResolver.class, "Shipping.existsShippingOrder", packet.toString());
 			}
 		}
 		ShippingOrderLine pos = manager.createInstance(ShippingOrderLine.class);

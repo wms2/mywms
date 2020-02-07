@@ -293,12 +293,13 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		List<Packet> packetList = new ArrayList<>();
 		DeliveryOrder deliveryOrder = null;
 		Set<DeliveryOrder> orderSet = new HashSet<>();
-		Client client = null;
+		Client orderClient = null;
 		for (Long id : pickingUnitLoadIdList) {
+			Client packetClient = null;
 			Packet pul = manager.find(Packet.class, id);
 			if (pul != null) {
 				packetList.add(pul);
-				client = pul.getClient();
+				packetClient = pul.getClient();
 				orderSet.add(pul.getDeliveryOrder());
 			} else {
 				UnitLoad unitLoad = manager.find(UnitLoad.class, id);
@@ -310,11 +311,18 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 						}
 					}
 					ulList.add(unitLoad);
-					client = unitLoad.getClient();
+					packetClient = unitLoad.getClient();
 				}
 				else {
 					log.warn(logStr + "Did not find unit load. id=" + id);
 				}
+			}
+			if (packetClient != null && orderClient != null && !packetClient.equals(orderClient)) {
+				log.warn(logStr + "Cannot mix clients. 1=" + orderClient + ", 2=" + packetClient);
+				throw new InventoryException(InventoryExceptionKey.PICK_GEN_CLIENT_MIX, "");
+			}
+			if (packetClient != null) {
+				orderClient = packetClient;
 			}
 		}
 		if (orderSet.size() == 1) {
@@ -322,12 +330,12 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 				deliveryOrder = s;
 			}
 		}
-		if (client == null) {
+		if (orderClient == null) {
 			log.warn(logStr + "No positions, no order");
 			throw new InventoryException(InventoryExceptionKey.NO_SUCH_CLIENT, "");
 		}
 
-		ShippingOrder shippingOrder = shippingBusiness.createOrder(client);
+		ShippingOrder shippingOrder = shippingBusiness.createOrder(orderClient);
 		shippingOrder.setDeliveryOrder(deliveryOrder);
 		shippingOrder.setState(OrderState.PROCESSABLE);
 		for(Packet packet : packetList) {
