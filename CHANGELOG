@@ -357,12 +357,23 @@ Release 2.5
 
     Main topics
     -------------------------------------------------------------------------------
-    -
+    - The lot is no more handled as separate entity. The functionality is moved to the stock unit. 
+        With this individual lot and best-before handling of each stock unit is possible.
+        Extinguish orders can be generated for single stock-units and unit-laods. Not only for a complete lot.
 
 
     Functional changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
-    - 
+    - Best before can be mandatory for an stock units of an item data
+    - Changed best before date to an attribute of the stock unit
+    - Changed lot number to an attribute of the stock unit
+    - Removed lot entity
+    - Added generation of extinguish orders to stock units and unit loads
+    - Added filter of goods-receipt material to stock unit and unit load dialogues
+    - Complete unit load picking only for unit load types which are valid for shipping
+    - Added customer and sender to delivery order
+    - Only use unit loads with the shipping-flag set for complete picking operation
+    - Manual creation of shipping order is limited to one client
 
 
     Technical changes (for details have a look to the git repository)
@@ -372,8 +383,10 @@ Release 2.5
 
     Bugfixes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
+    - Enable address editing in rich client
 
 
     Switch to Release 2.5
     -------------------------------------------------------------------------------
-    - 
+    - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
+
