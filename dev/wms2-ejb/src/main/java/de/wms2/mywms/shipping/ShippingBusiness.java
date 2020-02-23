@@ -544,7 +544,7 @@ public class ShippingBusiness {
 
 		manager.removeValidated(line);
 
-		if (shippingOrder.getLines().size() == 1) {
+		if(!shippingOrderLineService.existsByShippingOrder(shippingOrder)) {
 			// remove empty order
 			manager.removeValidated(shippingOrder);
 		}

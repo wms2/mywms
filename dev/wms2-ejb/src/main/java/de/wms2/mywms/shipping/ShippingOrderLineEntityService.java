@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import de.wms2.mywms.entity.PersistenceManager;
@@ -106,4 +107,19 @@ public class ShippingOrderLineEntityService {
 		}
 		return null;
 	}
+
+	public boolean existsByShippingOrder(ShippingOrder shippingOrder) {
+		String jpql = " SELECT 1 FROM " + ShippingOrderLine.class.getName() + " entity ";
+		jpql += " WHERE entity.shippingOrder=:shippingOrder";
+		Query query = manager.createQuery(jpql);
+		query.setParameter("shippingOrder", shippingOrder);
+		query.setMaxResults(1);
+		try {
+			query.getSingleResult();
+			return true;
+		} catch (NoResultException e) {
+		}
+		return false;
+	}
+
 }
