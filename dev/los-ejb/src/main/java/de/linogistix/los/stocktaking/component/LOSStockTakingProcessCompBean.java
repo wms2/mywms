@@ -187,7 +187,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 	public void processLocationEmpty(StorageLocation sl)
 			throws UnAuthorizedException, LOSStockTakingException {
 
-		String operator = null;
 		List<LOSStocktakingOrder> soList;
 		soList = queryStOrderService.getListByLocationAndState(sl.getName(),
 				LOSStocktakingState.CREATED, LOSStocktakingState.STARTED);
@@ -231,7 +230,10 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 				sl.setStockTakingDate(Calendar.getInstance().getTime());
 				sl.setLock(0);
-				journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), so.getOperator(), null);
+
+				User operator = userService.readIgnoreCase(so.getOperator());
+
+				journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), operator, null);
 
 			}
 		} else {
@@ -258,7 +260,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 				// location is correctly counted empty
 				for (LOSStocktakingOrder so : soList) {
-					operator = so.getOperator();
 					
 					// we will mark location as correctly counted empty
 					LOSStocktakingRecord rec = entityGenerator.generateEntity( LOSStocktakingRecord.class );					
@@ -288,7 +289,6 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			} else {
 
 				for (LOSStocktakingOrder so : soList) {
-					operator = so.getOperator();
 
 					for (UnitLoad ul : missingUlList) {
 
@@ -693,6 +693,8 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			}
 		}
 
+		User operator = userService.readIgnoreCase(so.getOperator());
+
 		// Not all finished counting record mean, that everything is counted.
 		// There may be empty unit loads. In this case the state will be set to counted
 		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null);
@@ -710,16 +712,16 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 			for (UnitLoad ul : ulList) {
 				ul.setStockTakingDate(Calendar.getInstance().getTime());
-				journalHandler.recordCounting(null, ul, sl, "ST "+so.getId().toString(), so.getOperator(), null);
+				journalHandler.recordCounting(null, ul, sl, "ST "+so.getId().toString(), operator, null);
 				
 				for( StockUnit su : ul.getStockUnitList() ) {
-					journalHandler.recordCounting(su, ul, sl, "ST "+so.getId().toString(), so.getOperator(), null);
+					journalHandler.recordCounting(su, ul, sl, "ST "+so.getId().toString(), operator, null);
 				}
 			}
 
 			sl.setStockTakingDate(Calendar.getInstance().getTime());
 			sl.setLock(0);
-			journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), so.getOperator(), null);
+			journalHandler.recordCounting(null, null, sl, "ST "+so.getId().toString(), operator, null);
 
 			for (LOSStocktakingOrder sot : soList) {
 
@@ -933,19 +935,19 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			sl.setStockTakingDate( new Date() );
 			sl.setLock(0);
 			stOrder.getStockTaking();
-			journalHandler.recordCounting(null, null, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
+			journalHandler.recordCounting(null, null, sl, "ST "+stOrder.getId().toString(), operator, null);
 
 			for( UnitLoad ul : sl.getUnitLoads() ) {
 				if( !ul.getStorageLocation().equals(sl) ) {
 					continue;
 				}
-				journalHandler.recordCounting(null, ul, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
+				journalHandler.recordCounting(null, ul, sl, "ST "+stOrder.getId().toString(), operator, null);
 				
 				for( StockUnit su : ul.getStockUnitList() ) {
 					if( !su.getUnitLoad().equals(ul) ) {
 						continue;
 					}
-					journalHandler.recordCounting(su, ul, sl, "ST "+stOrder.getId().toString(), stOrder.getOperator(), null);
+					journalHandler.recordCounting(su, ul, sl, "ST "+stOrder.getId().toString(), operator, null);
 				}
 			}
 		}
