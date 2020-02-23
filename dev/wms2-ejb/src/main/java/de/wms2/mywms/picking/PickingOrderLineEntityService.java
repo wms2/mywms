@@ -62,7 +62,7 @@ public class PickingOrderLineEntityService {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<PickingOrderLine> readList(StockUnit pickFromStockUnit, PickingOrder pickingOrder,
-			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Packet paket, Integer stateMin, Integer stateMax) {
+			DeliveryOrder deliveryOrder, DeliveryOrderLine deliveryOrderLine, Packet packet, Integer stateMin, Integer stateMax) {
 
 		String jpql = " SELECT entity FROM " + PickingOrderLine.class.getName() + " entity ";
 		jpql += " WHERE 1=1";
@@ -77,6 +77,9 @@ public class PickingOrderLineEntityService {
 		}
 		if (deliveryOrder != null) {
 			jpql += " and entity.deliveryOrderLine.deliveryOrder=:deliveryOrder";
+		}
+		if (packet != null) {
+			jpql += " and entity.packet=:packet";
 		}
 		if (stateMin != null) {
 			jpql += " and entity.state>=:stateMin";
@@ -97,6 +100,9 @@ public class PickingOrderLineEntityService {
 		}
 		if (deliveryOrder != null) {
 			query.setParameter("deliveryOrder", deliveryOrder);
+		}
+		if (packet != null) {
+			query.setParameter("packet", packet);
 		}
 		if (stateMin != null) {
 			query.setParameter("stateMin", stateMin);

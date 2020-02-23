@@ -51,6 +51,7 @@ import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.report.ReportBusiness;
 import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.shipping.ShippingOrderLine;
+import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 public class DeliveryReportGenerator {
@@ -280,6 +281,9 @@ public class DeliveryReportGenerator {
 
 		List<Packet> packets = packetService.readByDeliveryOrder(order);
 		for (Packet packet : packets) {
+			if(packet.getState()>OrderState.FINISHED) {
+				continue;
+			}
 			registerItems(reportItemMap, packet.getUnitLoad(), packet, false);
 		}
 

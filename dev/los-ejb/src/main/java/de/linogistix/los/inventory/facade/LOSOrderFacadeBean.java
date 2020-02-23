@@ -17,8 +17,6 @@ import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -43,10 +41,9 @@ import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.delivery.DeliveryOrderEntityService;
 import de.wms2.mywms.delivery.DeliveryOrderLine;
 import de.wms2.mywms.delivery.DeliveryOrderLineEntityService;
-import de.wms2.mywms.delivery.DeliveryOrderStateChangeEvent;
 import de.wms2.mywms.delivery.DeliveryReportGenerator;
 import de.wms2.mywms.document.Document;
-import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.inventory.InventoryBusiness;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
@@ -62,11 +59,13 @@ import de.wms2.mywms.picking.PickingOrderLineEntityService;
 import de.wms2.mywms.picking.PickingOrderLineGenerator;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataEntityService;
+import de.wms2.mywms.shipping.ShippingBusiness;
 import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.shipping.ShippingOrderEntityService;
 import de.wms2.mywms.shipping.ShippingOrderLine;
 import de.wms2.mywms.shipping.ShippingOrderLineEntityService;
 import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.strategy.OrderStateCalculator;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.transport.TransportBusiness;
@@ -129,7 +128,13 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 	@Inject
 	private DeliveryOrderLineEntityService deliveryOrderLineService;
 	@Inject
-	private Event<DeliveryOrderStateChangeEvent> deliveryOrderStateChangeEvent;
+	private PacketEntityService packetEntityService;
+	@Inject
+	private OrderStateCalculator orderStateCalculator;
+	@Inject
+	private ShippingBusiness shippingBusiness;
+	@Inject
+	private InventoryBusiness inventoryBusiness;
 
 	public DeliveryOrder order(String clientNumber, String externalNumber, OrderPositionTO[] positions,
 			String documentUrl, String labelUrl, String destinationName, String orderStrategyName, Date deliveryDate,
@@ -264,6 +269,23 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		for( PickingOrder po : pickingOrderSet ) {
 			orderBusiness.recalculatePickingOrderState(po);
 		}
+
+		List<Packet> packets = packetEntityService.readByDeliveryOrder(order);
+		for (Packet packet : packets) {
+			if (packet.getState() > OrderState.SHIPPED) {
+				continue;
+			}
+
+			List<ShippingOrderLine> shippingOrderLines = shippingOrderLineService.readListByPacket(packet);
+			for (ShippingOrderLine shippingOrderLine : shippingOrderLines) {
+				if (shippingOrderLine.getState() < OrderState.FINISHED) {
+					shippingBusiness.removeLine(shippingOrderLine);
+				}
+			}
+
+			inventoryBusiness.transferToClearing(packet.getUnitLoad(), order.getOrderNumber(), null, null);
+		}
+
 		orderBusiness.finishDeliveryOrder(order);
 		
 		return order;
@@ -292,17 +314,22 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			if( pick.getState()<State.PICKED ) {
 				orderBusiness.cancelPick(pick);
 			}
+			log.debug(logStr + "remove PickingOrderLine=" + pick);
 			manager.remove(pick);
+			if( po != null ) {
+				po.getLines().remove(pick);
+			}
 		}
 		
 		// 2. remove all customer order positions
 		for( DeliveryOrderLine pos : order.getLines() ) {
+			log.debug(logStr + "remove DeliveryOrderLine=" + pos);
 			manager.remove(pos);
 		}
 
 		manager.flush();
 		
-		// 3. Find all LOSPickingOrder without position 
+		// 3. Find all PickingOrder without position 
 		Set<PickingOrder> pickingOrderSetRemovable = new HashSet<PickingOrder>();
 		Set<Packet> pickingUnitLoadSetRemovable = new HashSet<Packet>();
 		Set<ShippingOrder> goodsOutRequestSetRemovable = new HashSet<>();
@@ -315,11 +342,9 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			}
 		}
 
-
-		// 4. Remove all LOSPickingUnitLoad and LOSGoodsOutRequestPosition with removable LOSPickingOrder
+		// 4. Remove all Packet and ShippingOrderLine with removable PickingOrder
 		for( Packet pul : pickingUnitLoadSetRemovable ) {
 			UnitLoad ul = pul.getUnitLoad();
-			
 
 			List<TransportOrder> storageList = transportOrderService.readList(ul, null, null, null);
 			for( TransportOrder storageReq : storageList ) {
@@ -329,18 +354,23 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			List<ShippingOrderLine> outPosList = shippingOrderLineService.readListByPacket(pul);
 			for( ShippingOrderLine outPos : outPosList ) {
 				goodsOutRequestSetRemovable.add(outPos.getShippingOrder());
+				log.debug(logStr + "remove ShippingOrderLine=" + outPos);
 				manager.remove(outPos);
 			}
 			
 			for( StockUnit su : ul.getStockUnitList() ) {
 				manager.remove(su);
 			}
+			pul.setDeliveryOrder(null);
+			log.debug(logStr + "remove Packet=" + pul);
 			manager.remove(pul);
+			log.debug(logStr + "remove UnitLoad=" + ul);
 			manager.remove(ul);
 		}
 
 		// 5. Remove empty picking orders
 		for( PickingOrder po : pickingOrderSetRemovable ) {
+			log.debug(logStr+"remove PickingOrder="+po);
 			manager.remove(po);
 		}
 		
@@ -349,6 +379,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		// 6. Remove empty shipping orders
 		for( ShippingOrder outReq : goodsOutRequestSetRemovable ) {
 			if( outReq != null && outReq.getLines().size()<=0 ) {
+				log.debug(logStr + "remove ShippingOrder=" + outReq);
 				manager.remove(outReq);
 			}
 		}
@@ -360,22 +391,39 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				continue;
 			}
 			for( ShippingOrderLine outPos : outReq.getLines() ) {
+				log.debug(logStr + "remove ShippingOrderLine=" + outPos);
 				manager.remove(outPos);
 			}
+			log.debug(logStr + "remove ShippingOrder=" + outReq);
 			manager.remove(outReq);
 		}
 
 		
 		manager.flush();
 
-		// 8. Remove address
+		// 8. Remove directly addressed packets
+		List<Packet> packets = packetEntityService.readByDeliveryOrder(order);
+		for( Packet packet : packets ) {
+			UnitLoad unitLoad = packet.getUnitLoad();
+			for( StockUnit stockUnit : unitLoad.getStockUnitList() ) {
+				log.debug(logStr + "remove StockUnit=" + stockUnit);
+				manager.remove(stockUnit);
+			}
+			log.debug(logStr+"remove Packet="+packet);
+			manager.remove(packet);
+			log.debug(logStr + "remove UnitLoad=" + packet.getUnitLoad());
+			manager.remove(packet.getUnitLoad());
+		}
+
+		// 9. Remove address
 		Address address = order.getAddress();
 		if (address != null) {
 			order.setAddress(null);
 			addressEntityService.removeIfUnused(address);
 		}
 
-		// 9. Remove order
+		// 10. Remove order
+		log.debug(logStr + "remove DeliveryOrder=" + order);
 		manager.remove(order);
 	}
 
@@ -509,28 +557,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				}
 			}
 
-			int stateOld = deliveryOrder.getState();
-			if( stateOld<OrderState.PICKED) {
-				deliveryOrder.setState(OrderState.PICKED);
-			}
-			if( deliveryOrder.getState() != stateOld ) {
-				fireDeliveryOrderStateChangeEvent(deliveryOrder, stateOld);
-			}
+			orderStateCalculator.calculateDeliveryOrderState(deliveryOrder);
 		}
 	}
-
-	private void fireDeliveryOrderStateChangeEvent(DeliveryOrder entity, int oldState) throws BusinessException {
-		try {
-			log.debug("Fire DeliveryOrderStateChangeEvent. entity=" + entity + ", state=" + entity.getState()
-					+ ", oldState=" + oldState);
-			deliveryOrderStateChangeEvent.fire(new DeliveryOrderStateChangeEvent(entity, oldState, entity.getState()));
-		} catch (ObserverException ex) {
-			Throwable cause = ex.getCause();
-			if (cause != null && cause instanceof BusinessException) {
-				throw (BusinessException) cause;
-			}
-			throw ex;
-		}
-	}
-
 }

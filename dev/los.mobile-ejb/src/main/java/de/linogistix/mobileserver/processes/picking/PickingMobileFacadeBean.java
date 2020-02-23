@@ -186,7 +186,7 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 	
 	public void releaseOrder(long orderId) throws FacadeException {
 		PickingOrder order = getPickingOrder(orderId);
-		if( order != null ) {
+		if( order != null && order.getState() < State.FINISHED ) {
 			pickingBusiness.resetPickingOrder(order);
 		}
 	}
