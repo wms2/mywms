@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -117,7 +117,7 @@ public class TransportBusiness {
 		order.setState(OrderState.STARTED);
 
 		if (order.getState() != orderState) {
-			fireRelocateOrderStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
@@ -144,7 +144,7 @@ public class TransportBusiness {
 		}
 
 		if (orderState != order.getState()) {
-			fireRelocateOrderStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
@@ -160,8 +160,8 @@ public class TransportBusiness {
 	 * @param destinationLocation If null a location will be searched
 	 * @param strategy            If null the default will be used
 	 */
-	public TransportOrder createOrder(UnitLoad unitLoad, StorageLocation destinationLocation, int orderType, StorageStrategy strategy)
-			throws BusinessException {
+	public TransportOrder createOrder(UnitLoad unitLoad, StorageLocation destinationLocation, int orderType,
+			StorageStrategy strategy) throws BusinessException {
 		String logStr = "createOrder ";
 		logger.log(Level.FINE, logStr + "unitLoad=" + unitLoad + ", destinationLocation=" + destinationLocation
 				+ ", strategy=" + strategy);
@@ -205,7 +205,7 @@ public class TransportBusiness {
 		locationReserver.reserveLocation(destinationLocation, unitLoad, TransportOrder.class, order.getId(),
 				order.getOrderNumber());
 
-		fireRelocateOrderStateChangeEvent(order, -1);
+		fireTransportOrderStateChangeEvent(order, -1);
 
 		return order;
 	}
@@ -237,7 +237,7 @@ public class TransportBusiness {
 		order.setClient(unitLoad.getClient());
 		manager.persist(order);
 
-		fireRelocateOrderStateChangeEvent(order, -1);
+		fireTransportOrderStateChangeEvent(order, -1);
 
 		return order;
 	}
@@ -301,11 +301,11 @@ public class TransportBusiness {
 		}
 
 		if (orderState != order.getState()) {
-			fireRelocateOrderStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		if (partialProcessed) {
-			fireRelocateOrderPartialProcessEvent(order);
+			fireTransportOrderPartialProcessEvent(order);
 		}
 
 		return order;
@@ -329,7 +329,7 @@ public class TransportBusiness {
 
 		predecessor.setSuccessor(successor);
 
-		fireRelocateOrderStateChangeEvent(successor, -1);
+		fireTransportOrderStateChangeEvent(successor, -1);
 
 		return successor;
 	}
@@ -367,14 +367,15 @@ public class TransportBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Relocate.cannotHandleMoreThanOneStock");
 		}
 		StockUnit stock = stocksOnUnitLoad.get(0);
-		inventoryBusiness.transferStock(stock, destinationUnitLoad, null, destinationUnitLoad.getState(), order.getOrderNumber(), operator, null);
+		inventoryBusiness.transferStock(stock, destinationUnitLoad, null, destinationUnitLoad.getState(),
+				order.getOrderNumber(), operator, null);
 		if (orderState != order.getState()) {
-			fireRelocateOrderStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
-	
+
 	public TransportOrder confirmOrder(TransportOrder order, StockUnit destinationStockUnit) throws BusinessException {
 		String logStr = "confirmOrder ";
 		logger.log(Level.FINE, logStr + "order=" + order + ", destinationStockUnit=" + destinationStockUnit);
@@ -411,7 +412,7 @@ public class TransportBusiness {
 		inventoryBusiness.transferStock(stock, destinationStockUnit, null, order.getOrderNumber(), operator, null);
 
 		if (orderState != order.getState()) {
-			fireRelocateOrderStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
@@ -434,7 +435,7 @@ public class TransportBusiness {
 		}
 
 		if (orderState != order.getState()) {
-			fireRelocateOrderStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		try {
@@ -464,7 +465,9 @@ public class TransportBusiness {
 		return order;
 	}
 
-	private void fireRelocateOrderStateChangeEvent(TransportOrder entity, int oldState) throws BusinessException {
+	private void fireTransportOrderStateChangeEvent(TransportOrder entity, int oldState) throws BusinessException {
+		logger.log(Level.FINE, "fireTransportOrderStateChangeEvent entity=" + entity + ", oldState=" + oldState
+				+ ", newState=" + entity.getState());
 		try {
 			stateChangeEvent.fire(new TransportOrderStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
@@ -476,7 +479,8 @@ public class TransportBusiness {
 		}
 	}
 
-	private void fireRelocateOrderPartialProcessEvent(TransportOrder entity) throws BusinessException {
+	private void fireTransportOrderPartialProcessEvent(TransportOrder entity) throws BusinessException {
+		logger.log(Level.FINE, "fireTransportOrderPartialProcessEvent entity=" + entity);
 		try {
 			partialProcessEvent.fire(new TransportOrderPartialProcessEvent(entity));
 		} catch (ObserverException ex) {

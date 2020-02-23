@@ -33,6 +33,7 @@ public class TransportOrderStateChangeEvent {
 	public TransportOrderStateChangeEvent(TransportOrder transportOrder, int oldState, int newState) {
 		this.transportOrder = transportOrder;
 		this.oldState = oldState;
+		this.newState = newState;
 	}
 
 	public TransportOrder getTransportOrder() {
