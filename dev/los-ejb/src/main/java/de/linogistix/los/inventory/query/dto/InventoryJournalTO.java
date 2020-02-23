@@ -42,7 +42,7 @@ public class InventoryJournalTO extends BODTO<InventoryJournal> {
 	public BigDecimal amountStock;
 
 	public String activityCode;
-	public String type;
+	public int type;
 	private String unitLoadType;
 	private Date recordDate;
 
@@ -55,7 +55,7 @@ public class InventoryJournalTO extends BODTO<InventoryJournal> {
 
 	public InventoryJournalTO(Long id, int version, Long name, String itemData, String lot, BigDecimal amount,
 			BigDecimal amountStock, String fromSl, String fromUl, String toSl, String toUl, String activityCode,
-			String type, Date recordDate, String unitLoadType) {
+			int type, Date recordDate, String unitLoadType) {
 		super(id, version, name);
 		this.itemData = itemData;
 		this.lot = lot;
@@ -144,11 +144,11 @@ public class InventoryJournalTO extends BODTO<InventoryJournal> {
 		this.activityCode = activityCode;
 	}
 
-	public String getType() {
+	public int getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(int type) {
 		this.type = type;
 	}
 

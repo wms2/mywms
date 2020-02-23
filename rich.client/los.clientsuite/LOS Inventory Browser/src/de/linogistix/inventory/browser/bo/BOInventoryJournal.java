@@ -25,8 +25,13 @@ import de.linogistix.inventory.browser.masternode.BOInventoryJournalMasterNode;
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.inventory.query.InventoryJournalQueryRemote;
+import de.linogistix.los.model.Prio;
+import de.linogistix.los.model.State;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.wms2.mywms.inventory.InventoryJournal;
+import de.wms2.mywms.inventory.InventoryJournalRecordType;
+import java.util.ArrayList;
+import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node;
@@ -104,5 +109,20 @@ public class BOInventoryJournal extends BO {
     @Override
     protected Class<? extends Node> initBoMasterNodeType() {
         return BOInventoryJournalMasterNode.class;
+    }
+
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "recordType".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(InventoryJournalRecordType.CREATED);
+            entryList.add(InventoryJournalRecordType.CHANGED);
+            entryList.add(InventoryJournalRecordType.TRANSFERED);
+            entryList.add(InventoryJournalRecordType.COUNTED);
+            entryList.add(InventoryJournalRecordType.REMOVED);
+
+            return entryList;
+        }
+        return super.getValueList(fieldName);
     }
 }

@@ -682,7 +682,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				if( pickFromLocation.getUnitLoads().size()<2 ) {
 					pickFromLocation.setStockTakingDate(new Date());
 				}
-				String operator = contextService.getCallerUserName();
+				User operator = contextService.getCallersUser();
 				journalHandler.recordCounting(pickFromStock, pickFromUnitLoad, pickFromLocation, activityCode, operator, null);
 			}
 		}

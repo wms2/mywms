@@ -1,5 +1,6 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -26,10 +27,10 @@ package de.wms2.mywms.inventory;
  */
 public class InventoryJournalRecordType {
 
-	public static final String CREATED = "CREATED";
-	public static final String CHANGED = "CHANGED";
-	public static final String REMOVED = "REMOVED";
-	public static final String TRANSFERED = "TRANSFERED";
-	public static final String COUNTED = "COUNTED";
+	public static final int CREATED = 1;
+	public static final int CHANGED = 2;
+	public static final int TRANSFERED = 3;
+	public static final int COUNTED = 7;
+	public static final int REMOVED = 10;
 
 }

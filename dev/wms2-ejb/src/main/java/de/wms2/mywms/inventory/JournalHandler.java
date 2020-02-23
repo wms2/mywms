@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.mywms.model.Client;
+import org.mywms.model.User;
 
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
@@ -44,7 +45,7 @@ public class JournalHandler {
 	@Inject
 	private PersistenceManager manager;
 
-	public InventoryJournal recordCreation(UnitLoad unitLoad, String activityCode, String operator, String note)
+	public InventoryJournal recordCreation(UnitLoad unitLoad, String activityCode, User operator, String note)
 			throws BusinessException {
 		InventoryJournal rec = manager.createInstance(InventoryJournal.class);
 		rec.setClient(unitLoad.getClient());
@@ -68,7 +69,7 @@ public class JournalHandler {
 		return rec;
 	}
 
-	public InventoryJournal recordCreation(StockUnit stock, BigDecimal amount, String activityCode, String operator,
+	public InventoryJournal recordCreation(StockUnit stock, BigDecimal amount, String activityCode, User operator,
 			String note) {
 		if (BigDecimal.ZERO.compareTo(amount) == 0) {
 			logger.log(Level.FINER, "Do not record zero amount creation");
@@ -112,7 +113,7 @@ public class JournalHandler {
 	}
 
 	public InventoryJournal recordChangeAmount(Client client, StockUnit stock, BigDecimal amount, String activityCode,
-			String operator, String note) {
+			User operator, String note) {
 		if (client == null) {
 			client = stock.getClient();
 		}
@@ -154,7 +155,7 @@ public class JournalHandler {
 	}
 
 	public InventoryJournal recordTransferStock(StockUnit stock, UnitLoad unitLoadOld, StorageLocation locationOld,
-			String activityCode, String operator, String note) {
+			String activityCode, User operator, String note) {
 		if (BigDecimal.ZERO.compareTo(stock.getAmount()) == 0) {
 			logger.log(Level.FINER, "Do not record zero amount transfer");
 			return null;
@@ -200,7 +201,7 @@ public class JournalHandler {
 	}
 
 	public void recordChangeClient(StockUnit stock, Client clientOld, Client clientNew, UnitLoad unitLoadOld,
-			StorageLocation locationOld, String activityCode, String operator, String note) {
+			StorageLocation locationOld, String activityCode, User operator, String note) {
 		if (BigDecimal.ZERO.compareTo(stock.getAmount()) == 0) {
 			logger.log(Level.FINER, "Do not record zero amount transfer");
 			return;
@@ -267,7 +268,7 @@ public class JournalHandler {
 	}
 
 	public InventoryJournal recordTransferUnitLoad(UnitLoad fromUnitLoad, UnitLoad toUnitLoad,
-			StorageLocation fromLocation, StorageLocation toLocation, String activityCode, String operator,
+			StorageLocation fromLocation, StorageLocation toLocation, String activityCode, User operator,
 			String note) {
 		InventoryJournal rec = manager.createInstance(InventoryJournal.class);
 		rec.setClient(fromUnitLoad.getClient());
@@ -292,7 +293,7 @@ public class JournalHandler {
 	}
 
 	public InventoryJournal recordCounting(StockUnit stock, UnitLoad unitLoad, StorageLocation location,
-			String activityCode, String operator, String note) {
+			String activityCode, User operator, String note) {
 		InventoryJournal rec = manager.createInstance(InventoryJournal.class);
 
 		if (stock != null) {

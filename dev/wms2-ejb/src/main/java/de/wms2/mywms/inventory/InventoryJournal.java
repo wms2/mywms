@@ -25,9 +25,12 @@ import java.util.logging.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
+import org.mywms.model.User;
 
 /**
  * Journal to protocol changes of the stock units
@@ -56,11 +59,11 @@ public class InventoryJournal extends BasicClientAssignedEntity {
 	@Column(updatable = false)
 	private String activityCode;
 
-	@Column(updatable = false)
-	private String operator;
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private User operator;
 
 	@Column(nullable = false, updatable = false)
-	private String recordType;
+	private int recordType;
 
 	@Column(updatable = false)
 	private String productNumber;
@@ -159,19 +162,19 @@ public class InventoryJournal extends BasicClientAssignedEntity {
 		this.activityCode = activityCode;
 	}
 
-	public String getOperator() {
+	public User getOperator() {
 		return operator;
 	}
 
-	public void setOperator(String operator) {
+	public void setOperator(User operator) {
 		this.operator = operator;
 	}
 
-	public String getRecordType() {
+	public int getRecordType() {
 		return recordType;
 	}
 
-	public void setRecordType(String recordType) {
+	public void setRecordType(int recordType) {
 		this.recordType = recordType;
 	}
 

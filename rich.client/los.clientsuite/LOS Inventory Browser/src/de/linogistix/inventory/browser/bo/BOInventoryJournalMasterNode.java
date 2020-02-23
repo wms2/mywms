@@ -22,6 +22,7 @@ import de.linogistix.common.bobrowser.bo.BOMasterNode;
 
 import de.linogistix.common.bobrowser.bo.BO;
 import de.linogistix.common.res.CommonBundleResolver;
+import de.linogistix.common.util.BundleResolve;
 
 import de.linogistix.inventory.res.InventoryBundleResolver;
 import de.linogistix.los.inventory.query.dto.InventoryJournalTO;
@@ -63,7 +64,11 @@ public class BOInventoryJournalMasterNode extends BOMasterNode {
 
         if (sheet == null) {
             sheet = new Sheet.Set();
-            BOMasterNodeProperty<String> type = new BOMasterNodeProperty<String>("type", String.class, recordTo.getType(), InventoryBundleResolver.class);
+            String typeStr = BundleResolve.resolve(new Class[]{bo.getBundleResolver(),InventoryBundleResolver.class},"recordType."+recordTo.getType(), new Object[0], false);
+            if( typeStr == null || typeStr.length()==0 ) {
+                typeStr = String.valueOf(recordTo.getType());
+            }
+            BOMasterNodeProperty<String> type = new BOMasterNodeProperty<String>("type", String.class, typeStr, InventoryBundleResolver.class);
             sheet.put(type);
             BOMasterNodeProperty<String> activityCode = new BOMasterNodeProperty<String>("activityCode", String.class, recordTo.getActivityCode(), InventoryBundleResolver.class);
             sheet.put(activityCode);

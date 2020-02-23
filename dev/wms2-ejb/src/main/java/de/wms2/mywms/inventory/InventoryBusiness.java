@@ -165,9 +165,7 @@ public class InventoryBusiness {
 
 		locationReserver.allocateLocation(location, unitLoad);
 
-		String operatorName = (operator == null ? null : operator.getName());
-
-		recordService.recordCreation(unitLoad, activityCode, operatorName, note);
+		recordService.recordCreation(unitLoad, activityCode, operator, note);
 
 		fireUnitLoadTransferLocationEvent(unitLoad, null, location, activityCode, operator, note);
 
@@ -268,9 +266,8 @@ public class InventoryBusiness {
 		if (operator == null) {
 			operator = userBusiness.getCurrentUser();
 		}
-		String operatorName = (operator == null ? null : operator.getName());
 
-		recordService.recordTransferUnitLoad(unitLoad, unitLoad, source, dest, activityCode, operatorName, note);
+		recordService.recordTransferUnitLoad(unitLoad, unitLoad, source, dest, activityCode, operator, note);
 
 		fireUnitLoadTransferLocationEvent(unitLoad, source, dest, activityCode, operator, note);
 
@@ -331,9 +328,8 @@ public class InventoryBusiness {
 				BigDecimal oldAmount = stock.getAmount();
 				if (oldAmount.compareTo(BigDecimal.ZERO) > 0) {
 					stock.setAmount(BigDecimal.ZERO);
-					String operatorName = (operator == null ? null : operator.getName());
 					recordService.recordChangeAmount(stock.getClient(), stock, oldAmount.negate(), activityCode,
-							operatorName, note);
+							operator, note);
 				}
 			}
 		}
@@ -530,9 +526,8 @@ public class InventoryBusiness {
 				continue;
 			}
 			stockUnit.setClient(client);
-			String operatorName = (operator == null ? null : operator.getName());
 			recordService.recordChangeClient(stockUnit, oldClient, client, stockUnit.getUnitLoad(),
-					stockUnit.getUnitLoad().getStorageLocation(), activityCode, operatorName, note);
+					stockUnit.getUnitLoad().getStorageLocation(), activityCode, operator, note);
 		}
 		unitLoad.setClient(client);
 
@@ -669,10 +664,8 @@ public class InventoryBusiness {
 
 		unitLoad.setStorageLocation(destination.getStorageLocation());
 
-		String operatorName = (operator == null ? null : operator.getName());
-
 		recordService.recordTransferUnitLoad(unitLoad, destination, unitLoad.getStorageLocation(),
-				destination.getStorageLocation(), activityCode, operatorName, note);
+				destination.getStorageLocation(), activityCode, operator, note);
 
 		fireUnitLoadTransferCarrierEvent(unitLoad, destination, activityCode, operator, note);
 
@@ -788,8 +781,7 @@ public class InventoryBusiness {
 			if (operator == null) {
 				operator = userBusiness.getCurrentUser();
 			}
-			String operatorName = (operator == null ? null : operator.getName());
-			recordService.recordCreation(stockUnit, stockUnit.getAmount(), activityCode, operatorName, note);
+			recordService.recordCreation(stockUnit, stockUnit.getAmount(), activityCode, operator, note);
 
 			fireStockUnitChangeAmountEvent(client, stockUnit, BigDecimal.ZERO, activityCode, operator, note,
 					sendNotify);
@@ -858,11 +850,10 @@ public class InventoryBusiness {
 		if (operator == null) {
 			operator = userBusiness.getCurrentUser();
 		}
-		String operatorName = (operator == null ? null : operator.getName());
-		recordService.recordChangeAmount(fromStock.getClient(), fromStock, amount.negate(), activityCode, operatorName,
+		recordService.recordChangeAmount(fromStock.getClient(), fromStock, amount.negate(), activityCode, operator,
 				note);
 
-		recordService.recordCreation(toStock, amount, activityCode, operatorName, note);
+		recordService.recordCreation(toStock, amount, activityCode, operator, note);
 
 		fireStockUnitChangeAmountEvent(fromStock.getClient(), fromStock, fromAmount, activityCode, operator, note,
 				false);
@@ -989,12 +980,11 @@ public class InventoryBusiness {
 			addWeight(unitLoadOld, stock.getItemData(), stock.getAmount().negate());
 			addWeight(toUnitLoad, stock.getItemData(), stock.getAmount());
 
-			String operatorName = (operator == null ? null : operator.getName());
 			if (!oldClient.equals(toUnitLoad.getClient())) {
 				recordService.recordChangeClient(stock, oldClient, toUnitLoad.getClient(), unitLoadOld, locationOld,
-						activityCode, operatorName, note);
+						activityCode, operator, note);
 			} else {
-				recordService.recordTransferStock(stock, unitLoadOld, locationOld, activityCode, operatorName, note);
+				recordService.recordTransferStock(stock, unitLoadOld, locationOld, activityCode, operator, note);
 			}
 
 			processEmpties(unitLoadOld, true, activityCode, operator, note);
@@ -1068,8 +1058,7 @@ public class InventoryBusiness {
 			stock.getUnitLoad().setOpened(true);
 			addWeight(stock.getUnitLoad(), stock.getItemData(), diffAmount);
 
-			String operatorName = (operator == null ? null : operator.getName());
-			recordService.recordChangeAmount(client, stock, diffAmount, activityCode, operatorName, note);
+			recordService.recordChangeAmount(client, stock, diffAmount, activityCode, operator, note);
 
 			fireStockUnitChangeAmountEvent(client, stock, oldAmount, activityCode, operator, note, sendNotify);
 		}
@@ -1129,8 +1118,7 @@ public class InventoryBusiness {
 		BigDecimal oldAmount = stock.getAmount();
 		if (oldAmount.compareTo(BigDecimal.ZERO) > 0) {
 			stock.setAmount(BigDecimal.ZERO);
-			String operatorName = (operator == null ? null : operator.getName());
-			recordService.recordChangeAmount(stock.getClient(), stock, oldAmount.negate(), activityCode, operatorName,
+			recordService.recordChangeAmount(stock.getClient(), stock, oldAmount.negate(), activityCode, operator,
 					note);
 		}
 
@@ -1182,7 +1170,8 @@ public class InventoryBusiness {
 			return false;
 		}
 		if (!StringUtils.equals(stock1.getLotNumber(), stock2.getLotNumber())) {
-			logger.log(Level.FINE, logStr + "Lot not equal. lot1=" + stock1.getLotNumber() + ", item2=" + stock2.getLotNumber());
+			logger.log(Level.FINE,
+					logStr + "Lot not equal. lot1=" + stock1.getLotNumber() + ", item2=" + stock2.getLotNumber());
 			return false;
 		}
 		if (!Objects.equals(stock1.getBestBefore(), stock2.getBestBefore())) {
