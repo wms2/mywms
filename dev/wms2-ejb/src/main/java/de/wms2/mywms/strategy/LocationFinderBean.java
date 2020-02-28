@@ -23,10 +23,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -277,7 +275,7 @@ public class LocationFinderBean implements LocationFinder {
 		StorageLocation location = null;
 
 		Client stockClient = unitLoad.getClient();
-		Set<Client> clients = new HashSet<Client>();
+		List<Client> clients = new ArrayList<Client>();
 		clients.add(stockClient);
 		if (!strategy.isOnlyClientLocation() && !stockClient.isSystemClient()) {
 			Client systemClient = clientBusiness.getSystemClient();
