@@ -68,6 +68,8 @@ public class SequenceNumber extends BasicEntity {
 	@Column(nullable = false)
 	private long endCounter = 9999;
 
+	private String checkDigitType;
+
 	@Override
 	public String toString() {
 		if (name != null) {
@@ -100,12 +102,28 @@ public class SequenceNumber extends BasicEntity {
 		this.format = format;
 	}
 
+	public long getStartCounter() {
+		return startCounter;
+	}
+
+	public void setStartCounter(long startCounter) {
+		this.startCounter = startCounter;
+	}
+
 	public long getEndCounter() {
 		return endCounter;
 	}
 
 	public void setEndCounter(long endCounter) {
 		this.endCounter = endCounter;
+	}
+
+	public String getCheckDigitType() {
+		return checkDigitType;
+	}
+
+	public void setCheckDigitType(String checkDigitType) {
+		this.checkDigitType = checkDigitType;
 	}
 
 }

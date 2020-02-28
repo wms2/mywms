@@ -360,6 +360,7 @@ Release 2.5
     - The lot is no more handled as separate entity. The functionality is moved to the stock unit. 
         With this individual lot and best-before handling of each stock unit is possible.
         Extinguish orders can be generated for single stock-units and unit-laods. Not only for a complete lot.
+    - Made the operator optional invisible in InventoryJournal
 
 
     Functional changes (for details have a look to the git repository)
@@ -374,19 +375,25 @@ Release 2.5
     - Added customer and sender to delivery order
     - Only use unit loads with the shipping-flag set for complete picking operation
     - Manual creation of shipping order is limited to one client
+    - Made the type of the InventoryJournal accessable for filters.
+    - Added optional check digits to sequences
 
 
     Technical changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
     - Reduce the amount of translation helper classes
+    - Changed user-name to user-reference in InventoryJournal. It's better for pseudonymization.
 
 
-    Bugfixes (for details have a look to the git repository)
+    Bugfixes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
-    - Enable address editing in rich client
+    - Enabled address editing in rich client
 
 
     Switch to Release 2.5
     -------------------------------------------------------------------------------
     - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
+    - The InventoryJournal has changed. Update the operator_id column with the id of the User whose name is in the old operator column
+    - The InventoryJournal has changed. The datatype of the recordtype column is changed from varchar to integer. Manually update the values based on the defined values in InventoryJournalRecordType
+
 

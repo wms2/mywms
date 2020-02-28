@@ -51,6 +51,8 @@ public class SequenceTransactionService {
 
 	@Inject
 	private PersistenceManager manager;
+	@Inject
+	private CheckDigitService checkDigitService;
 
 	public String readNextValue(String name) {
 		String logStr = "getNextValue ";
@@ -82,6 +84,10 @@ public class SequenceTransactionService {
 
 		try {
 			String value = String.format(format, currentCounter, new Date());
+			if (!StringUtils.isBlank(sequence.getCheckDigitType())) {
+				value += checkDigitService.calculateCheckDigit(value, sequence.getCheckDigitType());
+			}
+
 			return value;
 
 		} catch (Throwable t) {
