@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.shipping;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +29,8 @@ import java.util.logging.Logger;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
@@ -340,7 +343,7 @@ public class ShippingBusiness {
 					&& packet.getUnitLoad().getState() <= StockState.PICKED) {
 				// This line has been manual created. Remove line and packet and reactivate unit
 				// load
-				removeLine(line);
+				removeLineInternal(line);
 				continue;
 			}
 			int lineState = line.getState();
@@ -353,6 +356,8 @@ public class ShippingBusiness {
 				shippingOrder.setState(OrderState.FINISHED);
 			}
 		}
+
+		calculateWeight(shippingOrder);
 
 		if (shippingOrder.getState() != orderState) {
 			fireShippingOrderStateChangeEvent(shippingOrder, orderState);
@@ -461,8 +466,10 @@ public class ShippingBusiness {
 				shippingOrder.setState(OrderState.PROCESSABLE);
 			}
 
-			addLine(shippingOrder, packet);
+			addLineInternal(shippingOrder, packet);
 		}
+
+		calculateWeight(shippingOrder);
 
 		return shippingOrder;
 	}
@@ -490,6 +497,12 @@ public class ShippingBusiness {
 	}
 
 	public ShippingOrderLine addLine(ShippingOrder order, Packet packet) throws BusinessException {
+		ShippingOrderLine line = addLineInternal(order, packet);
+		calculateWeight(order);
+		return line;
+	}
+
+	private ShippingOrderLine addLineInternal(ShippingOrder order, Packet packet) throws BusinessException {
 		String logStr = "addLine ";
 		List<ShippingOrder> orders = shippingOrderService.readByPacket(packet);
 
@@ -497,20 +510,21 @@ public class ShippingBusiness {
 			if (affectedOrder.getState() < OrderState.FINISHED) {
 				logger.warning(logStr + "There is already a shipping order for packet. packet=" + packet
 						+ ", shippingOrder=" + affectedOrder);
-				throw new BusinessException(Wms2BundleResolver.class, "Shipping.existsShippingOrder", packet.toString());
+				throw new BusinessException(Wms2BundleResolver.class, "Shipping.existsShippingOrder",
+						packet.toString());
 			}
 		}
-		ShippingOrderLine pos = manager.createInstance(ShippingOrderLine.class);
-		pos.setPacket(packet);
-		pos.setShippingOrder(order);
-		pos.setState(OrderState.PROCESSABLE);
+		ShippingOrderLine line = manager.createInstance(ShippingOrderLine.class);
+		line.setPacket(packet);
+		line.setShippingOrder(order);
+		line.setState(OrderState.PROCESSABLE);
 
-		manager.persistValidated(pos);
+		manager.persistValidated(line);
 
-		if( order.getLines() == null) {
+		if (order.getLines() == null) {
 			order.setLines(new ArrayList<>());
 		}
-		order.getLines().add(pos);
+		order.getLines().add(line);
 
 		if (packet.getState() < OrderState.SHIPPING) {
 			int oldState = packet.getState();
@@ -518,7 +532,7 @@ public class ShippingBusiness {
 			firePacketStateChangeEvent(packet, oldState);
 		}
 
-		return pos;
+		return line;
 	}
 
 	public ShippingOrderLine addLine(ShippingOrder order, UnitLoad unitLoad) throws BusinessException {
@@ -534,6 +548,12 @@ public class ShippingBusiness {
 	}
 
 	public void removeLine(ShippingOrderLine line) throws BusinessException {
+		removeLineInternal(line);
+
+		calculateWeight(line.getShippingOrder());
+	}
+
+	public void removeLineInternal(ShippingOrderLine line) throws BusinessException {
 		// reset stock state for manual created shipping orders
 		Packet packet = line.getPacket();
 		ShippingOrder shippingOrder = line.getShippingOrder();
@@ -544,7 +564,7 @@ public class ShippingBusiness {
 
 		manager.removeValidated(line);
 
-		if(!shippingOrderLineService.existsByShippingOrder(shippingOrder)) {
+		if (!shippingOrderLineService.existsByShippingOrder(shippingOrder)) {
 			// remove empty order
 			manager.removeValidated(shippingOrder);
 		}
@@ -554,21 +574,20 @@ public class ShippingBusiness {
 			packet.getUnitLoad().setState(StockState.ON_STOCK);
 			manager.removeValidated(packet);
 		}
-
 	}
 
 	public void removeOrder(ShippingOrder shippingOrder) throws BusinessException {
 		String logStr = "removeOrder ";
 		int orderState = shippingOrder.getState();
 
-		if (orderState < OrderState.FINISHED && orderState>OrderState.PROCESSABLE) {
+		if (orderState < OrderState.FINISHED && orderState > OrderState.PROCESSABLE) {
 			logger.log(Level.WARNING,
 					logStr + "Order in progress. shippingOrder=" + shippingOrder + ", state=" + orderState);
 			throw new BusinessException(Wms2BundleResolver.class, "Shipping.orderAlreadyStarted");
 		}
 
 		for (ShippingOrderLine line : shippingOrder.getLines()) {
-			removeLine(line);
+			removeLineInternal(line);
 		}
 		manager.flush();
 		shippingOrder.setLines(null);
@@ -581,6 +600,25 @@ public class ShippingBusiness {
 
 		manager.removeValidated(shippingOrder);
 		manager.flush();
+	}
+
+	public void calculateWeight(ShippingOrder shippingOrder) {
+		if (shippingOrder == null) {
+			return;
+		}
+		shippingOrder.setWeight(null);
+
+		String jpql = "select sum(line.packet.unitLoad.weight) from ";
+		jpql += ShippingOrderLine.class.getName() + " line ";
+		jpql += " where line.shippingOrder=:shippingOrder";
+		TypedQuery<BigDecimal> query = manager.createQuery(jpql, BigDecimal.class);
+		query.setParameter("shippingOrder", shippingOrder);
+
+		try {
+			BigDecimal weight = query.getSingleResult();
+			shippingOrder.setWeight(weight);
+		} catch (NoResultException e) {
+		}
 	}
 
 	private void fireShippingOrderLineStateChangeEvent(ShippingOrderLine shippingOrderLine, int oldState)
