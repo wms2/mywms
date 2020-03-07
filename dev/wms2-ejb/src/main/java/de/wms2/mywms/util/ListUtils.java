@@ -1,5 +1,6 @@
 /* 
-Copyright 2014-2019 Matthias Krane
+Copyright 2014-2020 Matthias Krane
+info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
 
@@ -36,10 +37,17 @@ public class ListUtils {
 	 * Convert a comma separated String into a List
 	 */
 	public static List<String> stringToList(String s) {
+		return stringToList(s, ",");
+	}
+
+	/**
+	 * Convert a separated String into a List
+	 */
+	public static List<String> stringToList(String s, String separator) {
 		if (StringUtils.isEmpty(s)) {
 			return new ArrayList<String>();
 		}
-		return Arrays.asList(s.split(","));
+		return Arrays.asList(s.split(separator));
 	}
 
 	/**

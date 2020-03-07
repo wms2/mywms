@@ -18,8 +18,6 @@ package de.wms2.mywms.strategy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.mywms.model.BasicEntity;
@@ -36,12 +34,6 @@ public class Zone extends BasicEntity {
 
 	@Column(nullable = false, unique = true)
 	private String name = "";
-
-	/**
-	 * If the current zone is not valid the overflow zone is used
-	 */
-	@ManyToOne(optional = true, fetch = FetchType.LAZY)
-	private Zone nextZone;
 
 	@Override
 	public String toString() {
@@ -65,14 +57,6 @@ public class Zone extends BasicEntity {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Zone getNextZone() {
-		return nextZone;
-	}
-
-	public void setNextZone(Zone nextZone) {
-		this.nextZone = nextZone;
 	}
 
 }

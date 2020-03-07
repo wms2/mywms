@@ -44,6 +44,7 @@ public class Wms2Properties {
 	public static final String KEY_SHIPPING_RENAME_UNITLOAD = "SHIPPING_RENAME_UNITLOAD";
 	public static final String KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED = "GOODS_RECEIPT_LIMIT_AMOUNT_TO_NOTIFIED";
 	public static final String KEY_REPLENISH_FROM_PICKING = "REPLENISH_FROM_PICKING_LOCATION";
+	public static final String KEY_STRATEGY_ZONE_FLOW = "STRATEGY_ZONE_FLOW";
 
 	/**
 	 * Names of system property groups

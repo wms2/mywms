@@ -29,6 +29,11 @@ public class Wms2Constants {
 	public final static int FIELDSIZE_NOTE = 32000;
 
 	/**
+	 * The name of an undefined zone. Used in system property KEY_STRATEGY_ZONE_FLOW
+	 */
+	public final static String UNDEFINED_ZONE_NAME = "NONE";
+
+	/**
 	 * Maximal number of layers of carriers
 	 */
 	public final static int MAX_CARRIER_DEPTH = 10;

@@ -31,6 +31,7 @@ import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.util.Wms2BundleResolver;
+import de.wms2.mywms.util.Wms2Constants;
 
 /**
  * Validation service for Zone
@@ -62,15 +63,14 @@ public class ZoneValidator implements EntityValidator<Zone> {
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingName");
 		}
 
+		if (StringUtils.equals(entity.getName(), Wms2Constants.UNDEFINED_ZONE_NAME)) {
+			logger.log(Level.INFO, logStr + "missing name. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidName");
+		}
+
 		if (entitySerivce.exists(Zone.class, "name", entity.getName(), entity.getId())) {
 			logger.log(Level.INFO, logStr + "not unique. name=" + entity.getName());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
-		}
-
-		if (entity.getNextZone() != null && entity.equals(entity.getNextZone())) {
-			logger.log(Level.INFO,
-					logStr + "invalid next-zone-sequence. zone cannot referece itself. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidZoneSequence");
 		}
 	}
 

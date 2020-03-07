@@ -49,10 +49,13 @@ import de.wms2.mywms.location.AreaUsages;
 import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.transport.TransportOrderEntityService;
 import de.wms2.mywms.util.ListUtils;
 import de.wms2.mywms.util.Wms2BundleResolver;
+import de.wms2.mywms.util.Wms2Constants;
+import de.wms2.mywms.util.Wms2Properties;
 
 /**
  * @author krane
@@ -78,6 +81,10 @@ public class LocationFinderBean implements LocationFinder {
 	private LocationReserver locationReserver;
 	@Inject
 	private FixAssignmentEntityService fixService;
+	@Inject
+	private SystemPropertyBusiness systemPropertyBusiness;
+	@Inject
+	private ZoneEntityService zoneService;
 
 	private static int QUERY_LIMIT = 30;
 
@@ -221,25 +228,6 @@ public class LocationFinderBean implements LocationFinder {
 			return null;
 		}
 
-		// use itemData zone and its overflow zones
-		// an empty array will search in all zones
-		List<Zone> zones = new ArrayList<Zone>();
-		if (strategy.getZone() != null) {
-			zones.add(strategy.getZone());
-		} else {
-			Zone zone = readUnitLoadZone(stocksOnUnitLoad);
-			while (true) {
-				if (zone == null) {
-					break;
-				}
-				if (zones.contains(zone)) {
-					break;
-				}
-				zones.add(zone);
-				zone = zone.getNextZone();
-			}
-		}
-
 		// itemData information is needed by some strategies. Mix different
 		// itemDatas, near picking location,
 		// replenishment, ...
@@ -282,6 +270,15 @@ public class LocationFinderBean implements LocationFinder {
 			clients.add(systemClient);
 		}
 
+		// use itemData zone and its overflow zones
+		// an empty array will search in all zones
+		List<Zone> zones = new ArrayList<Zone>();
+		if (strategy.getZone() != null) {
+			zones.add(strategy.getZone());
+		} else {
+			zones = readZoneFlow(stocksOnUnitLoad, stockClient);
+		}
+
 		location = findLocationInternal(clients, unitLoad, strategy, zones, unitLoadWeight, stocksOnUnitLoad, itemData,
 				pickingOnly, null);
 		if (location != null) {
@@ -295,6 +292,46 @@ public class LocationFinderBean implements LocationFinder {
 						+ ", strategy=" + strategy + ", unitLoadWeight=" + unitLoadWeight + ", time="
 						+ (new Date().getTime() - dateStart.getTime()));
 		return null;
+	}
+
+	private List<Zone> readZoneFlow(List<StockUnit> stocksOnUnitLoad, Client client) {
+		List<Zone> zones = new ArrayList<Zone>();
+
+		String abcFlow = systemPropertyBusiness.getString(Wms2Properties.KEY_STRATEGY_ZONE_FLOW, client, null, null);
+		List<String> flows = ListUtils.stringToList(abcFlow, ";");
+
+		String startZoneName = Wms2Constants.UNDEFINED_ZONE_NAME;
+		Zone unitLoadZone = readUnitLoadZone(stocksOnUnitLoad);
+		if (unitLoadZone != null) {
+			zones.add(unitLoadZone);
+			startZoneName = unitLoadZone.getName();
+		}
+
+		for (String flow : flows) {
+			List<String> zoneNames = ListUtils.stringToList(flow, ",");
+			if (zoneNames == null || zoneNames.isEmpty()) {
+				continue;
+			}
+			String firstZoneName = zoneNames.get(0);
+			if (!StringUtils.equals(firstZoneName, startZoneName)) {
+				continue;
+			}
+			for (String zoneName : zoneNames) {
+				if (StringUtils.equals(zoneName, "NONE")) {
+					continue;
+				}
+				Zone zone = zoneService.read(zoneName);
+				if (zone == null) {
+					continue;
+				}
+				if (!zones.contains(zone)) {
+					zones.add(zone);
+				}
+			}
+		}
+
+		logger.log(Level.INFO, "Zoneflow==" + zones);
+		return zones;
 	}
 
 	private StorageLocation findLocationInternal(Collection<Client> clients, UnitLoad unitLoad,
