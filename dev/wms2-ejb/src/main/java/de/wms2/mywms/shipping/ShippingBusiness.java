@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -463,6 +463,8 @@ public class ShippingBusiness {
 				shippingOrder.setDeliveryOrder(deliveryOrder);
 				shippingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
 				shippingOrder.setAddress(deliveryOrder.getAddress());
+				shippingOrder.setCarrierName(deliveryOrder.getCarrierName());
+				shippingOrder.setCarrierService(deliveryOrder.getCarrierService());
 				shippingOrder.setState(OrderState.PROCESSABLE);
 			}
 

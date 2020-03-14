@@ -65,7 +65,7 @@ public interface LOSOrderFacade {
 			String orderStrategyName,
 			Date deliveryDate, 
 			int prio,
-			Address address,
+			Address address, String carrierName, String carrierService,
 			boolean startPicking, boolean completeOnly,
 			String comment) throws FacadeException;
 

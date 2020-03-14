@@ -29,6 +29,7 @@ import org.mywms.model.User;
 import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -293,6 +294,7 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 		List<Packet> packetList = new ArrayList<>();
 		DeliveryOrder deliveryOrder = null;
 		Set<DeliveryOrder> orderSet = new HashSet<>();
+		Set<Address> addressSet = new HashSet<>();
 		Client orderClient = null;
 		for (Long id : pickingUnitLoadIdList) {
 			Client packetClient = null;
@@ -300,7 +302,12 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 			if (pul != null) {
 				packetList.add(pul);
 				packetClient = pul.getClient();
-				orderSet.add(pul.getDeliveryOrder());
+				if(pul.getDeliveryOrder()!=null) {
+					orderSet.add(pul.getDeliveryOrder());
+				}
+				if(pul.getAddress()!=null) {
+					addressSet.add(pul.getAddress());
+				}
 			} else {
 				UnitLoad unitLoad = manager.find(UnitLoad.class, id);
 				if (unitLoad != null) {
@@ -337,6 +344,11 @@ public class LOSGoodsOutFacadeBean implements LOSGoodsOutFacade {
 
 		ShippingOrder shippingOrder = shippingBusiness.createOrder(orderClient);
 		shippingOrder.setDeliveryOrder(deliveryOrder);
+		if(deliveryOrder!=null) {
+			shippingOrder.setAddress(deliveryOrder.getAddress());
+			shippingOrder.setCarrierName(deliveryOrder.getCarrierName());
+			shippingOrder.setCarrierService(deliveryOrder.getCarrierService());
+		}
 		shippingOrder.setState(OrderState.PROCESSABLE);
 		for(Packet packet : packetList) {
 			shippingBusiness.addLine(shippingOrder, packet);

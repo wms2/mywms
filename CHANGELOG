@@ -377,6 +377,8 @@ Release 2.5
     - Manual creation of shipping order is limited to one client
     - Made the type of the InventoryJournal accessable for filters.
     - Added optional check digits to sequences
+    - Configurable zone overflow path
+    - Propagate address and carrier to pickingorders, shippingorders and packets
 
 
     Technical changes (for details have a look to the git repository)

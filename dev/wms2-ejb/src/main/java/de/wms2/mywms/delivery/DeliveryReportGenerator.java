@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -185,29 +186,40 @@ public class DeliveryReportGenerator {
 
 		Client client = shippingOrder.getClient();
 
-		Address address = shippingOrder.getAddress();
-		if (address == null || address.isEmpty()) {
-			DeliveryOrder deliveryOrder = shippingOrder.getDeliveryOrder();
-			if (deliveryOrder != null) {
-				address = deliveryOrder.getAddress();
-			}
-		}
-		if (address == null) {
-			address = new Address();
+		Address address = null;
+		DeliveryOrder deliveryOrder = shippingOrder.getDeliveryOrder();
+		if (deliveryOrder != null) {
+			address = deliveryOrder.getAddress();
 		}
 
+		Address packetAddress = null;
+		boolean first = true;
 		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
 		for (ShippingOrderLine shippingOrderLine : shippingOrder.getLines()) {
 			Packet packet = shippingOrderLine.getPacket();
 			if (packet == null) {
 				continue;
 			}
+			if(first) {
+				packetAddress=packet.getAddress();
+			}
+			if(!Objects.equals(packetAddress, packet.getAddress())) {
+				packetAddress = null;
+			}
 			UnitLoad unitLoad = packet.getUnitLoad();
 			registerItems(reportItemMap, unitLoad, packet, true);
+			first = false;
 		}
 		List<DeliveryReportDto> reportItems = new ArrayList<>();
 		reportItems.addAll(reportItemMap.values());
 		Collections.sort(reportItems, new UnitLoadReportDtoComparator());
+
+		if (address == null) {
+			address = packetAddress;
+		}
+		if (address == null) {
+			address = new Address();
+		}
 
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("printDate", new Date());

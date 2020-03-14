@@ -140,7 +140,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			String documentUrl, String labelUrl, String destinationName, String orderStrategyName, Date deliveryDate,
 			int prio, boolean startPicking, boolean completeOnly, String comment) throws FacadeException {
 		return order(clientNumber, externalNumber, positions, documentUrl, labelUrl, destinationName, orderStrategyName,
-				deliveryDate, prio, null, startPicking, completeOnly, comment);
+				deliveryDate, prio, null, null, null, startPicking, completeOnly, comment);
 	}
 
 	public DeliveryOrder order(
@@ -153,7 +153,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			String orderStrategyName,
 			Date deliveryDate, 
 			int prio,
-			Address address,
+			Address address, String carrierName, String carrierService,
 			boolean startPicking, boolean completeOnly,
 			String comment) throws FacadeException {
 		String logStr = "order ";
@@ -210,6 +210,8 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		order.setDestination(destination);
 		order.setDeliveryDate(deliveryDate);
 		order.setAddress(address == null ? new Address() : address);
+		order.setCarrierName(carrierName);
+		order.setCarrierService(carrierService);
 		int line = 0;
 		for( OrderPositionTO posTO : positions ) {
 			ItemData item = itemService.readByNumber(posTO.articleRef);
@@ -333,6 +335,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		Set<PickingOrder> pickingOrderSetRemovable = new HashSet<PickingOrder>();
 		Set<Packet> pickingUnitLoadSetRemovable = new HashSet<Packet>();
 		Set<ShippingOrder> goodsOutRequestSetRemovable = new HashSet<>();
+		Set<Address> addressRemovable = new HashSet<>();
 
 		for( Long poId : pickingOrderSet1 ) {
 			PickingOrder po = manager.find(PickingOrder.class, poId);
@@ -361,6 +364,10 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 			for( StockUnit su : ul.getStockUnitList() ) {
 				manager.remove(su);
 			}
+			if (pul.getAddress() != null) {
+				addressRemovable.add(pul.getAddress());
+				pul.setAddress(null);
+			}
 			pul.setDeliveryOrder(null);
 			log.debug(logStr + "remove Packet=" + pul);
 			manager.remove(pul);
@@ -370,6 +377,10 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 
 		// 5. Remove empty picking orders
 		for( PickingOrder po : pickingOrderSetRemovable ) {
+			if (po.getAddress() != null) {
+				addressRemovable.add(po.getAddress());
+				po.setAddress(null);
+			}
 			log.debug(logStr+"remove PickingOrder="+po);
 			manager.remove(po);
 		}
@@ -409,6 +420,10 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 				log.debug(logStr + "remove StockUnit=" + stockUnit);
 				manager.remove(stockUnit);
 			}
+			if (packet.getAddress() != null) {
+				addressRemovable.add(packet.getAddress());
+				packet.setAddress(null);
+			}
 			log.debug(logStr+"remove Packet="+packet);
 			manager.remove(packet);
 			log.debug(logStr + "remove UnitLoad=" + packet.getUnitLoad());
@@ -416,9 +431,11 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		}
 
 		// 9. Remove address
-		Address address = order.getAddress();
-		if (address != null) {
+		if (order.getAddress() != null) {
+			addressRemovable.add(order.getAddress());
 			order.setAddress(null);
+		}
+		for (Address address : addressRemovable) {
 			addressEntityService.removeIfUnused(address);
 		}
 

@@ -134,7 +134,7 @@
             </value>
         </entry>
         <entry>
-			<key>externalNumber</key>
+			<key>carrierName</key>
             <value>
                 <group>
 					<name>main</name>
@@ -144,13 +144,33 @@
             </value>
         </entry>
         <entry>
+			<key>carrierService</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>13</position>
+            </value>
+        </entry>
+        <entry>
+			<key>externalNumber</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>14</position>
+            </value>
+        </entry>
+        <entry>
 			<key>packets</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>13</position>
+				<position>15</position>
 			</value>
 		</entry>
 		<entry>
@@ -160,7 +180,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>14</position>
+				<position>16</position>
 			</value>
 		</entry>
         

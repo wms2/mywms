@@ -113,16 +113,6 @@
                 <position>8</position>
             </value>
         </entry>
-		<entry>
-			<key>address</key>
-			<value>
-				<group>
-					<name>main</name>
-				</group>
-				<hidden>false</hidden>
-				<position>9</position>
-			</value>
-		</entry>
         <entry>
 			<key>senderName</key>
             <value>
@@ -130,9 +120,19 @@
 					<name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>10</position>
+                <position>9</position>
             </value>
         </entry>
+		<entry>
+			<key>address</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>10</position>
+			</value>
+		</entry>
         <entry>
 			<key>carrierName</key>
             <value>
@@ -144,13 +144,23 @@
             </value>
         </entry>
         <entry>
+			<key>carrierService</key>
+            <value>
+                <group>
+					<name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>12</position>
+            </value>
+        </entry>
+        <entry>
 			<key>externalNumber</key>
 			<value>
 				<group>
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>12</position>
+				<position>13</position>
 			</value>
 		</entry>
 		<entry>
@@ -160,7 +170,7 @@
 					<name>main</name>
 				</group>
 				<hidden>false</hidden>
-				<position>13</position>
+				<position>14</position>
 			</value>
 		</entry>
         <entry>
@@ -170,7 +180,7 @@
 					<name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>14</position>
+                <position>15</position>
             </value>
         </entry>
 

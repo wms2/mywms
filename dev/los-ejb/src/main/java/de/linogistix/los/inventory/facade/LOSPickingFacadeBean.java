@@ -243,6 +243,7 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 			manager.remove(pick);
 		}
 		for( Packet ul : order.getPackets() ) {
+			ul.setAddress(null);
 			manager.remove(ul);
 		}
 
@@ -401,6 +402,9 @@ public class LOSPickingFacadeBean implements LOSPickingFacade {
 		UnitLoad ul = inventoryBusiness.createUnitLoad(order.getClient(), null, type, destination, StockState.PICKED, order.getOrderNumber(), null, null);
 		Packet pul = pickingUnitLoadService.create(ul);
 		pul.setPickingOrder(order);
+		pul.setAddress(order.getAddress());
+		pul.setCarrierName(order.getCarrierName());
+		pul.setCarrierService(order.getCarrierService());
 		pul.setPositionIndex(-1);
 
 		// confirm all picks

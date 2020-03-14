@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mywms.facade.FacadeException;
 import org.mywms.globals.SerialNoRecordType;
@@ -598,12 +599,29 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 				log.error(logStr+"Correction of pickingOrder in PickingUnitLoad. Was empty. pickToUnitLoad="+pickToUnitLoad+", pickingOrder="+pickingOrder); 
 				pickToUnitLoad.setPickingOrder(pickingOrder);
 			}
+			if (pickToUnitLoad.getAddress() == null) {
+				pickToUnitLoad.setAddress(pickingOrder.getAddress());
+			}
+			if (StringUtils.isBlank(pickToUnitLoad.getCarrierName())) {
+				pickToUnitLoad.setCarrierName(pickingOrder.getCarrierName());
+				pickToUnitLoad.setCarrierService(pickingOrder.getCarrierService());
+			}
 			if( pickToUnitLoad.getPickingOrder()==null || !pickToUnitLoad.getPickingOrder().equals(pickingOrder) ) {
 				log.error(logStr+"Wrong unit load picking order number. Abort. Actual="+pickToUnitLoad.getPickingOrder().getOrderNumber()+", Requested="+pickingOrder.getOrderNumber());
 				throw new InventoryException(InventoryExceptionKey.PICK_CONFIRM_WRONG_UNITLOAD, new Object[]{pickToUnitLoad.getPickingOrder().getOrderNumber(), pickingOrder.getOrderNumber()});
 			}
 			if (pick.getDeliveryOrderLine() != null && pickToUnitLoad.getDeliveryOrder() == null) {
-				pickToUnitLoad.setDeliveryOrder(findUniqueDeliveryOrder(pickingOrder));
+				DeliveryOrder deliveryOrder = findUniqueDeliveryOrder(pickingOrder);
+				if (deliveryOrder != null) {
+					pickToUnitLoad.setDeliveryOrder(deliveryOrder);
+					if (pickToUnitLoad.getAddress() == null) {
+						pickToUnitLoad.setAddress(deliveryOrder.getAddress());
+					}
+					if (StringUtils.isBlank(pickToUnitLoad.getCarrierName())) {
+						pickToUnitLoad.setCarrierName(deliveryOrder.getCarrierName());
+						pickToUnitLoad.setCarrierService(deliveryOrder.getCarrierService());
+					}
+				}
 			}
 		}
 
@@ -808,10 +826,28 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 		Packet packet = pickingUnitLoadService.create(pickFromUnitLoad);
 		packet.setState(OrderState.PICKED);
-		packet.setPickingOrder(pick.getPickingOrder());
+		packet.setPickingOrder(pickingOrder);
+		if (packet.getAddress() == null) {
+			packet.setAddress(pickingOrder.getAddress());
+		}
+		if (StringUtils.isBlank(packet.getCarrierName())) {
+			packet.setCarrierName(pickingOrder.getCarrierName());
+			packet.setCarrierService(pickingOrder.getCarrierService());
+		}
+
 		DeliveryOrderLine deliveryOrderLine = pick.getDeliveryOrderLine();
 		if (deliveryOrderLine != null) {
-			packet.setDeliveryOrder(deliveryOrderLine.getDeliveryOrder());
+			DeliveryOrder deliveryOrder = deliveryOrderLine.getDeliveryOrder();
+			if (deliveryOrder != null) {
+				packet.setDeliveryOrder(deliveryOrder);
+				if (packet.getAddress() == null) {
+					packet.setAddress(deliveryOrder.getAddress());
+				}
+				if (StringUtils.isBlank(packet.getCarrierName())) {
+					packet.setCarrierName(deliveryOrder.getCarrierName());
+					packet.setCarrierService(deliveryOrder.getCarrierService());
+				}
+			}
 		}
 
 		pick.setState(State.PICKED);

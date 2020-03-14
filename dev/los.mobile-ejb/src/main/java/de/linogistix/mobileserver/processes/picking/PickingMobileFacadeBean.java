@@ -237,7 +237,13 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 
 				}
 				pickingUnitLoad = pickingUnitLoadService.create(unitLoad);
-				pickingUnitLoad.setPickingOrder(pick.getPickingOrder());
+				PickingOrder pickingOrder = pick.getPickingOrder();
+				if (pickingOrder != null) {
+					pickingUnitLoad.setPickingOrder(pickingOrder);
+					pickingUnitLoad.setAddress(pickingOrder.getAddress());
+					pickingUnitLoad.setCarrierName(pickingOrder.getCarrierName());
+					pickingUnitLoad.setCarrierService(pickingOrder.getCarrierService());
+				}
 				pickingUnitLoad.setPositionIndex(pickTo.index);
 			}
 		}
@@ -372,6 +378,9 @@ public class PickingMobileFacadeBean implements PickingMobileFacade {
 				StockState.PICKED, pickingOrder.getOrderNumber(), null, null);
 		Packet pul = pickingUnitLoadService.create(unitLoad);
 		pul.setPickingOrder(pickingOrder);
+		pul.setAddress(pickingOrder.getAddress());
+		pul.setCarrierName(pickingOrder.getCarrierName());
+		pul.setCarrierService(pickingOrder.getCarrierService());
 		pul.setPositionIndex(index);
 
 		return new PickingMobileUnitLoad(pul);

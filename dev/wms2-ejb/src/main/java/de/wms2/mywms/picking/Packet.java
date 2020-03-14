@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.picking;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,6 +25,7 @@ import javax.persistence.Table;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
+import de.wms2.mywms.address.Address;
 import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.strategy.OrderState;
@@ -48,6 +50,27 @@ public class Packet extends BasicClientAssignedEntity {
 
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private DeliveryOrder deliveryOrder;
+
+	/**
+	 * The delivery address
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private Address address;
+
+	/**
+	 * Name of the carrier
+	 */
+	private String carrierName;
+
+	/**
+	 * Service of the carrier
+	 */
+	private String carrierService;
+
+	/**
+	 * Label of the carrier
+	 */
+	private String carrierLabel;
 
 	@Column(nullable = false)
 	private int positionIndex;
@@ -87,6 +110,46 @@ public class Packet extends BasicClientAssignedEntity {
 		this.pickingOrder = pickingOrder;
 	}
 
+	public DeliveryOrder getDeliveryOrder() {
+		return deliveryOrder;
+	}
+
+	public void setDeliveryOrder(DeliveryOrder deliveryOrder) {
+		this.deliveryOrder = deliveryOrder;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
+	public String getCarrierName() {
+		return carrierName;
+	}
+
+	public void setCarrierName(String carrierName) {
+		this.carrierName = carrierName;
+	}
+
+	public String getCarrierService() {
+		return carrierService;
+	}
+
+	public void setCarrierService(String carrierService) {
+		this.carrierService = carrierService;
+	}
+
+	public String getCarrierLabel() {
+		return carrierLabel;
+	}
+
+	public void setCarrierLabel(String carrierLabel) {
+		this.carrierLabel = carrierLabel;
+	}
+
 	public int getPositionIndex() {
 		return positionIndex;
 	}
@@ -101,14 +164,6 @@ public class Packet extends BasicClientAssignedEntity {
 
 	public void setState(int state) {
 		this.state = state;
-	}
-
-	public DeliveryOrder getDeliveryOrder() {
-		return deliveryOrder;
-	}
-
-	public void setDeliveryOrder(DeliveryOrder deliveryOrder) {
-		this.deliveryOrder = deliveryOrder;
 	}
 
 }

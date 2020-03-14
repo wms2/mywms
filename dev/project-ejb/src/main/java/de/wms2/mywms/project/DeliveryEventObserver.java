@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -105,6 +105,8 @@ public class DeliveryEventObserver {
 						if (shippingOrder == null) {
 							shippingOrder = shippingBusiness.createOrder(pickingOrder.getClient());
 							shippingOrder.setAddress(pickingOrder.getAddress());
+							shippingOrder.setCarrierName(pickingOrder.getCarrierName());
+							shippingOrder.setCarrierService(pickingOrder.getCarrierService());
 							shippingOrder.setExternalNumber(pickingOrder.getExternalNumber());
 						}
 						shippingBusiness.addLine(shippingOrder, packet);

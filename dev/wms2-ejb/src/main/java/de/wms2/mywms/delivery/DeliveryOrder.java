@@ -126,6 +126,11 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	private String carrierName;
 
 	/**
+	 * Service of the carrier
+	 */
+	private String carrierService;
+
+	/**
 	 * Name of the sender
 	 */
 	private String senderName;
@@ -311,6 +316,14 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	public void setCarrierName(String carrierName) {
 		this.carrierName = carrierName;
+	}
+
+	public String getCarrierService() {
+		return carrierService;
+	}
+
+	public void setCarrierService(String carrierService) {
+		this.carrierService = carrierService;
 	}
 
 	public String getSenderName() {

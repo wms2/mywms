@@ -62,6 +62,46 @@
 				<position>6</position>
 			</value>
 		</entry>
+		<entry>
+			<key>address</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>10</position>
+			</value>
+		</entry>
+		<entry>
+			<key>carrierName</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>11</position>
+			</value>
+		</entry>
+		<entry>
+			<key>carrierService</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>12</position>
+			</value>
+		</entry>
+		<entry>
+			<key>carrierLabel</key>
+			<value>
+				<group>
+					<name>main</name>
+				</group>
+				<hidden>false</hidden>
+				<position>13</position>
+			</value>
+		</entry>
         <entry>
             <key>externalId</key>
             <value>

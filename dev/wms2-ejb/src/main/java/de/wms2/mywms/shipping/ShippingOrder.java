@@ -99,6 +99,11 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 	 */
 	private String carrierName;
 
+	/**
+	 * Service of the carrier
+	 */
+	private String carrierService;
+
 	@Column(nullable = false)
 	private int prio = OrderPrio.NORMAL;
 
@@ -238,6 +243,14 @@ public class ShippingOrder extends BasicClientAssignedEntity {
 
 	public void setCarrierName(String carrierName) {
 		this.carrierName = carrierName;
+	}
+
+	public String getCarrierService() {
+		return carrierService;
+	}
+
+	public void setCarrierService(String carrierService) {
+		this.carrierService = carrierService;
 	}
 
 	public int getPrio() {

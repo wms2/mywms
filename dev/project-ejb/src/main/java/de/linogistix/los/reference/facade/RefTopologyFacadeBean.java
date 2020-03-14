@@ -595,7 +595,8 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 			address.setZipCode(resolve("AddressZipCode"));
 			address.setCity(resolve("AddressCity"));
 
-			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null, null, locName, null, new Date(), Prio.NORMAL, address, true, false, null );
+			orderFacade.order(client.getNumber(), null, posList.toArray(new OrderPositionTO[posList.size()]), null,
+					null, locName, null, new Date(), Prio.NORMAL, address, null, null, true, false, null);
 
 		} catch (Exception e) {
 			log.error("Error creating Order: "+e.getMessage(), e);

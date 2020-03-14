@@ -153,6 +153,16 @@ public class PickingOrder extends BasicClientAssignedEntity {
 	private Address address;
 
 	/**
+	 * Name of the carrier
+	 */
+	private String carrierName;
+
+	/**
+	 * Service of the carrier
+	 */
+	private String carrierService;
+
+	/**
 	 * Approximately the weight of the order.
 	 * <p>
 	 * Its calculated by product data. The weight of differences, unit loads,
@@ -347,6 +357,22 @@ public class PickingOrder extends BasicClientAssignedEntity {
 
 	public void setAddress(Address address) {
 		this.address = address;
+	}
+
+	public String getCarrierName() {
+		return carrierName;
+	}
+
+	public void setCarrierName(String carrierName) {
+		this.carrierName = carrierName;
+	}
+
+	public String getCarrierService() {
+		return carrierService;
+	}
+
+	public void setCarrierService(String carrierService) {
+		this.carrierService = carrierService;
 	}
 
 	public BigDecimal getWeight() {

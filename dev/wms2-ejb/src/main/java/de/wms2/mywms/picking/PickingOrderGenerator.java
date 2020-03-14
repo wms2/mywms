@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -203,6 +203,8 @@ public class PickingOrderGenerator {
 				pickingOrder.setPackingHint(deliveryOrder.getPackingHint());
 				pickingOrder.setDeliveryDate(deliveryOrder.getDeliveryDate());
 				pickingOrder.setAddress(deliveryOrder.getAddress());
+				pickingOrder.setCarrierName(deliveryOrder.getCarrierName());
+				pickingOrder.setCarrierService(deliveryOrder.getCarrierService());
 				pickingOrder.setExternalNumber(deliveryOrder.getExternalNumber());
 			}
 
