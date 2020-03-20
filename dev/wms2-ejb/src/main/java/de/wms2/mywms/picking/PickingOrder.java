@@ -16,7 +16,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.picking;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -161,24 +160,6 @@ public class PickingOrder extends BasicClientAssignedEntity {
 	 * Service of the carrier
 	 */
 	private String carrierService;
-
-	/**
-	 * Approximately the weight of the order.
-	 * <p>
-	 * Its calculated by product data. The weight of differences, unit loads,
-	 * packagings are not considered.
-	 */
-	@Column(precision = 16, scale = 3)
-	private BigDecimal weight;
-
-	/**
-	 * Approximately the volume of the order.
-	 * <p>
-	 * Its calculated by product data. The volume of differences, unit loads,
-	 * packagings are not considered.
-	 */
-	@Column(precision = 19, scale = 6)
-	private BigDecimal volume;
 
 	@PreUpdate
 	public void preUpdate() {
@@ -374,21 +355,4 @@ public class PickingOrder extends BasicClientAssignedEntity {
 	public void setCarrierService(String carrierService) {
 		this.carrierService = carrierService;
 	}
-
-	public BigDecimal getWeight() {
-		return weight;
-	}
-
-	public void setWeight(BigDecimal weight) {
-		this.weight = weight;
-	}
-
-	public BigDecimal getVolume() {
-		return volume;
-	}
-
-	public void setVolume(BigDecimal volume) {
-		this.volume = volume;
-	}
-
 }

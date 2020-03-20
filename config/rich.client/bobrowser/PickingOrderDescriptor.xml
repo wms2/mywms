@@ -225,27 +225,6 @@
                 <position>99</position>
             </value>
         </entry>
-        <entry>
-			<key>weight</key>
-            <value>
-                <group>
-					<name>measurement</name>
-                </group>
-                <hidden>true</hidden>
-                <position>21</position>
-            </value>
-        </entry>
-        <entry>
-			<key>volume</key>
-            <value>
-                <group>
-					<name>measurement</name>
-                </group>
-                <hidden>true</hidden>
-                <position>22</position>
-            </value>
-        </entry>
-
 
         <entry>
 			<key>manualCreation</key>

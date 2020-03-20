@@ -234,26 +234,6 @@
                 <position>99</position>
             </value>
         </entry>
-        <entry>
-			<key>weight</key>
-            <value>
-                <group>
-					<name>measurement</name>
-                </group>
-                <hidden>true</hidden>
-                <position>99</position>
-            </value>
-        </entry>
-        <entry>
-			<key>volume</key>
-            <value>
-                <group>
-					<name>measurement</name>
-                </group>
-                <hidden>true</hidden>
-                <position>99</position>
-            </value>
-        </entry>
 
     </descriptions>
 	<groups>

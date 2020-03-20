@@ -361,6 +361,8 @@ Release 2.5
         With this individual lot and best-before handling of each stock unit is possible.
         Extinguish orders can be generated for single stock-units and unit-laods. Not only for a complete lot.
     - Made the operator optional invisible in InventoryJournal
+    - Address and carrier data in all outgoing orders and packets
+    - Weight and volume calculation for outgoing orders
 
 
     Functional changes (for details have a look to the git repository)
@@ -379,6 +381,7 @@ Release 2.5
     - Added optional check digits to sequences
     - Configurable zone overflow path
     - Propagate address and carrier to pickingorders, shippingorders and packets
+    - Weight and volume of outgoing orders are calculated on the fly. No redundant storage.
 
 
     Technical changes (for details have a look to the git repository)

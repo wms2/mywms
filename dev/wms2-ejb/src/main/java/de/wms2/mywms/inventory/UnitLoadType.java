@@ -54,9 +54,6 @@ public class UnitLoadType extends BasicEntity {
 	@Column(nullable = true, precision = 16, scale = 3)
 	private BigDecimal weight;
 
-	@Column(nullable = true, precision = 19, scale = 6)
-	private BigDecimal volume;
-
 	/**
 	 * The max weight that such a unit load can handle
 	 */
@@ -162,6 +159,14 @@ public class UnitLoadType extends BasicEntity {
 		setUseFor(UnitLoadTypeUsages.SHIPPING, useForShipping);
 	}
 
+	@Transient
+	public BigDecimal getVolume() {
+		if (height != null && width != null && depth != null) {
+			return height.multiply(width).multiply(depth);
+		}
+		return null;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -200,14 +205,6 @@ public class UnitLoadType extends BasicEntity {
 
 	public void setWeight(BigDecimal weight) {
 		this.weight = weight;
-	}
-
-	public BigDecimal getVolume() {
-		return volume;
-	}
-
-	public void setVolume(BigDecimal volume) {
-		this.volume = volume;
 	}
 
 	public BigDecimal getLiftingCapacity() {

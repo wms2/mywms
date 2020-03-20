@@ -29,8 +29,7 @@ import java.util.logging.Logger;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
@@ -343,7 +342,7 @@ public class ShippingBusiness {
 					&& packet.getUnitLoad().getState() <= StockState.PICKED) {
 				// This line has been manual created. Remove line and packet and reactivate unit
 				// load
-				removeLineInternal(line);
+				removeLine(line);
 				continue;
 			}
 			int lineState = line.getState();
@@ -356,8 +355,6 @@ public class ShippingBusiness {
 				shippingOrder.setState(OrderState.FINISHED);
 			}
 		}
-
-		calculateWeight(shippingOrder);
 
 		if (shippingOrder.getState() != orderState) {
 			fireShippingOrderStateChangeEvent(shippingOrder, orderState);
@@ -468,10 +465,8 @@ public class ShippingBusiness {
 				shippingOrder.setState(OrderState.PROCESSABLE);
 			}
 
-			addLineInternal(shippingOrder, packet);
+			addLine(shippingOrder, packet);
 		}
-
-		calculateWeight(shippingOrder);
 
 		return shippingOrder;
 	}
@@ -499,12 +494,6 @@ public class ShippingBusiness {
 	}
 
 	public ShippingOrderLine addLine(ShippingOrder order, Packet packet) throws BusinessException {
-		ShippingOrderLine line = addLineInternal(order, packet);
-		calculateWeight(order);
-		return line;
-	}
-
-	private ShippingOrderLine addLineInternal(ShippingOrder order, Packet packet) throws BusinessException {
 		String logStr = "addLine ";
 		List<ShippingOrder> orders = shippingOrderService.readByPacket(packet);
 
@@ -550,12 +539,6 @@ public class ShippingBusiness {
 	}
 
 	public void removeLine(ShippingOrderLine line) throws BusinessException {
-		removeLineInternal(line);
-
-		calculateWeight(line.getShippingOrder());
-	}
-
-	public void removeLineInternal(ShippingOrderLine line) throws BusinessException {
 		// reset stock state for manual created shipping orders
 		Packet packet = line.getPacket();
 		ShippingOrder shippingOrder = line.getShippingOrder();
@@ -589,7 +572,7 @@ public class ShippingBusiness {
 		}
 
 		for (ShippingOrderLine line : shippingOrder.getLines()) {
-			removeLineInternal(line);
+			removeLine(line);
 		}
 		manager.flush();
 		shippingOrder.setLines(null);
@@ -604,23 +587,25 @@ public class ShippingBusiness {
 		manager.flush();
 	}
 
-	public void calculateWeight(ShippingOrder shippingOrder) {
+	/**
+	 * Calculate the weight of the given order.
+	 */
+	public BigDecimal calculateWeight(ShippingOrder shippingOrder) {
 		if (shippingOrder == null) {
-			return;
+			return null;
 		}
-		shippingOrder.setWeight(null);
 
-		String jpql = "select sum(line.packet.unitLoad.weight) from ";
+		String jpql = "SELECT sum(line.packet.unitLoad.weight) FROM ";
 		jpql += ShippingOrderLine.class.getName() + " line ";
-		jpql += " where line.shippingOrder=:shippingOrder";
-		TypedQuery<BigDecimal> query = manager.createQuery(jpql, BigDecimal.class);
-		query.setParameter("shippingOrder", shippingOrder);
+		jpql += "WHERE line.shippingOrder=:order ";
 
-		try {
-			BigDecimal weight = query.getSingleResult();
-			shippingOrder.setWeight(weight);
-		} catch (NoResultException e) {
+		Query query = manager.createQuery(jpql);
+		query.setParameter("order", shippingOrder);
+		BigDecimal weight = (BigDecimal) query.getSingleResult();
+		if (weight == null) {
+			weight = BigDecimal.ZERO;
 		}
+		return weight;
 	}
 
 	private void fireShippingOrderLineStateChangeEvent(ShippingOrderLine shippingOrderLine, int oldState)

@@ -16,7 +16,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.delivery;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -168,24 +167,6 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 	 * Timestamp of finishing
 	 */
 	private Date finished;
-
-	/**
-	 * Approximately the weight of the order.
-	 * <p>
-	 * Its calculated by product data. The weight of differences, unit loads,
-	 * packagings are not considered.
-	 */
-	@Column(precision = 16, scale = 3)
-	private BigDecimal weight;
-
-	/**
-	 * Approximately the volume of the order.
-	 * <p>
-	 * Its calculated by product data. The volume of differences, unit loads,
-	 * packagings are not considered.
-	 */
-	@Column(precision = 19, scale = 6)
-	private BigDecimal volume;
 
 	@Override
 	public String toString() {
@@ -380,22 +361,6 @@ public class DeliveryOrder extends BasicClientAssignedEntity {
 
 	public void setFinished(Date finished) {
 		this.finished = finished;
-	}
-
-	public BigDecimal getWeight() {
-		return weight;
-	}
-
-	public void setWeight(BigDecimal weight) {
-		this.weight = weight;
-	}
-
-	public BigDecimal getVolume() {
-		return volume;
-	}
-
-	public void setVolume(BigDecimal volume) {
-		this.volume = volume;
 	}
 
 }

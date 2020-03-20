@@ -164,18 +164,6 @@
 			</value>
 		</entry>
 
-
-        <entry>
-			<key>weight</key>
-            <value>
-                <group>
-					<name>measurement</name>
-                </group>
-                <hidden>false</hidden>
-                <position>1</position>
-            </value>
-        </entry>
-
         <entry>
 			<key>prio</key>
 			<value>
@@ -186,16 +174,7 @@
 				<position>99</position>
 			</value>
 		</entry>
-        <entry>
-			<key>volume</key>
-            <value>
-                <group>
-					<name>measurement</name>
-                </group>
-                <hidden>true</hidden>
-                <position>99</position>
-            </value>
-        </entry>
+
         <entry>
             <key>externalId</key>
             <value>

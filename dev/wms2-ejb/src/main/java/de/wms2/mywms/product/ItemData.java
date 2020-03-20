@@ -144,12 +144,6 @@ public class ItemData extends BasicClientAssignedEntity {
 	private BigDecimal weight;
 
 	/**
-	 * The volume of one product
-	 */
-	@Column(precision = 19, scale = 6)
-	private BigDecimal volume;
-
-	/**
 	 * Default value for the storage strategy.
 	 * <p>
 	 * The way how this is handled is depending on the used processes and
@@ -207,6 +201,14 @@ public class ItemData extends BasicClientAssignedEntity {
 		if (getAdditionalContent() != null && getAdditionalContent().length() > 255) {
 			setAdditionalContent(getAdditionalContent().substring(0, 255));
 		}
+	}
+
+	@Transient
+	public BigDecimal getVolume() {
+		if (height != null && width != null && depth != null) {
+			return height.multiply(width).multiply(depth);
+		}
+		return null;
 	}
 
 	/**
@@ -356,14 +358,6 @@ public class ItemData extends BasicClientAssignedEntity {
 
 	public void setWeight(BigDecimal weight) {
 		this.weight = weight;
-	}
-
-	public BigDecimal getVolume() {
-		return volume;
-	}
-
-	public void setVolume(BigDecimal volume) {
-		this.volume = volume;
 	}
 
 	public StorageStrategy getDefaultStorageStrategy() {

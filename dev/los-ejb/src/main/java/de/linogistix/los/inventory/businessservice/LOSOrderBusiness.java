@@ -154,15 +154,6 @@ public interface LOSOrderBusiness {
 	public PickingOrderLine cancelPick(PickingOrderLine pick) throws FacadeException;
 
 	/**
-	 * Cancel the picking position without request cancellation.
-	 * A new pick will be generated in case the flag is set and the strategy uses it.
-	 * 
-	 * @param pick
-	 * @throws FacadeException
-	 */
-	public void cancelPickFrom(PickingOrderLine pick, boolean generateNewPick) throws FacadeException;
-
-	/**
 	 * Changes the pick-from stock unit.
 	 * 
 	 * @param pick
