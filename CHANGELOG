@@ -363,6 +363,7 @@ Release 2.5
     - Made the operator optional invisible in InventoryJournal
     - Address and carrier data in all outgoing orders and packets
     - Weight and volume calculation for outgoing orders
+    - Added support for wildfly-19
 
 
     Functional changes (for details have a look to the git repository)
