@@ -60,13 +60,13 @@ public class PackagingUnit extends BasicEntity {
 	@Column(nullable = false, precision = 17, scale = 4)
 	private BigDecimal amount = BigDecimal.ONE;
 
-	@Column(precision = 15, scale = 2)
+	@Column(precision = 16, scale = 3)
 	private BigDecimal height;
 
-	@Column(precision = 15, scale = 2)
+	@Column(precision = 16, scale = 3)
 	private BigDecimal width;
 
-	@Column(precision = 15, scale = 2)
+	@Column(precision = 16, scale = 3)
 	private BigDecimal depth;
 
 	/**

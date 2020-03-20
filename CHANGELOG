@@ -382,6 +382,7 @@ Release 2.5
     - Configurable zone overflow path
     - Propagate address and carrier to pickingorders, shippingorders and packets
     - Weight and volume of outgoing orders are calculated on the fly. No redundant storage.
+    - Dimensions (height,width,depth) got 3 decimals for mm
 
 
     Technical changes (for details have a look to the git repository)

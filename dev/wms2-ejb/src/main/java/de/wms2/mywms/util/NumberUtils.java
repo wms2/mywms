@@ -19,6 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utilities for number handling
@@ -35,6 +38,10 @@ public class NumberUtils {
 	 * Convert a String into a BigDecimal
 	 */
 	public static BigDecimal parseBigDecimal(String code) {
+		if (StringUtils.isBlank(code)) {
+			return null;
+		}
+
 		try {
 			BigDecimal number = new BigDecimal(code);
 			return number;
@@ -49,5 +56,18 @@ public class NumberUtils {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Set the scale of a BigDecimal value.
+	 * <p>
+	 * Trailing zeros are removed<br>
+	 * null parameter will give a null return value
+	 */
+	public static BigDecimal scale(BigDecimal value, int maxScale) {
+		if (value == null) {
+			return null;
+		}
+		return value.setScale(maxScale, RoundingMode.HALF_UP).stripTrailingZeros();
 	}
 }

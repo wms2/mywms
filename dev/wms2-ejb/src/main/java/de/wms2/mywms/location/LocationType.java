@@ -35,13 +35,13 @@ public class LocationType extends BasicEntity {
 	@Column(nullable = false, unique = true)
 	private String name;
 
-	@Column(nullable = true, precision = 15, scale = 2)
+	@Column(nullable = true, precision = 16, scale = 3)
 	private BigDecimal height;
 
-	@Column(nullable = true, precision = 15, scale = 2)
+	@Column(nullable = true, precision = 16, scale = 3)
 	private BigDecimal width;
 
-	@Column(nullable = true, precision = 15, scale = 2)
+	@Column(nullable = true, precision = 16, scale = 3)
 	private BigDecimal depth;
 
 	@Column(nullable = true, precision = 16, scale = 3)

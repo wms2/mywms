@@ -122,19 +122,19 @@ public class ItemData extends BasicClientAssignedEntity {
 	/**
 	 * The height of one product
 	 */
-	@Column(precision = 15, scale = 2)
+	@Column(precision = 16, scale = 3)
 	private BigDecimal height;
 
 	/**
 	 * The width of one product
 	 */
-	@Column(precision = 15, scale = 2)
+	@Column(precision = 16, scale = 3)
 	private BigDecimal width;
 
 	/**
 	 * The depth of one product
 	 */
-	@Column(precision = 15, scale = 2)
+	@Column(precision = 16, scale = 3)
 	private BigDecimal depth;
 
 	/**
