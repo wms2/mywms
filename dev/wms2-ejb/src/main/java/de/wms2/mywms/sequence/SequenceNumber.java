@@ -57,12 +57,6 @@ public class SequenceNumber extends BasicEntity {
 	private String format = "%1$04d";
 
 	/**
-	 * The starting value of the counter
-	 */
-	@Column(nullable = false)
-	private long startCounter = 0;
-
-	/**
 	 * The ending value of the counter
 	 */
 	@Column(nullable = false)
@@ -100,14 +94,6 @@ public class SequenceNumber extends BasicEntity {
 
 	public void setFormat(String format) {
 		this.format = format;
-	}
-
-	public long getStartCounter() {
-		return startCounter;
-	}
-
-	public void setStartCounter(long startCounter) {
-		this.startCounter = startCounter;
 	}
 
 	public long getEndCounter() {

@@ -32,7 +32,7 @@
             </value>
         </entry>
         <entry>
-            <key>startCounter</key>
+            <key>endCounter</key>
             <value>
                 <group>
                     <name>main</name>
@@ -42,7 +42,7 @@
             </value>
         </entry>
         <entry>
-            <key>endValue</key>
+            <key>checkDigitType</key>
             <value>
                 <group>
                     <name>main</name>

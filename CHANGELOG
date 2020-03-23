@@ -384,13 +384,14 @@ Release 2.5
     - Propagate address and carrier to pickingorders, shippingorders and packets
     - Weight and volume of outgoing orders are calculated on the fly. No redundant storage.
     - Dimensions (height,width,depth) got 3 decimals for mm
+    - Added optional modulo 10 check digit to sequence number
 
 
     Technical changes (for details have a look to the git repository)
     -------------------------------------------------------------------------------
     - Reduce the amount of translation helper classes
     - Changed user-name to user-reference in InventoryJournal. It's better for pseudonymization.
-
+    - Removed unused field from SequenceNumber
 
     Bugfixes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
