@@ -612,6 +612,23 @@ public class GoodsReceiptBusiness {
 		return order;
 	}
 
+	/**
+	 * Calculate the weight of the given order.
+	 */
+	public BigDecimal calculateWeight(GoodsReceipt order) {
+		String jpql = "SELECT sum(itemData.weight*line.amount) FROM ";
+		jpql += ItemData.class.getName() + " itemData, ";
+		jpql += GoodsReceiptLine.class.getName() + " line ";
+		jpql += "WHERE line.goodsReceipt=:order ";
+		jpql += " AND itemData=line.itemData";
+
+		Query query = manager.createQuery(jpql);
+		query.setParameter("order", order);
+		BigDecimal weight = (BigDecimal) query.getSingleResult();
+
+		return weight;
+	}
+
 	private int readNumLines(GoodsReceipt goodsReceipt) {
 		Query query = manager.createQuery("SELECT count(entity) FROM " + GoodsReceiptLine.class.getName() + " entity "
 				+ "WHERE entity.goodsReceipt = :goodsReceipt");
