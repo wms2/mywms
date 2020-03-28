@@ -73,7 +73,7 @@ public class TrashHandler {
 				logger.log(Level.WARNING, logStr + "Entity is already deleted. Cannot remove.");
 				return false;
 			}
-			manager.remove(entity);
+			manager.removeValidated(entity);
 			manager.flush();
 
 			return true;
@@ -103,7 +103,7 @@ public class TrashHandler {
 
 			List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 			for (StockUnit stock : stocksOnUnitLoad) {
-				manager.remove(stock);
+				manager.removeValidated(stock);
 			}
 
 			List<Packet> packets = packetService.readList(unitLoad, null, null, null);
@@ -113,7 +113,7 @@ public class TrashHandler {
 
 			reservationService.remove(null, unitLoad);
 
-			manager.remove(unitLoad);
+			manager.removeValidated(unitLoad);
 			manager.flush();
 
 			return true;
@@ -141,9 +141,9 @@ public class TrashHandler {
 
 			List<GoodsReceiptLine> lines = goodsReceipt.getLines();
 			for (GoodsReceiptLine line : lines) {
-				manager.remove(line);
+				manager.removeValidated(line);
 			}
-			manager.remove(goodsReceipt);
+			manager.removeValidated(goodsReceipt);
 			manager.flush();
 
 			return true;
@@ -181,10 +181,10 @@ public class TrashHandler {
 							+ "Advice is referenced by GoodsReceipt.assignedAdvices. Do not remove. advice=" + advice);
 					return false;
 				}
-				manager.remove(line);
+				manager.removeValidated(line);
 			}
 
-			manager.remove(advice);
+			manager.removeValidated(advice);
 			manager.flush();
 
 			return true;
@@ -210,7 +210,7 @@ public class TrashHandler {
 				return false;
 			}
 
-			manager.remove(replenishOrder);
+			manager.removeValidated(replenishOrder);
 			manager.flush();
 
 			return true;
@@ -236,7 +236,7 @@ public class TrashHandler {
 				return false;
 			}
 
-			manager.remove(transportOrder);
+			manager.removeValidated(transportOrder);
 			manager.flush();
 
 			return true;
