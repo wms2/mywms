@@ -21,6 +21,7 @@ import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.model.State;
+import de.linogistix.los.util.StringTools;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
 import de.linogistix.mobileserver.processes.picking.PickingMobileOrder;
@@ -325,7 +326,14 @@ public class PickingMobileBean extends BasicDialogBean {
 		String logStr="processOrderInfo ";
 		log.debug(logStr+getTrace());
 		
+		String code = inputCode == null ? "" : inputCode.trim();
+
 		try {
+			if (!StringTools.isEmpty(code)) {
+				data.registerPickToLabel(code);
+			}
+			inputCode = "";
+
 			data.startPicking();
 			
 			if( data.setFirstPick() ) {
@@ -1075,7 +1083,11 @@ public class PickingMobileBean extends BasicDialogBean {
 	public void setCurrentId(Long currentId) {
 		this.currentId = currentId;
 	}
-	
+
+	public boolean isIdentifyPacket() {
+		return data.isIdentifyPacket() && data.hasPartialPicks();
+	}
+
 	// ***********************************************************************
 	@Override
 	protected ResourceBundle getResourceBundle() {

@@ -93,6 +93,30 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                   	</table>
                 </div>
 
+                <div class="space">
+                    <table  width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td>
+                            	<h:outputLabel id="input1Label" 
+                            		value="#{bundle.LabelEnterPacket}" 
+                            		styleClass="label" 
+                            		rendered="#{PickingBean.identifyPacket}"/>
+                            </td>
+                        </tr><tr>
+                            <td>
+                               	<h:inputText id="input1" 
+                             			 value="#{PickingBean.inputCode}" 
+                             			 styleClass="input" 
+                             			 rendered="#{PickingBean.identifyPacket}"/> 
+
+                            </td>
+                        </tr>
+
+                    </table>
+                    <h:inputText value="IE-Dummy" style="display:none" />
+
+                </div>
+
 				<h:inputText value="IE-Dummy" style="display:none" />
                 
                 <%-- Command Buttons --%>
@@ -117,6 +141,8 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             
             function setFocus() {
                 document.getElementById('Form:BUTTON_CONTINUE').focus();
+                document.getElementById('Form:input1').focus();
+                document.getElementById('Form:input1').select();
             }    
             
         </script>

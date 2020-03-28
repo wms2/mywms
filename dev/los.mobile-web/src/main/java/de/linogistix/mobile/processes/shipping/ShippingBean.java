@@ -22,10 +22,10 @@ import org.mywms.facade.FacadeException;
 import de.linogistix.los.inventory.facade.LOSGoodsOutFacade;
 import de.linogistix.los.inventory.facade.LOSGoodsOutTO;
 import de.linogistix.los.inventory.query.dto.LOSGoodsOutRequestTO;
-import de.linogistix.los.util.StringTools;
 import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicDialogBean;
 import de.linogistix.mobile.common.system.JSFHelper;
+import de.linogistix.mobileserver.util.MobileProperties;
 
 /**
  *
@@ -34,10 +34,6 @@ import de.linogistix.mobile.common.system.JSFHelper;
 public class ShippingBean extends BasicDialogBean {
 	private static final Logger log = Logger.getLogger(ShippingBean.class);
 
-	/**
-	 * SystemProperty. Enable input of destination location
-	 */
-	public static final String SHIPPING_SCAN_DESTINATION = "SHIPPING_SCAN_DESTINATION";
 	protected boolean scanDestination = false;
 
 	protected LOSGoodsOutFacade goFacade;
@@ -52,8 +48,8 @@ public class ShippingBean extends BasicDialogBean {
 		goFacade = super.getStateless(LOSGoodsOutFacade.class);
 		propertyService = super.getStateless(LOSSystemPropertyServiceRemote.class);
 
-		scanDestination = propertyService.getBooleanDefault(getWorkstationName(), SHIPPING_SCAN_DESTINATION, scanDestination);
-		log.info(SHIPPING_SCAN_DESTINATION+"="+scanDestination);
+		scanDestination = propertyService.getBooleanDefault(getWorkstationName(), MobileProperties.KEY_SHIPPING_SCAN_DESTINATION, scanDestination);
+		log.info(MobileProperties.KEY_SHIPPING_SCAN_DESTINATION+"="+scanDestination);
 
 	}
 	

@@ -18,11 +18,13 @@ import de.linogistix.los.inventory.exception.InventoryException;
 import de.linogistix.los.inventory.exception.InventoryExceptionKey;
 import de.linogistix.los.model.State;
 import de.linogistix.los.util.StringTools;
+import de.linogistix.los.util.entityservice.LOSSystemPropertyServiceRemote;
 import de.linogistix.mobile.common.gui.bean.BasicBackingBean;
 import de.linogistix.mobileserver.processes.picking.PickingMobileFacade;
 import de.linogistix.mobileserver.processes.picking.PickingMobileOrder;
 import de.linogistix.mobileserver.processes.picking.PickingMobilePos;
 import de.linogistix.mobileserver.processes.picking.PickingMobileUnitLoad;
+import de.linogistix.mobileserver.util.MobileProperties;
 import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingType;
 
@@ -61,9 +63,12 @@ public class PickingMobileData extends BasicBackingBean implements Serializable 
 	protected PickingMobileUnitLoad currentPickTo = null;
 	protected int currentPickIdx = -1;
 	protected PickingMobileFacade facade;
-	
+	protected boolean identifyPacket = false;
+
 	public PickingMobileData() {
 		facade = getStateless(PickingMobileFacade.class);
+		LOSSystemPropertyServiceRemote propertyService = super.getStateless(LOSSystemPropertyServiceRemote.class);
+		identifyPacket = propertyService.getBooleanDefault(getWorkstationName(), MobileProperties.KEY_PICKING_IDENTIFY_PACKET, identifyPacket);
 	}
 
 	
@@ -608,6 +613,22 @@ public class PickingMobileData extends BasicBackingBean implements Serializable 
 		return currentOrder;
 	}
 	
+	public boolean isIdentifyPacket() {
+		return identifyPacket;
+	}
+
+	public boolean hasPartialPicks() {
+		if (pickList == null) {
+			return false;
+		}
+		for (PickingMobilePos pick : pickList) {
+			if (pick.pickingType == PickingType.PICK || pick.pickingType == PickingType.DEFAULT) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	protected ResourceBundle getResourceBundle() {
 		ResourceBundle bundle;
