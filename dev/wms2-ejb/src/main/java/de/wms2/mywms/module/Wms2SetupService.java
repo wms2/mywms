@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -131,7 +131,7 @@ public class Wms2SetupService extends ModuleSetup {
 		case INITIALIZED:
 			setupBasicData(locale);
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
-					Wms2Properties.GROUP_SETUP, null, locale);
+					Wms2Properties.GROUP_SETUP, locale);
 			break;
 		default:
 			logger.log(Level.INFO, "Skip setup level=" + level);
@@ -199,7 +199,7 @@ public class Wms2SetupService extends ModuleSetup {
 
 		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
 		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE,
-				locale == null ? Locale.GERMANY.toString() : locale.toString(), Wms2Properties.GROUP_WMS, locale);
+				locale == null ? Locale.getDefault().toString() : locale.toString(), Wms2Properties.GROUP_WMS, locale);
 		createProperty(null, Wms2Properties.KEY_REPLENISH_FROM_PICKING, "true", Wms2Properties.GROUP_WMS, locale);
 
 		createProperty(null, Wms2Properties.KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED, "false",

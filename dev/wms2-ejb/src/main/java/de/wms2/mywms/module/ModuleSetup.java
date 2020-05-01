@@ -1,5 +1,5 @@
 /* 
-Copyright 2014-2019 Matthias Krane
+Copyright 2014-2020 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -112,8 +112,9 @@ public abstract class ModuleSetup {
 	 * @param group          The property group
 	 * @param locale         The locale
 	 */
-	protected SystemProperty createProperty(Class<?> bundleResolver, String key, String value, String group, Locale locale) {
-		return createProperty(bundleResolver, key, value, group, key, key, locale);
+	protected SystemProperty createProperty(Class<?> bundleResolver, String key, String value, String group,
+			Locale locale) {
+		return createProperty(bundleResolver, key, value, group, key, locale);
 	}
 
 	/**
@@ -125,25 +126,18 @@ public abstract class ModuleSetup {
 	 * @param key            The property key
 	 * @param value          The property value
 	 * @param group          The property group
-	 * @param bundleKeyDesc  Optional, The bundle key to read the description from
+	 * @param bundleKey      The bundle key to read the description and note from
 	 *                       bundle
-	 * @param bundleKeyNote  Optional, The bundle key to read the note from bundle
 	 * @param locale         The locale
 	 */
-	protected SystemProperty createProperty(Class<?> bundleResolver, String key, String value, String group, String bundleKeyDesc,
-			String bundleKeyNote, Locale locale) {
+	protected SystemProperty createProperty(Class<?> bundleResolver, String key, String value, String group,
+			String bundleKey, Locale locale) {
 
-		String desc = null;
-		if (!StringUtils.isBlank(bundleKeyDesc)) {
-			String bundleKey = "property" + key;
-			desc = Translator.getString(bundleResolver, "BasicData", bundleKey, "desc", null, locale);
-		}
+		String effectiveBundleKey = "property" + bundleKey;
+		String desc = Translator.getString(bundleResolver, "BasicData", effectiveBundleKey, "desc", null, locale);
+		String note = Translator.getString(bundleResolver, "BasicData", effectiveBundleKey, "note", null, locale);
 		SystemProperty property = propertyBusiness.createOrUpdate(key, null, null, value, group, desc);
-		if (!StringUtils.isBlank(bundleKeyNote)) {
-			String bundleKey = "property" + key;
-			String note = Translator.getString(bundleResolver, "BasicData", bundleKey, "note", null, locale);
-			property.setAdditionalContent(note);
-		}
+		property.setAdditionalContent(note);
 
 		return property;
 	}

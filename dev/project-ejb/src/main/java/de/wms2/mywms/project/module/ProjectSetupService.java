@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2020 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -93,12 +93,12 @@ public class ProjectSetupService extends ModuleSetup {
 		case UNINITIALIZED:
 		case INITIALIZED:
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
-					Wms2Properties.GROUP_SETUP, null, locale);
+					Wms2Properties.GROUP_SETUP, locale);
 			break;
 		case DEMO_SMALL:
 			setupDemoData(locale);
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
-					Wms2Properties.GROUP_SETUP, null, locale);
+					Wms2Properties.GROUP_SETUP, locale);
 			break;
 		default:
 			logger.log(Level.INFO, "Skip setup level=" + level);

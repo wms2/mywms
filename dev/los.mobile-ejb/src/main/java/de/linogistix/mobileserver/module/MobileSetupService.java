@@ -90,7 +90,7 @@ public class MobileSetupService extends ModuleSetup {
 		case INITIALIZED:
 			setupBasicData(locale);
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
-					Wms2Properties.GROUP_SETUP, null, locale);
+					Wms2Properties.GROUP_SETUP, locale);
 			break;
 		default:
 			logger.log(Level.INFO, "Skip setup level=" + level);
