@@ -54,6 +54,7 @@ import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.strategy.StorageStrategyEntityService;
 import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2Properties;
@@ -91,6 +92,8 @@ public class Wms2SetupService extends ModuleSetup {
 	private StorageLocationEntityService storageLocationEntityService;
 	@Inject
 	private OrderStrategyEntityService orderStrategyService;
+	@Inject
+	private StorageStrategyEntityService storageStrategyService;
 
 	@PersistenceContext(unitName = "myWMS")
 	protected EntityManager manager;
@@ -196,6 +199,7 @@ public class Wms2SetupService extends ModuleSetup {
 		storageLocationEntityService.getClearing();
 		storageLocationEntityService.getTrash();
 		orderStrategyService.getDefault(client);
+		storageStrategyService.getDefault();
 
 		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
 		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE,

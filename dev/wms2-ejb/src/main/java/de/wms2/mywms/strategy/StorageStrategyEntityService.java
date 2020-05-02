@@ -86,7 +86,7 @@ public class StorageStrategyEntityService {
 			String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", "storageStrategyDefault", "desc",
 					"", locale);
 
-			propertyBusiness.createOrUpdate(Wms2Properties.KEY_ORDERSTRATEGY_DEFAULT, name, Wms2Properties.GROUP_WMS,
+			propertyBusiness.createOrUpdate(Wms2Properties.KEY_STORAGESTRATEGY_DEFAULT, name, Wms2Properties.GROUP_WMS,
 					desc);
 		}
 
