@@ -366,7 +366,7 @@ Release 2.5
     - Added support for wildfly-19
 
 
-    Functional changes (for details have a look to the git repository)
+    Functional changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
     - Best before can be mandatory for an stock units of an item data
     - Changed best before date to an attribute of the stock unit
@@ -385,13 +385,17 @@ Release 2.5
     - Weight and volume of outgoing orders are calculated on the fly. No redundant storage.
     - Dimensions (height,width,depth) got 3 decimals for mm
     - Added optional modulo 10 check digit to sequence number
+    - Enable Pick-To identification in mobile picking process in advance
 
 
-    Technical changes (for details have a look to the git repository)
+    Technical changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
     - Reduce the amount of translation helper classes
     - Changed user-name to user-reference in InventoryJournal. It's better for pseudonymization.
     - Removed unused field from SequenceNumber
+    - Use validation in trash handler
+    - Made the red rich client connection window a little less intrusive
+
 
     Bugfixes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
