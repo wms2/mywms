@@ -409,3 +409,32 @@ Release 2.5
     - The InventoryJournal has changed. The datatype of the recordtype column is changed from varchar to integer. Manually update the values based on the defined values in InventoryJournalRecordType
 
 
+
+Release 2.6
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Added support for wildfly-21
+
+
+    Functional changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Spanish translation
+
+
+    Technical changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Bugfixes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+    Do not use stock with active storage order for replenish order generation
+    StackOverflow in UnitLoadType.toUniqueString() method
+    Some fixes in translation of stocktaking
+
+
+    Switch to Release 2.6
+    -------------------------------------------------------------------------------
+    - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
+

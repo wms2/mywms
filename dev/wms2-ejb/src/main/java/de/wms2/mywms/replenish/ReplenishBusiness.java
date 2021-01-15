@@ -56,6 +56,7 @@ import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.LocationReserver;
 import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2BundleResolver;
 import de.wms2.mywms.util.Wms2Properties;
@@ -656,6 +657,8 @@ public class ReplenishBusiness {
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
 			jpql += " AND stock.lotNumber in (:lots) ";
 		}
+		jpql += " AND not exists( select 1 from " + TransportOrder.class.getName() + " transport ";
+		jpql += "     where transport.unitLoad=stock.unitLoad and transport.state<" + OrderState.FINISHED + ")";
 		jpql += " ORDER BY stock.strategyDate, stock.amount, stock.created, stock.id ";
 		Query query = manager.createQuery(jpql);
 
@@ -698,6 +701,8 @@ public class ReplenishBusiness {
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
 			jpql += " AND stock.lotNumber in (:lots) ";
 		}
+		jpql += " AND not exists( select 1 from " + TransportOrder.class.getName() + " transport ";
+		jpql += "     where transport.unitLoad=stock.unitLoad and transport.state<" + OrderState.FINISHED + ")";
 		jpql += " ORDER BY stock.strategyDate, stock.amount, stock.created, stock.id ";
 		query = manager.createQuery(jpql);
 

@@ -108,6 +108,8 @@ public class ReplenishOrderEntityService {
 		if (maxState != null) {
 			queryStr += " and entity.state<=:maxState ";
 		}
+		queryStr += " ORDER by entity.state, entity.orderNumber";
+
 		Query query = manager.createQuery(queryStr);
 		if (itemData != null) {
 			query.setParameter("itemData", itemData);
