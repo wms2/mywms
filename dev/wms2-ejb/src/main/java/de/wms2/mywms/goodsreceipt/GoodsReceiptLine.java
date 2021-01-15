@@ -152,7 +152,7 @@ public class GoodsReceiptLine extends BasicEntity {
 		if (lineNumber != null) {
 			return lineNumber;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public BigDecimal getAmount() {

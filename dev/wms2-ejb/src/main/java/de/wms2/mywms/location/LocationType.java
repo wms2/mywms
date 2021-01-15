@@ -63,7 +63,7 @@ public class LocationType extends BasicEntity {
 		if (name != null) {
 			return name;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public String getName() {

@@ -76,7 +76,7 @@ public class ShippingOrderLine extends BasicEntity {
 		if (packet != null) {
 			return packet.toUniqueString();
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	public ShippingOrder getShippingOrder() {

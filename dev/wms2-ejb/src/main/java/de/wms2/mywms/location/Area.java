@@ -61,7 +61,7 @@ public class Area extends BasicEntity {
 		if (name != null) {
 			return name;
 		}
-		return super.toString();
+		return super.toUniqueString();
 	}
 
 	@Transient
