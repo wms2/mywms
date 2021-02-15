@@ -438,3 +438,29 @@ Release 2.6
     -------------------------------------------------------------------------------
     - Upgrade existing database structures manually. Automatic upgrade of the structure of existing databases may not work.
 
+
+
+Release 2.7
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Added support for wildfly-22
+    - Switched to Netbeans-12
+
+
+    Functional changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Technical changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Bugfixes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Switch to Release 2.7
+    -------------------------------------------------------------------------------
+
