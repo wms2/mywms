@@ -13,8 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JButton;
-import org.netbeans.api.javahelp.Help;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -71,13 +69,5 @@ public class FooterPanel extends AbstractFooterPanel {
     private void createOrderButtonActionPerformed(ActionEvent evt){
         topComponentPanel.centerPanel.process(false); 
     }
-
-    @Override
-    protected void flatButtonActionPerformedListener(ActionEvent evt) {
-        Help help = (Help) Lookup.getDefault().lookup(Help.class);
-        help.showHelp(topComponentPanel.topComponent.getHelpCtx());
-    }
-
-    
     
 }

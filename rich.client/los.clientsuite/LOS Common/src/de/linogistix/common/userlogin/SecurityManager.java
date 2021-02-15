@@ -119,10 +119,8 @@ public class SecurityManager {
         } catch (FacadeException ex) {
             fex = ex;
         } catch (Throwable ex) {
-            System.out.println(" ------ Exception log in ");
+            log.log(Level.SEVERE, ex.getMessage());
             ex.printStackTrace();
-
-            log.log(Level.SEVERE, ex.getMessage(), ex);
             lex = new LoginException(username);
         } finally {
             if (statusLineServer != null) {

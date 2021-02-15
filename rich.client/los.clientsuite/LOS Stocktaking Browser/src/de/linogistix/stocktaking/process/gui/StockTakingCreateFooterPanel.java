@@ -15,7 +15,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
-import org.netbeans.api.javahelp.Help;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -58,11 +57,4 @@ public class StockTakingCreateFooterPanel extends AbstractFooterPanel {
         controller.processCreate();
     }
 
-    @Override
-    protected void flatButtonActionPerformedListener(ActionEvent evt) {
-        Help help = (Help) Lookup.getDefault().lookup(Help.class);
-        help.showHelp(controller.topComponent.getHelpCtx());
-    }
-
-    
 }

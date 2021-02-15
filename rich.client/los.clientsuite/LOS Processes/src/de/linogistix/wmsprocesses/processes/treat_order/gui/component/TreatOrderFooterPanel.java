@@ -12,8 +12,6 @@ import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import javax.swing.JButton;
-import org.netbeans.api.javahelp.Help;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -55,12 +53,4 @@ public class TreatOrderFooterPanel extends AbstractFooterPanel{
       topComponentPanel.getCenterPanel().reset();
     }
 
-    @Override
-    protected void flatButtonActionPerformedListener(ActionEvent evt) {
-        Help help = (Help) Lookup.getDefault().lookup(Help.class);
-        help.showHelp(topComponentPanel.topComponent.getHelpCtx());
-    }
-    
-    
-    
 }

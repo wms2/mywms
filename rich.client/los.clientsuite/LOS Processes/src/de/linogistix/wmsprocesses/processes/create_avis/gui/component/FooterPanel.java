@@ -10,8 +10,6 @@ package de.linogistix.wmsprocesses.processes.create_avis.gui.component;
 import de.linogistix.common.gui.gui_builder.AbstractFooterPanel;
 import de.linogistix.wmsprocesses.res.WMSProcessesBundleResolver;
 import java.awt.event.ActionEvent;
-import org.netbeans.api.javahelp.Help;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -42,12 +40,4 @@ public class FooterPanel extends AbstractFooterPanel {
     protected void clearButtonActionPerformedListener(ActionEvent evt) {
         topComponentPanel.centerPanel.clear();
     }
-
-    @Override
-    protected void flatButtonActionPerformedListener(ActionEvent evt) {
-        Help help = (Help) Lookup.getDefault().lookup(Help.class);
-        help.showHelp(topComponentPanel.topComponent.getHelpCtx());
-    }
-    
-     
 }

@@ -7,15 +7,13 @@
     <import file="nbproject/build-impl.xml"/>
 	
 	
-	<target name="jar-prep" depends="init,-pre-jar">
+	<target name="jar-prep" depends="init">
 		<mkdir dir="${cluster}/${module.jar.dir}"/>
 		<tstamp>
 			<format property="buildnumber" pattern="yyMMdd" timezone="UTC"/>
 		</tstamp>
-	</target>
-	
-	<target name="-pre-jar">
-		<echo message="Update Version..."/>
+
+                <echo message="Update Version..."/>
 		<tstamp/>
 		<propertyfile
                      file="${build.classes.dir}/de/linogistix/reference/about/Bundle.properties" 

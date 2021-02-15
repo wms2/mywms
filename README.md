@@ -19,7 +19,7 @@ This project is maintained by [krane.engineer](https://krane.engineer).
 * Barcode/RFID identification, mobile terminals for paperless processes
 * Modular/ SOA architecture
 * Supported technologies: JEE8, Wildfly, Netbeans RCP, SOAP
-* Supports Wildfly-18 and Java-11
+* Supports Wildfly-22 and Java-11
 * Open source software
 
 
@@ -36,8 +36,8 @@ A good location with additional information of the preivous versions is [mywms.o
 The first action is to set the project to an actual environment (2019)
 
 - Support of Java 11 runtime
-- Support of wildfly 18 version
-- Support of netbeans 11 rich client
+- Support of wildfly 22 version
+- Support of netbeans 12 rich client
 - Support of JasperReports 6
 - Change build system from ant to maven
 - Change version control from svn to git

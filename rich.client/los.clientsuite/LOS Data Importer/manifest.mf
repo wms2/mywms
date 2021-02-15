@@ -2,6 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: de.linogistix.losdataimporter
 OpenIDE-Module-Layer: de/linogistix/losdataimporter/res/layer.xml
 OpenIDE-Module-Localizing-Bundle: de/linogistix/losdataimporter/res/Bundle.properties
-OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
 OpenIDE-Module-Specification-Version: 1.3
 

@@ -45,7 +45,6 @@ public abstract class AbstractFooterPanel extends javax.swing.JPanel {
 
         centerPanel = new javax.swing.JPanel();
         eastPanel = new javax.swing.JPanel();
-        flatButton = new FlatButton("",IconType.HELP);
 
         addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent evt) {
@@ -56,30 +55,17 @@ public abstract class AbstractFooterPanel extends javax.swing.JPanel {
 
         centerPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
         add(centerPanel, java.awt.BorderLayout.CENTER);
-
-        flatButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                flatButtonActionPerformed(evt);
-            }
-        });
-        eastPanel.add(flatButton);
-
         add(eastPanel, java.awt.BorderLayout.EAST);
     }// </editor-fold>//GEN-END:initComponents
 
     private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
     
     }//GEN-LAST:event_formMouseMoved
-
-private void flatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flatButtonActionPerformed
-        flatButtonActionPerformedListener(evt);
-}//GEN-LAST:event_flatButtonActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JPanel centerPanel;
     private javax.swing.JPanel eastPanel;
-    private javax.swing.JButton flatButton;
     // End of variables declaration//GEN-END:variables
 
 
@@ -87,8 +73,6 @@ private void flatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     
     protected void clearButtonActionPerformedListener(java.awt.event.ActionEvent evt) {   }
     
-    protected void flatButtonActionPerformedListener(java.awt.event.ActionEvent evt) {   }    
-
     protected javax.swing.JButton getClearButton() {
         return clearButton;
     }

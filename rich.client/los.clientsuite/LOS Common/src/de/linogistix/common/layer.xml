@@ -3,9 +3,7 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Window">
-            <file name="de-linogistix-common-action-OpenMobileAction.instance"/>
             <file name="de-linogistix-common-bobrowser-browse-BOBrowserAction.instance"/>
-            <file name="de-linogistix-common-action-OpenHelpAction.instance"/>
             <file name="de-linogistix-common-action-OnlineHelpAction.instance"/>
         </folder>
         <folder name="BOBrowser">
@@ -103,13 +101,6 @@
                 <attr name="position" intvalue="099"/>
             </file>
 
-            <file name="Sep-899[javax-swing-JSeparator].instance">
-                <attr name="position" intvalue="899"/>
-            </file>
-            <file name="OpenMobileAction.shadow">
-                <attr name="position" intvalue="950"/>
-                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-common-action-OpenMobileAction.instance"/>
-            </file>
         </folder>
         
         <!-- Administration menu -->
@@ -137,12 +128,7 @@
         <folder name="LOSHelp">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="de.linogistix.common.res.Bundle"/>
             <attr name="position" intvalue="500"/>
-            <!--
-            <file name="OpenHelpAction.shadow">
-                <attr name="position" intvalue="100"/>
-                <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-common-action-OpenHelpAction.instance"/>
-            </file>
-            -->
+
             <file name="OnlineHelpAction.shadow">
                 <attr name="position" intvalue="200"/>
                 <attr name="originalFile" stringvalue="Actions/Window/de-linogistix-common-action-OnlineHelpAction.instance"/>
