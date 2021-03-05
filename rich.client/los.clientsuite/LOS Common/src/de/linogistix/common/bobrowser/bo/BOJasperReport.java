@@ -16,7 +16,10 @@ import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.linogistix.los.query.LOSJasperReportQueryRemote;
 import de.linogistix.los.crud.BusinessObjectCRUDRemote;
 import de.linogistix.los.crud.LOSJasperReportCRUDRemote;
+import de.wms2.mywms.product.ItemDataState;
 import de.wms2.mywms.report.Report;
+import java.util.ArrayList;
+import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.nodes.Node;
@@ -103,4 +106,21 @@ public class BOJasperReport extends BO {
         return BOLOSJasperReportMasterNode.class;
     }
 
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "state".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(ItemDataState.ACTIVE);
+            entryList.add(ItemDataState.INACTIVE);
+
+            return entryList;
+        }
+
+        return super.getValueList(fieldName);
+    }
+
+        @Override
+    public String getBundlePrefix() {
+        return "JasperReports";
+    }
 }
