@@ -451,6 +451,7 @@ Release 2.7
 
     Functional changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
+    - Added versions and attachments to reports
 
 
     Technical changes (for details and complete list have a look to the git repository)
@@ -461,6 +462,7 @@ Release 2.7
     -------------------------------------------------------------------------------
 
 
-    Switch to Release 2.7
+    Database changes
     -------------------------------------------------------------------------------
+    - Table report got new attributes: reportVersion, state
 

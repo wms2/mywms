@@ -47,6 +47,7 @@ import net.sf.jasperreports.engine.JRParameter;
 
 public class StockUnitReportGenerator {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private static final String STOCKUNIT_REPORT_NAME = "StockUnitLabel";
 
 	@Inject
 	private ReportBusiness reportBusiness;
@@ -58,8 +59,12 @@ public class StockUnitReportGenerator {
 	private DocumentBusiness documentBusiness;
 
 	public Document generateReport(UnitLoad unitLoad) throws BusinessException {
+		return generateReport(unitLoad, null);
+	}
+
+	public Document generateReport(UnitLoad unitLoad, String reportVersion) throws BusinessException {
 		String logStr = "generateReport ";
-		logger.log(Level.INFO, logStr + "unitLoad=" + unitLoad);
+		logger.log(Level.INFO, logStr + "unitLoad=" + unitLoad + ", reportVersion=" + reportVersion);
 
 		Client client = unitLoad.getClient();
 
@@ -87,8 +92,8 @@ public class StockUnitReportGenerator {
 		ResourceBundle bundle = Translator.getBundle(Wms2BundleResolver.class, null, locale);
 		parameters.put(JRParameter.REPORT_RESOURCE_BUNDLE, bundle);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "StockUnitLabel", Wms2BundleResolver.class, reportItems,
-				parameters);
+		byte[] data = reportBusiness.createPdfDocument(client, STOCKUNIT_REPORT_NAME, reportVersion,
+				Wms2BundleResolver.class, reportItems, parameters);
 		Document doc = new Document();
 		doc.setData(data);
 		doc.setDocumentType(DocumentType.PDF);
@@ -97,4 +102,7 @@ public class StockUnitReportGenerator {
 		return doc;
 	}
 
+	public List<String> readReportVersions(Client client) throws BusinessException {
+		return reportBusiness.readReportVersions(STOCKUNIT_REPORT_NAME, client);
+	}
 }

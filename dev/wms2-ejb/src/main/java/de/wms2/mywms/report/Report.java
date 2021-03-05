@@ -23,6 +23,8 @@ import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
+import de.wms2.mywms.product.ItemDataState;
+
 /**
  * Report forms
  * <p>
@@ -32,13 +34,20 @@ import org.mywms.model.BasicClientAssignedEntity;
  *
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "client_id" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "reportVersion", "client_id" }) })
 public class Report extends BasicClientAssignedEntity {
 
 	private static final long serialVersionUID = 1L;
+	public static final String DEFAULT_REPORT_VERSION = "Default";
 
 	@Column(nullable = false)
 	private String name;
+
+	@Column(nullable = false)
+	private String reportVersion = DEFAULT_REPORT_VERSION;
+
+	@Column(nullable = false)
+	private int state = ItemDataState.ACTIVE;
 
 	@Override
 	public String toString() {
@@ -52,4 +61,21 @@ public class Report extends BasicClientAssignedEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public String getReportVersion() {
+		return reportVersion;
+	}
+
+	public void setReportVersion(String reportVersion) {
+		this.reportVersion = reportVersion;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
 }

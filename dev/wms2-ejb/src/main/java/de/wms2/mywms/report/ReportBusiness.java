@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +34,10 @@ import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
@@ -41,7 +45,9 @@ import de.wms2.mywms.document.Document;
 import de.wms2.mywms.document.DocumentBusiness;
 import de.wms2.mywms.document.DocumentEntityService;
 import de.wms2.mywms.document.DocumentType;
+import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.product.ItemDataState;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.util.Translator;
 import de.wms2.mywms.util.Wms2BundleResolver;
@@ -78,10 +84,18 @@ public class ReportBusiness {
 	private DocumentBusiness documentBusiness;
 	@Inject
 	private SystemPropertyBusiness propertyBusiness;
+	@Inject
+	private PersistenceManager manager;
 
 	public byte[] createPdfDocument(Client client, String name, Class<?> bundleResolver, List<? extends Object> values,
 			Map<String, Object> parameters) throws BusinessException {
-		String logStr = "createDocument ";
+		return createPdfDocument(client, name, null, bundleResolver, values, parameters);
+	}
+
+	public byte[] createPdfDocument(Client client, String name, String reportVersion, Class<?> bundleResolver,
+			List<? extends Object> values, Map<String, Object> parameters) throws BusinessException {
+		String logStr = "createPdfDocument ";
+		logger.log(Level.INFO, logStr + "client=" + client + ", name=" + name + ", reportVersion=" + reportVersion);
 
 		if (parameters == null) {
 			parameters = new HashMap<String, Object>();
@@ -89,16 +103,29 @@ public class ReportBusiness {
 
 		// Fill the requested report with the specified data
 		JRBeanCollectionDataSource jbCollectionDS = new JRBeanCollectionDataSource(values);
-		Report report = readReport(client, name);
+		Report report = readOrCreateReport(client, name, reportVersion);
+		if (report == null) {
+			logger.log(Level.SEVERE, logStr + "Cannot read report. Abort. client=" + client + ", name=" + name
+					+ ", reportVersion=" + reportVersion);
+			throw new BusinessException(Wms2BundleResolver.class, "Report.missingReport",
+					new Object[] { client, reportVersion });
+		}
 
 		JasperReport jasperReport = readJasperReport(report, bundleResolver);
 		if (jasperReport == null) {
-			logger.log(Level.SEVERE, logStr + "Cannot read report. Abort");
+			logger.log(Level.SEVERE, logStr + "Cannot read compiled report. Abort. client=" + report.getClient()
+					+ ", name=" + report.getName() + ", reportVersion=", report.getReportVersion());
 			throw new BusinessException(Wms2BundleResolver.class, "Report.creationFailed");
 		}
 
 		Document image = documentBusiness.readImage(Report.class, report.getId());
 		parameters.put("image", image);
+
+		// Add all attachments to report
+		List<Document> attachments = documentBusiness.readDocuments(Report.class, report.getId(), "attachment");
+		for (Document document : attachments) {
+			parameters.put(document.getSimpleName(), document);
+		}
 
 		String localeString = propertyBusiness.getString(Wms2Properties.KEY_REPORT_LOCALE, null);
 		Locale locale = Translator.parseLocale(localeString);
@@ -158,20 +185,116 @@ public class ReportBusiness {
 		return data;
 	}
 
-	private Report readReport(Client client, String name) throws BusinessException {
-		if (client == null) {
-			client = clientBusiness.getSystemClient();
+	/**
+	 * Resolve the report to use:<br/>
+	 * <li/>If client is given and reportVersion is given:<br>
+	 * a) Existing report of client and reportVersion<br>
+	 * b) Existing report of system client and reportVersion<br>
+	 * c) null
+	 * <li/>if client is NOT given and reportVersion is given:<br>
+	 * a) Existing report of system client and reportVersion<br>
+	 * b) null
+	 * <li/>If client is given and reportVersion is NOT given:<br>
+	 * a) The ACTIVE report of client<br>
+	 * b) The ACTIVE report of system client<br>
+	 * c) The DEFAULT report of system client<br>
+	 * d) Create DEFAULT report of system client<br>
+	 * <li/>If client is NOT given and reportVersion is NOT given:<br>
+	 * a) The ACTIVE report of system client<br>
+	 * b) The DEFAULT report of system client<br>
+	 * c) Create DEFAULT report of system client<br>
+	 */
+	private Report readOrCreateReport(Client client, String name, String reportVersion) throws BusinessException {
+		String jpql = "SELECT entity FROM " + Report.class.getName() + " entity ";
+		jpql += " where entity.name=:name";
+
+		if (client != null) {
+			jpql += " and (entity.client=:client or entity.client.id=0)";
+		} else {
+			jpql += " and entity.client.id=0";
+		}
+		if (!StringUtils.isBlank(reportVersion)) {
+			jpql += " and entity.reportVersion=:reportVersion";
+		} else {
+			jpql += " and entity.state=" + ItemDataState.ACTIVE;
+		}
+		jpql += " order by entity.client.id desc, entity.state, entity.reportVersion";
+
+		TypedQuery<Report> query = manager.createQuery(jpql, Report.class);
+		query.setMaxResults(1);
+		query.setParameter("name", name);
+		if (client != null) {
+			query.setParameter("client", client);
+		}
+		if (!StringUtils.isBlank(reportVersion)) {
+			query.setParameter("reportVersion", reportVersion);
 		}
 
-		Report report = reportService.read(name, client);
-		if (report == null) {
-			report = reportService.read(name, clientBusiness.getSystemClient());
-		}
-		if (report == null) {
-			report = reportService.create(name, clientBusiness.getSystemClient());
+		try {
+			Report result = query.getSingleResult();
+			logger.log(Level.INFO, "Resolved report: client=" + result.getClient() + ", name=" + result.getName()
+					+ ", reportVersion=" + result.getReportVersion());
+			return result;
+		} catch (NoResultException e) {
 		}
 
-		return report;
+		if (StringUtils.isBlank(reportVersion)) {
+			jpql = "SELECT entity FROM " + Report.class.getName() + " entity ";
+			jpql += " where entity.name=:name and entity.client.id=0";
+			jpql += " and entity.reportVersion='" + Report.DEFAULT_REPORT_VERSION + "'";
+			query = manager.createQuery(jpql, Report.class);
+			query.setParameter("name", name);
+			try {
+				Report result = query.getSingleResult();
+				logger.log(Level.WARNING, "Resolved inactive default report: client=" + result.getClient() + ", name="
+						+ result.getName() + ", reportVersion=" + result.getReportVersion());
+				return result;
+			} catch (NoResultException e) {
+			}
+
+			logger.log(Level.WARNING, "Generate not existing DEFAULT report. name=" + name);
+			return reportService.create(name, clientBusiness.getSystemClient(), Report.DEFAULT_REPORT_VERSION);
+		}
+
+		logger.log(Level.WARNING,
+				"Cannot read report for client=" + client + ", name=" + name + ", reportVersion=" + reportVersion);
+		return null;
+	}
+
+	/**
+	 * Read the versions of a report
+	 * <p>
+	 * The first element of the list is the one with the active-flag set.
+	 * <p>
+	 * For multi client systems, all available versions are read. For the
+	 * active-flag only the system-client is checked.
+	 */
+	public List<String> readReportVersions(String name, Client client) throws BusinessException {
+		String jpql = "select entity.reportVersion from ";
+		jpql += Report.class.getSimpleName() + " entity ";
+		jpql += " where entity.name=:name";
+		if (client != null) {
+			jpql += " and (entity.client=:client or entity.client.id=0)";
+		} else {
+			jpql += " and entity.client.id=0";
+		}
+		jpql += " order by entity.client.id desc, entity.state, entity.reportVersion";
+
+		TypedQuery<String> versionsQuery = manager.createQuery(jpql, String.class);
+		versionsQuery.setParameter("name", name);
+		if (client != null) {
+			versionsQuery.setParameter("client", client);
+		}
+		List<String> reportVersions = versionsQuery.getResultList();
+
+		List<String> resultList = new ArrayList<>(reportVersions.size());
+		for (String reportVersion : reportVersions) {
+			if (!resultList.contains(reportVersion)) {
+				resultList.add(reportVersion);
+			}
+		}
+
+		return resultList;
 	}
 
 	private JasperReport readJasperReport(Report report, Class<?> bundleResolver) throws BusinessException {

@@ -19,10 +19,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.document;
 
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import de.wms2.mywms.entity.PersistenceManager;
 
@@ -74,6 +77,15 @@ public class DocumentEntityService {
 		} catch (NoResultException e) {
 		}
 		return null;
+	}
+
+	public List<Document> readByNamePrefix(String namePrefix) {
+		String jpql = "SELECT entity FROM " + Document.class.getName() + " entity ";
+		jpql += " where entity.name like :name";
+		jpql += " order by entity.id";
+		TypedQuery<Document> query = manager.createQuery(jpql, Document.class);
+		query.setParameter("name", namePrefix + "%");
+		return query.getResultList();
 	}
 
 	public int delete(String name) {

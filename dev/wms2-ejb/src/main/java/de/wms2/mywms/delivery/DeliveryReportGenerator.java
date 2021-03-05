@@ -58,6 +58,12 @@ import de.wms2.mywms.util.Wms2BundleResolver;
 public class DeliveryReportGenerator {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
+	private static final String CONTENTLIST_REPORT_NAME = "Contentlist";
+	private static final String PICKING_PACKETLIST_REPORT_NAME = "PickingPacketlist";
+	private static final String SHIPPING_PACKETLIST_REPORT_NAME = "ShippingPacketlist";
+	private static final String DELIVERY_PACKETLIST_REPORT_NAME = "DeliveryPacketlist";
+	private static final String DELIVERYNOTE_REPORT_NAME = "Deliverynote";
+
 	@Inject
 	private PacketEntityService packetService;
 	@Inject
@@ -74,22 +80,31 @@ public class DeliveryReportGenerator {
 	private static final String ITEM_TYPE_LINE = "7-LINE";
 
 	public Document generateContentList(Packet packet) throws BusinessException {
-		String logStr = "generateContentList ";
-		logger.log(Level.INFO, logStr + "packet=" + packet);
+		return generateContentList(packet, null);
+	}
 
-		return generateContentList(packet.getUnitLoad(), packet);
+	public Document generateContentList(Packet packet, String reportVersion) throws BusinessException {
+		String logStr = "generateContentList ";
+		logger.log(Level.INFO, logStr + "packet=" + packet + ", reportVersion=" + reportVersion);
+
+		return generateContentList(packet.getUnitLoad(), packet, reportVersion);
 	}
 
 	public Document generateContentList(UnitLoad unitLoad) throws BusinessException {
+		return generateContentList(unitLoad, null);
+	}
+
+	public Document generateContentList(UnitLoad unitLoad, String reportVersion) throws BusinessException {
 		String logStr = "generateContentList ";
 		logger.log(Level.INFO, logStr + "unitLoad=" + unitLoad);
 
 		Packet packet = packetService.readFirstByUnitLoad(unitLoad);
 
-		return generateContentList(unitLoad, packet);
+		return generateContentList(unitLoad, packet, reportVersion);
 	}
 
-	private Document generateContentList(UnitLoad unitLoad, Packet packet) throws BusinessException {
+	private Document generateContentList(UnitLoad unitLoad, Packet packet, String reportVersion)
+			throws BusinessException {
 		Client client = unitLoad.getClient();
 
 		DeliveryOrder deliveryOrder = null;
@@ -128,8 +143,8 @@ public class DeliveryReportGenerator {
 		parameters.put("address", address);
 		parameters.put("label", label);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "Contentlist", Wms2BundleResolver.class, reportItems,
-				parameters);
+		byte[] data = reportBusiness.createPdfDocument(client, CONTENTLIST_REPORT_NAME, reportVersion,
+				Wms2BundleResolver.class, reportItems, parameters);
 
 		Document doc = new Document();
 		doc.setData(data);
@@ -140,8 +155,12 @@ public class DeliveryReportGenerator {
 	}
 
 	public Document generatePacketList(PickingOrder pickingOrder) throws BusinessException {
+		return generatePacketList(pickingOrder, null);
+	}
+
+	public Document generatePacketList(PickingOrder pickingOrder, String reportVersion) throws BusinessException {
 		String logStr = "generatePacketList ";
-		logger.log(Level.INFO, logStr + "pickingOrder=" + pickingOrder);
+		logger.log(Level.INFO, logStr + "pickingOrder=" + pickingOrder + ", reportVersion=" + reportVersion);
 
 		Client client = pickingOrder.getClient();
 
@@ -169,8 +188,8 @@ public class DeliveryReportGenerator {
 		parameters.put("pickingOrder", pickingOrder);
 		parameters.put("address", address);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "PickingPacketlist", Wms2BundleResolver.class,
-				reportItems, parameters);
+		byte[] data = reportBusiness.createPdfDocument(client, PICKING_PACKETLIST_REPORT_NAME, reportVersion,
+				Wms2BundleResolver.class, reportItems, parameters);
 
 		Document doc = new Document();
 		doc.setData(data);
@@ -181,8 +200,12 @@ public class DeliveryReportGenerator {
 	}
 
 	public Document generatePacketList(ShippingOrder shippingOrder) throws BusinessException {
+		return generatePacketList(shippingOrder, null);
+	}
+
+	public Document generatePacketList(ShippingOrder shippingOrder, String reportVersion) throws BusinessException {
 		String logStr = "generatePacketList ";
-		logger.log(Level.INFO, logStr + "shippingOrder=" + shippingOrder);
+		logger.log(Level.INFO, logStr + "shippingOrder=" + shippingOrder + ", reportVersion=" + reportVersion);
 
 		Client client = shippingOrder.getClient();
 
@@ -200,10 +223,10 @@ public class DeliveryReportGenerator {
 			if (packet == null) {
 				continue;
 			}
-			if(first) {
-				packetAddress=packet.getAddress();
+			if (first) {
+				packetAddress = packet.getAddress();
 			}
-			if(!Objects.equals(packetAddress, packet.getAddress())) {
+			if (!Objects.equals(packetAddress, packet.getAddress())) {
 				packetAddress = null;
 			}
 			UnitLoad unitLoad = packet.getUnitLoad();
@@ -226,8 +249,8 @@ public class DeliveryReportGenerator {
 		parameters.put("shippingOrder", shippingOrder);
 		parameters.put("address", address);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "ShippingPacketlist", Wms2BundleResolver.class,
-				reportItems, parameters);
+		byte[] data = reportBusiness.createPdfDocument(client, SHIPPING_PACKETLIST_REPORT_NAME, reportVersion,
+				Wms2BundleResolver.class, reportItems, parameters);
 
 		Document doc = new Document();
 		doc.setData(data);
@@ -238,8 +261,12 @@ public class DeliveryReportGenerator {
 	}
 
 	public Document generatePacketList(DeliveryOrder deliveryOrder) throws BusinessException {
+		return generatePacketList(deliveryOrder, null);
+	}
+
+	public Document generatePacketList(DeliveryOrder deliveryOrder, String reportVersion) throws BusinessException {
 		String logStr = "generatePacketList ";
-		logger.log(Level.INFO, logStr + "deliveryOrder=" + deliveryOrder);
+		logger.log(Level.INFO, logStr + "deliveryOrder=" + deliveryOrder + ", reportVersion=" + reportVersion);
 
 		Client client = deliveryOrder.getClient();
 
@@ -261,8 +288,8 @@ public class DeliveryReportGenerator {
 		parameters.put("deliveryOrder", deliveryOrder);
 		parameters.put("address", address);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "DeliveryPacketlist", Wms2BundleResolver.class,
-				reportItems, parameters);
+		byte[] data = reportBusiness.createPdfDocument(client, DELIVERY_PACKETLIST_REPORT_NAME, reportVersion,
+				Wms2BundleResolver.class, reportItems, parameters);
 
 		Document doc = new Document();
 		doc.setData(data);
@@ -273,8 +300,12 @@ public class DeliveryReportGenerator {
 	}
 
 	public Document generateDeliverynote(DeliveryOrder order) throws BusinessException {
+		return generateDeliverynote(order);
+	}
+
+	public Document generateDeliverynote(DeliveryOrder order, String reportVersion) throws BusinessException {
 		String logStr = "generateDeliverynote ";
-		logger.log(Level.INFO, logStr + "order=" + order);
+		logger.log(Level.INFO, logStr + "order=" + order + ", reportVersion=" + reportVersion);
 
 		Client client = order.getClient();
 
@@ -293,7 +324,7 @@ public class DeliveryReportGenerator {
 
 		List<Packet> packets = packetService.readByDeliveryOrder(order);
 		for (Packet packet : packets) {
-			if(packet.getState()>OrderState.FINISHED) {
+			if (packet.getState() > OrderState.FINISHED) {
 				continue;
 			}
 			registerItems(reportItemMap, packet.getUnitLoad(), packet, false);
@@ -318,7 +349,7 @@ public class DeliveryReportGenerator {
 				unitLoadAmount = BigDecimal.ZERO;
 			}
 
-			if (orderAmount.compareTo(unitLoadAmount) > 0 || orderAmount.compareTo(BigDecimal.ZERO)==0) {
+			if (orderAmount.compareTo(unitLoadAmount) > 0 || orderAmount.compareTo(BigDecimal.ZERO) == 0) {
 				// More picked amount in order line than in packet
 				// Add difference to sheet
 				BigDecimal diffAmount = orderAmount.subtract(unitLoadAmount);
@@ -353,8 +384,8 @@ public class DeliveryReportGenerator {
 		parameters.put("deliveryOrder", order);
 		parameters.put("address", address);
 
-		byte[] data = reportBusiness.createPdfDocument(client, "Deliverynote", Wms2BundleResolver.class, reportItems,
-				parameters);
+		byte[] data = reportBusiness.createPdfDocument(client, DELIVERYNOTE_REPORT_NAME, reportVersion,
+				Wms2BundleResolver.class, reportItems, parameters);
 
 		Document doc = new Document();
 		doc.setData(data);
@@ -513,5 +544,25 @@ public class DeliveryReportGenerator {
 
 			return 0;
 		}
+	}
+
+	public List<String> readContentListReportVersions(Client client) throws BusinessException {
+		return reportBusiness.readReportVersions(CONTENTLIST_REPORT_NAME, client);
+	}
+
+	public List<String> readPickingPacketListReportVersions(Client client) throws BusinessException {
+		return reportBusiness.readReportVersions(PICKING_PACKETLIST_REPORT_NAME, client);
+	}
+
+	public List<String> readShippingPacketListReportVersions(Client client) throws BusinessException {
+		return reportBusiness.readReportVersions(SHIPPING_PACKETLIST_REPORT_NAME, client);
+	}
+
+	public List<String> readDeliveryPacketListReportVersions(Client client) throws BusinessException {
+		return reportBusiness.readReportVersions(DELIVERY_PACKETLIST_REPORT_NAME, client);
+	}
+
+	public List<String> readDeliveryNoteReportVersions(Client client) throws BusinessException {
+		return reportBusiness.readReportVersions(DELIVERYNOTE_REPORT_NAME, client);
 	}
 }

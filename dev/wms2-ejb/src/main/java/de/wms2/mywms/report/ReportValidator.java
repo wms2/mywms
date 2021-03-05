@@ -60,14 +60,19 @@ public class ReportValidator implements EntityValidator<Report> {
 			logger.log(Level.INFO, logStr + "missing client. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingClient");
 		}
-		if (StringUtils.isEmpty(entity.getName())) {
+		if (StringUtils.isBlank(entity.getName())) {
 			logger.log(Level.INFO, logStr + "missing name. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingClient");
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingName");
+		}
+		if (StringUtils.isBlank(entity.getReportVersion())) {
+			logger.log(Level.INFO, logStr + "missing reportVersion. entity=" + entity);
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.missingVersion");
 		}
 
-		if (entitySerivce.exists(Report.class, new String[] { "name", "client" },
-				new Object[] { entity.getName(), entity.getClient() }, entity.getId())) {
-			logger.log(Level.INFO, logStr + "not unique. name=" + entity.getName());
+		if (entitySerivce.exists(Report.class, new String[] { "name", "client", "reportVersion" },
+				new Object[] { entity.getName(), entity.getClient(), entity.getReportVersion() }, entity.getId())) {
+			logger.log(Level.INFO,
+					logStr + "not unique. name=" + entity.getName() + ", reportVersion=" + entity.getReportVersion());
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
 		}
 

@@ -20,6 +20,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.document;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -155,8 +156,8 @@ public class DocumentBusiness {
 	/**
 	 * Save a document for an entity. The old document is removed.
 	 */
-	public Document saveDocument(Class<?> entityType, Long entityId, String displayName, String documentType,
-			byte[] data, String path) throws BusinessException {
+	public Document saveDocument(Class<?> entityType, Long entityId, String path, String displayName, String documentType,
+			byte[] data) throws BusinessException {
 		String logStr = "saveDocument ";
 		logger.log(Level.INFO, logStr + "entityType=" + entityType + ", entityId=" + entityId);
 
@@ -170,12 +171,22 @@ public class DocumentBusiness {
 	}
 
 	/**
+	 * Read all documents of the given path
+	 */
+	public List<Document> readDocuments(Class<?> entityType, Long entityId, String path) {
+		if (entityId == null) {
+			return null;
+		}
+		String documentName = generateDocumentName(entityType, entityId, path, null);
+		return documentService.readByNamePrefix(documentName);
+	}
+
+	/**
 	 * Generate the name of an attached document.
 	 * <p>
 	 * This name is used to store the document.
 	 */
-	public String generateDocumentName(Class<?> entityType, Long entityId, String path, String displayName)
-			throws BusinessException {
+	public String generateDocumentName(Class<?> entityType, Long entityId, String path, String displayName) {
 		String documentName = entityType.getSimpleName();
 		if (entityId != null) {
 			documentName += ":" + entityId.toString();

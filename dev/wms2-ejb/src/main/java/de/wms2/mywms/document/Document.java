@@ -21,6 +21,7 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.BasicEntity;
 
 /**
@@ -48,6 +49,15 @@ public class Document extends BasicEntity {
 			return name;
 		}
 		return super.toString();
+	}
+
+	public String getSimpleName() {
+		String simpleName = StringUtils.substringAfterLast(name, "/");
+		if (StringUtils.isBlank(simpleName)) {
+			simpleName = name;
+		}
+
+		return simpleName;
 	}
 
 	public String getName() {

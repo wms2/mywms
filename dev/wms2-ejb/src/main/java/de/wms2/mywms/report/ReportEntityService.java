@@ -18,10 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.report;
 
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.mywms.model.Client;
 
@@ -37,27 +38,35 @@ public class ReportEntityService {
 	@Inject
 	private PersistenceManager manager;
 
-	public Report create(String name, Client client) throws BusinessException {
+	public Report create(String name, Client client, String reportVersion) throws BusinessException {
 		Report entity = manager.createInstance(Report.class);
 		entity.setClient(client);
 		entity.setName(name);
+		entity.setReportVersion(reportVersion);
 
 		manager.persistValidated(entity);
 
 		return entity;
 	}
 
-	public Report read(String name, Client client) {
-		String jpql = "SELECT entity FROM " + Report.class.getName() + " entity ";
-		jpql += " where entity.client=:client and entity.name=:name";
-		Query query = manager.createQuery(jpql);
-		query.setParameter("name", name);
-		query.setParameter("client", client);
-		try {
-			Report entity = (Report) query.getSingleResult();
-			return entity;
-		} catch (NoResultException e) {
+	public List<Report> readList(String name, Client client) {
+		String jpql = "SELECT entity FROM " + Report.class.getName() + " entity where 1=1 ";
+		if (client != null) {
+			jpql += " AND entity.client = :client ";
 		}
-		return null;
+		if (name != null) {
+			jpql += " AND entity.name = :name ";
+		}
+		jpql += " order by entity.reportVersion";
+		TypedQuery<Report> query = manager.createQuery(jpql, Report.class);
+		if (client != null) {
+			query.setParameter("client", client);
+		}
+		if (name != null) {
+			query.setParameter("name", name);
+		}
+
+		return query.getResultList();
 	}
+
 }
