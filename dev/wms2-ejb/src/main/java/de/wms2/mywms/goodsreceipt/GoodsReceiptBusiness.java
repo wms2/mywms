@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -371,6 +371,7 @@ public class GoodsReceiptBusiness {
 		goodsReceiptLine.setLotNumber(lotNumber);
 		goodsReceiptLine.setBestBefore(bestBefore);
 		goodsReceiptLine.setSerialNumber(serialNumber);
+		goodsReceiptLine.setPackagingUnit(packagingUnit);
 
 		goodsReceiptLine.setLockType(lock);
 		goodsReceiptLine.setLockNote(lockNote);

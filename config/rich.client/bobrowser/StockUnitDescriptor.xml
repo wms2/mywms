@@ -45,18 +45,6 @@
             </value>
         </entry>
         <entry>
-            <key>itemUnit</key>
-            <value>
-                <group>
-                    <name>itemData</name>
-                </group>
-                <hidden>false</hidden>
-                <persistentField>false</persistentField>
-                <position>2</position>
-            </value>
-        </entry>
-        
-        <entry>
             <key>lotNumber</key>
             <value>
                 <group>
@@ -109,13 +97,23 @@
             </value>
         </entry>
         <entry>
-            <key>packagingUnit</key>
+            <key>itemUnit</key>
             <value>
                 <group>
                     <name>amount</name>
                 </group>
                 <hidden>false</hidden>
                 <position>4</position>
+            </value>
+        </entry>
+        <entry>
+            <key>packagingUnit</key>
+            <value>
+                <group>
+                    <name>amount</name>
+                </group>
+                <hidden>false</hidden>
+                <position>5</position>
             </value>
         </entry>
         <entry>

@@ -68,7 +68,27 @@
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>19</position>
+                <position>21</position>
+            </value>
+        </entry>
+        <entry>
+            <key>itemUnit</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>22</position>
+            </value>
+        </entry>
+        <entry>
+            <key>packagingUnit</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>23</position>
             </value>
         </entry>
         <entry>
@@ -78,7 +98,7 @@
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>21</position>
+                <position>24</position>
             </value>
         </entry>
         <entry>
@@ -88,7 +108,7 @@
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
-                <position>22</position>
+                <position>25</position>
             </value>
         </entry>
         <entry>

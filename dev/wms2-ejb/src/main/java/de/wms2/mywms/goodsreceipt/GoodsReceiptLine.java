@@ -18,8 +18,6 @@ package de.wms2.mywms.goodsreceipt;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,12 +26,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.mywms.model.BasicEntity;
 import org.mywms.model.User;
 
 import de.wms2.mywms.advice.AdviceLine;
 import de.wms2.mywms.product.ItemData;
+import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.PackagingUnit;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.StorageStrategy;
 import de.wms2.mywms.util.Wms2Constants;
@@ -50,7 +51,6 @@ import de.wms2.mywms.util.Wms2Constants;
 @Table
 public class GoodsReceiptLine extends BasicEntity {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(GoodsReceiptLine.class.getName());
 
 	/**
 	 * The parent process
@@ -139,6 +139,12 @@ public class GoodsReceiptLine extends BasicEntity {
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private StorageStrategy storageStrategy;
 
+	/**
+	 * Optional. Store the packaging unit which has been collected
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private PackagingUnit packagingUnit;
+
 	@Override
 	public String toString() {
 		if (lineNumber != null) {
@@ -160,11 +166,19 @@ public class GoodsReceiptLine extends BasicEntity {
 			try {
 				return amount.setScale(itemData.getScale());
 			} catch (Throwable t) {
-				logger.log(Level.WARNING, "Cannot set scale. itemData=" + itemData + ", amount=" + amount + ", scale="
-						+ itemData.getScale());
+				// Rounding could be necessary. Don't scale an let it as it is.
 			}
 		}
 		return amount;
+	}
+
+	@Transient
+	public ItemUnit getItemUnit() {
+		if (itemData == null) {
+			return null;
+		}
+
+		return itemData.getItemUnit();
 	}
 
 	public GoodsReceipt getGoodsReceipt() {
@@ -281,6 +295,14 @@ public class GoodsReceiptLine extends BasicEntity {
 
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
+	}
+
+	public PackagingUnit getPackagingUnit() {
+		return packagingUnit;
+	}
+
+	public void setPackagingUnit(PackagingUnit packagingUnit) {
+		this.packagingUnit = packagingUnit;
 	}
 
 }
