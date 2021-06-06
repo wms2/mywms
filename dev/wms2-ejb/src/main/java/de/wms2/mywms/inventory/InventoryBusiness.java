@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -1055,7 +1055,6 @@ public class InventoryBusiness {
 			}
 
 			stock.setAmount(newAmount);
-			stock.getUnitLoad().setOpened(true);
 			addWeight(stock.getUnitLoad(), stock.getItemData(), diffAmount);
 
 			recordService.recordChangeAmount(client, stock, diffAmount, activityCode, operator, note);

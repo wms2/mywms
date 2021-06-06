@@ -83,25 +83,15 @@
             </value>
         </entry>
 
+        
         <entry>
-            <key>useLockedStock</key>
+            <key>completeHandling</key>
             <value>
                 <group>
                     <name>stockSelection</name>
                 </group>
                 <hidden>false</hidden>
                 <position>21</position>
-            </value>
-        </entry>
-        
-        <entry>
-            <key>preferMatching</key>
-            <value>
-                <group>
-                    <name>stockSelection</name>
-                </group>
-                <hidden>false</hidden>
-                <position>24</position>
             </value>
         </entry>
         <entry>
@@ -111,17 +101,27 @@
                     <name>stockSelection</name>
                 </group>
                 <hidden>false</hidden>
-                <position>25</position>
+                <position>22</position>
             </value>
         </entry>
         <entry>
-            <key>completeOnly</key>
+            <key>preferMatching</key>
             <value>
                 <group>
                     <name>stockSelection</name>
                 </group>
                 <hidden>false</hidden>
-                <position>26</position>
+                <position>23</position>
+            </value>
+        </entry>
+        <entry>
+            <key>useLockedStock</key>
+            <value>
+                <group>
+                    <name>stockSelection</name>
+                </group>
+                <hidden>false</hidden>
+                <position>24</position>
             </value>
         </entry>
 		

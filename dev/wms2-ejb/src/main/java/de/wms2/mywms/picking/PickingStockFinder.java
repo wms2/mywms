@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -22,9 +22,11 @@ package de.wms2.mywms.picking;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -49,6 +51,7 @@ import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyCompleteHandling;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.util.ListUtils;
 
@@ -62,6 +65,8 @@ import de.wms2.mywms.util.ListUtils;
 public class PickingStockFinder {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
+	public static final BigDecimal MAX_SCALE_FACTOR = new BigDecimal("10000");
+
 	@Inject
 	private PersistenceManager manager;
 	@Inject
@@ -72,6 +77,13 @@ public class PickingStockFinder {
 	private ClientBusiness clientBusiness;
 	@Inject
 	private GenericEntityService entityService;
+
+	public boolean isStrategyRequiresCompleteAmount(OrderStrategy strategy) {
+		if (strategy.getCompleteHandling() == OrderStrategyCompleteHandling.AMOUNT_SMALLEST_DIFF) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Find the first source stock which can be used in a picking order.
@@ -126,13 +138,13 @@ public class PickingStockFinder {
 			OrderStrategy strategy) throws BusinessException {
 		String logStr = "findFirstSourceStockIntern ";
 
-		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", amount=" + amount + ",client=" + client + ", lotNumber="
-				+ lotNumber + ", strategy=" + strategy);
+		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", amount=" + amount + ",client=" + client
+				+ ", lotNumber=" + lotNumber + ", strategy=" + strategy);
 
 		List<PickingStockUnit> stockList = readSourceStockList(itemData, client, lotNumber, strategy);
 		if (stockList.isEmpty()) {
-			logger.log(Level.INFO, logStr + "No stock. client=" + client + ", itemData=" + itemData + ", lotNumber=" + lotNumber
-					+ ", strategy=" + strategy);
+			logger.log(Level.INFO, logStr + "No stock. client=" + client + ", itemData=" + itemData + ", lotNumber="
+					+ lotNumber + ", strategy=" + strategy);
 			return null;
 		}
 
@@ -145,9 +157,11 @@ public class PickingStockFinder {
 		}
 		stockList.removeAll(notUsables);
 
-		// Find complete unit load with exact matching amount
-		// Only in preferred or exclusive complete mode
-		if (strategy.isPreferComplete() || strategy.isCompleteOnly()) {
+		// Find one complete unit load with the exact matching amount
+		// Here explicit look for complete unit load handling and selected preferred
+		// matching.
+		// Flags: preferMatching and completeHandling!=NONE
+		if (strategy.isPreferMatching() && strategy.getCompleteHandling() != OrderStrategyCompleteHandling.NONE) {
 			for (PickingStockUnit stock : stockList) {
 				if (stock.availableAmount.compareTo(amount) != 0) {
 					continue;
@@ -156,15 +170,43 @@ public class PickingStockFinder {
 					continue;
 				}
 
-				logger.log(Level.FINE,
-						logStr + "Use complete matching unit load. amount=" + amount + ", stock=" + stock);
+				logger.log(Level.FINE, logStr + "Use complete single unit load with matching amount. amount=" + amount
+						+ ", stock=" + stock);
 				return manager.find(StockUnit.class, stock.stockId);
 			}
 		}
 
-		// Find complete unit load which has at least the requested amount.
-		// In this mode more than the required amount will be used
-		if (strategy.isCompleteOnly()) {
+		// Find one complete unit load with the exact matching amount
+		// Flags: CompleteHandling.AMOUNT_FIRST_MATCH
+		if (strategy.getCompleteHandling() == OrderStrategyCompleteHandling.AMOUNT_FIRST_MATCH) {
+			for (PickingStockUnit stock : stockList) {
+				if (stock.availableAmount.compareTo(amount) != 0) {
+					continue;
+				}
+				if (!isValidForCompleteHandling(stock)) {
+					continue;
+				}
+
+				logger.log(Level.FINE, logStr + "Use complete single unit load with matching amount. amount=" + amount
+						+ ", stock=" + stock);
+				return manager.find(StockUnit.class, stock.stockId);
+			}
+		}
+
+		// Find complete unit loads with exact matching amount in sum.
+		// Flags: CompleteHandling.AMOUNT_MATCH
+		if (strategy.getCompleteHandling() == OrderStrategyCompleteHandling.AMOUNT_MATCH) {
+			PickingStockUnit stock = combineFirstMatch(stockList, amount);
+			if (stock != null) {
+				logger.log(Level.FINE,
+						logStr + "Use combinable complete matching unit load. amount=" + amount + ", stock=" + stock);
+				return manager.find(StockUnit.class, stock.stockId);
+			}
+		}
+
+		// Find complete unit load with at least the amount
+		// Flags: CompleteHandling.AMOUNT_FIRST_PLUS
+		if (strategy.getCompleteHandling() == OrderStrategyCompleteHandling.AMOUNT_FIRST_PLUS) {
 			for (PickingStockUnit stock : stockList) {
 				if (stock.availableAmount.compareTo(amount) < 0) {
 					continue;
@@ -173,15 +215,64 @@ public class PickingStockFinder {
 					continue;
 				}
 
-				logger.log(Level.FINE, logStr + "Use complete unit load with amount difference. amount=" + amount
-						+ ", stock=" + stock);
+				logger.log(Level.FINE, logStr + "Use complete first unit load with al least requested amount. amount="
+						+ amount + ", stock=" + stock);
 				return manager.find(StockUnit.class, stock.stockId);
 			}
 		}
 
-		// Find complete unit load with less than the requires amount. An additional
-		// pick will be generated.
-		if (strategy.isPreferComplete() || strategy.isCompleteOnly()) {
+		// Find complete unit loads with minimum difference
+		// Flags: CompleteHandling.AMOUNT_SMALLEST_DIFF
+		if (strategy.getCompleteHandling() == OrderStrategyCompleteHandling.AMOUNT_SMALLEST_DIFF) {
+			PickingStockUnit stock = combineSmallestDiff(stockList, amount);
+			if (stock != null) {
+				logger.log(Level.FINE, logStr + "Use combinable complete unit loads with smallest diff. amount="
+						+ amount + ", stock=" + stock);
+				return manager.find(StockUnit.class, stock.stockId);
+			}
+		}
+
+		// Find complete unit loads with minimum positive difference
+		// Flags: CompleteHandling.AMOUNT_SMALLEST_PLUS
+		if (strategy.getCompleteHandling() == OrderStrategyCompleteHandling.AMOUNT_SMALLEST_PLUS) {
+			PickingStockUnit stock = combineSmallestPlus(stockList, amount);
+			if (stock != null) {
+				logger.log(Level.FINE, logStr + "Use combinable complete unit loads with smallest plus diff. amount="
+						+ amount + ", stock=" + stock);
+				return manager.find(StockUnit.class, stock.stockId);
+			}
+		}
+
+		// No valid stock found to handle request with only complete unit loads
+		// Flags: Not CompleteHandling.NONE
+		if (strategy.getCompleteHandling() != OrderStrategyCompleteHandling.NONE) {
+			logger.log(Level.INFO,
+					logStr + "No usable stock found. Only complete unit loads are permitted. candidates="
+							+ stockList.size() + ", itemData=" + itemData + ", amount=" + amount + ", client=" + client
+							+ ", lotNumber=" + lotNumber);
+			return null;
+		}
+
+		// Find complete unit load with exact matching amount.
+		// Flags: preferComplete and preferMatching
+		if (strategy.isPreferComplete() && strategy.isPreferMatching()) {
+			for (PickingStockUnit stock : stockList) {
+				if (stock.availableAmount.compareTo(amount) != 0) {
+					continue;
+				}
+				if (!isValidForCompleteHandling(stock)) {
+					continue;
+				}
+
+				logger.log(Level.FINE, logStr + "Use complete unit load. amount=" + amount + ", stock=" + stock);
+				return manager.find(StockUnit.class, stock.stockId);
+			}
+		}
+
+		// Find complete unit load with less than the requested amount.
+		// An additional pick will be generated.
+		// Flags: preferComplete
+		if (strategy.isPreferComplete()) {
 			for (PickingStockUnit stock : stockList) {
 				if (stock.availableAmount.compareTo(amount) > 0) {
 					continue;
@@ -195,36 +286,8 @@ public class PickingStockFinder {
 			}
 		}
 
-		// Only complete handling, but no complete has been found
-		if (strategy.isCompleteOnly()) {
-			logger.log(Level.INFO, logStr
-					+ "No usable stock found. Only complete handling is allowed but no valid complete unit load has been found. candidates="
-					+ stockList.size() + ", itemData=" + itemData + ", amount=" + amount + ", client=" + client
-					+ ", lotNumber=" + lotNumber
-					+ ", (unitLoadOpened=false, reservedAmount=0, locationUseForStorage=true, onFixedLocation=false, mixed=false)");
-			return null;
-		}
-
-		// Find stock on fixed picking location
-		for (PickingStockUnit stock : stockList) {
-			if (!stock.onFixedLocation) {
-				continue;
-			}
-			if (!stock.locationUseForPicking) {
-				continue;
-			}
-			if (stock.maxFixPickAmount != null && stock.maxFixPickAmount.compareTo(BigDecimal.ZERO) > 0
-					&& stock.maxFixPickAmount.compareTo(amount) < 0) {
-				logger.log(Level.FINER, logStr + "Amount for fixed location exceeded. location=" + stock.locationName
-						+ ", amount=" + amount + ", maxFixPickAmount=" + stock.maxFixPickAmount);
-				continue;
-			}
-
-			logger.log(Level.FINE, logStr + "Use stock on fixed location. amount=" + amount + ", stock=" + stock);
-			return manager.find(StockUnit.class, stock.stockId);
-		}
-
 		// Find any usable stock for picking with exact matching amount
+		// Flags: preferMatching
 		if (strategy.isPreferMatching()) {
 			for (PickingStockUnit stock : stockList) {
 				if (stock.availableAmount.compareTo(amount) != 0) {
@@ -245,11 +308,50 @@ public class PickingStockFinder {
 			}
 		}
 
-		// Find any usable stock for picking
+		// Find stock on fixed picking location
+		// The maximum amount to take from fixed picking locations may be limited
+		// Fixed picking location overrides FIFO
+		for (PickingStockUnit stock : stockList) {
+			if (!stock.onFixedLocation) {
+				continue;
+			}
+			if (!stock.locationUseForPicking) {
+				continue;
+			}
+			if (stock.maxFixPickAmount != null && stock.maxFixPickAmount.compareTo(BigDecimal.ZERO) > 0
+					&& stock.maxFixPickAmount.compareTo(amount) < 0) {
+				logger.log(Level.FINE,
+						logStr + "Amount for fixed location exceeded. location=" + stock.locationName + ", itemData="
+								+ itemData + ", amount=" + amount + ", maxFixPickAmount=" + stock.maxFixPickAmount);
+				continue;
+			}
+
+			logger.log(Level.FINE,
+					logStr + "Use stock on fixed picking location. amount=" + amount + ", stock=" + stock);
+			return manager.find(StockUnit.class, stock.stockId);
+		}
+
+		// Find any usable stock for picking on not fixed picking location
 		for (PickingStockUnit stock : stockList) {
 			if (stock.onFixedLocation) {
 				continue;
 			}
+			if (!stock.locationUseForPicking) {
+				if (stock.availableAmount.compareTo(amount) > 0) {
+					continue;
+				}
+				if (!isValidForCompleteHandling(stock)) {
+					continue;
+				}
+			}
+
+			logger.log(Level.FINE,
+					logStr + "Use stock on not fixed picking location. amount=" + amount + ", stock=" + stock);
+			return manager.find(StockUnit.class, stock.stockId);
+		}
+
+		// Find any usable stock for picking. Including fixed picking locations.
+		for (PickingStockUnit stock : stockList) {
 			if (!stock.locationUseForPicking) {
 				if (stock.availableAmount.compareTo(amount) > 0) {
 					continue;
@@ -269,9 +371,86 @@ public class PickingStockFinder {
 	}
 
 	/**
+	 * Optimizer score for minimal difference amount
+	 * <p>
+	 * The sore value maps to the amount difference.
+	 */
+	private static Long scoreDiffAmount(Collection<PickingStockUnit> values, PickingStockUnit target) {
+		BigDecimal sum = BigDecimal.ZERO;
+		for (PickingStockUnit value : values) {
+			if (value == null) {
+				return null;
+			}
+			sum = sum.add(value.amount);
+		}
+		return sum.subtract(target.amount).multiply(MAX_SCALE_FACTOR).longValue();
+	}
+
+	/**
+	 * Optimizer score for minimal positive difference amount
+	 * <p>
+	 * The sore value maps to the amount difference. Negative differences get a
+	 * normally unreachable negative score.
+	 */
+	private static Long scorePositiveDiffAmount(Collection<PickingStockUnit> values, PickingStockUnit target) {
+		BigDecimal sum = BigDecimal.ZERO;
+		for (PickingStockUnit value : values) {
+			if (value == null) {
+				return null;
+			}
+			sum = sum.add(value.amount);
+		}
+		if (sum.compareTo(target.amount) < 0) {
+			// return a very big negative score
+			return Long.MIN_VALUE + 1 + (sum.multiply(MAX_SCALE_FACTOR).longValue());
+		}
+		return sum.subtract(target.amount).multiply(MAX_SCALE_FACTOR).longValue();
+	}
+
+	private PickingStockUnit combineFirstMatch(List<PickingStockUnit> candidates, BigDecimal requestedAmount) {
+		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForCompleteHandling(stock))
+				.collect(Collectors.toList());
+		PickingStockUnit optimalTarget = new PickingStockUnit(requestedAmount);
+		List<PickingStockUnit> combinables = new Optimizer().findBestCombination(usables,
+				PickingStockFinder::scoreDiffAmount, optimalTarget);
+		if (combinables == null || combinables.isEmpty()) {
+			return null;
+		}
+		if (scoreDiffAmount(combinables, optimalTarget) != 0) {
+			return null;
+		}
+		return combinables.get(0);
+	}
+
+	private PickingStockUnit combineSmallestDiff(List<PickingStockUnit> candidates, BigDecimal requestedAmount) {
+		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForCompleteHandling(stock))
+				.collect(Collectors.toList());
+		PickingStockUnit optimalTarget = new PickingStockUnit(requestedAmount);
+		List<PickingStockUnit> combinables = new Optimizer().findBestCombination(usables,
+				PickingStockFinder::scoreDiffAmount, optimalTarget);
+		if (combinables == null || combinables.isEmpty()) {
+			return null;
+		}
+		return combinables.get(0);
+	}
+
+	private PickingStockUnit combineSmallestPlus(List<PickingStockUnit> candidates, BigDecimal requestedAmount) {
+		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForCompleteHandling(stock))
+				.collect(Collectors.toList());
+		PickingStockUnit optimalTarget = new PickingStockUnit(requestedAmount);
+		List<PickingStockUnit> combinables = new Optimizer().findBestCombination(usables,
+				PickingStockFinder::scorePositiveDiffAmount, optimalTarget);
+		if (combinables == null || combinables.isEmpty()) {
+			return null;
+		}
+		return combinables.get(0);
+	}
+
+	/**
 	 * Find all usable source stocks which can be used in a picking order.
 	 */
-	public List<StockUnit> findSourceStockList(ItemData itemData, Client client, String lotNumber, OrderStrategy strategy) {
+	public List<StockUnit> findSourceStockList(ItemData itemData, Client client, String lotNumber,
+			OrderStrategy strategy) {
 		if (strategy == null) {
 			strategy = orderStrategyService.getDefault(client);
 		}
@@ -292,8 +471,8 @@ public class PickingStockFinder {
 	private List<PickingStockUnit> readSourceStockList(ItemData itemData, Client client, String lotNumber,
 			OrderStrategy strategy) {
 		String logStr = "readSourceStockList ";
-		logger.log(Level.FINE,
-				logStr + " itemData=" + itemData + ", client=" + client + ", lotNumber=" + lotNumber + ", strategy=" + strategy);
+		logger.log(Level.FINE, logStr + " itemData=" + itemData + ", client=" + client + ", lotNumber=" + lotNumber
+				+ ", strategy=" + strategy);
 
 		String jpql = "";
 
@@ -316,7 +495,9 @@ public class PickingStockFinder {
 
 		if (!strategy.isUseLockedStock()) {
 			jpql += " and stock.lock=0 ";
+			jpql += " and unitLoad.lock=0 ";
 		}
+		jpql += " and location.lock=0 ";
 
 		jpql += " and stock.amount > 0 ";
 
@@ -392,7 +573,7 @@ public class PickingStockFinder {
 		if (stock.onFixedLocation) {
 			return false;
 		}
-		if(!stock.unitLoadForShipping) {
+		if (!stock.unitLoadForShipping) {
 			return false;
 		}
 		if (stock.mixed == null) {
@@ -422,8 +603,13 @@ public class PickingStockFinder {
 		public BigDecimal maxFixPickAmount;
 		public Boolean mixed = null;
 
+		public PickingStockUnit(BigDecimal amount) {
+			this.amount = amount;
+		}
+
 		public PickingStockUnit(long stockId, BigDecimal amount, BigDecimal reservedAmount, String locationName,
-				long unitLoadId, boolean opened, String areaUsages, String unitLoadTypUsages, boolean onFixedLocation, BigDecimal maxFixPickAmount) {
+				long unitLoadId, boolean opened, String areaUsages, String unitLoadTypUsages, boolean onFixedLocation,
+				BigDecimal maxFixPickAmount) {
 			this.stockId = stockId;
 			this.locationName = locationName;
 			this.amount = amount;

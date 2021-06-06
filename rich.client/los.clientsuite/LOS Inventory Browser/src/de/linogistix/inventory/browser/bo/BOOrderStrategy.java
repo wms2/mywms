@@ -18,6 +18,9 @@ import de.linogistix.los.inventory.crud.LOSOrderStrategyCRUDRemote;
 import de.linogistix.los.inventory.query.LOSOrderStrategyQueryRemote;
 import de.linogistix.los.query.BusinessObjectQueryRemote;
 import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyCompleteHandling;
+import java.util.ArrayList;
+import java.util.List;
 import org.mywms.globals.Role;
 import org.mywms.model.BasicEntity;
 import org.openide.util.Lookup;
@@ -100,4 +103,18 @@ public class BOOrderStrategy extends BO {
         return InventoryBundleResolver.class;
     }
 
+    @Override
+    public List<Object> getValueList(String fieldName) {
+        if( "completeHandling".equals(fieldName) ) {
+            List<Object> entryList = new ArrayList<Object>();
+            entryList.add(OrderStrategyCompleteHandling.NONE);
+            entryList.add(OrderStrategyCompleteHandling.AMOUNT_FIRST_MATCH);
+            entryList.add(OrderStrategyCompleteHandling.AMOUNT_FIRST_PLUS);
+            entryList.add(OrderStrategyCompleteHandling.AMOUNT_MATCH);
+            entryList.add(OrderStrategyCompleteHandling.AMOUNT_SMALLEST_DIFF);
+            entryList.add(OrderStrategyCompleteHandling.AMOUNT_SMALLEST_PLUS);
+            return entryList;
+        }
+        return super.getValueList(fieldName);
+    }
 }

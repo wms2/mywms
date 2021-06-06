@@ -31,7 +31,6 @@ import de.wms2.mywms.location.StorageLocation;
  * PickingOrder, ...).<br>
  * The fixed flags of this entity are used by the standard services.<br>
  * <p>
- * This class is based on myWMS-LOS:LOSOrderStrategy
  * 
  * @author krane
  */
@@ -94,14 +93,13 @@ public class OrderStrategy extends BasicEntity {
 	private boolean preferMatching = false;
 
 	/**
-	 * Take only not opened unit loads. Overrides FIFO.
+	 * Handle only complete unit loads. Overrides FIFO.
 	 * <p>
-	 * This strategy may cause differences to the requested amount. It will take as
-	 * much unit loads until the requested amount is fulfilled.<br>
+	 * This strategy may cause differences to the requested amount.<br>
 	 * <p>
 	 * A unit load is marked as opened after the first change of the amount is done.
 	 */
-	private boolean completeOnly = false;
+	private int completeHandling = OrderStrategyCompleteHandling.NONE;
 
 	/**
 	 * Generate separated picking orders for every type of picking (partial amount /
@@ -201,14 +199,6 @@ public class OrderStrategy extends BasicEntity {
 		this.preferMatching = preferMatching;
 	}
 
-	public boolean isCompleteOnly() {
-		return completeOnly;
-	}
-
-	public void setCompleteOnly(boolean completeOnly) {
-		this.completeOnly = completeOnly;
-	}
-
 	public boolean isCreateTypeOrders() {
 		return createTypeOrders;
 	}
@@ -223,6 +213,14 @@ public class OrderStrategy extends BasicEntity {
 
 	public void setManualCreationIndex(int manualCreationIndex) {
 		this.manualCreationIndex = manualCreationIndex;
+	}
+
+	public int getCompleteHandling() {
+		return completeHandling;
+	}
+
+	public void setCompleteHandling(int completeHandling) {
+		this.completeHandling = completeHandling;
 	}
 
 }

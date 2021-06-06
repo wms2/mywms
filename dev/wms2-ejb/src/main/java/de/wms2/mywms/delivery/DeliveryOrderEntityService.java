@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -20,17 +20,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.delivery;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.exception.BusinessException;
+import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.picking.Packet;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
@@ -87,4 +91,18 @@ public class DeliveryOrderEntityService {
 		return null;
 	}
 
+	public Collection<DeliveryOrder> readByPacket(UnitLoad unitLoad) {
+		if (unitLoad == null) {
+			return new ArrayList<>();
+		}
+
+		String jpql = " SELECT distinct packet.deliveryOrder FROM ";
+		jpql += Packet.class.getName() + " packet ";
+		jpql += " WHERE packet.unitLoad=:unitLoad ";
+
+		TypedQuery<DeliveryOrder> query = manager.createQuery(jpql, DeliveryOrder.class);
+		query = query.setParameter("unitLoad", unitLoad);
+
+		return query.getResultList();
+	}
 }

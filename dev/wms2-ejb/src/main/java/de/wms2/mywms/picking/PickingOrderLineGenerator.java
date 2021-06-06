@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -48,6 +48,7 @@ import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
+import de.wms2.mywms.strategy.OrderStrategyCompleteHandling;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.util.ListUtils;
 import de.wms2.mywms.util.Wms2BundleResolver;
@@ -119,7 +120,10 @@ public class PickingOrderLineGenerator {
 			List<PickingOrderLine> newPickList = generatePicks(deliveryOrderLine, strategy, remainingAmount);
 
 			// Check whether all is calculated
-			if (completeOrderOnly) {
+			// Not checked for strategies which allows negative difference and generated
+			// picks
+			if (completeOrderOnly
+					&& (pickingStockService.isStrategyRequiresCompleteAmount(strategy) || newPickList.size() == 0)) {
 				for (PickingOrderLine pick : newPickList) {
 					remainingAmount = remainingAmount.subtract(pick.getAmount());
 				}
@@ -207,7 +211,7 @@ public class PickingOrderLineGenerator {
 			if (pickAmount.compareTo(availableAmount) > 0) {
 				pickAmount = availableAmount;
 			}
-			if (strategy.isCompleteOnly()) {
+			if (strategy.getCompleteHandling() != OrderStrategyCompleteHandling.NONE) {
 				pickAmount = availableAmount;
 			}
 
