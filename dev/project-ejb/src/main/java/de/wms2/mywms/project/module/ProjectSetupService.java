@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2020 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -24,19 +24,13 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mywms.facade.FacadeException;
 
-import de.linogistix.los.reference.facade.RefTopologyFacade;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.exception.WrappedFacadeException;
 import de.wms2.mywms.module.ModuleSetup;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.util.Wms2Properties;
@@ -55,11 +49,6 @@ public class ProjectSetupService extends ModuleSetup {
 
 	@Inject
 	private SystemPropertyBusiness propertyBusiness;
-	@EJB
-	private RefTopologyFacade topologyFacade;
-
-	@PersistenceContext(unitName = "myWMS")
-	protected EntityManager manager;
 
 	@Override
 	public String getModulePackage() {
@@ -83,7 +72,6 @@ public class ProjectSetupService extends ModuleSetup {
 
 	@Override
 	public void setup(SetupLevel level, Locale locale) throws BusinessException {
-		
 		String value = propertyBusiness.getString(getModulePropertyName(), null);
 		if (StringUtils.equals(value, level.name())) {
 			return;
@@ -92,11 +80,9 @@ public class ProjectSetupService extends ModuleSetup {
 		switch (level) {
 		case UNINITIALIZED:
 		case INITIALIZED:
-			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
-					Wms2Properties.GROUP_SETUP, locale);
-			break;
 		case DEMO_SMALL:
-			setupDemoData(locale);
+		case DEMO_MEDIUM:
+		case DEMO_LARGE:
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
 					Wms2Properties.GROUP_SETUP, locale);
 			break;
@@ -106,11 +92,4 @@ public class ProjectSetupService extends ModuleSetup {
 		}
 	}
 
-	public void setupDemoData(Locale locale) throws BusinessException {
-		try {
-			topologyFacade.createDemoTopology();
-		} catch (FacadeException e) {
-			throw new WrappedFacadeException(e);
-		}
-	}
 }

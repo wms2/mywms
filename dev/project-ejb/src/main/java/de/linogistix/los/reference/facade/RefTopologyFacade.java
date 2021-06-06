@@ -14,8 +14,6 @@ import org.mywms.facade.FacadeException;
 @Remote
 public interface RefTopologyFacade {
 
-	public void createBasicTopology() throws FacadeException;
-	
 	public void createDemoTopology() throws FacadeException;
 	
 	public boolean checkDemoData() throws FacadeException;

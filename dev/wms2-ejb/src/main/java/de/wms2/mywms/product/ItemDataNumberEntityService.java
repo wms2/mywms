@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -113,6 +113,23 @@ public class ItemDataNumberEntityService {
 		query.setParameter("number", number);
 
 		return query.getResultList();
+	}
+
+	/**
+	 * Read first ItemDataNumber of the given number. The result is ordered by the itemData.
+	 */
+	public ItemDataNumber readFirstIgnoreCaseByNumber(String number) {
+		String jpql = "SELECT entity FROM " + ItemDataNumber.class.getName() + " entity ";
+		jpql += " WHERE lower(entity.number)=:number";
+		jpql += " ORDER BY entity.itemData.number";
+		Query query = manager.createQuery(jpql);
+		query.setParameter("number", number.toLowerCase());
+		query.setMaxResults(1);
+		try {
+			return (ItemDataNumber) query.getSingleResult();
+		} catch (NoResultException | NonUniqueResultException e) {
+		}
+		return null;
 	}
 
 }

@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2020 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.module;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,15 +29,11 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 import org.mywms.model.Role;
 import org.mywms.model.User;
-import org.mywms.service.RoleService;
-import org.mywms.service.UniqueConstraintViolatedException;
 
 import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.client.ClientBusiness;
@@ -43,20 +41,36 @@ import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.goodsreceipt.GoodsReceipt;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
+import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaEntityService;
+import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.LocationClusterEntityService;
+import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
+import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.picking.PickingOrder;
+import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.ItemUnitEntityService;
+import de.wms2.mywms.property.SystemProperty;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.shipping.ShippingOrder;
+import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.strategy.StorageStrategyEntityService;
+import de.wms2.mywms.strategy.TypeCapacityConstraint;
+import de.wms2.mywms.strategy.TypeCapacityEntityService;
+import de.wms2.mywms.strategy.Zone;
+import de.wms2.mywms.strategy.ZoneEntityService;
 import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.user.UserBusiness;
+import de.wms2.mywms.util.Translator;
+import de.wms2.mywms.util.Wms2BundleResolver;
 import de.wms2.mywms.util.Wms2Properties;
 
 /**
@@ -77,8 +91,6 @@ public class Wms2SetupService extends ModuleSetup {
 	@Inject
 	private UserBusiness userBusiness;
 	@Inject
-	private RoleService roleService;
-	@Inject
 	private SequenceBusiness sequeceBusiness;
 	@Inject
 	private LocationClusterEntityService locationClusterService;
@@ -94,9 +106,16 @@ public class Wms2SetupService extends ModuleSetup {
 	private OrderStrategyEntityService orderStrategyService;
 	@Inject
 	private StorageStrategyEntityService storageStrategyService;
-
-	@PersistenceContext(unitName = "myWMS")
-	protected EntityManager manager;
+	@Inject
+	private ItemUnitEntityService itemUnitService;
+	@Inject
+	private ZoneEntityService zoneService;
+	@Inject
+	private TypeCapacityEntityService typeCapacityEntityService;
+	@Inject
+	private StorageLocationEntityService locationService;
+	@Inject
+	private DemoDataGenerator demoDataGenerator;
 
 	@Override
 	public String getModulePackage() {
@@ -131,8 +150,19 @@ public class Wms2SetupService extends ModuleSetup {
 		}
 
 		switch (level) {
+		case UNINITIALIZED:
+			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
+					Wms2Properties.GROUP_SETUP, locale);
+			break;
 		case INITIALIZED:
 			setupBasicData(locale);
+			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
+					Wms2Properties.GROUP_SETUP, locale);
+			break;
+		case DEMO_SMALL:
+		case DEMO_MEDIUM:
+		case DEMO_LARGE:
+			demoDataGenerator.generateDemoData(locale);
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
 					Wms2Properties.GROUP_SETUP, locale);
 			break;
@@ -145,8 +175,19 @@ public class Wms2SetupService extends ModuleSetup {
 	public void setupBasicData(Locale locale) throws BusinessException {
 		logger.log(Level.WARNING, "setupBasicData");
 
-		logger.info("Create Users...");
 		Client client = clientService.getSystemClient();
+
+		logger.info("Create Properties...");
+		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
+		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE,
+				locale == null ? Locale.getDefault().toString() : locale.toString(), Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_REPLENISH_FROM_PICKING, "true", Wms2Properties.GROUP_WMS, locale);
+
+		createProperty(null, Wms2Properties.KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED, "false",
+				Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_SHIPPING_RENAME_UNITLOAD, "true", Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_SHIPPING_LOCATION, null, Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_STRATEGY_ZONE_FLOW, null, Wms2Properties.GROUP_WMS, locale);
 
 		logger.info("Create Users...");
 		User admin = userBusiness.readUser("admin");
@@ -165,14 +206,21 @@ public class Wms2SetupService extends ModuleSetup {
 			en.setLocale("en");
 		}
 
-		try {
-			Role adminRole = roleService.create("Admin");
-			admin.getRoles().add(adminRole);
-			de.getRoles().add(adminRole);
-			en.getRoles().add(adminRole);
-			Role serviceRole = roleService.create("Service");
-			admin.getRoles().add(serviceRole);
-		} catch (UniqueConstraintViolatedException e) {
+		Role adminRole = userBusiness.readRole("Admin");
+		if (adminRole == null) {
+			adminRole = userBusiness.createRole("Admin", "");
+		}
+		userBusiness.addRole(admin, adminRole);
+		userBusiness.addRole(de, adminRole);
+		userBusiness.addRole(en, adminRole);
+		Role serviceRole = userBusiness.readRole("Service");
+		if (serviceRole == null) {
+			serviceRole = userBusiness.createRole("Service", "");
+		}
+		userBusiness.addRole(admin, serviceRole);
+		Role operatorRole = userBusiness.readRole("Operator");
+		if (operatorRole == null) {
+			operatorRole = userBusiness.createRole("Operator", "");
 		}
 
 		logger.info("Create Sequences...");
@@ -188,30 +236,96 @@ public class Wms2SetupService extends ModuleSetup {
 
 		logger.info("Create defaults...");
 		locationClusterService.getSystem();
-		locationClusterService.getDefault();
+		LocationCluster defaultCluster = locationClusterService.getDefault();
 		areaService.getSystem();
 		areaService.getDefault();
-		locationTypeService.getSystem();
-		locationTypeService.getDefault();
+		LocationType systemLocationType = locationTypeService.getSystem();
+		LocationType defaultLocationType = locationTypeService.getDefault();
 		unitLoadTypeService.getSystem();
-		unitLoadTypeService.getDefault();
+		UnitLoadType defaultUnitLoadType = unitLoadTypeService.getDefault();
 		unitLoadTypeService.getVirtual();
+		unitLoadTypeService.getPicking();
 		storageLocationEntityService.getClearing();
 		storageLocationEntityService.getTrash();
-		orderStrategyService.getDefault(client);
+		OrderStrategy defaultOrderStrategy = orderStrategyService.getDefault(client);
+		orderStrategyService.getExtinguish(client);
 		storageStrategyService.getDefault();
+		ItemUnit itemUnit = itemUnitService.getDefault();
+		itemUnit.setName(translate("itemUnitPcs", locale));
 
-		createProperty(null, Wms2Properties.KEY_PASSWORD_EXPRESSION, null, Wms2Properties.GROUP_UI, locale);
-		createProperty(null, Wms2Properties.KEY_REPORT_LOCALE,
-				locale == null ? Locale.getDefault().toString() : locale.toString(), Wms2Properties.GROUP_WMS, locale);
-		createProperty(null, Wms2Properties.KEY_REPLENISH_FROM_PICKING, "true", Wms2Properties.GROUP_WMS, locale);
+		createZone("A");
+		createZone("B");
+		createZone("C");
 
-		createProperty(null, Wms2Properties.KEY_GOODSRECEIPT_LIMIT_AMOUNT_TO_NOTIFIED, "false",
-				Wms2Properties.GROUP_WMS, locale);
-		createProperty(null, Wms2Properties.KEY_SHIPPING_RENAME_UNITLOAD, "true", Wms2Properties.GROUP_WMS, locale);
-		createProperty(null, Wms2Properties.KEY_SHIPPING_LOCATION, null, Wms2Properties.GROUP_WMS, locale);
-		createProperty(null, Wms2Properties.KEY_STRATEGY_ZONE_FLOW, null, Wms2Properties.GROUP_WMS, locale);
+		Area areaIn = createArea(translate("areaGoodsIn", locale));
+		areaIn.setUseFor(AreaUsages.GOODS_IN, true);
+
+		Area areaOut = createArea(translate("areaGoodsOut", locale));
+		areaOut.setUseFor(AreaUsages.GOODS_OUT, true);
+
+		Area areaClearing = createArea(translate("areaClearing", locale));
+
+		createCapacityConstraint(defaultLocationType, defaultUnitLoadType);
+
+		List<StorageLocation> list = locationService.getForGoodsIn(null);
+		if (list.isEmpty()) {
+			createStorageLocation(client, translate("locationGoodsIn", locale), areaIn, systemLocationType,
+					defaultCluster);
+		}
+		list = locationService.getForGoodsOut(null);
+		if (list.isEmpty()) {
+			StorageLocation goodsOutLocation = createStorageLocation(client, translate("locationGoodsOut", locale),
+					areaOut, systemLocationType, defaultCluster);
+			defaultOrderStrategy.setDefaultDestination(goodsOutLocation);
+
+			SystemProperty shippingLocationProperty = propertyBusiness.read(Wms2Properties.KEY_SHIPPING_LOCATION);
+			if (shippingLocationProperty != null && StringUtils.isBlank(shippingLocationProperty.getPropertyValue())) {
+				shippingLocationProperty.setPropertyValue(goodsOutLocation.getName());
+			}
+		}
+		StorageLocation loc = locationService.getClearing();
+		loc.setArea(areaClearing);
+
+		loc = locationService.getTrash();
+		loc.setArea(areaClearing);
 
 		logger.log(Level.INFO, "Completed Setup");
+	}
+
+	private void createZone(String name) throws BusinessException {
+		Zone zone = zoneService.read(name);
+		if (zone == null) {
+			zone = zoneService.create(name);
+		}
+
+	}
+
+	private Area createArea(String name) throws BusinessException {
+		Area area = areaService.readByName(name);
+		if (area == null) {
+			area = areaService.create(name);
+		}
+		return area;
+	}
+
+	private void createCapacityConstraint(LocationType locationType, UnitLoadType unitLoadType)
+			throws BusinessException {
+		TypeCapacityConstraint constraint = typeCapacityEntityService.read(locationType, unitLoadType);
+		if (constraint == null) {
+			constraint = typeCapacityEntityService.create(locationType, unitLoadType, BigDecimal.valueOf(100));
+		}
+	}
+
+	private StorageLocation createStorageLocation(Client client, String name, Area area, LocationType locationType,
+			LocationCluster cluster) {
+		StorageLocation location = locationService.readByName(name);
+		if (location == null) {
+			location = locationService.create(name, client, locationType, area, cluster);
+		}
+		return location;
+	}
+
+	private String translate(String key, Locale locale) {
+		return Translator.getString(Wms2BundleResolver.class, "BasicData", key, "name", locale);
 	}
 }

@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -117,8 +117,8 @@ public class UnitLoadTypeEntityService {
 
 		manager.persist(type);
 
-		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING + ","
-				+ UnitLoadTypeUsages.SHIPPING + "," + UnitLoadTypeUsages.STORAGE);
+		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING + "," + UnitLoadTypeUsages.PACKING
+				+ "," + UnitLoadTypeUsages.SHIPPING + "," + UnitLoadTypeUsages.STORAGE);
 
 		return type;
 	}
@@ -152,8 +152,7 @@ public class UnitLoadTypeEntityService {
 
 		manager.persist(type);
 
-		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING + ","
-				+ UnitLoadTypeUsages.SHIPPING);
+		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING);
 
 		return type;
 	}

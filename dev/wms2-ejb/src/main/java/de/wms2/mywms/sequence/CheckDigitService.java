@@ -1,5 +1,5 @@
 /* 
-Copyright 2020 Matthias Krane
+Copyright 2020-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -24,7 +24,8 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mywms.facade.FacadeException;
+
+import de.wms2.mywms.exception.BusinessException;
 
 /**
  * 3PL implementation of the CheckDigitService
@@ -36,7 +37,7 @@ import org.mywms.facade.FacadeException;
 public class CheckDigitService {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	public String calculateCheckDigit(String code, String type) throws FacadeException {
+	public String calculateCheckDigit(String code, String type) throws BusinessException {
 		if (StringUtils.equalsIgnoreCase(type, "modulo10")) {
 			return calculateModulo10(code);
 		}

@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -116,8 +116,7 @@ public class AreaEntityService {
 
 		manager.persist(area);
 
-		area.setUsages(AreaUsages.GOODS_IN + "," + AreaUsages.GOODS_OUT + "," + AreaUsages.PICKING + ","
-				+ AreaUsages.STORAGE + "," + AreaUsages.REPLENISH);
+		area.setUsages(AreaUsages.PICKING + "," + AreaUsages.STORAGE + "," + AreaUsages.REPLENISH);
 
 		return area;
 	}

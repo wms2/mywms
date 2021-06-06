@@ -447,11 +447,16 @@ Release 2.7
     -------------------------------------------------------------------------------
     - Added support for wildfly-22
     - Switched to Netbeans-12
+    - Extended demodata
 
 
     Functional changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
     - Added versions and attachments to reports
+    - Stock unit label shows packaging unit
+    - Goods receipt stores packaging unit
+    - Orderstrategy got more powerful complete handling
+    - Extended demodata setup
 
 
     Technical changes (for details and complete list have a look to the git repository)
@@ -464,5 +469,6 @@ Release 2.7
 
     Database changes
     -------------------------------------------------------------------------------
-    - Table report got new attributes: reportVersion, state
-
+    - Table Report got new attributes: reportVersion, state
+    - Table GoodsReceiptLine got new attribute: packagingUnit
+    - Table OrderStrategy got new attribute: completeHandling. And lost attribute: completeOnly
