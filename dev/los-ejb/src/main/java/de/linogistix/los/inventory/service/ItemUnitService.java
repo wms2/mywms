@@ -26,8 +26,6 @@ public interface ItemUnitService
     extends BasicService<ItemUnit>
 {
 
-	ItemUnit getDefault() ;
-   
 	ItemUnit getByName(String name);
 	
 }

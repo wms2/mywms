@@ -26,7 +26,6 @@ import de.linogistix.los.common.service.QueryClientService;
 import de.linogistix.los.customization.EntityGenerator;
 import de.linogistix.los.customization.ImportDataServiceDispatcher;
 import de.linogistix.los.inventory.query.ItemDataQueryRemote;
-import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.location.query.LOSAreaQueryRemote;
 import de.linogistix.los.location.query.LOSStorageLocationQueryRemote;
 import de.linogistix.los.query.exception.BusinessObjectNotFoundException;
@@ -41,6 +40,7 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemDataEntityService;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.ItemUnitEntityService;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 
@@ -52,7 +52,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 	private ItemDataEntityService itemService;
 	
 	@EJB
-	private ItemUnitService itemUnitService;
+	private ItemUnitEntityService itemUnitService;
 	
 	@Inject
 	private ClientBusiness clientService;
@@ -313,7 +313,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 			return;
 		}
 		
-		unit = itemUnitService.getByName(unitName);
+		unit = itemUnitService.readByName(unitName);
 		if( unit != null ) {
 			logger.error("ItemUnit: " + unitName + " already exists. Skip");
 			return;
@@ -339,7 +339,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		String baseString = dataRecord.get("base");
 
 		if(!baseString.equals("null")){
-			base = itemUnitService.getByName(baseString);
+			base = itemUnitService.readByName(baseString);
 			if( base == null ) {
 				logger.error("--- Ignoring data set : UNKOWN BASE UNIT : "+log.toString());
 				return;
@@ -423,7 +423,7 @@ public class Ref_DataServiceDispatcherBean implements ImportDataServiceDispatche
 		ItemUnit unit = null;
 		String unitName = dataRecord.get("einheit");
 		if( unitName != null && unitName.length()>0 ) {
-			unit = itemUnitService.getByName(unitName);
+			unit = itemUnitService.readByName(unitName);
 			if( unit == null ) {
 				logger.error("Unknown unit: " + unitName + ". does not exist. => Skip.");
 		        return;

@@ -43,7 +43,6 @@ import de.linogistix.los.inventory.query.LOSPickingOrderQueryRemote;
 import de.linogistix.los.inventory.query.LOSStorageRequestQueryRemote;
 import de.linogistix.los.inventory.query.LOSUnitLoadAdviceQueryRemote;
 import de.linogistix.los.inventory.query.StockUnitQueryRemote;
-import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.inventory.service.LOSOrderStrategyService;
 import de.linogistix.los.inventory.service.LOSPickingOrderService;
 import de.linogistix.los.inventory.service.LOSStorageStrategyService;
@@ -62,6 +61,7 @@ import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.picking.PickingOrderLine;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.ItemUnitEntityService;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
 import de.wms2.mywms.strategy.OrderStrategy;
@@ -111,7 +111,7 @@ public class InventoryTestTopologyBean implements InventoryTestTopologyRemote {
 	@EJB
 	private LOSPickingOrderService pickService;
 	@EJB
-	private ItemUnitService itemUnitService;
+	private ItemUnitEntityService itemUnitService;
 	@EJB
 	private LOSGoodsOutRequestQueryRemote outQuery;
 	@EJB

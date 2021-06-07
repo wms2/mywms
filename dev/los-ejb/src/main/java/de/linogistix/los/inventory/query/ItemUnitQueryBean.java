@@ -11,12 +11,12 @@
 
 package de.linogistix.los.inventory.query;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
-import de.linogistix.los.inventory.service.ItemUnitService;
 import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.ItemUnitEntityService;
 
 /**
  *
@@ -24,8 +24,8 @@ import de.wms2.mywms.product.ItemUnit;
  */
 @Stateless
 public class ItemUnitQueryBean extends BusinessObjectQueryBean<ItemUnit> implements ItemUnitQueryRemote{
-    @EJB
-    ItemUnitService iuService;
+    @Inject
+    ItemUnitEntityService iuService;
     
 	@Override
     public String getUniqueNameProp() {

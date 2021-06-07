@@ -53,6 +53,7 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.product.ItemUnit;
+import de.wms2.mywms.product.ItemUnitEntityService;
 import de.wms2.mywms.product.PackagingUnit;
 import de.wms2.mywms.product.PackagingUnitEntityService;
 import de.wms2.mywms.strategy.FixAssignment;
@@ -96,8 +97,8 @@ public class ManageInventoryFacadeBean implements ManageInventoryFacade {
 	@EJB
 	private FixAssignmentEntityService fixService;
 
-	@EJB
-	private ItemUnitService itemUnitService;
+	@Inject
+	private ItemUnitEntityService itemUnitService;
 	@EJB
 	private LocationTypeEntityService slTypeService;
 	@EJB
