@@ -292,7 +292,7 @@ public class PickingOrderLineGenerator {
 		}
 
 		List<String> usages = ListUtils.stringToList(unitLoad.getUnitLoadType().getUsages());
-		if (!usages.contains(UnitLoadTypeUsages.SHIPPING)) {
+		if (!usages.contains(UnitLoadTypeUsages.COMPLETE)) {
 			return PickingType.PICK;
 		}
 

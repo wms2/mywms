@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -31,5 +31,6 @@ public class UnitLoadTypeUsages {
 	public static final String PICKING = "PICKING";
 	public static final String SHIPPING = "SHIPPING";
 	public static final String STORAGE = "STORAGE";
+	public static final String COMPLETE = "COMPLETE";
 
 }

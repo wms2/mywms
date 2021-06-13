@@ -117,8 +117,9 @@ public class UnitLoadTypeEntityService {
 
 		manager.persist(type);
 
-		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.PICKING + "," + UnitLoadTypeUsages.PACKING
-				+ "," + UnitLoadTypeUsages.SHIPPING + "," + UnitLoadTypeUsages.STORAGE);
+		type.setUsages(UnitLoadTypeUsages.FORKLIFT + "," + UnitLoadTypeUsages.COMPLETE + ","
+				+ UnitLoadTypeUsages.PICKING + "," + UnitLoadTypeUsages.PACKING + "," + UnitLoadTypeUsages.SHIPPING
+				+ "," + UnitLoadTypeUsages.STORAGE);
 
 		return type;
 	}

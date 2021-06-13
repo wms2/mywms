@@ -159,6 +159,25 @@ public class UnitLoadType extends BasicEntity {
 		setUseFor(UnitLoadTypeUsages.SHIPPING, useForShipping);
 	}
 
+	/**
+	 * @deprecated Replaced by UnitLoadType.isUseFor(UnitLoadTypeUsages.COMPLETE);
+	 */
+	@Deprecated
+	@Transient
+	public boolean isUseForComplete() {
+		return isUseFor(UnitLoadTypeUsages.COMPLETE);
+	}
+
+	/**
+	 * @deprecated Replaced by UnitLoadType.setUseFor(UnitLoadTypeUsages.COMPLETE,
+	 *             useForPicking);
+	 */
+	@Deprecated
+	@Transient
+	public void setUseForComplete(boolean useForComplete) {
+		setUseFor(UnitLoadTypeUsages.COMPLETE, useForComplete);
+	}
+
 	@Transient
 	public BigDecimal getVolume() {
 		if (height != null && width != null && depth != null) {

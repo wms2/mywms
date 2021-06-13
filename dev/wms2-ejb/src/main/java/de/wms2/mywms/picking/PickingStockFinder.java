@@ -573,7 +573,7 @@ public class PickingStockFinder {
 		if (stock.onFixedLocation) {
 			return false;
 		}
-		if (!stock.unitLoadForShipping) {
+		if (!stock.unitLoadForComplete) {
 			return false;
 		}
 		if (stock.mixed == null) {
@@ -598,7 +598,7 @@ public class PickingStockFinder {
 		public boolean onFixedLocation = false;
 		public boolean locationUseForPicking = false;
 		public boolean locationUseForStorage = false;
-		public boolean unitLoadForShipping = false;
+		public boolean unitLoadForComplete = false;
 		public BigDecimal availableAmount;
 		public BigDecimal maxFixPickAmount;
 		public Boolean mixed = null;
@@ -627,8 +627,8 @@ public class PickingStockFinder {
 				this.locationUseForStorage = true;
 			}
 			usages = ListUtils.stringToList(unitLoadTypUsages);
-			if (usages.contains(UnitLoadTypeUsages.SHIPPING)) {
-				this.unitLoadForShipping = true;
+			if (usages.contains(UnitLoadTypeUsages.COMPLETE)) {
+				this.unitLoadForComplete = true;
 			}
 		}
 
