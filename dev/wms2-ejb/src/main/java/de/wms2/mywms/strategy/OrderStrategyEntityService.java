@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -146,7 +146,7 @@ public class OrderStrategyEntityService {
 			Locale locale = userBusiness.getCurrentUsersLocale();
 			name = Translator.getString(Wms2BundleResolver.class, "BasicData", "orderStrategyExtinguish", "name",
 					locale);
-			String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", "orderStrategyExtinguiesh",
+			String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", "orderStrategyExtinguish",
 					"desc", "", locale);
 
 			propertyBusiness.createOrUpdate(Wms2Properties.KEY_ORDERSTRATEGY_EXTINGUISH, name, Wms2Properties.GROUP_WMS,

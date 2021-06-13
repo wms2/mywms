@@ -11,8 +11,6 @@ import java.util.Locale;
 
 import javax.ejb.Local;
 
-import org.mywms.facade.FacadeException;
-
 /**
  * Generation of basic data to use the application
  * 
@@ -21,5 +19,5 @@ import org.mywms.facade.FacadeException;
  */
 @Local
 public interface InventoryBasicDataService {
-	public void createBasicData(Locale locale) throws FacadeException;
+	public void createBasicData(Locale locale);
 }

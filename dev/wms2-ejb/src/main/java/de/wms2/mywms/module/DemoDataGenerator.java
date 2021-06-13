@@ -163,11 +163,13 @@ public class DemoDataGenerator {
 		defaultLocationType.setName(translate("locationTypePallet", locale));
 		locationTypeService.setDefault(defaultLocationType);
 		LocationType shelfLocationType = createLocationType(translate("locationTypeShelf", locale));
+		LocationType systemLocationType = locationTypeService.getSystem();
 
 		log.info("Create UnitLoadTypes...");
 		UnitLoadType euroUnitLoadType = createUnitLoadType(translate("unitLoadTypeEuro", locale), 1.2, 0.8, 1.8, 900,
 				25);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.FORKLIFT, true);
+		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.COMPLETE, true);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.PICKING, true);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.SHIPPING, true);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
@@ -191,33 +193,32 @@ public class DemoDataGenerator {
 		createCapacityConstraint(shelfLocationType, box30UnitLoadType, 50);
 
 		log.info("Create LocationsClusters...");
-		LocationCluster defaultCluster = locationClusterService.getDefault();
 		LocationCluster palletCluster = createLocationCluster(translate("palletstore", locale));
 		LocationCluster shelfCluster = createLocationCluster(translate("shelfstore", locale));
 		LocationCluster highbayCluster = createLocationCluster(translate("highbay", locale));
-		LocationCluster coolStoreCluster = createLocationCluster(translate("coolstore", locale));
+		LocationCluster fixedCluster = createLocationCluster(translate("fixed", locale));
 
 		log.info("Create StorageLocations...");
 		Area storageArea = areaService.getDefault();
 
 		List<StorageLocation> palletLocations = new ArrayList<>();
 		palletLocations.addAll(
-				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P1", 6, 3, 3));
+				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P1", 4, 3, 3));
 		palletLocations.addAll(
-				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P2", 6, 3, 3));
+				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P2", 4, 3, 3));
 		palletLocations.addAll(
-				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P3", 6, 3, 3));
+				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P3", 4, 3, 3));
 		palletLocations.addAll(
-				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P4", 6, 3, 3));
+				createLocations(systemClient, storageArea, defaultLocationType, palletCluster, aZone, "P4", 4, 3, 3));
 		List<StorageLocation> shelfLocations = new ArrayList<>();
 		shelfLocations.addAll(
-				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, aZone, "S1", 8, 6, 4));
+				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, aZone, "S1", 4, 6, 4));
 		shelfLocations.addAll(
-				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, aZone, "S2", 8, 6, 4));
+				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, aZone, "S2", 4, 6, 4));
 		shelfLocations.addAll(
-				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, bZone, "S3", 8, 6, 4));
+				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, bZone, "S3", 4, 6, 4));
 		shelfLocations.addAll(
-				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, cZone, "S4", 8, 6, 4));
+				createLocations(systemClient, storageArea, shelfLocationType, shelfCluster, cZone, "S4", 4, 6, 4));
 		List<StorageLocation> highbayLocations = new ArrayList<>();
 		highbayLocations.addAll(
 				createLocations(systemClient, storageArea, defaultLocationType, highbayCluster, aZone, "H1", 6, 3, 8));
@@ -227,10 +228,8 @@ public class DemoDataGenerator {
 				createLocations(systemClient, storageArea, defaultLocationType, highbayCluster, aZone, "H3", 6, 3, 8));
 		highbayLocations.addAll(
 				createLocations(systemClient, storageArea, defaultLocationType, highbayCluster, aZone, "H4", 6, 3, 8));
-		createLocations(systemClient, storageArea, defaultLocationType, coolStoreCluster, aZone, "C1", 3, 3, 3);
-		createLocations(systemClient, storageArea, defaultLocationType, coolStoreCluster, aZone, "C2", 3, 3, 3);
 
-		createLocations(systemClient, storageArea, shelfLocationType, defaultCluster, aZone, "F1", 2, 3, 2);
+		createLocations(systemClient, storageArea, systemLocationType, fixedCluster, aZone, "F1", 2, 3, 2);
 		manager.flush();
 		manager.clear();
 
@@ -306,13 +305,20 @@ public class DemoDataGenerator {
 		createStock(systemClient, "F1-011-1", paper1, 200, "F1-011-1", null, null);
 
 		Iterator<StorageLocation> locations = palletLocations.iterator();
+		int numPalletStocks = 0;
 		for (ItemData itemData : printers) {
-			createStock(systemClient, locations.next().getName(), itemData, 8, String.format("%06d", ++unitLoadNumber),
-					null, null);
+			for (int i = 0; i < 4; i++) {
+				createStock(systemClient, locations.next().getName(), itemData, 8,
+						String.format("%06d", ++unitLoadNumber), null, null);
+				numPalletStocks++;
+			}
+			if (numPalletStocks > 100) {
+				break;
+			}
 		}
 
 		for (ItemData itemData : papers) {
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < 16; i++) {
 				createStock(systemClient, locations.next().getName(), itemData, 200,
 						String.format("%06d", ++unitLoadNumber), null, translate("unitCarton", locale));
 			}
@@ -330,7 +336,7 @@ public class DemoDataGenerator {
 		}
 
 		for (ItemData itemData : papers) {
-			for (int i = 0; i < 30; i++) {
+			for (int i = 0; i < 40; i++) {
 				createStock(systemClient, locations.next().getName(), itemData, 200,
 						String.format("%06d", ++unitLoadNumber), null, translate("unitCarton", locale));
 			}
@@ -340,16 +346,23 @@ public class DemoDataGenerator {
 		sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 
 		locations = shelfLocations.iterator();
+		int numShelfStocks = 0;
 		for (ItemData itemData : paints) {
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 4; i++) {
 				createStock(systemClient, locations.next().getName(), itemData, 12,
 						String.format("%06d", ++unitLoadNumber), null, null);
+				numShelfStocks++;
+			}
+			if (numShelfStocks > 300) {
+				break;
 			}
 		}
 
 		for (ItemData itemData : screws) {
-			createStock(systemClient, locations.next().getName(), itemData, 15000,
-					String.format("%06d", ++unitLoadNumber), null, translate("unitCarton", locale));
+			for (int i = 0; i < 4; i++) {
+				createStock(systemClient, locations.next().getName(), itemData, 15000,
+						String.format("%06d", ++unitLoadNumber), null, translate("unitCarton", locale));
+			}
 		}
 
 		// Adjust sequence to match manual generated unit load numbers

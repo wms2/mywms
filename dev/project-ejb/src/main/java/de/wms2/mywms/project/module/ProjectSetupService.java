@@ -24,12 +24,15 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 
+import de.linogistix.los.common.businessservice.CommonBasicDataService;
+import de.linogistix.los.inventory.businessservice.InventoryBasicDataService;
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.module.ModuleSetup;
 import de.wms2.mywms.property.SystemPropertyBusiness;
@@ -49,6 +52,10 @@ public class ProjectSetupService extends ModuleSetup {
 
 	@Inject
 	private SystemPropertyBusiness propertyBusiness;
+	@EJB
+	private InventoryBasicDataService inventoryBasicDataService;
+	@EJB
+	private CommonBasicDataService commonBasicDataService;
 
 	@Override
 	public String getModulePackage() {
@@ -83,6 +90,9 @@ public class ProjectSetupService extends ModuleSetup {
 		case DEMO_SMALL:
 		case DEMO_MEDIUM:
 		case DEMO_LARGE:
+			commonBasicDataService.createBasicData(locale);
+			inventoryBasicDataService.createBasicData(locale);
+
 			createProperty(null, getModulePropertyName(), level.name(), Wms2Properties.GROUP_SETUP,
 					Wms2Properties.GROUP_SETUP, locale);
 			break;

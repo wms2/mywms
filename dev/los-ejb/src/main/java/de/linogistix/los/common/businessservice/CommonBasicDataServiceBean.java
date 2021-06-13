@@ -19,7 +19,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
-import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.model.LOSCommonPropertyKey;
@@ -44,7 +43,7 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 	@PersistenceContext(unitName = "myWMS")
 	private EntityManager manager;
 
-	public void createBasicData(Locale locale) throws FacadeException {
+	public void createBasicData(Locale locale) {
 
 		log.info("Create Common Basic Data...");
 
@@ -73,6 +72,9 @@ public class CommonBasicDataServiceBean implements CommonBasicDataService {
 	private final String resolve(String key, Locale locale) {
 		if (key == null) {
 			return "";
+		}
+		if (locale == null) {
+			locale = Locale.getDefault();
 		}
 
 		ResourceBundle bundle;

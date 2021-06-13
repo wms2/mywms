@@ -19,7 +19,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.mywms.facade.FacadeException;
 import org.mywms.model.Client;
 
 import de.linogistix.los.inventory.model.LOSInventoryPropertyKey;
@@ -47,7 +46,7 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 	@Inject
 	private StorageLocationEntityService locationService;
 
-	public void createBasicData(Locale locale) throws FacadeException {
+	public void createBasicData(Locale locale) {
 
 		log.info("Create Inventory Basic Data...");
 
@@ -79,6 +78,9 @@ public class InventoryBasicDataServiceBean implements InventoryBasicDataService 
 	private final String resolve(String key, Locale locale) {
 		if (key == null) {
 			return "";
+		}
+		if (locale == null) {
+			locale = Locale.getDefault();
 		}
 
 		ResourceBundle bundle;

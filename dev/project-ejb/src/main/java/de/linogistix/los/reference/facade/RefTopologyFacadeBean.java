@@ -43,7 +43,7 @@ public class RefTopologyFacadeBean implements RefTopologyFacade {
 	@Inject
 	private Wms2SetupService wmsSetupService;
 
-	public boolean checkDemoData() throws FacadeException {
+	public boolean checkDemoData() {
 		String setupPropertyKey = "SETUP:de.linogistix.los.reference";
 		SystemProperty setupProperty = propertyService.getByKey(setupPropertyKey);
 		if (setupProperty != null

@@ -101,8 +101,6 @@ public class Wms2SetupService extends ModuleSetup {
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
 	@Inject
-	private StorageLocationEntityService storageLocationEntityService;
-	@Inject
 	private OrderStrategyEntityService orderStrategyService;
 	@Inject
 	private StorageStrategyEntityService storageStrategyService;
@@ -139,6 +137,11 @@ public class Wms2SetupService extends ModuleSetup {
 			logger.log(Level.SEVERE, "Setup failed", t);
 			return;
 		}
+	}
+
+	@Override
+	public int getOrderIndex() {
+		return 10;
 	}
 
 	@Override
@@ -245,8 +248,8 @@ public class Wms2SetupService extends ModuleSetup {
 		UnitLoadType defaultUnitLoadType = unitLoadTypeService.getDefault();
 		unitLoadTypeService.getVirtual();
 		unitLoadTypeService.getPicking();
-		storageLocationEntityService.getClearing();
-		storageLocationEntityService.getTrash();
+		locationService.getClearing();
+		locationService.getTrash();
 		OrderStrategy defaultOrderStrategy = orderStrategyService.getDefault(client);
 		orderStrategyService.getExtinguish(client);
 		storageStrategyService.getDefault();
