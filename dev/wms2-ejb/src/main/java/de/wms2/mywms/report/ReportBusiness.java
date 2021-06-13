@@ -131,7 +131,7 @@ public class ReportBusiness {
 		Locale locale = Translator.parseLocale(localeString);
 		parameters.put(JRParameter.REPORT_LOCALE, locale);
 
-		ResourceBundle bundle = Translator.getBundle(Wms2BundleResolver.class, null, locale);
+		ResourceBundle bundle = Translator.getBundle(bundleResolver, null, locale);
 		parameters.put(JRParameter.REPORT_RESOURCE_BUNDLE, bundle);
 
 		try {
