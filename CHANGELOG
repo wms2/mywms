@@ -448,6 +448,7 @@ Release 2.7
     - Added support for wildfly-22
     - Switched to Netbeans-12
     - Extended demodata
+    - Added versions and attachments to reports
 
 
     Functional changes (for details and complete list have a look to the git repository)
@@ -457,14 +458,17 @@ Release 2.7
     - Goods receipt stores packaging unit
     - Orderstrategy got more powerful complete handling
     - Extended demodata setup
+    - UnitLoadType got flag for complete picking handling
 
 
     Technical changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
+    - Added possibility to generate QR-codes to reports
 
 
     Bugfixes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
+    - Read reports bundle from given bundle resolver
 
 
     Database changes
