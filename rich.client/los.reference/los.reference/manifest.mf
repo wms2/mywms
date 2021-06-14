@@ -3,5 +3,5 @@ OpenIDE-Module: de.linogistix.reference
 OpenIDE-Module-Layer: de/linogistix/reference/layer.xml
 OpenIDE-Module-Install: de/linogistix/reference/Installer.class
 OpenIDE-Module-Localizing-Bundle: de/linogistix/reference/res/Bundle.properties
-OpenIDE-Module-Specification-Version: 2
+OpenIDE-Module-Specification-Version: 2.7.0
 
