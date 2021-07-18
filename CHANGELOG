@@ -476,3 +476,29 @@ Release 2.7
     - Table Report got new attributes: reportVersion, state
     - Table GoodsReceiptLine got new attribute: packagingUnit
     - Table OrderStrategy got new attribute: completeHandling. And lost attribute: completeOnly
+
+Release 2.8
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Reports got QR codes and images
+
+
+    Functional changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Renamed default sequence names
+    - Setup of default zone flow
+    - Added more demo data
+    - Locale in setup defaults to local locale
+
+    Technical changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Bugfixes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Database changes
+    -------------------------------------------------------------------------------
