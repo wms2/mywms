@@ -190,7 +190,8 @@ public class Wms2SetupService extends ModuleSetup {
 				Wms2Properties.GROUP_WMS, locale);
 		createProperty(null, Wms2Properties.KEY_SHIPPING_RENAME_UNITLOAD, "true", Wms2Properties.GROUP_WMS, locale);
 		createProperty(null, Wms2Properties.KEY_SHIPPING_LOCATION, null, Wms2Properties.GROUP_WMS, locale);
-		createProperty(null, Wms2Properties.KEY_STRATEGY_ZONE_FLOW, null, Wms2Properties.GROUP_WMS, locale);
+		createProperty(null, Wms2Properties.KEY_STRATEGY_ZONE_FLOW, "A,B,C;B,C,A;C,B,A", Wms2Properties.GROUP_WMS,
+				locale);
 
 		logger.info("Create Users...");
 		User admin = userBusiness.readUser("admin");
