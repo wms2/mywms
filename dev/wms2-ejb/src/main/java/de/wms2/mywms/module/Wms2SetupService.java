@@ -35,12 +35,8 @@ import org.mywms.model.Client;
 import org.mywms.model.Role;
 import org.mywms.model.User;
 
-import de.wms2.mywms.advice.Advice;
 import de.wms2.mywms.client.ClientBusiness;
-import de.wms2.mywms.delivery.DeliveryOrder;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.goodsreceipt.GoodsReceipt;
-import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
@@ -52,14 +48,11 @@ import de.wms2.mywms.location.LocationType;
 import de.wms2.mywms.location.LocationTypeEntityService;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
-import de.wms2.mywms.picking.PickingOrder;
 import de.wms2.mywms.product.ItemUnit;
 import de.wms2.mywms.product.ItemUnitEntityService;
 import de.wms2.mywms.property.SystemProperty;
 import de.wms2.mywms.property.SystemPropertyBusiness;
-import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.sequence.SequenceBusiness;
-import de.wms2.mywms.shipping.ShippingOrder;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
 import de.wms2.mywms.strategy.StorageStrategyEntityService;
@@ -67,7 +60,6 @@ import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.TypeCapacityEntityService;
 import de.wms2.mywms.strategy.Zone;
 import de.wms2.mywms.strategy.ZoneEntityService;
-import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Translator;
 import de.wms2.mywms.util.Wms2BundleResolver;
@@ -209,6 +201,11 @@ public class Wms2SetupService extends ModuleSetup {
 			en = userBusiness.createUser(client, "en", "en");
 			en.setLocale("en");
 		}
+		User service = userBusiness.readUser("service");
+		if (service == null) {
+			service = userBusiness.createUser(client, "service", "service");
+			service.setLocale("en");
+		}
 
 		Role adminRole = userBusiness.readRole("Admin");
 		if (adminRole == null) {
@@ -222,6 +219,7 @@ public class Wms2SetupService extends ModuleSetup {
 			serviceRole = userBusiness.createRole("Service", "");
 		}
 		userBusiness.addRole(admin, serviceRole);
+		userBusiness.addRole(service, serviceRole);
 		Role operatorRole = userBusiness.readRole("Operator");
 		if (operatorRole == null) {
 			operatorRole = userBusiness.createRole("Operator", "");

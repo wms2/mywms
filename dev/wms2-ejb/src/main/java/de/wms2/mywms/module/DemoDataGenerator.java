@@ -166,7 +166,7 @@ public class DemoDataGenerator {
 		LocationType systemLocationType = locationTypeService.getSystem();
 
 		log.info("Create UnitLoadTypes...");
-		UnitLoadType euroUnitLoadType = createUnitLoadType(translate("unitLoadTypeEuro", locale), 1.2, 0.8, 1.8, 900,
+		UnitLoadType euroUnitLoadType = createUnitLoadType(translate("unitLoadTypeEuro", locale), 1.8, 0.8, 1.2, 900,
 				25);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.FORKLIFT, true);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.COMPLETE, true);
@@ -175,17 +175,22 @@ public class DemoDataGenerator {
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.PACKING, true);
 		unitLoadTypeService.setDefault(euroUnitLoadType);
-		UnitLoadType box60UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox6040", locale), 0.40, 0.60, 0.3,
+		UnitLoadType box60UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox6040", locale), 0.3, 0.6, 0.4,
 				20, 0.5);
 		box60UnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
-		UnitLoadType box30UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox3040", locale), 0.40, 0.30, 0.3,
+		UnitLoadType box30UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox3040", locale), 0.3, 0.3, 0.4,
 				15, 0.3);
 		box30UnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
-		UnitLoadType cartonUnitLoadType = createUnitLoadType(translate("unitLoadTypeCarton", locale), 0.40, 0.30, 0.3,
+		UnitLoadType cartonUnitLoadTypeA = createUnitLoadType(translate("unitLoadTypeCartonA", locale), 0.15, 0.25, 0.35,
 				34, 0.2);
-		cartonUnitLoadType.setUseFor(UnitLoadTypeUsages.PACKING, true);
-		cartonUnitLoadType.setUseFor(UnitLoadTypeUsages.SHIPPING, true);
-		cartonUnitLoadType.setUseFor(UnitLoadTypeUsages.PICKING, true);
+		cartonUnitLoadTypeA.setUseFor(UnitLoadTypeUsages.PACKING, true);
+		cartonUnitLoadTypeA.setUseFor(UnitLoadTypeUsages.SHIPPING, true);
+		cartonUnitLoadTypeA.setUseFor(UnitLoadTypeUsages.PICKING, true);
+		UnitLoadType cartonUnitLoadTypeB = createUnitLoadType(translate("unitLoadTypeCartonB", locale), 0.30, 0.35, 0.5,
+				34, 0.2);
+		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.PACKING, true);
+		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.SHIPPING, true);
+		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.PICKING, true);
 
 		log.info("Create TypeCapacityConstraints...");
 		createCapacityConstraint(defaultLocationType, euroUnitLoadType, 100);
@@ -263,9 +268,10 @@ public class DemoDataGenerator {
 					String paintTypeName = translate("paintType" + type, locale);
 					String paintEanCode = "41248" + eanCounter;
 					paintEanCode += checkDigitService.calculateCheckDigit(paintEanCode, "modulo10");
+					double depth = (paint < 6? 0.12:0.24);
 					itemData = createItemData(systemClient, "" + paintNumber,
 							paintTypeName + " " + printerName + " " + paintName, paintTypeName, defaultUnit, false,
-							false, aZone, box60UnitLoadType, paintEanCode, 0.35, 0.4, 0.5, 4.3);
+							false, aZone, box60UnitLoadType, paintEanCode, 0.05, 0.1, depth, 0.1);
 					paints.add(itemData);
 				}
 			}
@@ -302,7 +308,7 @@ public class DemoDataGenerator {
 		log.info("Create Stock...");
 		int unitLoadNumber = 0;
 
-		createStock(systemClient, "F1-011-1", paper1, 200, "F1-011-1", null, null);
+		createStock(systemClient, "F1-011-1", paper1, 200, "F1-011-1", null, translate("unitCarton", locale));
 
 		Iterator<StorageLocation> locations = palletLocations.iterator();
 		int numPalletStocks = 0;
@@ -381,7 +387,7 @@ public class DemoDataGenerator {
 				new ItemDataAmount(papers.get(0), 1));
 		createDeliveryOrder(systemClient, locale, new ItemDataAmount(printers.get(1), 1),
 				new ItemDataAmount(papers.get(0), 1));
-		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 5),
+		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 2),
 				new ItemDataAmount(paints.get(0), 1));
 		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 5),
 				new ItemDataAmount(paints.get(1), 2));
@@ -420,7 +426,7 @@ public class DemoDataGenerator {
 		return locationType;
 	}
 
-	private UnitLoadType createUnitLoadType(String name, double depth, double width, double height,
+	private UnitLoadType createUnitLoadType(String name, double height, double width, double depth,
 			double liftingCapacity, double weight) throws BusinessException {
 		UnitLoadType unitLoadType = unitLoadTypeService.readByName(name);
 		if (unitLoadType == null) {

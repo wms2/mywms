@@ -118,6 +118,7 @@ public class OrderStrategyEntityService {
 
 		strategy.setName(name);
 		strategy.setAdditionalContent(desc);
+		strategy.setPreferComplete(true);
 
 		List<StorageLocation> locations = locationService.getForGoodsOut(client);
 		if (locations.size() >= 1) {
