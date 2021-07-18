@@ -189,7 +189,7 @@ public class Wms2SetupService extends ModuleSetup {
 		User admin = userBusiness.readUser("admin");
 		if (admin == null) {
 			admin = userBusiness.createUser(client, "admin", "admin");
-			admin.setLocale("en");
+			admin.setLocale(translate("userAdminLocale", locale));
 		}
 		User de = userBusiness.readUser("de");
 		if (de == null) {
