@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="UnitLoadLabel" pageWidth="300" pageHeight="220" orientation="Landscape" columnWidth="300" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="116f4042-4350-4484-9245-fe6db81c41f8">
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="UnitLoadLabel" pageWidth="300" pageHeight="160" orientation="Landscape" columnWidth="300" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="116f4042-4350-4484-9245-fe6db81c41f8">
 	<property name="ireport.scriptlethandling" value="0"/>
 	<property name="ireport.encoding" value="UTF-8"/>
 	<property name="ireport.zoom" value="2.0"/>
@@ -34,96 +34,132 @@
 		<band splitType="Stretch"/>
 	</columnHeader>
 	<detail>
-		<band height="210" splitType="Stretch">
-			<componentElement>
-				<reportElement style="barcode_center" x="20" y="10" width="260" height="60" uuid="bd2665d9-8220-40ff-985f-7356b5ef73c6"/>
-				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="true" checksumRequired="false" barHeight="40">
-					<jr:codeExpression><![CDATA[$F{unitLoad}.getLabelId()]]></jr:codeExpression>
-				</jr:barbecue>
-			</componentElement>
+		<band height="160" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<textField>
-				<reportElement x="20" y="70" width="260" height="20" uuid="e485789f-05e0-4f0a-bf90-494c35473786"/>
-				<textElement textAlignment="Center">
+				<reportElement x="70" y="10" width="150" height="20" uuid="e485789f-05e0-4f0a-bf90-494c35473786">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{unitLoad}.getLabelId()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="30" y="100" width="60" height="20" uuid="a7543521-7254-4fc9-8f18-85ea26522dcf"/>
+				<reportElement x="20" y="80" width="60" height="20" uuid="a7543521-7254-4fc9-8f18-85ea26522dcf"/>
 				<textElement verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{StockUnitLabel.itemData}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{StockUnitLabel.itemData}+":"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="80" y="100" width="140" height="20" uuid="b5ced695-0785-484e-91f5-f19c626c6a28"/>
+				<reportElement x="69" y="80" width="140" height="20" uuid="b5ced695-0785-484e-91f5-f19c626c6a28"/>
 				<textElement verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{itemData}.getNumber()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="40" y="140" width="220" height="30" uuid="b7ce7c68-a5c6-4787-a3ee-cf54c81cd14d"/>
+				<reportElement x="30" y="120" width="250" height="30" uuid="b7ce7c68-a5c6-4787-a3ee-cf54c81cd14d"/>
 				<textFieldExpression><![CDATA[$F{itemData}.getName()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="180" y="100" width="90" height="20" uuid="da2ead1d-22c3-4e37-9fc4-e6950cf696c7"/>
+				<reportElement x="190" y="80" width="90" height="20" uuid="da2ead1d-22c3-4e37-9fc4-e6950cf696c7"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[NumberFormat.getInstance($P{REPORT_LOCALE}).format($F{packagingUnitAmount})+" "+$F{packagingUnitName}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="30" y="120" width="60" height="20" uuid="7a9d9182-359b-4749-91fd-f24a2a440b49">
+				<reportElement x="20" y="100" width="60" height="20" uuid="7a9d9182-359b-4749-91fd-f24a2a440b49">
 					<printWhenExpression><![CDATA[$F{lotNumber}!=null && $F{lotNumber}.length()>0]]></printWhenExpression>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{StockUnitLabel.lotNumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{StockUnitLabel.lotNumber}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="120" width="140" height="20" isRemoveLineWhenBlank="true" uuid="a1d00e81-ba75-4588-afc3-da0aa48c4589"/>
+				<reportElement x="70" y="100" width="140" height="20" isRemoveLineWhenBlank="true" uuid="a1d00e81-ba75-4588-afc3-da0aa48c4589"/>
 				<textElement verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{lotNumber}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="180" y="120" width="90" height="20" uuid="d01ad7e8-53df-40d4-9a5a-bda3b8279aea"/>
+				<reportElement x="190" y="100" width="90" height="20" uuid="d01ad7e8-53df-40d4-9a5a-bda3b8279aea"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{itemData}.getWeight()==null?"":NumberFormat.getInstance($P{REPORT_LOCALE}).format($F{stockUnit}.getAmount().multiply($F{itemData}.getWeight()))+" kg"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="30" y="186" width="80" height="16" uuid="c697dd8a-22af-4e05-a5c2-f7cfad9effdf"/>
+				<reportElement x="100" y="34" width="60" height="16" uuid="c697dd8a-22af-4e05-a5c2-f7cfad9effdf">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{StockUnitLabel.storageLocation}+":"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="110" y="186" width="170" height="16" uuid="b68fefb1-ab76-445d-aa6e-3b9d8d20ea8f"/>
-				<textElement verticalAlignment="Middle">
+				<reportElement x="140" y="34" width="80" height="16" uuid="b68fefb1-ab76-445d-aa6e-3b9d8d20ea8f">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{storageLocation}.getName()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="30" y="170" width="80" height="16" uuid="995c2fd8-6543-4096-a054-a4248813f386"/>
+				<reportElement x="100" y="50" width="60" height="16" uuid="995c2fd8-6543-4096-a054-a4248813f386">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{StockUnitLabel.date}+":"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="110" y="170" width="170" height="16" uuid="71bdebab-a699-4005-b35b-21366918dfb5"/>
-				<textElement verticalAlignment="Middle">
+				<reportElement x="140" y="50" width="80" height="16" uuid="71bdebab-a699-4005-b35b-21366918dfb5">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[DateFormat.getDateInstance(DateFormat.MEDIUM, $P{REPORT_LOCALE}).format( $F{stockUnit}.getStrategyDate() )]]></textFieldExpression>
 			</textField>
+			<componentElement>
+				<reportElement x="10" y="10" width="55" height="55" uuid="40f65b89-8b66-421c-b6f2-5b6656bb171d">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.margin" value="px"/>
+				</reportElement>
+				<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<jr:codeExpression><![CDATA[$F{unitLoad}.getLabelId()]]></jr:codeExpression>
+				</jr:QRCode>
+			</componentElement>
+			<textField>
+				<reportElement x="100" y="10" width="60" height="20" uuid="60f21e98-3022-4c13-8db8-0cbb628f06b8">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$F{unitLoad}.getLabelId().length()<13]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{StockUnitLabel.label}+":"]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="250" y="12" width="35" height="35" uuid="af167e7d-692f-4019-95fe-caf93a7a6151">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA[$P{image}.getData()]]></imageExpression>
+			</image>
 		</band>
 	</detail>
 	<columnFooter>

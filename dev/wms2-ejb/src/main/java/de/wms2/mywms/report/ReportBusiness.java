@@ -307,6 +307,7 @@ public class ReportBusiness {
 			Document source = readSourceDocument(report);
 			if (source == null) {
 				generateDefaultSourceDocument(report, bundleResolver);
+				addDefaultImage(report, bundleResolver);
 			}
 			compiled = compile(report);
 		}
@@ -372,6 +373,51 @@ public class ReportBusiness {
 			throw new BusinessException(Wms2BundleResolver.class, "Report.missingDokument", e.getLocalizedMessage());
 		}
 
+	}
+
+	private Document addDefaultImage(Report report, Class<?> bundleResolver) throws BusinessException {
+		String logStr = "addDefaultImage ";
+		logger.log(Level.INFO, logStr + "report=" + report);
+
+		if (bundleResolver == null) {
+			bundleResolver = Wms2BundleResolver.class;
+		}
+
+		// if image already exists => finish
+		Document image = documentBusiness.readImage(Report.class, report.getId());
+		if (image != null) {
+			return image;
+		}
+
+		String path = bundleResolver.getPackage().getName();
+		path = path.replaceAll("\\.", "/");
+		String filename1 = "/" + path + "/default-image.png";
+		InputStream imageStream = bundleResolver.getResourceAsStream(filename1);
+
+		if (imageStream == null) {
+			String filename2 = "/reports/default-image.png";
+			imageStream = bundleResolver.getResourceAsStream(filename2);
+			if (imageStream == null) {
+				imageStream = this.getClass().getClassLoader().getResourceAsStream(filename2);
+			}
+			if (imageStream == null) {
+				logger.log(Level.WARNING, logStr + "Cannot read resource with name=" + filename1 + " or name="
+						+ filename2 + ", bundleResolver=" + bundleResolver.getName());
+			}
+		}
+
+		try {
+			int size = imageStream.available();
+			byte data[] = new byte[size];
+			imageStream.read(data);
+			imageStream.close();
+
+			return documentBusiness.saveImage(Report.class, report.getId(), "Default", data);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE,
+					logStr + "Error reading default image: " + e.getClass().getName() + ", " + e.getMessage(), e);
+			throw new BusinessException(Wms2BundleResolver.class, "Report.missingDokument", e.getLocalizedMessage());
+		}
 	}
 
 	public Document readSourceDocument(Report report) {

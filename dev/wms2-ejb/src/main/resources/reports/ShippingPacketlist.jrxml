@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Packetlist" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -30,84 +30,118 @@
 		<band splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="230" splitType="Stretch">
+		<band height="140" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<textField isBlankWhenNull="true">
-				<reportElement x="420" y="0" width="108" height="16" uuid="a93ba24f-83ea-444d-ae61-ad086ca08e90"/>
-				<textElement verticalAlignment="Bottom" markup="none">
+				<reportElement x="420" y="50" width="108" height="20" uuid="a93ba24f-83ea-444d-ae61-ad086ca08e90">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" markup="none">
 					<font size="12" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{shippingOrder}.getExternalNumber()==null || $P{shippingOrder}.getExternalNumber().length()==0 ? $P{shippingOrder}.getOrderNumber() : $P{shippingOrder}.getExternalNumber()]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="420" y="16" width="108" height="16" uuid="b0f9bd8e-15ad-4506-b726-1b825175107e"/>
-				<textElement verticalAlignment="Bottom">
+				<reportElement x="420" y="70" width="108" height="16" uuid="b0f9bd8e-15ad-4506-b726-1b825175107e"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
 					<font size="10" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[DateFormat.getDateInstance(DateFormat.MEDIUM, $P{REPORT_LOCALE}).format( $P{printDate} )]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement key="" x="0" y="0" width="248" height="32" uuid="f08d398f-b928-480c-80c8-130f2b1e60c0"/>
+				<reportElement key="" x="80" y="0" width="248" height="32" uuid="f08d398f-b928-480c-80c8-130f2b1e60c0"/>
 				<textElement>
 					<font size="24" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{Packetlist.name}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="370" y="0" width="64" height="16" uuid="2e50656b-0155-4daf-8892-22e9dc956895"/>
+				<reportElement x="370" y="54" width="90" height="16" uuid="2e50656b-0155-4daf-8892-22e9dc956895"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Packetlist.orderNumber}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{Packetlist.shippingOrderNumber}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="370" y="16" width="64" height="16" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58"/>
+				<reportElement x="370" y="70" width="90" height="16" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58"/>
 				<textElement verticalAlignment="Bottom">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{Packetlist.printDate}+":"]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="112" width="300" height="16" isRemoveLineWhenBlank="true" uuid="83cd513b-8bcb-41ca-8657-cc690fe14b10"/>
-				<textElement verticalAlignment="Top">
-					<font size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[($P{address}.getFirstName()==null?"":$P{address}.getFirstName() + " ") + ($P{address}.getLastName()==null?"":$P{address}.getLastName())]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="144" width="300" height="16" isRemoveLineWhenBlank="true" uuid="f61ed808-2113-4185-85a7-9cbbc6ce44e7"/>
-				<textElement verticalAlignment="Top">
-					<font size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{address}.getStreet()==null?"":$P{address}.getStreet()]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="160" width="300" height="16" isRemoveLineWhenBlank="true" uuid="2ef93418-652a-4e5f-bc5d-e6b584dd0e0b"/>
-				<textElement verticalAlignment="Top">
-					<font size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[($P{address}.getZipCode()==null?"":$P{address}.getZipCode() + " ") + ($P{address}.getCity()==null?"":$P{address}.getCity())]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="80" width="300" height="16" isRemoveLineWhenBlank="true" uuid="88b43da6-0f66-4ed6-8301-7ef504446ff3"/>
-				<textElement verticalAlignment="Top">
-					<font size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{address}.getCompany()]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="128" width="300" height="16" isRemoveLineWhenBlank="true" uuid="793e41a6-cb19-4ddd-8723-bbaa16cf62a9"/>
-				<textElement verticalAlignment="Top">
-					<font size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{address}.getAffix()]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="96" width="300" height="16" isRemoveLineWhenBlank="true" uuid="9b423658-58e8-46f5-986e-e5cfe59c8dde"/>
-				<textElement verticalAlignment="Top">
-					<font size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{address}.getTitle()]]></textFieldExpression>
-			</textField>
+			<componentElement>
+				<reportElement x="-5" y="0" width="49" height="49" uuid="b68c4ef7-71c4-49a8-8cc9-45ccfe4eb415">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<jr:codeExpression><![CDATA[$P{shippingOrder}.getOrderNumber()]]></jr:codeExpression>
+				</jr:QRCode>
+			</componentElement>
+			<frame>
+				<reportElement stretchType="ElementGroupHeight" x="1" y="60" width="318" height="52" uuid="550b973e-bf8e-4913-9e01-98ea2cb76522">
+					<property name="com.jaspersoft.studio.layout"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.0"/>
+				</box>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="32" width="300" height="16" isRemoveLineWhenBlank="true" uuid="c66651d1-4b67-4227-8ed3-da65763a7c4e"/>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($P{address}.getFirstName()==null?"":$P{address}.getFirstName() + " ") + ($P{address}.getLastName()==null?"":$P{address}.getLastName())]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="64" width="300" height="16" isRemoveLineWhenBlank="true" uuid="88d2eff0-7b41-400f-b933-8b8aecdcacc2"/>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{address}.getStreet()==null?"":$P{address}.getStreet()]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="80" width="300" height="16" isRemoveLineWhenBlank="true" uuid="d7d065d0-1e92-4ebf-a9e4-fb6f26d4000f"/>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($P{address}.getZipCode()==null?"":$P{address}.getZipCode() + " ") + ($P{address}.getCity()==null?"":$P{address}.getCity())]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="300" height="16" isRemoveLineWhenBlank="true" uuid="4b0e56da-b17b-486c-8875-329c5a60c507"/>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{address}.getCompany()]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="48" width="300" height="16" isRemoveLineWhenBlank="true" uuid="db74102c-c7b5-477c-a112-0126b94a8f14"/>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{address}.getAffix()]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="16" width="300" height="16" isRemoveLineWhenBlank="true" uuid="f1047552-6a17-4457-b77c-cd0d36dd87bb"/>
+					<textElement verticalAlignment="Top">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{address}.getTitle()]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement x="493" y="2" width="35" height="35" uuid="de75a607-dfc9-442c-aa3e-5de22c59af49">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA[$P{image}==null?null:$P{image}.getData()==null?null:$P{image}.getData().length==0?null:$P{image}.getData()]]></imageExpression>
+			</image>
 		</band>
 	</pageHeader>
 	<columnHeader>
@@ -170,7 +204,7 @@
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{itemData}==null?"":$F{itemData}.getNumber()]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="140" y="0" width="300" height="14" uuid="d04b2b5c-fa2c-4b90-9e60-ddf225db57cc">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>

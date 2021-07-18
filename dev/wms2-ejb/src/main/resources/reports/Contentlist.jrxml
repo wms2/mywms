@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Contentlist" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -35,62 +35,91 @@
 		<band splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="160" splitType="Stretch">
+		<band height="130" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<textField isBlankWhenNull="true">
-				<reportElement x="375" y="20" width="108" height="20" uuid="a93ba24f-83ea-444d-ae61-ad086ca08e90"/>
-				<textElement verticalAlignment="Bottom" markup="none">
-					<font size="12" isBold="true"/>
+				<reportElement x="420" y="70" width="108" height="16" uuid="a93ba24f-83ea-444d-ae61-ad086ca08e90">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" markup="none">
+					<font size="10" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{deliveryOrder}==null?$P{pickingOrder}==null?"":$P{pickingOrder}.getExternalNumber()==null || $P{pickingOrder}.getExternalNumber().length()==0 ? $P{pickingOrder}.getOrderNumber() : $P{pickingOrder}.getExternalNumber():$P{deliveryOrder}.getExternalNumber()==null || $P{deliveryOrder}.getExternalNumber().length()==0 ? $P{deliveryOrder}.getOrderNumber() : $P{deliveryOrder}.getExternalNumber()]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="375" y="40" width="108" height="20" uuid="b0f9bd8e-15ad-4506-b726-1b825175107e"/>
-				<textElement verticalAlignment="Bottom">
-					<font size="12" isBold="true"/>
+				<reportElement x="420" y="86" width="108" height="16" uuid="b0f9bd8e-15ad-4506-b726-1b825175107e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="10" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[DateFormat.getDateInstance(DateFormat.MEDIUM, $P{REPORT_LOCALE}).format( $P{printDate} )]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement key="" x="0" y="0" width="248" height="34" uuid="f08d398f-b928-480c-80c8-130f2b1e60c0"/>
+				<reportElement key="" x="80" y="0" width="380" height="34" uuid="f08d398f-b928-480c-80c8-130f2b1e60c0"/>
 				<textElement>
 					<font size="24" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{Contentlist.name}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="315" y="20" width="64" height="20" uuid="2e50656b-0155-4daf-8892-22e9dc956895"/>
+				<reportElement x="370" y="70" width="90" height="16" uuid="2e50656b-0155-4daf-8892-22e9dc956895">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
 				<textElement verticalAlignment="Bottom">
-					<font size="12"/>
+					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{Contentlist.orderNumber}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="315" y="40" width="64" height="20" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58"/>
+				<reportElement x="370" y="86" width="90" height="16" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
 				<textElement verticalAlignment="Bottom">
-					<font size="12"/>
+					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{Contentlist.printDate}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="315" y="0" width="64" height="20" uuid="adc95ea9-bdea-466d-b04b-2eb78d928f91"/>
+				<reportElement x="370" y="54" width="90" height="16" uuid="adc95ea9-bdea-466d-b04b-2eb78d928f91">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$P{label}.length()<13]]></printWhenExpression>
+				</reportElement>
 				<textElement verticalAlignment="Bottom">
-					<font size="12"/>
+					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$R{Contentlist.label}+":"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="375" y="0" width="108" height="20" uuid="a94152ec-5424-46f8-8951-e54faf5088ee"/>
-				<textElement verticalAlignment="Bottom" markup="none">
+				<reportElement x="360" y="50" width="168" height="20" uuid="a94152ec-5424-46f8-8951-e54faf5088ee">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" markup="none">
 					<font size="12" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{label}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement x="0" y="60" width="315" height="50" uuid="6713cc0a-983a-40c7-8f11-d39acca5ced1"/>
-				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="true" checksumRequired="false" barHeight="40">
+				<reportElement x="-5" y="0" width="49" height="49" uuid="a30b6097-3f5d-471a-82b0-a1b79fb71582">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
 					<jr:codeExpression><![CDATA[$P{label}]]></jr:codeExpression>
-				</jr:barbecue>
+				</jr:QRCode>
 			</componentElement>
+			<image>
+				<reportElement x="493" y="2" width="35" height="35" uuid="f4235fc7-8003-4741-987f-8614c013ecc5">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA[$P{image}==null?null:$P{image}.getData()==null?null:$P{image}.getData().length==0?null:$P{image}.getData()]]></imageExpression>
+			</image>
 		</band>
 	</pageHeader>
 	<columnHeader>
@@ -133,7 +162,7 @@
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{itemData}==null?"":$F{itemData}.getNumber()]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="140" y="0" width="270" height="14" uuid="d04b2b5c-fa2c-4b90-9e60-ddf225db57cc">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>

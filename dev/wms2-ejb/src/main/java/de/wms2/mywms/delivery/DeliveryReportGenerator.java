@@ -128,7 +128,7 @@ public class DeliveryReportGenerator {
 		label = StringUtils.substringBefore(label, suffix);
 
 		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
-		registerItems(reportItemMap, unitLoad, packet, true);
+		registerItems(reportItemMap, unitLoad, packet, true, true);
 		List<DeliveryReportDto> reportItems = new ArrayList<>();
 		reportItems.addAll(reportItemMap.values());
 		Collections.sort(reportItems, new UnitLoadReportDtoComparator());
@@ -177,7 +177,7 @@ public class DeliveryReportGenerator {
 
 		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
 		for (Packet packet : pickingOrder.getPackets()) {
-			registerItems(reportItemMap, packet.getUnitLoad(), packet, true);
+			registerItems(reportItemMap, packet.getUnitLoad(), packet, true, true);
 		}
 		List<DeliveryReportDto> reportItems = new ArrayList<>();
 		reportItems.addAll(reportItemMap.values());
@@ -230,7 +230,7 @@ public class DeliveryReportGenerator {
 				packetAddress = null;
 			}
 			UnitLoad unitLoad = packet.getUnitLoad();
-			registerItems(reportItemMap, unitLoad, packet, true);
+			registerItems(reportItemMap, unitLoad, packet, true, false);
 			first = false;
 		}
 		List<DeliveryReportDto> reportItems = new ArrayList<>();
@@ -277,7 +277,7 @@ public class DeliveryReportGenerator {
 
 		Map<String, DeliveryReportDto> reportItemMap = new HashMap<>();
 		for (Packet packet : packetService.readByDeliveryOrder(deliveryOrder)) {
-			registerItems(reportItemMap, packet.getUnitLoad(), packet, true);
+			registerItems(reportItemMap, packet.getUnitLoad(), packet, true, false);
 		}
 		List<DeliveryReportDto> reportItems = new ArrayList<>();
 		reportItems.addAll(reportItemMap.values());
@@ -327,7 +327,7 @@ public class DeliveryReportGenerator {
 			if (packet.getState() > OrderState.FINISHED) {
 				continue;
 			}
-			registerItems(reportItemMap, packet.getUnitLoad(), packet, false);
+			registerItems(reportItemMap, packet.getUnitLoad(), packet, false, true);
 		}
 
 		for (DeliveryReportDto item : reportItemMap.values()) {
@@ -396,9 +396,14 @@ public class DeliveryReportGenerator {
 	}
 
 	private void registerItems(Map<String, DeliveryReportDto> itemMap, UnitLoad unitLoad, Packet packet,
-			boolean separateUnitLoad) {
+			boolean separateUnitLoad, boolean registerEmptyUnitLoad) {
 		PickingOrder pickingOrder = null;
 		DeliveryOrder deliveryOrder = null;
+
+		List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
+		if (stocksOnUnitLoad.size() == 0 && !registerEmptyUnitLoad) {
+			return;
+		}
 
 		String baseKey = "";
 		UnitLoad registerUnitLoad = null;
@@ -413,7 +418,6 @@ public class DeliveryReportGenerator {
 			deliveryOrder = packet.getDeliveryOrder();
 		}
 
-		List<StockUnit> stocksOnUnitLoad = stockUnitService.readByUnitLoad(unitLoad);
 		for (StockUnit stock : stocksOnUnitLoad) {
 
 			String key = baseKey + "-" + stock.getItemData().getId();
