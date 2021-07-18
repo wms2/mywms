@@ -227,15 +227,16 @@ public class Wms2SetupService extends ModuleSetup {
 		}
 
 		logger.info("Create Sequences...");
-		sequeceBusiness.createNotExisting(GoodsReceipt.class.getSimpleName(), "WE-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(Advice.class.getSimpleName(), "AVIS-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(UnitLoad.class.getSimpleName(), "%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(PickingOrder.class.getSimpleName(), "PICK-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(DeliveryOrder.class.getSimpleName(), "ORDER-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(TransportOrder.class.getSimpleName(), "TR-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(ShippingOrder.class.getSimpleName(), "GOUT-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting(ReplenishOrder.class.getSimpleName(), "REPL-%1$06d", 1L, 999999L);
-		sequeceBusiness.createNotExisting("StocktakingOrder", "IV-%1$06d", 1L, 999999L);
+		sequeceBusiness.createNotExisting("GoodsReceipt", translate("sequenceGoodsReceipt", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("Advice", translate("sequenceAdvice", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("UnitLoad", translate("sequenceUnitLoad", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("PickingOrder", translate("sequencePickingOrder", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("DeliveryOrder", translate("sequenceDeliveryOrder", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("TransportOrder", translate("sequenceTransportOrder", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("ShippingOrder", translate("sequenceShippingOrder", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("ReplenishOrder", translate("sequenceReplenishOrder", locale), 1L, 999999L);
+		sequeceBusiness.createNotExisting("StocktakingOrder", translate("sequenceStocktakingOrder", locale), 1L,
+				999999L);
 
 		logger.info("Create defaults...");
 		locationClusterService.getSystem();
