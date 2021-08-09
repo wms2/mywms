@@ -22,6 +22,7 @@ package de.wms2.mywms.replenish;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -397,7 +398,10 @@ public class ReplenishBusiness {
 				}
 				if (inventoryBusiness.isSummableItem(sourceStockUnit, sourceStockUnit.getAmount(), addToStock,
 						addToStock.getAmount())) {
+					Date strategyDate = sourceStockUnit.getStrategyDate();
 					inventoryBusiness.transferStock(addToStock, sourceStockUnit, null, activityCode, operator, null);
+					inventoryBusiness.transferReservation(addToStock, sourceStockUnit);
+					sourceStockUnit.setStrategyDate(strategyDate);
 				}
 			}
 
