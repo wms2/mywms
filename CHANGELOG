@@ -477,6 +477,8 @@ Release 2.7
     - Table GoodsReceiptLine got new attribute: packagingUnit
     - Table OrderStrategy got new attribute: completeHandling. And lost attribute: completeOnly
 
+
+
 Release 2.8
 -----------
 
@@ -489,8 +491,8 @@ Release 2.8
     -------------------------------------------------------------------------------
     - Renamed default sequence names
     - Setup of default zone flow
-    - Added more demo data
     - Locale in setup defaults to local locale
+    - Extended demodata setup
 
     Technical changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
@@ -498,6 +500,8 @@ Release 2.8
 
     Bugfixes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
+    - Replenish process with complete unit loads did not handle reservations and strategy date
+    - Do not allow negative reservation amounts
 
 
     Database changes

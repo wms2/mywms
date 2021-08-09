@@ -140,6 +140,9 @@ public class StockUnit extends BasicClientAssignedEntity {
 	@Transient
 	public void releaseReservedAmount(BigDecimal amount) {
 		this.reservedAmount = this.reservedAmount.subtract(amount);
+		if (this.reservedAmount.compareTo(BigDecimal.ZERO) < 0) {
+			this.reservedAmount = BigDecimal.ZERO;
+		}
 	}
 
 	@Transient
