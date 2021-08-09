@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 4.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Contentlist" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="528" leftMargin="40" rightMargin="27" topMargin="40" bottomMargin="40" uuid="4aae5819-b92d-40bb-94e0-f946023c237a">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -36,7 +36,6 @@
 	</title>
 	<pageHeader>
 		<band height="130" splitType="Stretch">
-			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<textField isBlankWhenNull="true">
 				<reportElement x="420" y="70" width="108" height="16" uuid="a93ba24f-83ea-444d-ae61-ad086ca08e90">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
@@ -69,7 +68,8 @@
 				<textElement verticalAlignment="Bottom">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$R{Contentlist.orderNumber}+":"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{deliveryOrder}==null?$P{pickingOrder}==null?"":$R{Contentlist.pickingOrderNumber}+":":$R{Contentlist.deliveryOrderNumber}+":"
+]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="370" y="86" width="90" height="16" uuid="5cd52445-cbf8-4fbe-990d-7df684a06e58">
@@ -124,7 +124,6 @@
 	</pageHeader>
 	<columnHeader>
 		<band height="26" splitType="Stretch">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField isBlankWhenNull="true">
 				<reportElement x="37" y="0" width="70" height="16" uuid="6f691ee1-6fc3-41cd-a63a-3479bf2816ed"/>
 				<textElement verticalAlignment="Middle">
@@ -162,7 +161,7 @@
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{itemData}==null?"":$F{itemData}.getNumber()]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="140" y="0" width="270" height="14" uuid="d04b2b5c-fa2c-4b90-9e60-ddf225db57cc">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
@@ -182,7 +181,6 @@
 			</textField>
 		</band>
 		<band height="16">
-			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<printWhenExpression><![CDATA[$F{type}=="3-LOT"]]></printWhenExpression>
 			<textField>
 				<reportElement stretchType="RelativeToTallestObject" x="140" y="0" width="320" height="16" uuid="216ff331-db19-485a-8db9-c2ccd2125424">
@@ -195,7 +193,6 @@
 			</textField>
 		</band>
 		<band height="16">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<printWhenExpression><![CDATA[$F{type}=="6-SERIAL"]]></printWhenExpression>
 			<textField>
 				<reportElement x="140" y="0" width="320" height="16" uuid="f1b4a29d-f449-4e60-838e-3ad77a7ce313">
