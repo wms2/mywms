@@ -175,19 +175,19 @@ public class DemoDataGenerator {
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
 		euroUnitLoadType.setUseFor(UnitLoadTypeUsages.PACKING, true);
 		unitLoadTypeService.setDefault(euroUnitLoadType);
-		UnitLoadType box60UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox6040", locale), 0.3, 0.6, 0.4,
-				20, 0.5);
+		UnitLoadType box60UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox6040", locale), 0.3, 0.6, 0.4, 20,
+				0.5);
 		box60UnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
-		UnitLoadType box30UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox3040", locale), 0.3, 0.3, 0.4,
-				15, 0.3);
+		UnitLoadType box30UnitLoadType = createUnitLoadType(translate("unitLoadTypeBox3040", locale), 0.3, 0.3, 0.4, 15,
+				0.3);
 		box30UnitLoadType.setUseFor(UnitLoadTypeUsages.STORAGE, true);
-		UnitLoadType cartonUnitLoadTypeA = createUnitLoadType(translate("unitLoadTypeCartonA", locale), 0.15, 0.25, 0.35,
-				34, 0.2);
+		UnitLoadType cartonUnitLoadTypeA = createUnitLoadType(translate("unitLoadTypeCartonA", locale), 0.18, 0.25,
+				0.35, 12, 0.2);
 		cartonUnitLoadTypeA.setUseFor(UnitLoadTypeUsages.PACKING, true);
 		cartonUnitLoadTypeA.setUseFor(UnitLoadTypeUsages.SHIPPING, true);
 		cartonUnitLoadTypeA.setUseFor(UnitLoadTypeUsages.PICKING, true);
-		UnitLoadType cartonUnitLoadTypeB = createUnitLoadType(translate("unitLoadTypeCartonB", locale), 0.30, 0.35, 0.5,
-				34, 0.2);
+		UnitLoadType cartonUnitLoadTypeB = createUnitLoadType(translate("unitLoadTypeCartonB", locale), 0.35, 0.4, 0.6,
+				30, 0.3);
 		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.PACKING, true);
 		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.SHIPPING, true);
 		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.PICKING, true);
@@ -268,7 +268,7 @@ public class DemoDataGenerator {
 					String paintTypeName = translate("paintType" + type, locale);
 					String paintEanCode = "41248" + eanCounter;
 					paintEanCode += checkDigitService.calculateCheckDigit(paintEanCode, "modulo10");
-					double depth = (paint < 6? 0.12:0.24);
+					double depth = (paint < 6 ? 0.12 : 0.24);
 					itemData = createItemData(systemClient, "" + paintNumber,
 							paintTypeName + " " + printerName + " " + paintName, paintTypeName, defaultUnit, false,
 							false, aZone, box60UnitLoadType, paintEanCode, 0.05, 0.1, depth, 0.1);
@@ -279,29 +279,29 @@ public class DemoDataGenerator {
 
 		String paperTypeName = translate("productTypePaper", locale);
 		ItemData paper1 = createItemData(systemClient, "56942315", translate("paper0", locale), paperTypeName, packUnit,
-				false, false, aZone, euroUnitLoadType, "4124467890123", 0.05, 0.22, 0.3, 2.7);
+				false, false, aZone, euroUnitLoadType, "4124467890123", 0.05, 0.22, 0.3, 2.6);
 		papers.add(paper1);
-		createPackaging(paper1, translate("unitCarton", locale), 5);
+		createPackaging(paper1, translate("unitCarton", locale), 5, "4124467890131");
 		ItemData paper2 = createItemData(systemClient, "56944711", translate("paper1", locale), paperTypeName, packUnit,
-				false, false, aZone, euroUnitLoadType, "4124467890711", 0.06, 0.22, 0.3, 3.5);
+				false, false, aZone, euroUnitLoadType, "4124467890711", 0.06, 0.22, 0.3, 3.8);
 		papers.add(paper2);
-		createPackaging(paper2, translate("unitCarton", locale), 5);
+		createPackaging(paper2, translate("unitCarton", locale), 5, "4124467890745");
 
 		String screwTypeName = translate("productTypeScrew", locale);
 		ItemData screw1 = createItemData(systemClient, "65540321", translate("screw0", locale), screwTypeName, gramUnit,
 				false, false, aZone, box60UnitLoadType, null, 0.02, 0.01, 0.01, 0.001);
 		screws.add(screw1);
-		createPackaging(screw1, translate("unitCarton", locale), 100);
+		createPackaging(screw1, translate("unitCarton", locale), 100, "4124467890843");
 		ItemData screw2 = createItemData(systemClient, "65544342", translate("screw1", locale), screwTypeName, gramUnit,
 				false, false, aZone, box60UnitLoadType, null, 0.02, 0.01, 0.01, 0.001);
 		screws.add(screw2);
-		createPackaging(screw2, translate("unitCarton", locale), 150);
+		createPackaging(screw2, translate("unitCarton", locale), 150, "4124467890861");
 		manager.flush();
 		manager.clear();
 
 		log.info("Create FixedLocations...");
-		createFixLocation("F1-011-1", paper1, 1, 400);
-		createFixLocation("F1-012-1", paper2, 1, 400);
+		createFixLocation("F1-011-1", paper1, 201, 400);
+		createFixLocation("F1-013-1", paper2, 11, 210);
 		manager.flush();
 		manager.clear();
 
@@ -309,6 +309,7 @@ public class DemoDataGenerator {
 		int unitLoadNumber = 0;
 
 		createStock(systemClient, "F1-011-1", paper1, 200, "F1-011-1", null, translate("unitCarton", locale));
+		createStock(systemClient, "F1-013-1", paper2, 7, "F1-013-1", null, translate("unitCarton", locale));
 
 		Iterator<StorageLocation> locations = palletLocations.iterator();
 		int numPalletStocks = 0;
@@ -377,23 +378,25 @@ public class DemoDataGenerator {
 		log.info("Create Goods In...");
 		createAdvice(systemClient, new ItemDataAmount(printers.get(0), 16), new ItemDataAmount(printers.get(1), 16));
 		createAdvice(systemClient, new ItemDataAmount(papers.get(0), 2000), new ItemDataAmount(papers.get(1), 2000));
-		createAdvice(systemClient, new ItemDataAmount(paints.get(0), 572), new ItemDataAmount(paints.get(1), 572));
-		createAdvice(systemClient, new ItemDataAmount(paints.get(2), 572), new ItemDataAmount(paints.get(3), 572),
-				new ItemDataAmount(paints.get(4), 572), new ItemDataAmount(paints.get(5), 572));
+		createAdvice(systemClient, new ItemDataAmount(paints.get(0), 120), new ItemDataAmount(paints.get(1), 120));
+		createAdvice(systemClient, new ItemDataAmount(paints.get(2), 120), new ItemDataAmount(paints.get(3), 120),
+				new ItemDataAmount(paints.get(4), 120), new ItemDataAmount(paints.get(5), 120));
 
 		log.info("Create Goods Out...");
 		createDeliveryOrder(systemClient, locale, new ItemDataAmount(printers.get(0), 1));
 		createDeliveryOrder(systemClient, locale, new ItemDataAmount(printers.get(0), 1),
-				new ItemDataAmount(papers.get(0), 1));
+				new ItemDataAmount(papers.get(0), 2));
 		createDeliveryOrder(systemClient, locale, new ItemDataAmount(printers.get(1), 1),
-				new ItemDataAmount(papers.get(0), 1));
+				new ItemDataAmount(papers.get(0), 2), new ItemDataAmount(paints.get(0), 2));
 		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 2),
 				new ItemDataAmount(paints.get(0), 1));
-		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 5),
+		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 2),
 				new ItemDataAmount(paints.get(1), 2));
-		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 5),
+		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 3),
 				new ItemDataAmount(paints.get(9), 1), new ItemDataAmount(paints.get(12), 1),
 				new ItemDataAmount(paints.get(13), 1), new ItemDataAmount(paints.get(14), 1));
+		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(0), 10));
+		createDeliveryOrder(systemClient, locale, new ItemDataAmount(papers.get(1), 3));
 
 		log.info("Done. duration=" + (System.currentTimeMillis() - start));
 	}
@@ -518,10 +521,18 @@ public class DemoDataGenerator {
 		return itemData;
 	}
 
-	private PackagingUnit createPackaging(ItemData itemData, String name, double amount) throws BusinessException {
+	private PackagingUnit createPackaging(ItemData itemData, String name, double amount, String ean)
+			throws BusinessException {
 		PackagingUnit packagingUnit = packagingService.read(itemData, name);
 		if (packagingUnit == null) {
 			packagingUnit = packagingService.create(itemData, name, BigDecimal.valueOf(amount));
+			if (!StringUtils.isBlank(ean)) {
+				ItemDataNumber existingEan = eanService.read(itemData, ean);
+				if (existingEan == null) {
+					ItemDataNumber itemDataNumber = eanService.create(itemData, ean);
+					itemDataNumber.setPackagingUnit(packagingUnit);
+				}
+			}
 		}
 		return packagingUnit;
 	}
