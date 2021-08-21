@@ -697,7 +697,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 
 		// Not all finished counting record mean, that everything is counted.
 		// There may be empty unit loads. In this case the state will be set to counted
-		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null);
+		List<UnitLoad> ulList = unitLoadService.readList(null, sl, null, null, true, null, null);
 		if( ulList.size()>0 ) {
 			log.info("There are empty unit loads on location " + so.getLocationName()  );
 			allFinished = false;
@@ -1074,7 +1074,7 @@ public class LOSStockTakingProcessCompBean implements LOSStockTakingProcessComp 
 			}
 		} 
 		
-		List<UnitLoad> ulList = unitLoadService.readList(null, sl, true, null, null);
+		List<UnitLoad> ulList = unitLoadService.readList(null, sl, null, null, true, null, null);
 		for( UnitLoad ul : ulList ) {
 
 			if (!ulLabelRecMap.containsKey(ul.getLabelId())) {

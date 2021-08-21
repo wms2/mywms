@@ -47,6 +47,12 @@ public class LocationType extends BasicEntity {
 	@Column(nullable = true, precision = 16, scale = 3)
 	private BigDecimal liftingCapacity;
 
+	@Column(nullable = true, precision = 16, scale = 3)
+	private BigDecimal fieldLiftingCapacity;
+
+	@Column(nullable = true, precision = 16, scale = 3)
+	private BigDecimal sectionLiftingCapacity;
+
 	@Column(nullable = false)
 	private int handlingFlag = 0;
 
@@ -112,6 +118,22 @@ public class LocationType extends BasicEntity {
 
 	public void setHandlingFlag(int handlingFlag) {
 		this.handlingFlag = handlingFlag;
+	}
+
+	public BigDecimal getFieldLiftingCapacity() {
+		return fieldLiftingCapacity;
+	}
+
+	public void setFieldLiftingCapacity(BigDecimal fieldLiftingCapacity) {
+		this.fieldLiftingCapacity = fieldLiftingCapacity;
+	}
+
+	public BigDecimal getSectionLiftingCapacity() {
+		return sectionLiftingCapacity;
+	}
+
+	public void setSectionLiftingCapacity(BigDecimal sectionLiftingCapacity) {
+		this.sectionLiftingCapacity = sectionLiftingCapacity;
 	}
 
 }

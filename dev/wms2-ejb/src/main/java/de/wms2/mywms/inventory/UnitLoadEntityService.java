@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
 
 import de.wms2.mywms.client.ClientBusiness;
@@ -88,7 +89,21 @@ public class UnitLoadEntityService {
 	}
 
 	public List<UnitLoad> readByLocation(StorageLocation location) {
-		return readList(null, location, null, null, null);
+		return readList(null, location, null, null, null, null, null);
+	}
+
+	public List<UnitLoad> readByField(String field) {
+		if (StringUtils.isBlank(field)) {
+			return new ArrayList<>();
+		}
+		return readList(null, null, field, null, null, null, null);
+	}
+
+	public List<UnitLoad> readBySection(String section) {
+		if (StringUtils.isBlank(section)) {
+			return new ArrayList<>();
+		}
+		return readList(null, null, null, section, null, null, null);
 	}
 
 	public boolean existsByLabel(String label) {
@@ -124,14 +139,20 @@ public class UnitLoadEntityService {
 	 * optional.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<UnitLoad> readList(Client client, StorageLocation location, Boolean emptyUnitLoad, Integer minState,
-			Integer maxState) {
+	public List<UnitLoad> readList(Client client, StorageLocation location, String field, String section,
+			Boolean emptyUnitLoad, Integer minState, Integer maxState) {
 		String hql = "SELECT entity FROM " + UnitLoad.class.getName() + " entity WHERE 1=1";
 		if (client != null) {
 			hql += " and entity.client=:client";
 		}
 		if (location != null) {
 			hql += " and entity.storageLocation=:location";
+		}
+		if (!StringUtils.isBlank(field)) {
+			hql += " and entity.storageLocation.field=:field";
+		}
+		if (!StringUtils.isBlank(section)) {
+			hql += " and entity.storageLocation.section=:section";
 		}
 		if (emptyUnitLoad != null && emptyUnitLoad.booleanValue()) {
 			hql += " and not exists(select 1 from " + StockUnit.class.getSimpleName()
@@ -155,6 +176,12 @@ public class UnitLoadEntityService {
 		}
 		if (location != null) {
 			query.setParameter("location", location);
+		}
+		if (!StringUtils.isBlank(field)) {
+			query.setParameter("field", field);
+		}
+		if (!StringUtils.isBlank(section)) {
+			query.setParameter("section", section);
 		}
 		if (minState != null) {
 			query.setParameter("minState", minState);

@@ -111,7 +111,7 @@ public class InventoryBusiness {
 	private ClientBusiness clientBusiness;
 
 	public void cleanupDeleted() throws BusinessException {
-		List<UnitLoad> unitLoads = unitLoadService.readList(null, null, null, StockState.DELETABLE, null);
+		List<UnitLoad> unitLoads = unitLoadService.readList(null, null, null, null, null, StockState.DELETABLE, null);
 		for (UnitLoad unitLoad : unitLoads) {
 			trashHandler.removeUnitLoad(unitLoad);
 		}

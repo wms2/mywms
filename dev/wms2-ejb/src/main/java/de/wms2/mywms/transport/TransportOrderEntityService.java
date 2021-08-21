@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -25,6 +25,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+
+import org.apache.commons.lang3.StringUtils;
 
 import de.wms2.mywms.entity.PersistenceManager;
 import de.wms2.mywms.inventory.UnitLoad;
@@ -53,7 +55,7 @@ public class TransportOrderEntityService {
 	}
 
 	public TransportOrder readFirstOpen(UnitLoad unitLoad) {
-		List<TransportOrder> orders = readList(unitLoad, null, null, OrderState.FINISHED - 1);
+		List<TransportOrder> orders = readList(unitLoad, null, null, null, null, OrderState.FINISHED - 1);
 		if (!orders.isEmpty()) {
 			return orders.get(0);
 		}
@@ -61,11 +63,19 @@ public class TransportOrderEntityService {
 	}
 
 	public List<TransportOrder> readOpen(UnitLoad unitLoad) {
-		return readList(unitLoad, null, null, OrderState.FINISHED - 1);
+		return readList(unitLoad, null, null, null, null, OrderState.FINISHED - 1);
 	}
 
 	public List<TransportOrder> readOpen(StorageLocation destination) {
-		return readList(null, destination, null, OrderState.FINISHED - 1);
+		return readList(null, destination, null, null, null, OrderState.FINISHED - 1);
+	}
+
+	public List<TransportOrder> readOpenByField(String field) {
+		return readList(null, null, field, null, null, OrderState.FINISHED - 1);
+	}
+
+	public List<TransportOrder> readOpenBySection(String section) {
+		return readList(null, null, null, section, null, OrderState.FINISHED - 1);
 	}
 
 	/**
@@ -78,7 +88,7 @@ public class TransportOrderEntityService {
 	 * @param stateMax    Optional
 	 */
 	@SuppressWarnings("unchecked")
-	public List<TransportOrder> readList(UnitLoad unitLoad, StorageLocation destination, Integer stateMin,
+	public List<TransportOrder> readList(UnitLoad unitLoad, StorageLocation destination, String field, String section, Integer stateMin,
 			Integer stateMax) {
 
 		String jpql = " SELECT entity FROM " + TransportOrder.class.getName() + " entity ";
@@ -88,6 +98,12 @@ public class TransportOrderEntityService {
 		}
 		if (destination != null) {
 			jpql += " and entity.destinationLocation=:destinationLocation";
+		}
+		if (!StringUtils.isBlank(field)) {
+			jpql += " and entity.destinationLocation.field=:field";
+		}
+		if (!StringUtils.isBlank(section)) {
+			jpql += " and entity.destinationLocation.section=:section";
 		}
 		if (stateMin != null) {
 			jpql += " and entity.state>=:stateMin";
@@ -103,6 +119,12 @@ public class TransportOrderEntityService {
 		}
 		if (destination != null) {
 			query.setParameter("destinationLocation", destination);
+		}
+		if (!StringUtils.isBlank(field)) {
+			query.setParameter("field", field);
+		}
+		if (!StringUtils.isBlank(section)) {
+			query.setParameter("section", section);
 		}
 		if (stateMin != null) {
 			query.setParameter("stateMin", stateMin);

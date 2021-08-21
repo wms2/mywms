@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2020 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -87,7 +87,7 @@ public class TransportBusiness {
 		String logStr = "cleanupDeleted ";
 		logger.log(Level.FINE, logStr);
 
-		List<TransportOrder> transportOrders = transportOrderEntityService.readList(null, null, OrderState.DELETABLE,
+		List<TransportOrder> transportOrders = transportOrderEntityService.readList(null, null, null, null, OrderState.DELETABLE,
 				null);
 		for (TransportOrder transportOrder : transportOrders) {
 			trashHandler.removeTransportOrder(transportOrder);

@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -407,37 +407,25 @@ public class LocationFinderBean implements LocationFinder {
 					rack, unitLoadWeight, pickingOnly, nearPositionX, queryOffset);
 
 			for (StorageLocation location : locationList) {
-
 				logger.log(Level.FINE, logStr + "check location=" + location);
 
 				// Check weight
-				BigDecimal loadCapacity = location.getLocationType().getLiftingCapacity();
-				if (loadCapacity != null && loadCapacity.compareTo(BigDecimal.ZERO) > 0) {
-
-					BigDecimal locationWeight = (unitLoadWeight == null ? BigDecimal.ZERO : unitLoadWeight);
-					List<UnitLoad> locationsUnitLoads = unitLoadService.readByLocation(location);
-					for (UnitLoad ulLoc : locationsUnitLoads) {
-						if (ulLoc.getWeight() != null) {
-							locationWeight = locationWeight.add(ulLoc.getWeight());
-						}
-					}
-
-					if (BigDecimal.ZERO.compareTo(location.getAllocation()) < 0) {
-						List<TransportOrder> relocateOrders = relocateOrderService.readOpen(location);
-						for (TransportOrder relocateOrder : relocateOrders) {
-							UnitLoad relocateUnitLoad = relocateOrder.getUnitLoad();
-							if (!unitLoad.equals(relocateUnitLoad)) {
-								BigDecimal relocateWeight = readUnitLoadWeight(relocateUnitLoad);
-								if (relocateWeight != null) {
-									locationWeight = locationWeight.add(relocateWeight);
-								}
-							}
-						}
-					}
-					if (locationWeight.compareTo(loadCapacity) > 0) {
-						logger.log(Level.FINE, logStr + "Too much weight for location. location=" + location);
-						continue;
-					}
+				if (!checkWeight(unitLoad, location.getLocationType().getLiftingCapacity(),
+						unitLoadService.readByLocation(location), relocateOrderService.readOpen(location))) {
+					logger.log(Level.FINE, logStr + "Location weight exceeded. location=" + location);
+					continue;
+				}
+				if (!checkWeight(unitLoad, location.getLocationType().getFieldLiftingCapacity(),
+						unitLoadService.readByField(location.getField()),
+						relocateOrderService.readOpenByField(location.getField()))) {
+					logger.log(Level.FINE, logStr + "Field weight exceeded. field=" + location.getField());
+					continue;
+				}
+				if (!checkWeight(unitLoad, location.getLocationType().getSectionLiftingCapacity(),
+						unitLoadService.readBySection(location.getSection()),
+						relocateOrderService.readOpenBySection(location.getSection()))) {
+					logger.log(Level.FINE, logStr + "Section weight exceeded. section=" + location.getSection());
+					continue;
 				}
 
 				if (!locationReserver.checkAllocateLocation(location, unitLoad, true, false)) {
@@ -486,6 +474,40 @@ public class LocationFinderBean implements LocationFinder {
 		}
 
 		return null;
+	}
+
+	private boolean checkWeight(UnitLoad unitLoad, BigDecimal maxWeight, Collection<UnitLoad> unitLoadsOnSection,
+			Collection<TransportOrder> transportsToSection) {
+		if (unitLoad.getWeight() == null) {
+			return true;
+		}
+
+		BigDecimal sumdWeight = unitLoad.getWeight();
+		for (UnitLoad unitLoadOnSection : unitLoadsOnSection) {
+			if (unitLoadOnSection.equals(unitLoad)) {
+				continue;
+			}
+			if (unitLoadOnSection.getWeight() != null) {
+				sumdWeight = sumdWeight.add(unitLoadOnSection.getWeight());
+			}
+		}
+
+		for (TransportOrder transportToSection : transportsToSection) {
+			UnitLoad transportUnitLoad = transportToSection.getUnitLoad();
+			if (transportUnitLoad == null || transportUnitLoad.equals(unitLoad)) {
+				continue;
+			}
+			BigDecimal relocateWeight = readUnitLoadWeight(transportUnitLoad);
+			if (relocateWeight != null) {
+				sumdWeight = sumdWeight.add(relocateWeight);
+			}
+		}
+		if (sumdWeight.compareTo(maxWeight) > 0) {
+			logger.log(Level.FINE, "Weight exceeded. sumdWeight=" + sumdWeight + ", maxWeight=" + maxWeight);
+			return false;
+		}
+
+		return true;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -549,6 +571,8 @@ public class LocationFinderBean implements LocationFinder {
 		// Details will be checked later on.
 		if (weight != null) {
 			jpql += " AND (locationType.liftingCapacity is null or locationType.liftingCapacity >= :weight) ";
+			jpql += " AND (locationType.fieldLiftingCapacity is null or locationType.fieldLiftingCapacity >= :weight) ";
+			jpql += " AND (locationType.sectionLiftingCapacity is null or locationType.sectionLiftingCapacity >= :weight) ";
 		}
 
 		// Search only the given zones

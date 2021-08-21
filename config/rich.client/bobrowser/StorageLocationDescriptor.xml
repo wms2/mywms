@@ -122,7 +122,7 @@
             </value>
         </entry>
         <entry>
-            <key>fieldIndex</key>
+            <key>section</key>
             <value>
                 <group>
                     <name>main</name>
@@ -132,13 +132,23 @@
             </value>
         </entry>
         <entry>
-            <key>orderIndex</key>
+            <key>fieldIndex</key>
             <value>
                 <group>
                     <name>main</name>
                 </group>
                 <hidden>false</hidden>
                 <position>26</position>
+            </value>
+        </entry>
+        <entry>
+            <key>orderIndex</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>false</hidden>
+                <position>27</position>
             </value>
         </entry>
         <entry>

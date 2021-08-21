@@ -36,7 +36,6 @@ import javax.persistence.Transient;
 import org.mywms.model.BasicClientAssignedEntity;
 
 import de.wms2.mywms.inventory.UnitLoad;
-import de.wms2.mywms.strategy.TypeCapacityConstraint;
 import de.wms2.mywms.strategy.Zone;
 
 /**
@@ -125,6 +124,11 @@ public class StorageLocation extends BasicClientAssignedEntity {
 	 * The place between two rack stands
 	 */
 	private String field;
+
+	/**
+	 * An optional field to group locations
+	 */
+	private String section;
 
 	@Column(nullable = false)
 	private int allocationState = 0;
@@ -337,4 +341,13 @@ public class StorageLocation extends BasicClientAssignedEntity {
 	public void setUnitLoads(List<UnitLoad> unitLoads) {
 		this.unitLoads = unitLoads;
 	}
+
+	public String getSection() {
+		return section;
+	}
+
+	public void setSection(String section) {
+		this.section = section;
+	}
+
 }

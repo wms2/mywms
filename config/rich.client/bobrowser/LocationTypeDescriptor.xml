@@ -84,6 +84,26 @@
 				<position>10</position>
 			</value>
 		</entry>
+		<entry>
+			<key>fieldLiftingCapacity</key>
+			<value>
+				<group>
+					<name>measurement</name>
+				</group>
+				<hidden>false</hidden>
+				<position>11</position>
+			</value>
+		</entry>
+		<entry>
+			<key>sectionLiftingCapacity</key>
+			<value>
+				<group>
+					<name>measurement</name>
+				</group>
+				<hidden>false</hidden>
+				<position>12</position>
+			</value>
+		</entry>
 
     </descriptions>
 	<groups>

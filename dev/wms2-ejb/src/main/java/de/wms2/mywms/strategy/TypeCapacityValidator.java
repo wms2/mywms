@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import de.wms2.mywms.entity.EntityValidator;
 import de.wms2.mywms.entity.GenericEntityService;
 import de.wms2.mywms.exception.BusinessException;
-import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 /**
@@ -84,11 +83,5 @@ public class TypeCapacityValidator implements EntityValidator<TypeCapacityConstr
 
 	@Override
 	public void validateDelete(TypeCapacityConstraint entity) throws BusinessException {
-		String logStr = "validateDelete ";
-
-		if (entitySerivce.exists(StorageLocation.class, "currentTypeCapacityConstraint", entity)) {
-			logger.log(Level.INFO, logStr + "Entity is used by a LOSStorageLocation. entity=" + entity);
-			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByStorageLocation");
-		}
 	}
 }

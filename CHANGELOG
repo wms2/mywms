@@ -506,3 +506,31 @@ Release 2.8
 
     Database changes
     -------------------------------------------------------------------------------
+
+
+
+Release 2.9
+-----------
+
+    Main topics
+    -------------------------------------------------------------------------------
+    - Lifting capacities for rack-fields and -sections
+
+
+    Functional changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+    Technical changes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+
+
+    Bugfixes (for details and complete list have a look to the git repository)
+    -------------------------------------------------------------------------------
+    - Fixed error when deleting a capacity
+
+
+    Database changes
+    -------------------------------------------------------------------------------
+    Table StorageLocation got new attributes
+    Table LocationType got new attributes
+

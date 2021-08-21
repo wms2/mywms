@@ -70,6 +70,6 @@ public class QueryUnitLoadServiceBean
         	queryClient = null;
         }
 
-		return unitLoadService.readList(queryClient, sl, null, null, null);
+		return unitLoadService.readList(queryClient, sl, null, null, null, null, null);
 	}
 }

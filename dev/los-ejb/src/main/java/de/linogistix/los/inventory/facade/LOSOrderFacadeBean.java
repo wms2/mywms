@@ -349,7 +349,7 @@ public class LOSOrderFacadeBean implements LOSOrderFacade {
 		for( Packet pul : pickingUnitLoadSetRemovable ) {
 			UnitLoad ul = pul.getUnitLoad();
 
-			List<TransportOrder> storageList = transportOrderService.readList(ul, null, null, null);
+			List<TransportOrder> storageList = transportOrderService.readList(ul, null, null, null, null, null);
 			for( TransportOrder storageReq : storageList ) {
 				transportBusiness.removeUnitLoadReference(storageReq);
 			}
