@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -26,7 +26,7 @@ package de.wms2.mywms.strategy;
  *
  */
 public enum StorageStrategySortType {
-	CLIENT(0), ZONE(1), CAPACITY(2), ALLOCATION(3), POSITION_X(4), POSITION_Y(5), NAME(6), ORDERINDEX(7);
+	CLIENT(0), LAYER(1), ZONE(2), CAPACITY(3), ALLOCATION(4), POSITION_X(5), POSITION_Y(6), NAME(7), ORDERINDEX(8);
 
 	int intValue;
 

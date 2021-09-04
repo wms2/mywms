@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2021 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -30,7 +30,7 @@ import org.mywms.model.BasicEntity;
 public class StorageStrategyRichClientConverter extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
-	public final static int UNDEFINED = -1;
+	public final static int UNDEFINED = 0;
 	public final static int ORDER_BY_NAME = 1;
 	public final static int ORDER_BY_ZONE_NAME = 2;
 	public final static int ORDER_BY_ZONE_X_Y = 3;

@@ -20,6 +20,7 @@ package de.wms2.mywms.module;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -163,6 +164,7 @@ public class DemoDataGenerator {
 		defaultLocationType.setName(translate("locationTypePallet", locale));
 		locationTypeService.setDefault(defaultLocationType);
 		LocationType shelfLocationType = createLocationType(translate("locationTypeShelf", locale));
+		LocationType blockLocationType = createLocationType(translate("locationTypeBlock", locale));
 		LocationType systemLocationType = locationTypeService.getSystem();
 
 		log.info("Create UnitLoadTypes...");
@@ -202,6 +204,7 @@ public class DemoDataGenerator {
 		LocationCluster shelfCluster = createLocationCluster(translate("shelfstore", locale));
 		LocationCluster highbayCluster = createLocationCluster(translate("highbay", locale));
 		LocationCluster fixedCluster = createLocationCluster(translate("fixed", locale));
+		LocationCluster blockCluster = createLocationCluster(translate("blockStore", locale));
 
 		log.info("Create StorageLocations...");
 		Area storageArea = areaService.getDefault();
@@ -233,8 +236,8 @@ public class DemoDataGenerator {
 				createLocations(systemClient, storageArea, defaultLocationType, highbayCluster, aZone, "H3", 6, 3, 8));
 		highbayLocations.addAll(
 				createLocations(systemClient, storageArea, defaultLocationType, highbayCluster, aZone, "H4", 6, 3, 8));
-
 		createLocations(systemClient, storageArea, systemLocationType, fixedCluster, aZone, "F1", 2, 3, 2);
+		createLocations(systemClient, storageArea, blockLocationType, blockCluster, aZone, "B", 6, 1, 1);
 		manager.flush();
 		manager.clear();
 
@@ -311,6 +314,7 @@ public class DemoDataGenerator {
 		createStock(systemClient, "F1-011-1", paper1, 200, "F1-011-1", null, translate("unitCarton", locale));
 		createStock(systemClient, "F1-013-1", paper2, 7, "F1-013-1", null, translate("unitCarton", locale));
 
+		palletLocations.sort(new LocationComparator());
 		Iterator<StorageLocation> locations = palletLocations.iterator();
 		int numPalletStocks = 0;
 		for (ItemData itemData : printers) {
@@ -334,7 +338,14 @@ public class DemoDataGenerator {
 		// Adjust sequence to match manual generated unit load numbers
 		sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 
+		highbayLocations.sort(new LocationComparator());
 		locations = highbayLocations.iterator();
+		for (ItemData itemData : papers) {
+			for (int i = 0; i < 40; i++) {
+				createStock(systemClient, locations.next().getName(), itemData, 200,
+						String.format("%06d", ++unitLoadNumber), null, translate("unitCarton", locale));
+			}
+		}
 		for (ItemData itemData : printers) {
 			for (int i = 0; i < 4; i++) {
 				createStock(systemClient, locations.next().getName(), itemData, 8,
@@ -342,16 +353,10 @@ public class DemoDataGenerator {
 			}
 		}
 
-		for (ItemData itemData : papers) {
-			for (int i = 0; i < 40; i++) {
-				createStock(systemClient, locations.next().getName(), itemData, 200,
-						String.format("%06d", ++unitLoadNumber), null, translate("unitCarton", locale));
-			}
-		}
-
 		// Adjust sequence to match manual generated unit load numbers
 		sequenceBusiness.readNextValue(UnitLoad.class, "labelId");
 
+		shelfLocations.sort(new LocationComparator());
 		locations = shelfLocations.iterator();
 		int numShelfStocks = 0;
 		for (ItemData itemData : paints) {
@@ -471,13 +476,30 @@ public class DemoDataGenerator {
 			for (int posInField = 0; posInField < numPosInField; posInField++) {
 				xPos++;
 				for (int level = 0; level < numLevels; level++) {
-					String locationName = rackName + "-" + String.format("%1$02d", field + 1)
-							+ String.format("%1$01d", posInField + 1) + "-" + String.format("%1$01d", level + 1);
+					String fieldName = "";
+					String sectionName = "";
+					String locationName = rackName + "-" + String.format("%1$02d", field + 1);
+					if (numPosInField > 1) {
+						fieldName = locationName;
+						sectionName = locationName;
+						locationName += String.format("%1$01d", posInField + 1);
+					}
+					if (numLevels > 1) {
+						fieldName += "-" + String.format("%1$01d", level + 1);
+						locationName += "-" + String.format("%1$01d", level + 1);
+					}
+
 					StorageLocation location = locationService.readByName(locationName);
 					if (location == null) {
 						location = locationService.create(locationName, client, type, area, cluster);
 					}
 					location.setRack(rackName);
+					if (!StringUtils.isBlank(fieldName)) {
+						location.setField(fieldName);
+					}
+					if (!StringUtils.isBlank(sectionName)) {
+						location.setSection(sectionName);
+					}
 					location.setZone(zone);
 					location.setYPos(level + 1);
 					location.setXPos(xPos);
@@ -636,6 +658,31 @@ public class DemoDataGenerator {
 
 	private String translate(String key, Locale locale) {
 		return Translator.getString(Wms2BundleResolver.class, "Demo", key, "caption", locale);
+	}
+
+	private class LocationComparator implements Comparator<StorageLocation> {
+
+		@Override
+		public int compare(StorageLocation o1, StorageLocation o2) {
+			if (o1.getYPos() > o2.getYPos()) {
+				return 1;
+			}
+			if (o1.getYPos() < o2.getYPos()) {
+				return -1;
+			}
+			if (o1.getXPos() > o2.getXPos()) {
+				return 1;
+			}
+			if (o1.getXPos() < o2.getXPos()) {
+				return -1;
+			}
+			int i = StringUtils.compare(o1.getRack(), o2.getRack());
+			if (i != 0) {
+				return i;
+			}
+			return StringUtils.compare(o1.getName(), o2.getName());
+		}
+
 	}
 
 	private class ItemDataAmount {

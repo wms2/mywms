@@ -23,7 +23,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,7 +48,6 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
-import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.property.SystemPropertyBusiness;
@@ -85,8 +86,12 @@ public class LocationFinderBean implements LocationFinder {
 	private SystemPropertyBusiness systemPropertyBusiness;
 	@Inject
 	private ZoneEntityService zoneService;
+	@Inject
+	private StorageStrategyLayerEntityService storageStrategyLayerEntityService;
 
 	private static int QUERY_LIMIT = 30;
+	private Map<String, BigDecimal> fieldWeightBuffer;
+	private Map<String, BigDecimal> sectionWeightBuffer;
 
 	/**
 	 * Find a location where the stock can be added.<br>
@@ -279,8 +284,10 @@ public class LocationFinderBean implements LocationFinder {
 			zones = readZoneFlow(stocksOnUnitLoad, stockClient);
 		}
 
+		List<StorageStrategyLayer> layers = storageStrategyLayerEntityService.readByStorageStrategy(strategy);
+
 		location = findLocationInternal(clients, unitLoad, strategy, zones, unitLoadWeight, stocksOnUnitLoad, itemData,
-				pickingOnly, null);
+				pickingOnly, layers);
 		if (location != null) {
 			logger.log(Level.INFO, logStr + "Found location=" + location + ", unitload=" + unitLoad + ", time="
 					+ (new Date().getTime() - dateStart.getTime()));
@@ -337,14 +344,17 @@ public class LocationFinderBean implements LocationFinder {
 	private StorageLocation findLocationInternal(Collection<Client> clients, UnitLoad unitLoad,
 			StorageStrategy strategy, Collection<Zone> zones, BigDecimal unitLoadWeight,
 			Collection<StockUnit> stocksOnUnitLoad, ItemData itemData, boolean pickingOnly,
-			Collection<LocationCluster> locationClusters) throws BusinessException {
+			Collection<StorageStrategyLayer> strategyLayers) throws BusinessException {
 		String logStr = "findLocationInternal ";
 
 		logger.log(Level.FINE,
 				logStr + "clients=" + clients + ", unitLoad=" + unitLoad + ", strategy=" + strategy + ", zones=" + zones
 						+ ", unitLoadWeight=" + unitLoadWeight + ", itemData=" + itemData + ", pickingOnly="
-						+ pickingOnly + ", locationClusters=" + locationClusters + ", unitLoadType="
+						+ pickingOnly + ", strategyLayers=" + strategyLayers + ", unitLoadType="
 						+ unitLoad.getUnitLoadType());
+
+		fieldWeightBuffer = new HashMap<>();
+		sectionWeightBuffer = new HashMap<>();
 
 		StorageLocation location = null;
 
@@ -371,7 +381,7 @@ public class LocationFinderBean implements LocationFinder {
 			if (searchNearPositionX != null && !StringUtils.isBlank(searchInRack)) {
 				logger.log(Level.INFO, logStr + "Search near of picking location. itemData=" + itemData + ", location="
 						+ location + ", searchInRack=" + searchInRack + ", searchNearPositionX=" + searchNearPositionX);
-				location = findLocationInternal(clients, unitLoad, strategy, locationClusters, zones, searchInRack,
+				location = findLocationInternal(clients, unitLoad, strategy, strategyLayers, zones, searchInRack,
 						unitLoadWeight, stocksOnUnitLoad, itemData, pickingOnly, searchNearPositionX);
 				if (location != null) {
 					return location;
@@ -383,7 +393,7 @@ public class LocationFinderBean implements LocationFinder {
 			}
 		}
 
-		location = findLocationInternal(clients, unitLoad, strategy, locationClusters, zones, null, unitLoadWeight,
+		location = findLocationInternal(clients, unitLoad, strategy, strategyLayers, zones, null, unitLoadWeight,
 				stocksOnUnitLoad, itemData, pickingOnly, null);
 		if (location != null) {
 			return location;
@@ -393,38 +403,25 @@ public class LocationFinderBean implements LocationFinder {
 	}
 
 	private StorageLocation findLocationInternal(Collection<Client> clients, UnitLoad unitLoad,
-			StorageStrategy strategy, Collection<LocationCluster> locationClusters, Collection<Zone> zones, String rack,
-			BigDecimal unitLoadWeight, Collection<StockUnit> stocksOnUnitLoad, ItemData itemData, boolean pickingOnly,
-			Integer nearPositionX) throws BusinessException {
+			StorageStrategy strategy, Collection<StorageStrategyLayer> strategyLayers, Collection<Zone> zones,
+			String rack, BigDecimal unitLoadWeight, Collection<StockUnit> stocksOnUnitLoad, ItemData itemData,
+			boolean pickingOnly, Integer nearPositionX) throws BusinessException {
 		String logStr = "findLocationInternal ";
 		int queryOffset = 0;
+		int queryLimit = QUERY_LIMIT;
 
 		// Do not read all candidates in one query. Usually one of the first
 		// locations should be suitable
 		while (true) {
 
-			List<StorageLocation> locationList = readCandidates(clients, unitLoad, strategy, locationClusters, zones,
+			List<StorageLocation> locationList = readCandidates(clients, unitLoad, strategy, strategyLayers, zones,
 					rack, unitLoadWeight, pickingOnly, nearPositionX, queryOffset);
 
 			for (StorageLocation location : locationList) {
 				logger.log(Level.FINE, logStr + "check location=" + location);
 
 				// Check weight
-				if (!checkWeight(unitLoad, location.getLocationType().getLiftingCapacity(),
-						unitLoadService.readByLocation(location), relocateOrderService.readOpen(location))) {
-					logger.log(Level.FINE, logStr + "Location weight exceeded. location=" + location);
-					continue;
-				}
-				if (!checkWeight(unitLoad, location.getLocationType().getFieldLiftingCapacity(),
-						unitLoadService.readByField(location.getField()),
-						relocateOrderService.readOpenByField(location.getField()))) {
-					logger.log(Level.FINE, logStr + "Field weight exceeded. field=" + location.getField());
-					continue;
-				}
-				if (!checkWeight(unitLoad, location.getLocationType().getSectionLiftingCapacity(),
-						unitLoadService.readBySection(location.getSection()),
-						relocateOrderService.readOpenBySection(location.getSection()))) {
-					logger.log(Level.FINE, logStr + "Section weight exceeded. section=" + location.getSection());
+				if (!checkWeight(unitLoad, location)) {
 					continue;
 				}
 
@@ -467,67 +464,156 @@ public class LocationFinderBean implements LocationFinder {
 				return location;
 			}
 
-			if (locationList.size() < QUERY_LIMIT) {
+			if (locationList.size() < queryLimit) {
 				break;
 			}
-			queryOffset += QUERY_LIMIT;
+			queryOffset += queryLimit;
+			queryLimit += QUERY_LIMIT;
 		}
 
 		return null;
 	}
 
-	private boolean checkWeight(UnitLoad unitLoad, BigDecimal maxWeight, Collection<UnitLoad> unitLoadsOnSection,
-			Collection<TransportOrder> transportsToSection) {
-		if (unitLoad.getWeight() == null) {
+	private boolean checkWeight(UnitLoad unitLoad, StorageLocation location) {
+		String logStr = "checkWeight ";
+
+		if (location.getLocationType().getLiftingCapacity() == null
+				&& location.getLocationType().getFieldLiftingCapacity() == null
+				&& location.getLocationType().getSectionLiftingCapacity() == null) {
+			// No weight restriction set
 			return true;
 		}
 
-		BigDecimal sumdWeight = unitLoad.getWeight();
+		BigDecimal unitLoadWeight = readUnitLoadWeight(unitLoad);
+		if (unitLoadWeight == null) {
+			logger.log(Level.FINE, logStr + "Weight check passed. UnitLoad has no weight. unitLoad=" + unitLoad
+					+ ", location=" + location);
+			return true;
+		}
+
+		BigDecimal locationWeight = null;
+		BigDecimal fieldWeight = null;
+		BigDecimal sectionWeight = null;
+
+		if (location.getLocationType().getLiftingCapacity() != null) {
+			if (unitLoadWeight.compareTo(location.getLocationType().getLiftingCapacity()) > 0) {
+				logger.log(Level.FINE,
+						"Weight of location exceeded. unitLoad=" + unitLoad + ", location=" + location
+								+ ", weight of unitLoad=" + unitLoadWeight + ", lifting capacity="
+								+ location.getLocationType().getLiftingCapacity());
+				return false;
+			}
+
+			locationWeight = summarizeWeight(unitLoad, unitLoadService.readByLocation(location),
+					relocateOrderService.readOpen(location));
+			locationWeight = locationWeight.add(unitLoadWeight);
+			if (locationWeight.compareTo(location.getLocationType().getLiftingCapacity()) > 0) {
+				logger.log(Level.FINE,
+						"Weight of location exceeded. unitLoad=" + unitLoad + ", location=" + location
+								+ ", weight on location=" + locationWeight + ", lifting capacity="
+								+ location.getLocationType().getLiftingCapacity());
+				return false;
+			}
+		}
+
+		if (location.getLocationType().getFieldLiftingCapacity() != null && !StringUtils.isBlank(location.getField())) {
+			fieldWeight = fieldWeightBuffer.get(location.getField());
+			if (fieldWeight == null) {
+				fieldWeight = summarizeWeight(unitLoad, unitLoadService.readByField(location.getField()),
+						relocateOrderService.readOpenByField(location.getField()));
+				fieldWeightBuffer.put(location.getField(), fieldWeight);
+			}
+			fieldWeight = fieldWeight.add(unitLoadWeight);
+			if (fieldWeight.compareTo(location.getLocationType().getFieldLiftingCapacity()) > 0) {
+				logger.log(Level.FINE,
+						"Weight of field exceeded. unitLoad=" + unitLoad + ", location=" + location + ", field="
+								+ location.getField() + ", weight on field=" + fieldWeight + ", lifting capacity="
+								+ location.getLocationType().getFieldLiftingCapacity());
+				return false;
+			}
+		}
+
+		if (location.getLocationType().getSectionLiftingCapacity() != null
+				&& !StringUtils.isBlank(location.getSection())) {
+			sectionWeight = sectionWeightBuffer.get(location.getSection());
+			if (sectionWeight == null) {
+				sectionWeight = summarizeWeight(unitLoad, unitLoadService.readBySection(location.getSection()),
+						relocateOrderService.readOpenBySection(location.getSection()));
+				sectionWeightBuffer.put(location.getSection(), sectionWeight);
+			}
+			sectionWeight = sectionWeight.add(unitLoadWeight);
+			if (sectionWeight.compareTo(location.getLocationType().getSectionLiftingCapacity()) > 0) {
+				logger.log(Level.FINE,
+						"Weight of section exceeded. unitLoad=" + unitLoad + ", location=" + location + ", section="
+								+ location.getSection() + ", weight on section=" + sectionWeight + ", lifting capacity="
+								+ location.getLocationType().getSectionLiftingCapacity());
+				return false;
+			}
+		}
+
+		logger.log(Level.FINE,
+				logStr + "Weight check passed. unitLoad=" + unitLoad + ", location=" + location
+						+ ", weight on location=" + locationWeight + "/"
+						+ location.getLocationType().getLiftingCapacity() + ", weight on field=" + fieldWeight + "/"
+						+ location.getLocationType().getFieldLiftingCapacity() + ", weight on section=" + sectionWeight
+						+ "/" + location.getLocationType().getSectionLiftingCapacity());
+
+		return true;
+	}
+
+	// summarize all weights excluded the given unitLoad
+	private BigDecimal summarizeWeight(UnitLoad excludedUnitLoad, Collection<UnitLoad> unitLoadsOnSection,
+			Collection<TransportOrder> transportsToSection) {
+		BigDecimal sumWeight = BigDecimal.ZERO;
+
 		for (UnitLoad unitLoadOnSection : unitLoadsOnSection) {
-			if (unitLoadOnSection.equals(unitLoad)) {
+			if (unitLoadOnSection.equals(excludedUnitLoad)) {
 				continue;
 			}
 			if (unitLoadOnSection.getWeight() != null) {
-				sumdWeight = sumdWeight.add(unitLoadOnSection.getWeight());
+				sumWeight = sumWeight.add(unitLoadOnSection.getWeight());
 			}
 		}
 
 		for (TransportOrder transportToSection : transportsToSection) {
 			UnitLoad transportUnitLoad = transportToSection.getUnitLoad();
-			if (transportUnitLoad == null || transportUnitLoad.equals(unitLoad)) {
+			if (transportUnitLoad == null || transportUnitLoad.equals(excludedUnitLoad)) {
 				continue;
 			}
 			BigDecimal relocateWeight = readUnitLoadWeight(transportUnitLoad);
 			if (relocateWeight != null) {
-				sumdWeight = sumdWeight.add(relocateWeight);
+				sumWeight = sumWeight.add(relocateWeight);
 			}
 		}
-		if (sumdWeight.compareTo(maxWeight) > 0) {
-			logger.log(Level.FINE, "Weight exceeded. sumdWeight=" + sumdWeight + ", maxWeight=" + maxWeight);
-			return false;
-		}
 
-		return true;
+		return sumWeight;
 	}
 
 	@SuppressWarnings("unchecked")
 	private List<StorageLocation> readCandidates(Collection<Client> clients, UnitLoad unitLoad,
-			StorageStrategy strategy, Collection<LocationCluster> locationClusters, Collection<Zone> zones, String rack,
-			BigDecimal weight, boolean pickingOnly, Integer nearPositionX, int offset) throws BusinessException {
+			StorageStrategy strategy, Collection<StorageStrategyLayer> strategyLayers, Collection<Zone> zones,
+			String rack, BigDecimal weight, boolean pickingOnly, Integer nearPositionX, int offset)
+			throws BusinessException {
 		String logStr = "readCandidates ";
 		String paramLog = "";
+
+		boolean searchForStrategyLayer = hasClusters(strategyLayers);
 
 		String jpql = " SELECT location, allocationRule FROM ";
 		jpql += StorageLocation.class.getName() + " location ";
 		jpql += "left outer join location.zone as zone ";
 		jpql += "left join location.locationType as locationType ";
 		jpql += "left join location.area as area, ";
-		jpql += TypeCapacityConstraint.class.getName() + " allocationRule ";
+		jpql += TypeCapacityConstraint.class.getName() + " allocationRule";
+		if (searchForStrategyLayer) {
+			jpql += "," + StorageStrategyLayer.class.getSimpleName() + " strategyLayer";
+		}
 
-		// Search only the given clusters. If no clusters are given, search in
+		// Search only the given layers/clusters. If no layers are given, search in
 		// all clusters
-		if (locationClusters != null && !locationClusters.isEmpty()) {
-			jpql += " WHERE location.locationCluster in (:locationClusters) ";
+		if (searchForStrategyLayer) {
+			jpql += " where strategyLayer.storageStrategy=:strategy";
+			jpql += " and location.locationCluster member of strategyLayer.locationClusters";
 		} else {
 			jpql += " WHERE location.locationCluster is not null";
 		}
@@ -655,6 +741,10 @@ public class LocationFinderBean implements LocationFinder {
 					i++;
 				}
 				jpql += " else " + i + " end, ";
+			} else if (StringUtils.equals(orderby, StorageStrategySortType.LAYER.name())) {
+				if (searchForStrategyLayer) {
+					jpql += "strategyLayer.storageLayer, ";
+				}
 			} else {
 				logger.log(Level.WARNING, logStr + "Unknown order switch. sortType=" + orderby);
 			}
@@ -667,10 +757,11 @@ public class LocationFinderBean implements LocationFinder {
 
 		Query query = manager.createQuery(jpql);
 
-		if (locationClusters != null && !locationClusters.isEmpty()) {
-			query.setParameter("locationClusters", locationClusters);
-			paramLog += ", locationClusters=" + locationClusters;
+		if (searchForStrategyLayer) {
+			query.setParameter("strategy", strategy);
+			paramLog += ", storageStrategyLayer.strategy=" + strategy;
 		}
+
 		query.setParameter("unitLoadType", unitLoad.getUnitLoadType());
 		paramLog += ", unitLoadType=" + unitLoad.getUnitLoadType();
 
@@ -720,6 +811,15 @@ public class LocationFinderBean implements LocationFinder {
 
 		return locations;
 
+	}
+
+	private boolean hasClusters(Collection<StorageStrategyLayer> layers) {
+		for (StorageStrategyLayer layer : layers) {
+			if (!layer.getLocationClusters().isEmpty()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")

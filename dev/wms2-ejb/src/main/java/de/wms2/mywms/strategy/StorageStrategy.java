@@ -91,6 +91,12 @@ public class StorageStrategy extends BasicEntity {
 	 */
 	private boolean nearPickingLocation = false;
 
+	/**
+	 * New material is not stored in layers with a smaller id than material with an
+	 * older date.
+	 */
+	private boolean useLayerStrategyDate = false;
+
 	@Override
 	public String toString() {
 		if (name != null) {
@@ -177,6 +183,14 @@ public class StorageStrategy extends BasicEntity {
 
 	public void setNearPickingLocation(boolean nearPickingLocation) {
 		this.nearPickingLocation = nearPickingLocation;
+	}
+
+	public boolean isUseLayerStrategyDate() {
+		return useLayerStrategyDate;
+	}
+
+	public void setUseLayerStrategyDate(boolean useLayerStrategyDate) {
+		this.useLayerStrategyDate = useLayerStrategyDate;
 	}
 
 }

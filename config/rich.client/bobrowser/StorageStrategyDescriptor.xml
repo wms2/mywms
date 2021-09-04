@@ -83,6 +83,17 @@
         </entry>
 
         <entry>
+            <key>useLayerStrategyDate</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
+
+        <entry>
             <key>sorts</key>
             <value>
                 <group>

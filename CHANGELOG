@@ -515,10 +515,12 @@ Release 2.9
     Main topics
     -------------------------------------------------------------------------------
     - Lifting capacities for rack-fields and -sections
+    - Added usable location clusters as layers to storage strategy
 
 
     Functional changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
+
 
     Technical changes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
@@ -531,6 +533,7 @@ Release 2.9
 
     Database changes
     -------------------------------------------------------------------------------
-    Table StorageLocation got new attributes
-    Table LocationType got new attributes
-
+    - Table StorageLocation got new attributes
+    - Table LocationType got new attributes
+    - Table StorageStrategy got new attributes
+    - Added table StorageStrategyLayer
