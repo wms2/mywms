@@ -1048,7 +1048,11 @@
         <navigation-case>
             <from-outcome>GRD_ENTER_LOT</from-outcome>
             <to-view-id>/pages/processes/gr_direct/EnterLot.jsp</to-view-id>
-        </navigation-case>   
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>GRD_ENTER_LOTDATE</from-outcome>
+            <to-view-id>/pages/processes/gr_direct/EnterLotDate.jsp</to-view-id>
+        </navigation-case>
         <navigation-case>
             <from-outcome>GRD_ENTER_SERIAL</from-outcome>
             <to-view-id>/pages/processes/gr_direct/EnterSerial.jsp</to-view-id>
