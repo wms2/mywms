@@ -768,7 +768,9 @@ public class InventoryBusiness {
 		stockUnit.setAdditionalContent(note);
 		stockUnit.setState(state);
 		stockUnit.setPackagingUnit(packagingUnit);
-		unitLoad.setState(state);
+		if(unitLoad.getState()<state) {
+			unitLoad.setState(state);
+		}
 		if (bestBefore != null) {
 			stockUnit.setStrategyDate(bestBefore);
 		}
@@ -811,6 +813,15 @@ public class InventoryBusiness {
 
 		if (amount == null) {
 			amount = fromStock.getAmount();
+		}
+
+		if (fromStock.getState() != toStock.getState() && toAmount.compareTo(BigDecimal.ZERO) > 0) {
+			// Transfer from INCOMMING to ON_STOCK is allowed 
+			if (!(fromStock.getState() == StockState.INCOMING && toStock.getState() == StockState.ON_STOCK)) {
+				logger.log(Level.WARNING, logStr + "Different state of from- and to-stock. cannot combine. from-state="
+						+ fromStock.getState() + ", to-state=" + toStock.getState());
+				throw new BusinessException(Wms2BundleResolver.class, "Inventory.transferNotAllowed");
+			}
 		}
 
 		if (fromStock.getState() != toStock.getState() && toAmount.compareTo(BigDecimal.ZERO) > 0) {

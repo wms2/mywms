@@ -1160,7 +1160,8 @@ public class GRDirectBean extends BasicDialogBean {
 	
 	public String postMaterial( String targetLocName, String targetUlName ){
 		String logStr = "postMaterial ";
-		
+		log.info(logStr + "targetLocName=" + targetLocName + ", targetUlName=" + targetUlName);
+
 		if( currentItemData == null ) {
 			JSFHelper.getInstance().message( resolve("MsgMatNotValid") );
 			return "";
@@ -1204,6 +1205,7 @@ public class GRDirectBean extends BasicDialogBean {
 	
 	public String postAdvice( String targetLocName, String targetUlName ){
 		String logStr = "postAdvice ";
+		log.info(logStr + "targetLocName=" + targetLocName + ", targetUlName=" + targetUlName);
 		if( currentAdvice == null ) {
 			log.error(logStr+"Advice not loaded");
 			JSFHelper.getInstance().message( resolve("MsgAdviceNotLoaded") );
@@ -1355,7 +1357,9 @@ public class GRDirectBean extends BasicDialogBean {
 		if( currentGoodsReceipt == null ) {
 			return "";
 		}
-		
+		if( currentGoodsReceipt.getReceiptDate() == null ) {
+			return "";
+		}
 		return DateFormat.getDateInstance(DateFormat.SHORT, super.getLocale()).format(currentGoodsReceipt.getReceiptDate());
 
 	}

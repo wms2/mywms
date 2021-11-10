@@ -104,10 +104,10 @@ public class QueryGoodsReceiptServiceBean
 		
 		StringBuffer qstr = new StringBuffer();
         qstr.append("SELECT distinct new de.linogistix.los.inventory.service.dto.GoodsReceiptTO(");
-        qstr.append("gr.id, gr.goodsReceiptNumber, gr.forwarder, gr.deliveryNoteNumber) ");
+        qstr.append("gr.id, gr.orderNumber, gr.carrierName, gr.deliveryNoteNumber) ");
         qstr.append("FROM "+GoodsReceipt.class.getSimpleName()+" gr ");
         qstr.append(" join gr.adviceLines adv");
-        qstr.append(" WHERE ( gr.orderNumber like :code or gr.deliveryNoteNumber like :code or adv.externalNumber like :code or adv.orderNumber like :code or adv.itemData.number like :code or adv.itemData.id = ANY(");
+        qstr.append(" WHERE ( gr.orderNumber like :code or gr.deliveryNoteNumber like :code or adv.externalNumber like :code or adv.itemData.number like :code or adv.itemData.id = ANY(");
         qstr.append(" select idn.itemData.id from "+ItemDataNumber.class.getSimpleName()+" idn where idn.number like :code) ) ");
 
         if( limitAmountToNotified ) {

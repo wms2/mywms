@@ -346,7 +346,7 @@ public class GoodsReceiptBusiness {
 			if (unitLoad == null) {
 				unitLoad = inventoryBusiness.createUnitLoad(client, unitLoadLabel, unitLoadType, location,
 						StockState.INCOMING, activityCode, operator, note);
-			} else if (unitLoad.getState() != StockState.INCOMING) {
+			} else if (unitLoad.getState() > StockState.ON_STOCK) {
 				logger.log(Level.WARNING, logStr + "UnitLoad already exists. unitLoad=" + unitLoad);
 				throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.unitLoadAlreadyExists");
 			}
@@ -534,6 +534,34 @@ public class GoodsReceiptBusiness {
 		manager.remove(order);
 	}
 
+	public void checkRemoveGoodsReceiptLineWithStocks(GoodsReceiptLine goodsReceiptLine) throws BusinessException {
+		String logStr = "checkRemoveGoodsReceiptLineWithStocks ";
+		logger.log(Level.FINE, logStr + "line=" + goodsReceiptLine);
+
+		GoodsReceipt order = goodsReceiptLine.getGoodsReceipt();
+		if (order.getState() >= OrderState.FINISHED) {
+			logger.log(Level.WARNING, logStr + "Order already finished. order=" + order);
+			throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.orderAlreadyFinished");
+		}
+
+		StockUnit stock = null;
+		if (goodsReceiptLine.getStockUnitId() != null) {
+			stock = manager.find(StockUnit.class, goodsReceiptLine.getStockUnitId());
+		}
+		if (stock == null) {
+			logger.log(Level.FINE, logStr + "Cannot read stock unit. id=" + goodsReceiptLine.getStockUnitId());
+			throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.stockNotAvailable");
+		}
+
+		BigDecimal stockUnitAmount = stock.getAmount();
+		BigDecimal receiptAmount = goodsReceiptLine.getAmount();
+		if (stockUnitAmount.compareTo(receiptAmount) != 0) {
+			logger.log(Level.INFO, "Amount of stock unit is different to amount of goods receipt line. stockUnitAmount="
+					+ stockUnitAmount + ", receiptAmount=" + receiptAmount);
+			throw new BusinessException(Wms2BundleResolver.class, "GoodsReceipt.stockIsChanged");
+		}
+	}
+
 	public void removeGoodsReceiptLineWithStocks(GoodsReceiptLine goodsReceiptLine) throws BusinessException {
 		String logStr = "removeGoodsReceiptLineWithStocks ";
 		logger.log(Level.FINE, logStr + "line=" + goodsReceiptLine);
@@ -648,6 +676,7 @@ public class GoodsReceiptBusiness {
 
 	private void fireAdviceLineAssignEvent(AdviceLine entity) throws BusinessException {
 		try {
+			logger.fine("Fire AdviceLineAssignEvent. entity=" + entity);
 			adviceLineAssignEvent.fire(new AdviceLineAssignEvent(entity));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -661,6 +690,8 @@ public class GoodsReceiptBusiness {
 	private void fireGoodsReceiptLineDeletedEvent(GoodsReceiptLine goodsReceiptLine, AdviceLine adviceLine,
 			ItemData itemData, BigDecimal amount, UnitLoadType unitLoadType) throws BusinessException {
 		try {
+			logger.fine("Fire GoodsReceiptLineDeletedEvent. goodsReceiptLine=" + goodsReceiptLine + ", adviceLine="
+					+ adviceLine + ", itemData=" + itemData + ", amount=" + amount + ", unitLoadType=" + unitLoadType);
 			goodsReceiptLineDeletedEvent.fire(
 					new GoodsReceiptLineDeletedEvent(goodsReceiptLine, adviceLine, itemData, amount, unitLoadType));
 		} catch (ObserverException ex) {
@@ -674,6 +705,8 @@ public class GoodsReceiptBusiness {
 
 	private void fireGoodsReceiptStateChangeEvent(GoodsReceipt entity, int oldState) throws BusinessException {
 		try {
+			logger.fine("Fire GoodsReceiptStateChangeEvent. entity=" + entity + ", state=" + entity.getState() + ", oldState="
+					+ oldState);
 			goodsReceiptStateChangeEvent.fire(new GoodsReceiptStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -686,6 +719,8 @@ public class GoodsReceiptBusiness {
 
 	private void fireStockUnitStateChangeEvent(StockUnit entity, int oldState) throws BusinessException {
 		try {
+			logger.fine("Fire StockUnitStateChangeEvent. entity=" + entity + ", state=" + entity.getState() + ", oldState="
+					+ oldState);
 			stockUnitStateChangeEvent.fire(new StockUnitStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
@@ -698,6 +733,7 @@ public class GoodsReceiptBusiness {
 
 	private void fireGoodsReceiptLineCollectEvent(GoodsReceiptLine entity) throws BusinessException {
 		try {
+			logger.fine("Fire GoodsReceiptLineCollectEvent. entity=" + entity);
 			goodsReceiptLineCollectEvent.fire(new GoodsReceiptLineCollectEvent(entity));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();

@@ -532,6 +532,7 @@ Release 2.9
     Bugfixes (for details and complete list have a look to the git repository)
     -------------------------------------------------------------------------------
     - Fixed error when deleting a capacity
+    - Fixed error when filtering in mobile dialog 'Goods Receipt & Storage'
 
 
     Database changes
