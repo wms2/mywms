@@ -27,6 +27,8 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.mywms.model.BasicClientAssignedEntity;
 
@@ -86,6 +88,9 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 	private OrderStrategy orderStrategy;
 
 	private String pickedLotNumber;
+
+	@Temporal(TemporalType.DATE)
+	private Date pickedBestBefore;
 
 	/**
 	 * A hint for picking operation
@@ -281,6 +286,14 @@ public class PickingOrderLine extends BasicClientAssignedEntity {
 
 	public void setPickedAmount(BigDecimal pickedAmount) {
 		this.pickedAmount = pickedAmount;
+	}
+
+	public Date getPickedBestBefore() {
+		return pickedBestBefore;
+	}
+
+	public void setPickedBestBefore(Date pickedBestBefore) {
+		this.pickedBestBefore = pickedBestBefore;
 	}
 
 }

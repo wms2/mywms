@@ -533,6 +533,7 @@ Release 2.9
     -------------------------------------------------------------------------------
     - Fixed error when deleting a capacity
     - Fixed error when filtering in mobile dialog 'Goods Receipt & Storage'
+    - Added missing picked bestbefore to pickingorderline
 
 
     Database changes
@@ -543,3 +544,4 @@ Release 2.9
     - Added table StorageArea
     - Added table StorageStrategyArea
     - Added table ItemDataArea
+    - Added new field to PickingOrderLine

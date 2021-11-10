@@ -629,6 +629,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		StockUnit pickFromStock = pick.getPickFromStockUnit();
 		BigDecimal amountPickFrom = pickFromStock.getAmount();
 		String lotPicked = pickFromStock.getLotNumber();
+		Date bestBeforePicked = pickFromStock.getBestBefore();
 		
 		// Release the reservation on pick from stock unit. 
 		// Maybe that some services would fail on the original reservations
@@ -739,6 +740,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 		pick.setPickedAmount(amountPosted);
 		pick.setPickedLotNumber(lotPicked);
+		pick.setPickedBestBefore(bestBeforePicked);
 		pick.setPickFromStockUnit(null);
 		pick.setPickingType(PickingType.PICK);
 
@@ -817,6 +819,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 
 		StockUnit pickFromStock = pick.getPickFromStockUnit();
 		String lotPicked = pickFromStock.getLotNumber();
+		Date bestBeforePicked = pickFromStock.getBestBefore();
 
 		// Release the reservation on pick from stock unit.
 		// Maybe that some services would fail on the original reservations
@@ -854,6 +857,7 @@ public class LOSOrderBusinessBean implements LOSOrderBusiness {
 		pick.setPacket(packet);
 		pick.setPickedAmount(pickFromStock.getAmount());
 		pick.setPickedLotNumber(lotPicked);
+		pick.setPickedBestBefore(bestBeforePicked);
 		pick.setPickFromStockUnit(null);
 		pick.setPickingType(PickingType.COMPLETE);
 
