@@ -195,9 +195,10 @@ public class DemoDataGenerator {
 		cartonUnitLoadTypeB.setUseFor(UnitLoadTypeUsages.PICKING, true);
 
 		log.info("Create TypeCapacityConstraints...");
-		createCapacityConstraint(defaultLocationType, euroUnitLoadType, 100);
-		createCapacityConstraint(shelfLocationType, box60UnitLoadType, 100);
-		createCapacityConstraint(shelfLocationType, box30UnitLoadType, 50);
+		createCapacityConstraint(defaultLocationType, euroUnitLoadType, 100, 0);
+		createCapacityConstraint(shelfLocationType, box60UnitLoadType, 100, 0);
+		createCapacityConstraint(shelfLocationType, box30UnitLoadType, 50, 0);
+		createCapacityConstraint(blockLocationType, euroUnitLoadType, 5, 1);
 
 		log.info("Create LocationsClusters...");
 		LocationCluster palletCluster = createLocationCluster(translate("palletstore", locale));
@@ -237,7 +238,7 @@ public class DemoDataGenerator {
 		highbayLocations.addAll(
 				createLocations(systemClient, storageArea, defaultLocationType, highbayCluster, aZone, "H4", 6, 3, 8));
 		createLocations(systemClient, storageArea, systemLocationType, fixedCluster, aZone, "F1", 2, 3, 2);
-		createLocations(systemClient, storageArea, blockLocationType, blockCluster, aZone, "B", 6, 1, 1);
+		createLocations(systemClient, storageArea, blockLocationType, blockCluster, bZone, "B", 6, 1, 1);
 		manager.flush();
 		manager.clear();
 
@@ -451,11 +452,12 @@ public class DemoDataGenerator {
 	}
 
 	private TypeCapacityConstraint createCapacityConstraint(LocationType locationType, UnitLoadType unitLoadType,
-			double allocation) throws BusinessException {
+			double allocation, int orderIndex) throws BusinessException {
 		TypeCapacityConstraint constraint = typeCapacityEntityService.read(locationType, unitLoadType);
 		if (constraint == null) {
 			constraint = typeCapacityEntityService.create(locationType, unitLoadType, BigDecimal.valueOf(allocation));
 		}
+		constraint.setOrderIndex(orderIndex);
 
 		return constraint;
 	}

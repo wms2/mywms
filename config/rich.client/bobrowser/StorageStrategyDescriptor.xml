@@ -83,7 +83,7 @@
         </entry>
 
         <entry>
-            <key>useLayerStrategyDate</key>
+            <key>useAreaStrategyDate</key>
             <value>
                 <group>
                     <name>main</name>

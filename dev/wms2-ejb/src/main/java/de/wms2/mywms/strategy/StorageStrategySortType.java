@@ -26,7 +26,7 @@ package de.wms2.mywms.strategy;
  *
  */
 public enum StorageStrategySortType {
-	CLIENT(0), LAYER(1), ZONE(2), CAPACITY(3), ALLOCATION(4), POSITION_X(5), POSITION_Y(6), NAME(7), ORDERINDEX(8);
+	CLIENT(0), STORAGEAREA(1), ZONE(2), CAPACITY(3), ALLOCATION(4), POSITION_X(5), POSITION_Y(6), NAME(7), ORDERINDEX(8);
 
 	int intValue;
 

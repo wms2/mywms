@@ -92,10 +92,10 @@ public class StorageStrategy extends BasicEntity {
 	private boolean nearPickingLocation = false;
 
 	/**
-	 * New material is not stored in layers with a smaller id than material with an
+	 * New material is not stored in areas with a smaller id than material with an
 	 * older date.
 	 */
-	private boolean useLayerStrategyDate = false;
+	private boolean useAreaStrategyDate = false;
 
 	@Override
 	public String toString() {
@@ -185,12 +185,12 @@ public class StorageStrategy extends BasicEntity {
 		this.nearPickingLocation = nearPickingLocation;
 	}
 
-	public boolean isUseLayerStrategyDate() {
-		return useLayerStrategyDate;
+	public boolean isUseAreaStrategyDate() {
+		return useAreaStrategyDate;
 	}
 
-	public void setUseLayerStrategyDate(boolean useLayerStrategyDate) {
-		this.useLayerStrategyDate = useLayerStrategyDate;
+	public void setUseAreaStrategyDate(boolean useAreaStrategyDate) {
+		this.useAreaStrategyDate = useAreaStrategyDate;
 	}
 
 }

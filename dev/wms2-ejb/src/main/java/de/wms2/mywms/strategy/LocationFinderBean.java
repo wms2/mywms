@@ -34,6 +34,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.Client;
@@ -48,6 +49,7 @@ import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.inventory.UnitLoadEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.property.SystemPropertyBusiness;
@@ -87,7 +89,7 @@ public class LocationFinderBean implements LocationFinder {
 	@Inject
 	private ZoneEntityService zoneService;
 	@Inject
-	private StorageStrategyLayerEntityService storageStrategyLayerEntityService;
+	private StorageAreaEntityService storageAreaEntityService;
 
 	private static int QUERY_LIMIT = 30;
 	private Map<String, BigDecimal> fieldWeightBuffer;
@@ -236,12 +238,12 @@ public class LocationFinderBean implements LocationFinder {
 		// itemData information is needed by some strategies. Mix different
 		// itemDatas, near picking location,
 		// replenishment, ...
-		ItemData itemData = null;
-		boolean itemDataUnique = true;
+		ItemData uniqueItemData = null;
+		List<ItemData> itemData = new ArrayList<>();
 		Date strategyDate = null;
 		for (StockUnit su : stocksOnUnitLoad) {
-			if (itemData == null && itemDataUnique) {
-				itemData = su.getItemData();
+			if (!itemData.contains(su.getItemData())) {
+				itemData.add(su.getItemData());
 			}
 			if (strategyDate == null) {
 				strategyDate = su.getStrategyDate();
@@ -249,13 +251,11 @@ public class LocationFinderBean implements LocationFinder {
 			if (su.getStrategyDate().compareTo(strategyDate) < 0) {
 				strategyDate = su.getStrategyDate();
 			}
-			if (itemData != null && !itemData.equals(su.getItemData())) {
-				itemData = null;
-				itemDataUnique = false;
-			}
 		}
-
-		if (!strategy.isMixItem() && !itemDataUnique) {
+		if (itemData.size() == 1) {
+			uniqueItemData = itemData.get(0);
+		}
+		if (!strategy.isMixItem() && uniqueItemData == null) {
 			logger.log(Level.WARNING, logStr
 					+ "No unique itemData on unitLoad. Cannot find location without mixing itemDatas. Abort. unitLoad="
 					+ unitLoad + ", strategy=" + strategy);
@@ -284,19 +284,60 @@ public class LocationFinderBean implements LocationFinder {
 			zones = readZoneFlow(stocksOnUnitLoad, stockClient);
 		}
 
-		List<StorageStrategyLayer> layers = storageStrategyLayerEntityService.readByStorageStrategy(strategy);
+		List<StorageArea> hiddenAreas = new ArrayList<>();
+		List<StorageArea> storageAreas = storageAreaEntityService.readByStorageStrategy(strategy);
+		if (!itemData.isEmpty() && !storageAreas.isEmpty() && strategy.isUseAreaStrategyDate()) {
+			// Do not use areas beyond the one that contains material with older
+			// strategy-date
+			List<StorageArea> olderStockAreas = readOlderStockAreas(itemData, strategyDate, storageAreas);
+			hiddenAreas.addAll(olderStockAreas);
+			if (hiddenAreas.size() == storageAreas.size()) {
+				logger.log(Level.INFO,
+						logStr + "Found nothing. All areas are invalid. unitLoad = " + unitLoad + ", unitLoadType="
+								+ unitLoad.getUnitLoadType() + ", strategy=" + strategy + ", unitLoadWeight="
+								+ unitLoadWeight + ", itemData=" + itemData + ", strategyDate=" + strategyDate
+								+ ", hiddenAreas=" + hiddenAreas + ", time="
+								+ (new Date().getTime() - dateStart.getTime()));
+				return null;
+			}
+			if (olderStockAreas.size() > 0) {
+				logger.log(Level.INFO,
+						logStr + "Hide areas with older stock. unitLoad = " + unitLoad + ", strategy=" + strategy
+								+ ", itemData=" + itemData + ", strategyDate=" + strategyDate + ", olderStockAreas="
+								+ olderStockAreas);
+			}
+		}
 
-		location = findLocationInternal(clients, unitLoad, strategy, zones, unitLoadWeight, stocksOnUnitLoad, itemData,
-				pickingOnly, layers);
+		if (!itemData.isEmpty()) {
+			// Do not use areas, that have enough material
+			List<StorageArea> fullAreas = readFullAreas(itemData);
+			for (StorageArea fullArea : fullAreas) {
+				if (!hiddenAreas.contains(fullArea)) {
+					hiddenAreas.add(fullArea);
+				}
+			}
+			if (fullAreas.size() > 0) {
+				logger.log(Level.INFO, logStr + "Hide full areas. unitLoad = " + unitLoad + ", strategy=" + strategy
+						+ ", itemData=" + itemData + ", fullAreas=" + fullAreas);
+			}
+		}
+
+		location = findLocationInternal(clients, unitLoad, strategy, zones, unitLoadWeight, stocksOnUnitLoad,
+				uniqueItemData, pickingOnly, storageAreas, hiddenAreas);
 		if (location != null) {
-			logger.log(Level.INFO, logStr + "Found location=" + location + ", unitload=" + unitLoad + ", time="
-					+ (new Date().getTime() - dateStart.getTime()));
+			logger.log(Level.INFO, logStr + "Found location=" + location + ", unitload=" + unitLoad + ", unitLoadType="
+					+ unitLoad.getUnitLoadType() + ", strategy=" + strategy + ", unitLoadWeight=" + unitLoadWeight
+					+ ", clients=" + clients + ", zones=" + zones + ", uniqueItemData=" + uniqueItemData
+					+ ", pickingOnly=" + pickingOnly + ", storageAreas=" + storageAreas + ", hiddenAreas=" + hiddenAreas
+					+ ", time=" + (new Date().getTime() - dateStart.getTime()));
 			return location;
 		}
 
 		logger.log(Level.INFO,
-				logStr + "Found nothing, unitLoad = " + unitLoad + ", unitLoadType=" + unitLoad.getUnitLoadType()
-						+ ", strategy=" + strategy + ", unitLoadWeight=" + unitLoadWeight + ", time="
+				logStr + "Found nothing, unitLoad=" + unitLoad + ", unitLoadType=" + unitLoad.getUnitLoadType()
+						+ ", strategy=" + strategy + ", unitLoadWeight=" + unitLoadWeight + ", clients=" + clients
+						+ ", zones=" + zones + ", uniqueItemData=" + uniqueItemData + ", pickingOnly=" + pickingOnly
+						+ ", storageAreas=" + storageAreas + ", hiddenAreas=" + hiddenAreas + ", time="
 						+ (new Date().getTime() - dateStart.getTime()));
 		return null;
 	}
@@ -337,21 +378,20 @@ public class LocationFinderBean implements LocationFinder {
 			}
 		}
 
-		logger.log(Level.INFO, "Zoneflow==" + zones);
 		return zones;
 	}
 
 	private StorageLocation findLocationInternal(Collection<Client> clients, UnitLoad unitLoad,
 			StorageStrategy strategy, Collection<Zone> zones, BigDecimal unitLoadWeight,
 			Collection<StockUnit> stocksOnUnitLoad, ItemData itemData, boolean pickingOnly,
-			Collection<StorageStrategyLayer> strategyLayers) throws BusinessException {
+			List<StorageArea> storageAreas, List<StorageArea> hiddenAreas) throws BusinessException {
 		String logStr = "findLocationInternal ";
 
 		logger.log(Level.FINE,
 				logStr + "clients=" + clients + ", unitLoad=" + unitLoad + ", strategy=" + strategy + ", zones=" + zones
 						+ ", unitLoadWeight=" + unitLoadWeight + ", itemData=" + itemData + ", pickingOnly="
-						+ pickingOnly + ", strategyLayers=" + strategyLayers + ", unitLoadType="
-						+ unitLoad.getUnitLoadType());
+						+ pickingOnly + ", storageAreas=" + storageAreas + ", hiddenAreas=" + hiddenAreas
+						+ ", unitLoadType=" + unitLoad.getUnitLoadType());
 
 		fieldWeightBuffer = new HashMap<>();
 		sectionWeightBuffer = new HashMap<>();
@@ -381,8 +421,8 @@ public class LocationFinderBean implements LocationFinder {
 			if (searchNearPositionX != null && !StringUtils.isBlank(searchInRack)) {
 				logger.log(Level.INFO, logStr + "Search near of picking location. itemData=" + itemData + ", location="
 						+ location + ", searchInRack=" + searchInRack + ", searchNearPositionX=" + searchNearPositionX);
-				location = findLocationInternal(clients, unitLoad, strategy, strategyLayers, zones, searchInRack,
-						unitLoadWeight, stocksOnUnitLoad, itemData, pickingOnly, searchNearPositionX);
+				location = findLocationInternal(clients, unitLoad, strategy, storageAreas, hiddenAreas, zones,
+						searchInRack, unitLoadWeight, stocksOnUnitLoad, itemData, pickingOnly, searchNearPositionX);
 				if (location != null) {
 					return location;
 				}
@@ -393,8 +433,8 @@ public class LocationFinderBean implements LocationFinder {
 			}
 		}
 
-		location = findLocationInternal(clients, unitLoad, strategy, strategyLayers, zones, null, unitLoadWeight,
-				stocksOnUnitLoad, itemData, pickingOnly, null);
+		location = findLocationInternal(clients, unitLoad, strategy, storageAreas, hiddenAreas, zones, null,
+				unitLoadWeight, stocksOnUnitLoad, itemData, pickingOnly, null);
 		if (location != null) {
 			return location;
 		}
@@ -403,9 +443,9 @@ public class LocationFinderBean implements LocationFinder {
 	}
 
 	private StorageLocation findLocationInternal(Collection<Client> clients, UnitLoad unitLoad,
-			StorageStrategy strategy, Collection<StorageStrategyLayer> strategyLayers, Collection<Zone> zones,
-			String rack, BigDecimal unitLoadWeight, Collection<StockUnit> stocksOnUnitLoad, ItemData itemData,
-			boolean pickingOnly, Integer nearPositionX) throws BusinessException {
+			StorageStrategy strategy, List<StorageArea> storageAreas, List<StorageArea> hiddenAreas,
+			Collection<Zone> zones, String rack, BigDecimal unitLoadWeight, Collection<StockUnit> stocksOnUnitLoad,
+			ItemData itemData, boolean pickingOnly, Integer nearPositionX) throws BusinessException {
 		String logStr = "findLocationInternal ";
 		int queryOffset = 0;
 		int queryLimit = QUERY_LIMIT;
@@ -414,8 +454,8 @@ public class LocationFinderBean implements LocationFinder {
 		// locations should be suitable
 		while (true) {
 
-			List<StorageLocation> locationList = readCandidates(clients, unitLoad, strategy, strategyLayers, zones,
-					rack, unitLoadWeight, pickingOnly, nearPositionX, queryOffset);
+			List<StorageLocation> locationList = readCandidates(clients, unitLoad, strategy, storageAreas, hiddenAreas,
+					zones, rack, unitLoadWeight, pickingOnly, nearPositionX, queryOffset);
 
 			for (StorageLocation location : locationList) {
 				logger.log(Level.FINE, logStr + "check location=" + location);
@@ -591,13 +631,13 @@ public class LocationFinderBean implements LocationFinder {
 
 	@SuppressWarnings("unchecked")
 	private List<StorageLocation> readCandidates(Collection<Client> clients, UnitLoad unitLoad,
-			StorageStrategy strategy, Collection<StorageStrategyLayer> strategyLayers, Collection<Zone> zones,
-			String rack, BigDecimal weight, boolean pickingOnly, Integer nearPositionX, int offset)
-			throws BusinessException {
+			StorageStrategy strategy, Collection<StorageArea> storageAreas, List<StorageArea> hiddenAreas,
+			Collection<Zone> zones, String rack, BigDecimal weight, boolean pickingOnly, Integer nearPositionX,
+			int offset) throws BusinessException {
 		String logStr = "readCandidates ";
 		String paramLog = "";
 
-		boolean searchForStrategyLayer = hasClusters(strategyLayers);
+		boolean searchForStrategyArea = hasClusters(storageAreas);
 
 		String jpql = " SELECT location, allocationRule FROM ";
 		jpql += StorageLocation.class.getName() + " location ";
@@ -605,15 +645,16 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += "left join location.locationType as locationType ";
 		jpql += "left join location.area as area, ";
 		jpql += TypeCapacityConstraint.class.getName() + " allocationRule";
-		if (searchForStrategyLayer) {
-			jpql += "," + StorageStrategyLayer.class.getSimpleName() + " strategyLayer";
+		if (searchForStrategyArea) {
+			jpql += "," + StorageStrategyArea.class.getSimpleName() + " strategyArea";
 		}
 
-		// Search only the given layers/clusters. If no layers are given, search in
+		// Search only the given areas/clusters. If no areas are given, search in
 		// all clusters
-		if (searchForStrategyLayer) {
-			jpql += " where strategyLayer.storageStrategy=:strategy";
-			jpql += " and location.locationCluster member of strategyLayer.locationClusters";
+		if (searchForStrategyArea) {
+			jpql += " where strategyArea.storageStrategy = :strategy";
+			jpql += " and strategyArea.storageArea in (:storageAreas)";
+			jpql += " and location.locationCluster member of strategyArea.storageArea.locationClusters";
 		} else {
 			jpql += " WHERE location.locationCluster is not null";
 		}
@@ -699,9 +740,18 @@ public class LocationFinderBean implements LocationFinder {
 			jpql += " ) ";
 		}
 
+		if (!hiddenAreas.isEmpty()) {
+			jpql += " and not exists(select 1 from " + StorageArea.class.getSimpleName() + " hiddenArea";
+			jpql += " where hiddenArea in (:hiddenAreas)";
+			jpql += " and location.locationCluster member of hiddenArea.locationClusters)";
+		}
+
 		jpql += " ORDER BY ";
 		if (nearPositionX != null) {
 			jpql += "abs(location.XPos-:XPos), ";
+		}
+		if (strategy.isUseAreaStrategyDate() && searchForStrategyArea) {
+			jpql += "strategyArea.orderIndex, ";
 		}
 
 		boolean orderByName = false;
@@ -741,9 +791,10 @@ public class LocationFinderBean implements LocationFinder {
 					i++;
 				}
 				jpql += " else " + i + " end, ";
-			} else if (StringUtils.equals(orderby, StorageStrategySortType.LAYER.name())) {
-				if (searchForStrategyLayer) {
-					jpql += "strategyLayer.storageLayer, ";
+			} else if (StringUtils.equals(orderby, StorageStrategySortType.STORAGEAREA.name())) {
+				if (!strategy.isUseAreaStrategyDate() && searchForStrategyArea) {
+					// do not add twice
+					jpql += "strategyArea.orderIndex, ";
 				}
 			} else {
 				logger.log(Level.WARNING, logStr + "Unknown order switch. sortType=" + orderby);
@@ -757,9 +808,11 @@ public class LocationFinderBean implements LocationFinder {
 
 		Query query = manager.createQuery(jpql);
 
-		if (searchForStrategyLayer) {
+		if (searchForStrategyArea) {
 			query.setParameter("strategy", strategy);
-			paramLog += ", storageStrategyLayer.strategy=" + strategy;
+			paramLog += ", strategy=" + strategy;
+			query.setParameter("storageAreas", storageAreas);
+			paramLog += ", storageAreas=" + storageAreas;
 		}
 
 		query.setParameter("unitLoadType", unitLoad.getUnitLoadType());
@@ -791,7 +844,10 @@ public class LocationFinderBean implements LocationFinder {
 			query.setParameter("rack", rack);
 			paramLog += ", rack=" + rack;
 		}
-
+		if (!hiddenAreas.isEmpty()) {
+			query.setParameter("hiddenAreas", hiddenAreas);
+			paramLog += ", hiddenAreas=" + hiddenAreas;
+		}
 		query.setFirstResult(offset);
 		paramLog += ", offset=" + offset;
 		query.setMaxResults(QUERY_LIMIT);
@@ -813,9 +869,9 @@ public class LocationFinderBean implements LocationFinder {
 
 	}
 
-	private boolean hasClusters(Collection<StorageStrategyLayer> layers) {
-		for (StorageStrategyLayer layer : layers) {
-			if (!layer.getLocationClusters().isEmpty()) {
+	private boolean hasClusters(Collection<StorageArea> areas) {
+		for (StorageArea area : areas) {
+			if (!area.getLocationClusters().isEmpty()) {
 				return true;
 			}
 		}
@@ -940,5 +996,100 @@ public class LocationFinderBean implements LocationFinder {
 		}
 
 		return zone;
+	}
+
+	/**
+	 * Read all StorageAreas which have older stock than the given strategyDate of
+	 * the given itemData.
+	 * <p>
+	 * The StockUnit or UnitLoad may be locked.
+	 */
+	private List<StorageArea> readOlderStockAreas(Collection<ItemData> itemData, Date strategyDate,
+			List<StorageArea> candidates) {
+		String jpql = " SELECT distinct storageArea FROM ";
+		jpql += StockUnit.class.getName() + " stock,";
+		jpql += LocationCluster.class.getName() + " cluster,";
+		jpql += StorageArea.class.getName() + " storageArea";
+		jpql += " WHERE cluster = stock.unitLoad.storageLocation.locationCluster ";
+		jpql += " and cluster in elements(storageArea.locationClusters) ";
+		jpql += " and stock.itemData in (:itemData) ";
+		jpql += " and stock.strategyDate < :strategyDate";
+		jpql += " and storageArea in (:candidates)";
+		jpql += " and stock.unitLoad.storageLocation.lock=0";
+		jpql += " and stock.state>=:incomming and stock.state<:picked";
+		jpql += " and stock.unitLoad.state>=:incomming and stock.unitLoad.state<:picked";
+
+		TypedQuery<StorageArea> query = manager.createQuery(jpql, StorageArea.class);
+		query.setParameter("itemData", itemData);
+		query.setParameter("strategyDate", strategyDate);
+		query.setParameter("candidates", candidates);
+		query.setParameter("incomming", StockState.INCOMING);
+		query.setParameter("picked", StockState.PICKED);
+
+		List<StorageArea> olderStockAreas = query.getResultList();
+
+		ArrayList<StorageArea> invalidAreas = new ArrayList<>();
+		boolean foundOlder = false;
+		for (int i = candidates.size(); i-- > 0;) {
+			StorageArea candidate = candidates.get(i);
+			if (foundOlder) {
+				invalidAreas.add(candidate);
+			} else if (olderStockAreas.contains(candidate)) {
+				foundOlder = true;
+			}
+		}
+
+		return invalidAreas;
+	}
+
+	/**
+	 * Read all StorageAreas which are full in meaning of ItemDataArea.
+	 * <p>
+	 * The StockUnit or UnitLoad may be locked.
+	 */
+	private List<StorageArea> readFullAreas(Collection<ItemData> itemData) {
+		String jpql = " SELECT storageArea FROM ";
+		jpql += StorageArea.class.getSimpleName() + " storageArea,";
+		jpql += ItemDataArea.class.getName() + " itemDataStorage";
+		jpql += " WHERE itemDataStorage.itemData in (:itemData)";
+		jpql += " and itemDataStorage.storageArea = storageArea";
+		jpql += " and (";
+		jpql += " (itemDataStorage.numStocks=0";
+		jpql += "  or itemDataStorage.numStocks <= ";
+		jpql += "  (select count(distinct stock.unitLoad) from " + StockUnit.class.getSimpleName() + " stock";
+		jpql += "  where stock.itemData=itemDataStorage.itemData";
+		jpql += "  and (";
+		jpql += " stock.unitLoad.storageLocation.locationCluster in elements(storageArea.locationClusters)";
+		jpql += " or exists(select 1 from " + TransportOrder.class.getName() + " transportOrder";
+		jpql += "  where transportOrder.unitLoad=stock.unitLoad";
+		jpql += "  and transportOrder.state<:finished";
+		jpql += "  and transportOrder.destinationLocation.locationCluster in elements(storageArea.locationClusters)";
+		jpql += "  )";
+		jpql += "  and stock.unitLoad.storageLocation.lock=0";
+		jpql += "  and stock.state>=:incomming and stock.state<:picked";
+		jpql += "  and stock.unitLoad.state>=:incomming and stock.unitLoad.state<:picked)";
+		jpql += " ))";
+		jpql += " or (itemDataStorage.amount=0";
+		jpql += "  or itemDataStorage.amount <= ";
+		jpql += "  (select sum(stock.amount) from " + StockUnit.class.getSimpleName() + " stock";
+		jpql += "  where stock.itemData=itemDataStorage.itemData";
+		jpql += "  and (";
+		jpql += " stock.unitLoad.storageLocation.locationCluster in elements(storageArea.locationClusters)";
+		jpql += " or exists(select 1 from " + TransportOrder.class.getName() + " transportOrder";
+		jpql += "  where transportOrder.unitLoad=stock.unitLoad";
+		jpql += "  and transportOrder.state<:finished";
+		jpql += "  and transportOrder.destinationLocation.locationCluster in elements(storageArea.locationClusters)";
+		jpql += "  )";
+		jpql += "  and stock.unitLoad.storageLocation.lock=0";
+		jpql += "  and stock.state>=:incomming and stock.state<:picked";
+		jpql += "  and stock.unitLoad.state>=:incomming and stock.unitLoad.state<:picked)";
+		jpql += " )))";
+
+		TypedQuery<StorageArea> query = manager.createQuery(jpql, StorageArea.class);
+		query.setParameter("itemData", itemData);
+		query.setParameter("incomming", StockState.INCOMING);
+		query.setParameter("picked", StockState.PICKED);
+		query.setParameter("finished", OrderState.FINISHED);
+		return query.getResultList();
 	}
 }

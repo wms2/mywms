@@ -24,10 +24,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import org.mywms.model.BasicEntity;
 
@@ -38,20 +36,12 @@ import de.wms2.mywms.location.LocationCluster;
  *
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "storageStrategy_id", "storageLayer" }) })
-public class StorageStrategyLayer extends BasicEntity {
+@Table
+public class StorageArea extends BasicEntity {
 	private static final long serialVersionUID = 1L;
 
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	private StorageStrategy storageStrategy;
-
-	/**
-	 * The level is used for amount limitations of products in certain areas.
-	 * <p>
-	 * It is referenced by the product and the storage strategy.
-	 */
-	@Column(nullable = false)
-	private int storageLayer = 0;
+	@Column(unique = true, nullable = false)
+	private String name;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@OrderBy("name")
@@ -59,26 +49,26 @@ public class StorageStrategyLayer extends BasicEntity {
 
 	@Override
 	public String toString() {
-		if (storageStrategy != null) {
-			return storageStrategy.getName() + "/" + storageLayer;
+		if (name != null) {
+			return name;
 		}
 		return super.toString();
 	}
 
-	public StorageStrategy getStorageStrategy() {
-		return storageStrategy;
+	@Override
+	public String toUniqueString() {
+		if (name != null) {
+			return name;
+		}
+		return super.toUniqueString();
 	}
 
-	public void setStorageStrategy(StorageStrategy storageStrategy) {
-		this.storageStrategy = storageStrategy;
+	public String getName() {
+		return name;
 	}
 
-	public int getStorageLayer() {
-		return storageLayer;
-	}
-
-	public void setStorageLayer(int storageLayer) {
-		this.storageLayer = storageLayer;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public List<LocationCluster> getLocationClusters() {

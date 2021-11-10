@@ -42,6 +42,8 @@ public class StorageStrategyValidator implements EntityValidator<StorageStrategy
 
 	@Inject
 	private GenericEntityService entitySerivce;
+	@Inject
+	private StorageAreaEntityService storageAreaService;
 
 	@Override
 	public void validateCreate(StorageStrategy entity) throws BusinessException {
@@ -66,6 +68,12 @@ public class StorageStrategyValidator implements EntityValidator<StorageStrategy
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.notUnique");
 		}
 
+		if (entity.isNearPickingLocation() && entity.isUseAreaStrategyDate()) {
+			logger.log(Level.INFO,
+					logStr + "Cannot combine feature 'near picking location' and 'use area strategy date'. name="
+							+ entity.getName());
+			throw new BusinessException(Wms2BundleResolver.class, "Validator.invalidNearPickingLocationArea");
+		}
 	}
 
 	@Override
@@ -76,6 +84,8 @@ public class StorageStrategyValidator implements EntityValidator<StorageStrategy
 			logger.log(Level.INFO, logStr + "Existing reference to ItemData. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByItemData");
 		}
+
+		storageAreaService.removeForStorageStrategy(entity);
 	}
 
 }

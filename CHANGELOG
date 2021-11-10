@@ -515,7 +515,8 @@ Release 2.9
     Main topics
     -------------------------------------------------------------------------------
     - Lifting capacities for rack-fields and -sections
-    - Added usable location clusters as layers to storage strategy
+    - Added usable storage areas to storage strategy
+    - Limit the maximum number/amount of stocks of an item within a storage area
 
 
     Functional changes (for details and complete list have a look to the git repository)
@@ -536,4 +537,6 @@ Release 2.9
     - Table StorageLocation got new attributes
     - Table LocationType got new attributes
     - Table StorageStrategy got new attributes
-    - Added table StorageStrategyLayer
+    - Added table StorageArea
+    - Added table StorageStrategyArea
+    - Added table ItemDataArea
