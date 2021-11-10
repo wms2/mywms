@@ -517,6 +517,8 @@ Release 2.9
     - Lifting capacities for rack-fields and -sections
     - Added usable storage areas to storage strategy
     - Limit the maximum number/amount of stocks of an item within a storage area
+    - Prefer complete unit loads with same strategy date in pick generation
+    - Prefer picking of packaging units from chaotical picking locations
 
 
     Functional changes (for details and complete list have a look to the git repository)

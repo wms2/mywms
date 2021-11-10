@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,7 +89,7 @@ public class PickingStockFinder {
 	/**
 	 * Find the first source stock which can be used in a picking order.
 	 */
-	public StockUnit findFirstSourceStock(ItemData itemData, BigDecimal amount, Client client, String lotNumber,
+	public PickStockUnit findFirstSourceStock(ItemData itemData, BigDecimal amount, Client client, String lotNumber,
 			OrderStrategy strategy) throws BusinessException {
 		String logStr = "findFirstSourceStock ";
 
@@ -101,7 +102,7 @@ public class PickingStockFinder {
 			strategy = orderStrategyService.getDefault(client);
 		}
 
-		StockUnit stock = findFirstSourceStockIntern(itemData, client, lotNumber, amount, strategy);
+		PickStockUnit stock = findFirstSourceStockIntern(itemData, client, lotNumber, amount, strategy);
 		if (stock != null) {
 			return stock;
 		}
@@ -134,8 +135,8 @@ public class PickingStockFinder {
 		return stock;
 	}
 
-	private StockUnit findFirstSourceStockIntern(ItemData itemData, Client client, String lotNumber, BigDecimal amount,
-			OrderStrategy strategy) throws BusinessException {
+	private PickStockUnit findFirstSourceStockIntern(ItemData itemData, Client client, String lotNumber,
+			BigDecimal amount, OrderStrategy strategy) throws BusinessException {
 		String logStr = "findFirstSourceStockIntern ";
 
 		logger.log(Level.FINE, logStr + "itemData=" + itemData + ", amount=" + amount + ",client=" + client
@@ -166,13 +167,13 @@ public class PickingStockFinder {
 				if (stock.availableAmount.compareTo(amount) != 0) {
 					continue;
 				}
-				if (!isValidForCompleteHandling(stock)) {
+				if (!isValidForSeparatedCompleteHandling(stock)) {
 					continue;
 				}
 
 				logger.log(Level.FINE, logStr + "Use complete single unit load with matching amount. amount=" + amount
 						+ ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -183,13 +184,13 @@ public class PickingStockFinder {
 				if (stock.availableAmount.compareTo(amount) != 0) {
 					continue;
 				}
-				if (!isValidForCompleteHandling(stock)) {
+				if (!isValidForSeparatedCompleteHandling(stock)) {
 					continue;
 				}
 
 				logger.log(Level.FINE, logStr + "Use complete single unit load with matching amount. amount=" + amount
 						+ ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -200,7 +201,7 @@ public class PickingStockFinder {
 			if (stock != null) {
 				logger.log(Level.FINE,
 						logStr + "Use combinable complete matching unit load. amount=" + amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -211,13 +212,13 @@ public class PickingStockFinder {
 				if (stock.availableAmount.compareTo(amount) < 0) {
 					continue;
 				}
-				if (!isValidForCompleteHandling(stock)) {
+				if (!isValidForSeparatedCompleteHandling(stock)) {
 					continue;
 				}
 
 				logger.log(Level.FINE, logStr + "Use complete first unit load with al least requested amount. amount="
 						+ amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -228,7 +229,7 @@ public class PickingStockFinder {
 			if (stock != null) {
 				logger.log(Level.FINE, logStr + "Use combinable complete unit loads with smallest diff. amount="
 						+ amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -239,7 +240,7 @@ public class PickingStockFinder {
 			if (stock != null) {
 				logger.log(Level.FINE, logStr + "Use combinable complete unit loads with smallest plus diff. amount="
 						+ amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -260,29 +261,12 @@ public class PickingStockFinder {
 				if (stock.availableAmount.compareTo(amount) != 0) {
 					continue;
 				}
-				if (!isValidForCompleteHandling(stock)) {
+				if (!isValidForPickCompleteHandling(stock)) {
 					continue;
 				}
 
 				logger.log(Level.FINE, logStr + "Use complete unit load. amount=" + amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
-			}
-		}
-
-		// Find complete unit load with less than the requested amount.
-		// An additional pick will be generated.
-		// Flags: preferComplete
-		if (strategy.isPreferComplete()) {
-			for (PickingStockUnit stock : stockList) {
-				if (stock.availableAmount.compareTo(amount) > 0) {
-					continue;
-				}
-				if (!isValidForCompleteHandling(stock)) {
-					continue;
-				}
-
-				logger.log(Level.FINE, logStr + "Use complete unit load. amount=" + amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
@@ -298,19 +282,59 @@ public class PickingStockFinder {
 				}
 				if (!stock.locationUseForPicking) {
 					// A complete pick type would be valid. The amount is matching.
-					if (!isValidForCompleteHandling(stock)) {
+					if (!isValidForPickCompleteHandling(stock)) {
 						continue;
 					}
 				}
 
 				logger.log(Level.FINE, logStr + "Use matching stock. amount=" + amount + ", stock=" + stock);
-				return manager.find(StockUnit.class, stock.stockId);
+				return new PickStockUnit(stock.stockId);
+			}
+		}
+
+		// Find complete unit load with less than the requested amount.
+		// An additional pick will be generated.
+		// Flags: preferComplete
+		if (strategy.isPreferComplete()) {
+			for (PickingStockUnit stock : stockList) {
+				if (stock.availableAmount.compareTo(amount) > 0) {
+					continue;
+				}
+				if (!isValidForPickCompleteHandling(stock)) {
+					continue;
+				}
+
+				logger.log(Level.FINE, logStr + "Use complete unit load. amount=" + amount + ", stock=" + stock);
+				return new PickStockUnit(stock.stockId);
+			}
+		}
+
+		// Find complete unit load with less than the requested amount.
+		// Without the preferComplete flag, only look for a complete stock within the
+		// oldest strategyDate.
+		// An additional pick will be generated.
+		// Flags: NOT preferComplete
+		if (!strategy.isPreferComplete()) {
+			for (PickingStockUnit stock : stockList) {
+				if (!stock.firstStrategyDate) {
+					break;
+				}
+				if (stock.availableAmount.compareTo(amount) > 0) {
+					continue;
+				}
+				if (!isValidForPickCompleteHandling(stock)) {
+					continue;
+				}
+
+				logger.log(Level.FINE, logStr + "Use complete unit load. amount=" + amount + ", stock=" + stock);
+				return new PickStockUnit(stock.stockId);
 			}
 		}
 
 		// Find stock on fixed picking location
 		// The maximum amount to take from fixed picking locations may be limited
 		// Fixed picking location overrides FIFO
+		BigDecimal maxAvailableFixPickAmount = BigDecimal.ZERO;
 		for (PickingStockUnit stock : stockList) {
 			if (!stock.onFixedLocation) {
 				continue;
@@ -318,6 +342,16 @@ public class PickingStockFinder {
 			if (!stock.locationUseForPicking) {
 				continue;
 			}
+
+			BigDecimal maxPickAmount = stock.availableAmount;
+			if (stock.maxFixPickAmount != null && stock.maxFixPickAmount.compareTo(BigDecimal.ZERO) > 0
+					&& stock.maxFixPickAmount.compareTo(stock.availableAmount) < 0) {
+				maxPickAmount = stock.maxFixPickAmount;
+			}
+			if (maxPickAmount.compareTo(maxAvailableFixPickAmount) > 0) {
+				maxAvailableFixPickAmount = maxPickAmount;
+			}
+
 			if (stock.maxFixPickAmount != null && stock.maxFixPickAmount.compareTo(BigDecimal.ZERO) > 0
 					&& stock.maxFixPickAmount.compareTo(amount) < 0) {
 				logger.log(Level.FINE,
@@ -326,9 +360,19 @@ public class PickingStockFinder {
 				continue;
 			}
 
+			// If the fixed location has not enough amount to handle the pick, try other
+			// stocks. The last loop in this check will find it again.
+			if (stock.availableAmount.compareTo(amount) < 0) {
+				logger.log(Level.FINE,
+						logStr + "Amount not complete available on fixed location. Skip. location=" + stock.locationName
+								+ ", itemData=" + itemData + ", amount=" + amount + ", maxFixPickAmount="
+								+ stock.maxFixPickAmount);
+				continue;
+			}
+
 			logger.log(Level.FINE,
 					logStr + "Use stock on fixed picking location. amount=" + amount + ", stock=" + stock);
-			return manager.find(StockUnit.class, stock.stockId);
+			return new PickStockUnit(stock.stockId);
 		}
 
 		// Find any usable stock for picking on not fixed picking location
@@ -340,14 +384,37 @@ public class PickingStockFinder {
 				if (stock.availableAmount.compareTo(amount) > 0) {
 					continue;
 				}
-				if (!isValidForCompleteHandling(stock)) {
+				if (!isValidForPickCompleteHandling(stock)) {
 					continue;
+				}
+			}
+			// Packaging units. In case that
+			// - the stock has a packaging unit
+			// - the ordered amount is not matching the packaging unit
+			// - the difference can be taken from a fixed location
+			// - the remaining stock will not be less than one packaging unit
+			// take only full packaging units.
+			// The difference will be taken in the next iteration loop from a fixed
+			// location.
+			// If the difference amount is not available on the defined fixed location the
+			// order will not get started.
+			if (stock.packagingAmount != null && stock.packagingAmount.compareTo(BigDecimal.ZERO) > 0) {
+				BigDecimal amountInPackagingsDiff = stock.getAmountInPackagingsDiff(amount);
+				if (amountInPackagingsDiff.compareTo(BigDecimal.ZERO) > 0
+						&& amountInPackagingsDiff.compareTo(maxAvailableFixPickAmount) <= 0) {
+					BigDecimal amountInPackagings = stock.getAmountInPackagings(amount);
+					if (stock.availableAmount.subtract(amountInPackagings).compareTo(stock.packagingAmount) >= 0) {
+						logger.log(Level.FINE,
+								logStr + "Use stock on not fixed picking location. Only packagings. amount=" + amount
+										+ ", amountInPackagings=" + amountInPackagings + ", stock=" + stock);
+						return new PickStockUnit(stock.stockId, amountInPackagings);
+					}
 				}
 			}
 
 			logger.log(Level.FINE,
 					logStr + "Use stock on not fixed picking location. amount=" + amount + ", stock=" + stock);
-			return manager.find(StockUnit.class, stock.stockId);
+			return new PickStockUnit(stock.stockId);
 		}
 
 		// Find any usable stock for picking. Including fixed picking locations.
@@ -356,13 +423,13 @@ public class PickingStockFinder {
 				if (stock.availableAmount.compareTo(amount) > 0) {
 					continue;
 				}
-				if (!isValidForCompleteHandling(stock)) {
+				if (!isValidForPickCompleteHandling(stock)) {
 					continue;
 				}
 			}
 
 			logger.log(Level.FINE, logStr + "Use stock. amount=" + amount + ", stock=" + stock);
-			return manager.find(StockUnit.class, stock.stockId);
+			return new PickStockUnit(stock.stockId);
 		}
 
 		logger.log(Level.INFO, logStr + "No usable stock found. cadidates=" + stockList.size() + ", client=" + client
@@ -408,7 +475,7 @@ public class PickingStockFinder {
 	}
 
 	private PickingStockUnit combineFirstMatch(List<PickingStockUnit> candidates, BigDecimal requestedAmount) {
-		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForCompleteHandling(stock))
+		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForSeparatedCompleteHandling(stock))
 				.collect(Collectors.toList());
 		PickingStockUnit optimalTarget = new PickingStockUnit(requestedAmount);
 		List<PickingStockUnit> combinables = new Optimizer().findBestCombination(usables,
@@ -423,7 +490,7 @@ public class PickingStockFinder {
 	}
 
 	private PickingStockUnit combineSmallestDiff(List<PickingStockUnit> candidates, BigDecimal requestedAmount) {
-		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForCompleteHandling(stock))
+		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForSeparatedCompleteHandling(stock))
 				.collect(Collectors.toList());
 		PickingStockUnit optimalTarget = new PickingStockUnit(requestedAmount);
 		List<PickingStockUnit> combinables = new Optimizer().findBestCombination(usables,
@@ -435,7 +502,7 @@ public class PickingStockFinder {
 	}
 
 	private PickingStockUnit combineSmallestPlus(List<PickingStockUnit> candidates, BigDecimal requestedAmount) {
-		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForCompleteHandling(stock))
+		List<PickingStockUnit> usables = candidates.stream().filter(stock -> isValidForSeparatedCompleteHandling(stock))
 				.collect(Collectors.toList());
 		PickingStockUnit optimalTarget = new PickingStockUnit(requestedAmount);
 		List<PickingStockUnit> combinables = new Optimizer().findBestCombination(usables,
@@ -476,10 +543,11 @@ public class PickingStockFinder {
 
 		String jpql = "";
 
-		jpql += " select stock.id, stock.amount, stock.reservedAmount, ";
+		jpql += " select stock.id, stock.amount, stock.reservedAmount, stock.strategyDate,";
 		jpql += " location.id, location.name, unitLoad.id, unitLoad.opened, ";
-		jpql += " role.usages, unitLoadType.usages";
-		jpql += " from " + StockUnit.class.getName() + " stock, ";
+		jpql += " role.usages, unitLoadType.usages, packagingUnit.amount";
+		jpql += " from " + StockUnit.class.getName() + " stock ";
+		jpql += " left outer join stock.packagingUnit as packagingUnit, ";
 		jpql += UnitLoad.class.getName() + " unitLoad, ";
 		jpql += UnitLoadType.class.getName() + " unitLoadType, ";
 		jpql += StorageLocation.class.getName() + " location, ";
@@ -512,7 +580,7 @@ public class PickingStockFinder {
 		}
 
 		jpql += " order by ";
-		jpql += "stock.strategyDate, stock.amount, stock.created ";
+		jpql += "stock.strategyDate, stock.amount, stock.created,stock.id ";
 
 		logger.log(Level.FINER, logStr + "QUERY: " + jpql);
 
@@ -530,16 +598,19 @@ public class PickingStockFinder {
 		List<Object[]> results = query.getResultList();
 		List<FixAssignment> fixList = fixService.readList(itemData, null, true);
 		List<PickingStockUnit> stockList = new ArrayList<>(results.size());
+		Date firstStrategyDate = null;
 		for (Object[] result : results) {
 			long stockId = (long) result[0];
 			BigDecimal amount = (BigDecimal) result[1];
 			BigDecimal reservedAmount = (BigDecimal) result[2];
-			long locationId = (long) result[3];
-			String locationName = (String) result[4];
-			long unitLoadId = (long) result[5];
-			boolean unitLoadOpened = (boolean) result[6];
-			String areaUsages = (String) result[7];
-			String unitLoadTypeUsages = (String) result[8];
+			Date strategyDate = (Date) result[3];
+			long locationId = (long) result[4];
+			String locationName = (String) result[5];
+			long unitLoadId = (long) result[6];
+			boolean unitLoadOpened = (boolean) result[7];
+			String areaUsages = (String) result[8];
+			String unitLoadTypeUsages = (String) result[9];
+			BigDecimal packagingAmount = (BigDecimal) result[10];
 
 			boolean onFixedLocation = false;
 			BigDecimal maxFixPickAmount = null;
@@ -549,9 +620,13 @@ public class PickingStockFinder {
 					maxFixPickAmount = fix.getMaxPickAmount();
 				}
 			}
+			if (firstStrategyDate == null) {
+				firstStrategyDate = strategyDate;
+			}
 
 			PickingStockUnit stock = new PickingStockUnit(stockId, amount, reservedAmount, locationName, unitLoadId,
-					unitLoadOpened, areaUsages, unitLoadTypeUsages, onFixedLocation, maxFixPickAmount);
+					unitLoadOpened, areaUsages, unitLoadTypeUsages, onFixedLocation, maxFixPickAmount,
+					!strategyDate.after(firstStrategyDate), packagingAmount);
 
 			stockList.add(stock);
 		}
@@ -560,7 +635,7 @@ public class PickingStockFinder {
 		return stockList;
 	}
 
-	private boolean isValidForCompleteHandling(PickingStockUnit stock) {
+	private boolean isValidForSeparatedCompleteHandling(PickingStockUnit stock) {
 		if (stock.unitLoadOpened) {
 			return false;
 		}
@@ -586,6 +661,23 @@ public class PickingStockFinder {
 		return true;
 	}
 
+	private boolean isValidForPickCompleteHandling(PickingStockUnit stock) {
+		if (stock.unitLoadOpened) {
+			return false;
+		}
+		if (stock.reservedAmount.compareTo(BigDecimal.ZERO) > 0) {
+			return false;
+		}
+		if (stock.mixed == null) {
+			stock.mixed = entityService.exists(StockUnit.class, "unitLoad.id", stock.unitLoadId, stock.stockId);
+		}
+		if (stock.mixed) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private static class PickingStockUnit implements Serializable {
 		private static final long serialVersionUID = 1L;
 
@@ -599,9 +691,11 @@ public class PickingStockFinder {
 		public boolean locationUseForPicking = false;
 		public boolean locationUseForStorage = false;
 		public boolean unitLoadForComplete = false;
+		public boolean firstStrategyDate = false;
 		public BigDecimal availableAmount;
 		public BigDecimal maxFixPickAmount;
 		public Boolean mixed = null;
+		public BigDecimal packagingAmount;
 
 		public PickingStockUnit(BigDecimal amount) {
 			this.amount = amount;
@@ -609,7 +703,7 @@ public class PickingStockFinder {
 
 		public PickingStockUnit(long stockId, BigDecimal amount, BigDecimal reservedAmount, String locationName,
 				long unitLoadId, boolean opened, String areaUsages, String unitLoadTypUsages, boolean onFixedLocation,
-				BigDecimal maxFixPickAmount) {
+				BigDecimal maxFixPickAmount, boolean firstStrategyDate, BigDecimal packagingAmount) {
 			this.stockId = stockId;
 			this.locationName = locationName;
 			this.amount = amount;
@@ -619,6 +713,8 @@ public class PickingStockFinder {
 			this.unitLoadOpened = opened;
 			this.onFixedLocation = onFixedLocation;
 			this.maxFixPickAmount = maxFixPickAmount;
+			this.packagingAmount = packagingAmount;
+			this.firstStrategyDate = firstStrategyDate;
 			List<String> usages = ListUtils.stringToList(areaUsages);
 			if (usages.contains(AreaUsages.PICKING)) {
 				this.locationUseForPicking = true;
@@ -632,9 +728,62 @@ public class PickingStockFinder {
 			}
 		}
 
+		public BigDecimal getAmountInPackagingsDiff(BigDecimal amount) {
+			return amount.subtract(getAmountInPackagings(amount));
+		}
+
+		public BigDecimal getAmountInPackagings(BigDecimal amount) {
+			if (packagingAmount == null) {
+				return amount;
+			}
+			if (packagingAmount.compareTo(BigDecimal.ZERO) <= 0) {
+				return amount;
+			}
+			if (packagingAmount.compareTo(BigDecimal.ONE) == 0) {
+				return amount;
+			}
+			if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+				return amount;
+			}
+			if (amount.compareTo(packagingAmount) <= 0) {
+				return BigDecimal.ZERO;
+			}
+			return amount.divideToIntegralValue(packagingAmount).multiply(packagingAmount);
+		}
+
 		public String toString() {
 			return "location=" + locationName + ", amount=" + amount;
 		}
 	}
 
+	public class PickStockUnit {
+		private StockUnit stockUnit;
+		private BigDecimal amount;
+
+		PickStockUnit(Long stockId) {
+			this.stockUnit = manager.find(StockUnit.class, stockId);
+		}
+
+		PickStockUnit(Long stockId, BigDecimal amount) {
+			this.stockUnit = manager.find(StockUnit.class, stockId);
+			this.amount = amount;
+		}
+
+		public StockUnit getStockUnit() {
+			return stockUnit;
+		}
+
+		public void setStockUnit(StockUnit stockUnit) {
+			this.stockUnit = stockUnit;
+		}
+
+		public BigDecimal getAmount() {
+			return amount;
+		}
+
+		public void setAmount(BigDecimal amount) {
+			this.amount = amount;
+		}
+
+	}
 }

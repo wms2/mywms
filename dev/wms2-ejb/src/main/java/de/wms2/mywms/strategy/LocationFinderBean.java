@@ -310,7 +310,7 @@ public class LocationFinderBean implements LocationFinder {
 
 		if (!itemData.isEmpty()) {
 			// Do not use areas, that have enough material
-			List<StorageArea> fullAreas = readFullAreas(itemData);
+			List<StorageArea> fullAreas = readFullAreas(itemData, strategyDate);
 			for (StorageArea fullArea : fullAreas) {
 				if (!hiddenAreas.contains(fullArea)) {
 					hiddenAreas.add(fullArea);
@@ -1043,11 +1043,12 @@ public class LocationFinderBean implements LocationFinder {
 	}
 
 	/**
-	 * Read all StorageAreas which are full in meaning of ItemDataArea.
+	 * Read all StorageAreas which are full in meaning of ItemDataArea. Only
+	 * consider stocks with an older or same strategyDate as the given one.
 	 * <p>
 	 * The StockUnit or UnitLoad may be locked.
 	 */
-	private List<StorageArea> readFullAreas(Collection<ItemData> itemData) {
+	private List<StorageArea> readFullAreas(Collection<ItemData> itemData, Date strategyDate) {
 		String jpql = " SELECT storageArea FROM ";
 		jpql += StorageArea.class.getSimpleName() + " storageArea,";
 		jpql += ItemDataArea.class.getName() + " itemDataStorage";
@@ -1061,14 +1062,15 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += "  and (";
 		jpql += " stock.unitLoad.storageLocation.locationCluster in elements(storageArea.locationClusters)";
 		jpql += " or exists(select 1 from " + TransportOrder.class.getName() + " transportOrder";
-		jpql += "  where transportOrder.unitLoad=stock.unitLoad";
-		jpql += "  and transportOrder.state<:finished";
-		jpql += "  and transportOrder.destinationLocation.locationCluster in elements(storageArea.locationClusters)";
+		jpql += "   where transportOrder.unitLoad=stock.unitLoad";
+		jpql += "   and transportOrder.state<:finished";
+		jpql += "   and transportOrder.destinationLocation.locationCluster in elements(storageArea.locationClusters)";
 		jpql += "  )";
+		jpql += "  and stock.strategyDate<=:strategyDate";
 		jpql += "  and stock.unitLoad.storageLocation.lock=0";
 		jpql += "  and stock.state>=:incomming and stock.state<:picked";
 		jpql += "  and stock.unitLoad.state>=:incomming and stock.unitLoad.state<:picked)";
-		jpql += " ))";
+		jpql += "  ))";
 		jpql += " or (itemDataStorage.amount=0";
 		jpql += "  or itemDataStorage.amount <= ";
 		jpql += "  (select sum(stock.amount) from " + StockUnit.class.getSimpleName() + " stock";
@@ -1076,10 +1078,11 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += "  and (";
 		jpql += " stock.unitLoad.storageLocation.locationCluster in elements(storageArea.locationClusters)";
 		jpql += " or exists(select 1 from " + TransportOrder.class.getName() + " transportOrder";
-		jpql += "  where transportOrder.unitLoad=stock.unitLoad";
-		jpql += "  and transportOrder.state<:finished";
-		jpql += "  and transportOrder.destinationLocation.locationCluster in elements(storageArea.locationClusters)";
+		jpql += "   where transportOrder.unitLoad=stock.unitLoad";
+		jpql += "   and transportOrder.state<:finished";
+		jpql += "   and transportOrder.destinationLocation.locationCluster in elements(storageArea.locationClusters)";
 		jpql += "  )";
+		jpql += "  and stock.strategyDate<=:strategyDate";
 		jpql += "  and stock.unitLoad.storageLocation.lock=0";
 		jpql += "  and stock.state>=:incomming and stock.state<:picked";
 		jpql += "  and stock.unitLoad.state>=:incomming and stock.unitLoad.state<:picked)";
@@ -1087,6 +1090,7 @@ public class LocationFinderBean implements LocationFinder {
 
 		TypedQuery<StorageArea> query = manager.createQuery(jpql, StorageArea.class);
 		query.setParameter("itemData", itemData);
+		query.setParameter("strategyDate", strategyDate);
 		query.setParameter("incomming", StockState.INCOMING);
 		query.setParameter("picked", StockState.PICKED);
 		query.setParameter("finished", OrderState.FINISHED);

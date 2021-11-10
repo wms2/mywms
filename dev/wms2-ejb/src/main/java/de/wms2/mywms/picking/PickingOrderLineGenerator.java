@@ -200,22 +200,30 @@ public class PickingOrderLineGenerator {
 
 		BigDecimal remainingAmount = amount;
 		while (true) {
-			StockUnit sourceStock = pickingStockService.findFirstSourceStock(deliveryOrderLine.getItemData(),
-					remainingAmount, client, deliveryOrderLine.getLotNumber(), strategy);
-			if (sourceStock == null) {
+			PickingStockFinder.PickStockUnit source = pickingStockService.findFirstSourceStock(
+					deliveryOrderLine.getItemData(), remainingAmount, client, deliveryOrderLine.getLotNumber(),
+					strategy);
+			if (source == null) {
 				break;
 			}
+			StockUnit sourceStockUnit = source.getStockUnit();
+			BigDecimal sourceAmount = source.getAmount();
 
-			BigDecimal availableAmount = sourceStock.getAmount().subtract(sourceStock.getReservedAmount());
+			BigDecimal availableAmount = sourceStockUnit.getAmount().subtract(sourceStockUnit.getReservedAmount());
 			BigDecimal pickAmount = remainingAmount;
 			if (pickAmount.compareTo(availableAmount) > 0) {
 				pickAmount = availableAmount;
+			}
+			if (sourceAmount != null && sourceAmount.compareTo(BigDecimal.ZERO) > 0
+					&& sourceAmount.compareTo(pickAmount) < 0) {
+				pickAmount = sourceAmount;
 			}
 			if (strategy.getCompleteHandling() != OrderStrategyCompleteHandling.NONE) {
 				pickAmount = availableAmount;
 			}
 
-			PickingOrderLine pickingLine = generatePick(deliveryOrderLine, strategy, sourceStock, pickAmount, client);
+			PickingOrderLine pickingLine = generatePick(deliveryOrderLine, strategy, sourceStockUnit, pickAmount,
+					client);
 			pickingLine.setAdditionalContent(deliveryOrderLine.getAdditionalContent());
 			pickingLine.setPickingHint(deliveryOrderLine.getPickingHint());
 			pickingLine.setPackingHint(deliveryOrderLine.getPackingHint());
