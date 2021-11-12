@@ -529,7 +529,7 @@ public abstract class BusinessObjectQueryBean<T extends BasicEntity> implements
 			q.setBoClass(getBoClass());
 
 			clientToken = new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client", c);
+					TemplateQueryWhereToken.OPERATOR_EQUAL, getClientPropertyName(), c);
 			q.addWhereToken(clientToken);
 			
 			ret = queryByTemplate(d, q);
@@ -682,7 +682,7 @@ public abstract class BusinessObjectQueryBean<T extends BasicEntity> implements
 		if (client != null) {
 			q.addNewFilter().addWhereToken(
 					new TemplateQueryWhereToken(
-					TemplateQueryWhereToken.OPERATOR_EQUAL, "client", client));
+					TemplateQueryWhereToken.OPERATOR_EQUAL, getClientPropertyName(), client));
 		}
 		if (tokens != null) {
 			TemplateQueryFilter filter = q.addNewFilter();
@@ -859,5 +859,9 @@ public abstract class BusinessObjectQueryBean<T extends BasicEntity> implements
 	
 	protected List<TemplateQueryWhereToken> getFilterTokens(String value){
 		return null;
+	}
+
+	protected String getClientPropertyName() {
+		return "client";
 	}
 }

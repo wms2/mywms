@@ -124,4 +124,7 @@ public class LOSAdviceQueryBean extends BusinessObjectQueryBean<AdviceLine>
 		return clientService.isSingleClient();
 	}
 	
+	protected String getClientPropertyName() {
+		return "advice.client";
+	}
 }
