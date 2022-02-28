@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2021 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -87,8 +87,8 @@ public class TransportBusiness {
 		String logStr = "cleanupDeleted ";
 		logger.log(Level.FINE, logStr);
 
-		List<TransportOrder> transportOrders = transportOrderEntityService.readList(null, null, null, null, OrderState.DELETABLE,
-				null);
+		List<TransportOrder> transportOrders = transportOrderEntityService.readList(null, null, null, null,
+				OrderState.DELETABLE, null);
 		for (TransportOrder transportOrder : transportOrders) {
 			trashHandler.removeTransportOrder(transportOrder);
 		}
@@ -204,6 +204,13 @@ public class TransportBusiness {
 
 		locationReserver.reserveLocation(destinationLocation, unitLoad, TransportOrder.class, order.getId(),
 				order.getOrderNumber());
+
+		StockUnit stockUnit = readSingleStockUnit(unitLoad);
+		if (stockUnit != null) {
+			order.setItemData(stockUnit.getItemData());
+			order.setAmount(stockUnit.getAmount());
+			order.setLotNumber(stockUnit.getLotNumber());
+		}
 
 		fireTransportOrderStateChangeEvent(order, -1);
 
@@ -490,6 +497,14 @@ public class TransportBusiness {
 			}
 			throw ex;
 		}
+	}
+
+	private StockUnit readSingleStockUnit(UnitLoad unitLoad) {
+		List<StockUnit> stockUnits = stockUnitService.readList(null, null, null, unitLoad, null, null, null, 2);
+		if (stockUnits.size() == 1) {
+			return stockUnits.get(0);
+		}
+		return null;
 	}
 
 }

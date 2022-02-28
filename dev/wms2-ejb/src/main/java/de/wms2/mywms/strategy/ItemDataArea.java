@@ -1,5 +1,5 @@
 /* 
-Copyright 2021 Matthias Krane
+Copyright 2021-2022 Matthias Krane
 
 This file is part of the Warehouse Management System mywms
 
@@ -46,10 +46,10 @@ public class ItemDataArea extends BasicEntity {
 	private StorageArea storageArea;
 
 	@Column(nullable = true, precision = 17, scale = 4)
-	private BigDecimal amount;
+	private BigDecimal plannedAmount;
 
 	@Column(nullable = true)
-	private Integer numStocks;
+	private Integer plannedStocks;
 
 	@Override
 	public String toString() {
@@ -97,20 +97,21 @@ public class ItemDataArea extends BasicEntity {
 		this.storageArea = storageArea;
 	}
 
-	public BigDecimal getAmount() {
-		return amount;
+	public BigDecimal getPlannedAmount() {
+		return plannedAmount;
 	}
 
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
+	public void setPlannedAmount(BigDecimal plannedAmount) {
+		this.plannedAmount = plannedAmount;
 	}
 
-	public Integer getNumStocks() {
-		return numStocks;
+	public Integer getPlannedStocks() {
+		return plannedStocks;
 	}
 
-	public void setNumStocks(Integer numStocks) {
-		this.numStocks = numStocks;
+	public void setPlannedStocks(Integer plannedStocks) {
+		this.plannedStocks = plannedStocks;
 	}
+
 
 }

@@ -35,10 +35,12 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.location.StorageLocationEntityService;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.replenish.ReplenishBusiness;
-import de.wms2.mywms.replenish.ReplenishOrder;
-import de.wms2.mywms.replenish.ReplenishOrderEntityService;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
+import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderEntityService;
+import de.wms2.mywms.transport.TransportOrderType;
 
 // TODO krane: I18N
 @Stateless
@@ -68,7 +70,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	@Inject
 	private ReplenishBusiness replenishBusiness;
 	@Inject
-	private ReplenishOrderEntityService replenishService;
+	private TransportOrderEntityService replenishService;
 
 	public Client getDefaultClient() {
 		Client systemClient = clientBusiness.getSingleClient();
@@ -103,9 +105,10 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		}
 		
 		ReplenishMobileOrder order = new ReplenishMobileOrder();
-		List<ReplenishOrder> active = replenishService.readOpenByDestination(loc);
+		List<TransportOrder> active = replenishService.readList(null, loc, null, TransportOrderType.REPLENISH_FIX, null,
+				null, null, OrderState.FINISHED - 1);
 		if (active != null && active.size() > 0) {
-			for( ReplenishOrder o : active ) {
+			for( TransportOrder o : active ) {
 				if( o.getState()>State.PROCESSABLE ) {
 					throw new LOSExceptionRB("MsgReplenishAlreadyStarted", this.getClass());
 				}
@@ -123,7 +126,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	}
 	
 	public ReplenishMobileOrder loadOrderById(long id) {
-		ReplenishOrder order = manager.find(ReplenishOrder.class, id);
+		TransportOrder order = manager.find(TransportOrder.class, id);
 		if( order == null ) {
 			return null;
 		}
@@ -136,13 +139,13 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	}
 	
 	public void startOrder( ReplenishMobileOrder mOrder ) throws FacadeException {
-		ReplenishOrder order = readReplenishOrder(mOrder);
+		TransportOrder order = readReplenishOrder(mOrder);
 		User user = contextService.getCallersUser();
 		replenishBusiness.startOperation(order, user);
 	}
 	
 	public void resetOrder( ReplenishMobileOrder mOrder ) throws FacadeException {
-		ReplenishOrder order = readReplenishOrder(mOrder);
+		TransportOrder order = readReplenishOrder(mOrder);
 		replenishBusiness.resetOrder(order);
 	}
 	
@@ -230,7 +233,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 	public void confirmOrder( ReplenishMobileOrder mOrder ) throws FacadeException {
 		String logStr = "confirmOrder ";
 		log.debug(logStr);
-		ReplenishOrder order = readReplenishOrder(mOrder);
+		TransportOrder order = readReplenishOrder(mOrder);
 
 		StockUnit sourceStock = null;
 		if( mOrder.getSourceStockId()>0 ) {
@@ -281,8 +284,9 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		Client client = user.getClient();
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT o FROM "+ReplenishOrder.class.getName()+ " o ");
+		sb.append("SELECT o FROM "+TransportOrder.class.getName()+ " o ");
 		sb.append(" WHERE o.state="+State.PROCESSABLE);
+		sb.append(" and o.orderType = "+TransportOrderType.REPLENISH_FIX);
 		if (!client.isSystemClient()) {
 			sb.append(" AND o.client=:client ");
 		}
@@ -298,10 +302,10 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		if( !StringTools.isEmpty(code) ) {
 			query.setParameter("code", code);
 		}		
-		List<ReplenishOrder> res = query.getResultList();
+		List<TransportOrder> res = query.getResultList();
 		
 		ArrayList<SelectItem> orderSelectList = new ArrayList<SelectItem>();
-		for (ReplenishOrder order : res) {
+		for (TransportOrder order : res) {
 			StorageLocation destination = order.getDestinationLocation();
 			String label = destination.getName();
 			StorageLocation sourceLocation = order.getSourceLocation();
@@ -324,7 +328,7 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		ItemData item = itemDataService.getByItemNumber(mOrder.getItemNumber());
 		StorageLocation loc = locationService.read(mOrder.getDestinationLocationName());
 		
-		ReplenishOrder order = replenishBusiness.generateOrder(item, mOrder.getAmountRequested(), loc);
+		TransportOrder order = replenishBusiness.generateOrder(item, mOrder.getAmountRequested(), loc);
 		if( order == null ) {
 			return null;
 		}
@@ -345,8 +349,10 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		Client client = user.getClient();
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT o FROM "+ReplenishOrder.class.getName()+ " o ");
+		sb.append("SELECT o FROM "+TransportOrder.class.getName()+ " o ");
 		sb.append(" WHERE o.operator=:user AND o.state >"+State.PROCESSABLE+" AND o.state<"+State.FINISHED);
+		sb.append(" and o.orderType = "+TransportOrderType.REPLENISH_FIX);
+
 		if (!client.isSystemClient()) {
 			sb.append(" AND o.client=:client ");
 		}
@@ -357,9 +363,9 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		if (!client.isSystemClient()) {
 			query.setParameter("client", client);
 		}
-		List<ReplenishOrder> res = query.getResultList();
+		List<TransportOrder> res = query.getResultList();
 		if( res.size() > 0 ) {
-			ReplenishOrder order = (ReplenishOrder)res.get(0);
+			TransportOrder order = res.get(0);
 			ReplenishMobileOrder mOrder = new ReplenishMobileOrder();
 			StockUnit sourceStockUnit = manager.find(StockUnit.class, order.getSourceStockUnitId());
 			mOrder.setOrder(order, sourceStockUnit);
@@ -395,15 +401,15 @@ public class ReplenishMobileFacadeBean implements ReplenishMobileFacade {
 		}
 	}
 
-	private ReplenishOrder readReplenishOrder(ReplenishMobileOrder mOrder) throws FacadeException {
+	private TransportOrder readReplenishOrder(ReplenishMobileOrder mOrder) throws FacadeException {
 		String logStr = "readReplenishOrder ";
 		if (mOrder == null) {
 			log.info(logStr + "Missing parameter mOrder.");
 			throw new LOSExceptionRB("MsgCannotReadOrder", this.getClass());
 		}
-		ReplenishOrder order = manager.find(ReplenishOrder.class, mOrder.getId());
+		TransportOrder order = manager.find(TransportOrder.class, mOrder.getId());
 		if (order == null) {
-			log.info(logStr + "ReplenishOrder not found. id=" + mOrder.getId());
+			log.info(logStr + "TransportOrder not found. id=" + mOrder.getId());
 			throw new LOSExceptionRB("MsgCannotReadOrder", this.getClass());
 		}
 		return order;

@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -20,7 +20,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.replenish;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +33,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.ObserverException;
 import javax.inject.Inject;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mywms.model.User;
@@ -55,9 +55,13 @@ import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.strategy.ItemDataArea;
 import de.wms2.mywms.strategy.LocationReserver;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderEntityService;
+import de.wms2.mywms.transport.TransportOrderStateChangeEvent;
+import de.wms2.mywms.transport.TransportOrderType;
 import de.wms2.mywms.user.UserBusiness;
 import de.wms2.mywms.util.Wms2BundleResolver;
 import de.wms2.mywms.util.Wms2Properties;
@@ -71,7 +75,7 @@ public class ReplenishBusiness {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Inject
-	private Event<ReplenishOrderStateChangeEvent> replenishOrderStateChangeEvent;
+	private Event<TransportOrderStateChangeEvent> transportOrderStateChangeEvent;
 	@Inject
 	private PersistenceManager manager;
 	@Inject
@@ -83,7 +87,7 @@ public class ReplenishBusiness {
 	@Inject
 	private SequenceBusiness sequenceBusiness;
 	@Inject
-	private ReplenishOrderEntityService orderService;
+	private TransportOrderEntityService transportOrderService;
 	@Inject
 	private StockUnitEntityService stockUnitEntityService;
 	@Inject
@@ -97,13 +101,24 @@ public class ReplenishBusiness {
 		String logStr = "cleanupDeleted ";
 		logger.log(Level.FINE, logStr);
 
-		List<ReplenishOrder> orders = orderService.readList(null, null, OrderState.DELETABLE, null);
-		for (ReplenishOrder order : orders) {
-			trashHandler.removeReplenishOrder(order);
+		List<TransportOrder> orders = transportOrderService.readList(null, null, null, TransportOrderType.REPLENISH,
+				null, null, OrderState.DELETABLE, null);
+		for (TransportOrder order : orders) {
+			trashHandler.removeTransportOrder(order);
+		}
+		orders = transportOrderService.readList(null, null, null, TransportOrderType.REPLENISH_FIX, null, null,
+				OrderState.DELETABLE, null);
+		for (TransportOrder order : orders) {
+			trashHandler.removeTransportOrder(order);
+		}
+		orders = transportOrderService.readList(null, null, null, TransportOrderType.REPLENISH_AREA, null, null,
+				OrderState.DELETABLE, null);
+		for (TransportOrder order : orders) {
+			trashHandler.removeTransportOrder(order);
 		}
 	}
 
-	public ReplenishOrder releaseOperation(ReplenishOrder order, User operator, Integer prio, String note)
+	public TransportOrder releaseOperation(TransportOrder order, User operator, Integer prio, String note)
 			throws BusinessException {
 		String logStr = "releaseOperation ";
 		logger.log(Level.FINE, logStr + "order=" + order);
@@ -140,13 +155,13 @@ public class ReplenishBusiness {
 		}
 
 		if (order.getState() != orderState) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
 
-	public ReplenishOrder startOperation(ReplenishOrder order, User operator) throws BusinessException {
+	public TransportOrder startOperation(TransportOrder order, User operator) throws BusinessException {
 		String logStr = "startOperation ";
 		logger.log(Level.FINE, logStr + "order=" + order);
 
@@ -180,13 +195,13 @@ public class ReplenishBusiness {
 
 		order.setState(OrderState.STARTED);
 		if (orderState != order.getState()) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
 
-	public ReplenishOrder cancelOperation(ReplenishOrder order) throws BusinessException {
+	public TransportOrder cancelOperation(TransportOrder order) throws BusinessException {
 		String logStr = "cancelOperation ";
 		logger.log(Level.FINE, logStr + "order=" + order);
 
@@ -205,13 +220,13 @@ public class ReplenishBusiness {
 		order.setState(OrderState.PROCESSABLE);
 
 		if (orderState != order.getState()) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
 
-	public ReplenishOrder reserveOperation(ReplenishOrder order, User operator) throws BusinessException {
+	public TransportOrder reserveOperation(TransportOrder order, User operator) throws BusinessException {
 		String logStr = "reserveOperation ";
 		logger.log(Level.FINE, logStr + "order=" + order);
 
@@ -233,13 +248,13 @@ public class ReplenishBusiness {
 
 		if (orderState < OrderState.RESERVED) {
 			order.setState(OrderState.RESERVED);
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
 
-	public ReplenishOrder pauseOrder(ReplenishOrder order) throws BusinessException {
+	public TransportOrder pauseOrder(TransportOrder order) throws BusinessException {
 		String logStr = "pauseOrder ";
 		logger.log(Level.FINE, logStr + "order=" + order);
 
@@ -256,13 +271,13 @@ public class ReplenishBusiness {
 
 		order.setState(OrderState.PAUSE);
 		if (order.getState() != orderState) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
 
-	public ReplenishOrder cancelOrder(ReplenishOrder order) throws BusinessException {
+	public TransportOrder cancelOrder(TransportOrder order) throws BusinessException {
 		String logStr = "cancelOrder ";
 		logger.log(Level.FINE, logStr + "order=" + order);
 
@@ -275,7 +290,6 @@ public class ReplenishBusiness {
 
 		StockUnit sourceStock = manager.reload(StockUnit.class, order.getSourceStockUnitId());
 		if (sourceStock != null) {
-			sourceStock.setReservedAmount(BigDecimal.ZERO);
 			if (order.getDestinationLocation() != null) {
 				locationReserver.deallocateLocation(order.getDestinationLocation(), sourceStock.getUnitLoad(), true);
 			}
@@ -283,13 +297,13 @@ public class ReplenishBusiness {
 
 		order.setState(OrderState.CANCELED);
 		if (order.getState() != orderState) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
 	}
 
-	public void removeOrder(ReplenishOrder order) throws BusinessException {
+	public void removeOrder(TransportOrder order) throws BusinessException {
 		String logStr = "removeOrder ";
 		logger.log(Level.INFO, logStr + "order=" + order);
 
@@ -303,7 +317,7 @@ public class ReplenishBusiness {
 		manager.remove(order);
 	}
 
-	public ReplenishOrder resetOrder(ReplenishOrder order) throws BusinessException {
+	public TransportOrder resetOrder(TransportOrder order) throws BusinessException {
 		String logStr = "resetOrder ";
 		logger.log(Level.FINE, logStr + "order=" + order);
 
@@ -321,7 +335,7 @@ public class ReplenishBusiness {
 		order.setOperator(null);
 		order.setState(OrderState.PROCESSABLE);
 		if (order.getState() != orderState) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
@@ -335,7 +349,7 @@ public class ReplenishBusiness {
 	 *                        used.
 	 * @param amount          Optional. If null the complete source stock is used.
 	 */
-	public ReplenishOrder confirmOrder(ReplenishOrder order, StockUnit sourceStockUnit, StorageLocation toLocation,
+	public TransportOrder confirmOrder(TransportOrder order, StockUnit sourceStockUnit, StorageLocation toLocation,
 			BigDecimal amount, String note) throws BusinessException {
 		String logStr = "confirmOrder ";
 
@@ -356,7 +370,6 @@ public class ReplenishBusiness {
 				throw new BusinessException(Wms2BundleResolver.class, "Replenish.missingSourceStock");
 			}
 		}
-		sourceStockUnit.setReservedAmount(BigDecimal.ZERO);
 
 		if (toLocation == null) {
 			toLocation = order.getDestinationLocation();
@@ -439,7 +452,7 @@ public class ReplenishBusiness {
 
 		order.setState(OrderState.FINISHED);
 		if (order.getState() != orderState) {
-			fireReplenishStateChangeEvent(order, orderState);
+			fireTransportOrderStateChangeEvent(order, orderState);
 		}
 
 		return order;
@@ -457,10 +470,10 @@ public class ReplenishBusiness {
 		jpql += " WHERE fix.minAmount>=0";
 		jpql += " and stock.unitLoad.storageLocation=fix.storageLocation";
 		jpql += " and stock.itemData=fix.itemData";
-		jpql += " and not exists(select 1 from " + ReplenishOrder.class.getName() + " replenishOrder ";
-		jpql += "   where replenishOrder.destinationLocation=fix.storageLocation";
-		jpql += "   and replenishOrder.itemData=fix.itemData";
-		jpql += "   and replenishOrder.state<" + OrderState.FINISHED + ")";
+		jpql += " and not exists(select 1 from " + TransportOrder.class.getName() + " transportOrder ";
+		jpql += "   where transportOrder.destinationLocation=fix.storageLocation";
+		jpql += "   and transportOrder.itemData=fix.itemData";
+		jpql += "   and transportOrder.state<" + OrderState.FINISHED + ")";
 		jpql += " group by fix ";
 		jpql += " having sum(stock.amount) < fix.minAmount";
 		Query query = manager.createQuery(jpql);
@@ -482,10 +495,10 @@ public class ReplenishBusiness {
 		jpql += " and exists(select 1 from " + StockUnit.class.getName() + " stock ";
 		jpql += "   where stock.itemData=fix.itemData ";
 		jpql += "   and stock.state=" + StockState.ON_STOCK + ")";
-		jpql += " and not exists(select 1 from " + ReplenishOrder.class.getName() + " replenishOrder ";
-		jpql += "   where replenishOrder.destinationLocation=fix.storageLocation";
-		jpql += "   and replenishOrder.itemData=fix.itemData";
-		jpql += "   and replenishOrder.state<" + OrderState.FINISHED + ")";
+		jpql += " and not exists(select 1 from " + TransportOrder.class.getName() + " transportOrder ";
+		jpql += "   where transportOrder.destinationLocation=fix.storageLocation";
+		jpql += "   and transportOrder.itemData=fix.itemData";
+		jpql += "   and transportOrder.state<" + OrderState.FINISHED + ")";
 		query = manager.createQuery(jpql);
 
 		List<FixAssignment> emptyFixAssignments = query.getResultList();
@@ -493,72 +506,40 @@ public class ReplenishBusiness {
 
 		logger.log(Level.INFO, logStr + "Checkable locations. size=" + checkableFixAssignments.size());
 
-		List<FixAssignment> pickFixAssignments = new ArrayList<>();
+		return refillFixAssignments(checkableFixAssignments);
+	}
+
+	public int refillFixAssignments(Collection<FixAssignment> fixAssignments) throws BusinessException {
+		String logStr = "refillFixAssignments ";
+		logger.log(Level.FINE, logStr);
+
 		int numOrders = 0;
-		for (FixAssignment fix : checkableFixAssignments) {
+		for (FixAssignment fix : fixAssignments) {
 			// First iteration for not picking location
 			// Fist fill up reserve material
 			Area area = fix.getStorageLocation().getArea();
 			if (area == null) {
 				continue;
 			}
-			if (StringUtils.contains(area.getUsages(), AreaUsages.PICKING)) {
-				pickFixAssignments.add(fix);
+			boolean isPicking = StringUtils.contains(area.getUsages(), AreaUsages.PICKING);
+			boolean isStorage = StringUtils.contains(area.getUsages(), AreaUsages.STORAGE);
+			if (!isPicking && !isStorage) {
+				continue;
 			}
-			if (!StringUtils.contains(area.getUsages(), AreaUsages.STORAGE)) {
+
+			List<TransportOrder> existingOrders = transportOrderService.readOpen(fix.getStorageLocation(),
+					fix.getItemData());
+			if (!existingOrders.isEmpty()) {
+				logger.log(Level.INFO, logStr + "Order already exists. location=" + fix.getStorageLocation()
+						+ ", itemData=" + fix.getItemData());
 				continue;
 			}
 
 			// The selected assignments are only candidates
 			// There may be some other reasons not to put replenish to these locations
-			logger.log(Level.FINE, logStr + "Check reserve location " + fix.getStorageLocation());
+			logger.log(Level.FINE,
+					logStr + "Check location " + fix.getStorageLocation() + ", itemData=" + fix.getItemData());
 
-			BigDecimal sumAmount = BigDecimal.ZERO;
-			Set<String> lotsOnLocation = new HashSet<>();
-			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByItemDataLocation(fix.getItemData(), fix.getStorageLocation());
-			for (StockUnit stock : stocksOnLocation) {
-				sumAmount = sumAmount.add(stock.getAmount());
-				if (!StringUtils.isBlank(stock.getLotNumber())) {
-					lotsOnLocation.add(stock.getLotNumber());
-				}
-			}
-			if (sumAmount.compareTo(fix.getMinAmount()) > 0) {
-				logger.log(Level.FINE, logStr + "Enough amount on location " + fix.getStorageLocation());
-				continue;
-			}
-
-			ReplenishOrder order = generateOrderForStorage(fix.getItemData(), fix.getStorageLocation(), null, sumAmount,
-					lotsOnLocation);
-			if (order != null) {
-				numOrders++;
-			}
-		}
-
-		for (FixAssignment fix : pickFixAssignments) {
-			// The selected assignments are only candidates
-			// There may be some other reasons not to put replenish to these locations
-			logger.log(Level.FINE, logStr + "Check location " + fix.getStorageLocation());
-
-			// Do not make orders for picking locations, if there are already orders for
-			// reserve locations.
-			// Normally the picking locations should be filled from the reserve
-			List<ReplenishOrder> existingOrders = orderService.readList(fix.getItemData(), null, OrderState.RELEASED,
-					OrderState.FINISHED - 1);
-			boolean hasExistingOrder = false;
-			for (ReplenishOrder existingOrder : existingOrders) {
-				String usages = existingOrder.getDestinationLocation().getArea().getUsages();
-				if (StringUtils.contains(usages, AreaUsages.STORAGE)
-						&& !StringUtils.contains(usages, AreaUsages.PICKING)) {
-					logger.log(Level.INFO, logStr + "There is alredy a replenish order. itemData=" + fix.getItemData());
-					hasExistingOrder = true;
-					break;
-				}
-			}
-			if (hasExistingOrder) {
-				continue;
-			}
-
-			// check amounts
 			BigDecimal sumAmount = BigDecimal.ZERO;
 			Set<String> lotsOnLocation = new HashSet<>();
 			List<StockUnit> stocksOnLocation = stockUnitEntityService.readByItemDataLocation(fix.getItemData(),
@@ -569,13 +550,21 @@ public class ReplenishBusiness {
 					lotsOnLocation.add(stock.getLotNumber());
 				}
 			}
-			if (sumAmount.compareTo(fix.getMinAmount()) > 0) {
-				logger.log(Level.FINE, logStr + "Enough amount on location " + fix.getStorageLocation());
+			if (fix.getMinAmount() == null || sumAmount.compareTo(fix.getMinAmount()) > 0) {
+				logger.log(Level.FINE, logStr + "Enough amount on location " + fix.getStorageLocation() + ", itemData="
+						+ fix.getItemData());
 				continue;
 			}
 
-			ReplenishOrder order = generateOrderForPicking(fix.getItemData(), fix.getStorageLocation(), null, sumAmount,
-					lotsOnLocation);
+			TransportOrder order = null;
+			if (isPicking) {
+				order = generateOrderForPicking(fix.getItemData(), fix.getStorageLocation(), null, sumAmount,
+						lotsOnLocation);
+			}
+			if (order == null && isStorage) {
+				order = generateOrderForStorage(fix.getItemData(), fix.getStorageLocation(), null, sumAmount,
+						lotsOnLocation);
+			}
 			if (order != null) {
 				numOrders++;
 			}
@@ -584,7 +573,7 @@ public class ReplenishBusiness {
 		return numOrders;
 	}
 
-	public ReplenishOrder generateOrder(ItemData itemData, BigDecimal requestedAmount, StorageLocation location)
+	public TransportOrder generateOrder(ItemData itemData, BigDecimal requestedAmount, StorageLocation location)
 			throws BusinessException {
 		BigDecimal sumAmount = BigDecimal.ZERO;
 		Set<String> lotSet = new HashSet<>();
@@ -599,7 +588,7 @@ public class ReplenishBusiness {
 		return generateOrderForPicking(itemData, location, requestedAmount, sumAmount, lotSet);
 	}
 
-	private ReplenishOrder generateOrderForPicking(ItemData itemData, StorageLocation location,
+	private TransportOrder generateOrderForPicking(ItemData itemData, StorageLocation location,
 			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<String> lotsOnLocation)
 			throws BusinessException {
 		String logStr = "generateOrderForPicking ";
@@ -608,18 +597,13 @@ public class ReplenishBusiness {
 
 		StockUnit sourceStock = findReplenishStockForPicking(itemData, lotsOnLocation);
 		if (sourceStock == null) {
-			logger.log(Level.INFO, logStr + "No replenish stock available. itemData=" + itemData + ", location="
-					+ location + ", lotsOnLocation=" + lotsOnLocation);
+			logger.log(Level.INFO, logStr + "No replenish stock available. location=" + location + ", itemData="
+					+ itemData + ", lotsOnLocation=" + lotsOnLocation);
 			return null;
 		}
 
-		if (orderService.exists(itemData, location, OrderState.PROCESSABLE, OrderState.FINISHED - 1)) {
-			logger.log(Level.INFO, logStr + "Order already exists. itemData=" + itemData + ", location=" + location);
-			return null;
-		}
-
-		String orderNumber = sequenceBusiness.readNextValue(ReplenishOrder.class, "orderNumber");
-		ReplenishOrder order = manager.createInstance(ReplenishOrder.class);
+		String orderNumber = sequenceBusiness.readNextValue(TransportOrder.class, "orderNumber");
+		TransportOrder order = manager.createInstance(TransportOrder.class);
 		order.setClient(sourceStock.getClient());
 		order.setOrderNumber(orderNumber);
 		order.setItemData(itemData);
@@ -627,12 +611,13 @@ public class ReplenishBusiness {
 		order.setDestinationLocation(location);
 		order.setSourceStockUnitId(sourceStock.getId());
 		order.setSourceLocation(sourceStock.getUnitLoad().getStorageLocation());
+		order.setUnitLoad(sourceStock.getUnitLoad());
+		order.setUnitLoadLabel(sourceStock.getUnitLoad().getLabelId());
 		order.setAmount(requestedAmount);
+		order.setOrderType(TransportOrderType.REPLENISH_FIX);
 		manager.persist(order);
 
-		sourceStock.setReservedAmount(sourceStock.getAmount());
-
-		locationReserver.reserveLocation(location, sourceStock.getUnitLoad(), ReplenishOrder.class, order.getId(),
+		locationReserver.reserveLocation(location, sourceStock.getUnitLoad(), TransportOrder.class, order.getId(),
 				order.getOrderNumber());
 
 		return order;
@@ -650,8 +635,12 @@ public class ReplenishBusiness {
 		jpql += Area.class.getName() + " area ";
 		jpql += "WHERE location = stock.unitLoad.storageLocation AND area = location.area ";
 		jpql += " AND location.lock=0 ";
-		jpql += " AND stock.lock=0 ";
+		jpql += " AND stock.lock=0 and stock.unitLoad.lock=0";
 		jpql += " AND stock.amount > 0 ";
+
+		// Use only stock state ON_STOCK
+		jpql += " AND stock.state=" + StockState.ON_STOCK;
+
 		jpql += " AND not area.usages like '%" + AreaUsages.PICKING + "%' ";
 		jpql += " AND area.usages like '%" + AreaUsages.STORAGE + "%' ";
 		jpql += " AND exists( select 1 from " + FixAssignment.class.getName() + " fix ";
@@ -728,7 +717,7 @@ public class ReplenishBusiness {
 
 	}
 
-	private ReplenishOrder generateOrderForStorage(ItemData itemData, StorageLocation location,
+	private TransportOrder generateOrderForStorage(ItemData itemData, StorageLocation location,
 			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<String> lotsOnLocation)
 			throws BusinessException {
 		String logStr = "generateOrderForStorage ";
@@ -742,26 +731,23 @@ public class ReplenishBusiness {
 			return null;
 		}
 
-		if (orderService.exists(itemData, location, OrderState.PROCESSABLE, OrderState.FINISHED - 1)) {
-			logger.log(Level.INFO, logStr + "Order already exists. itemData=" + itemData + ", location=" + location);
-			return null;
-		}
-
-		String orderNumber = sequenceBusiness.readNextValue(ReplenishOrder.class, "orderNumber");
-		ReplenishOrder order = manager.createInstance(ReplenishOrder.class);
+		String orderNumber = sequenceBusiness.readNextValue(TransportOrder.class, "orderNumber");
+		TransportOrder order = manager.createInstance(TransportOrder.class);
 		order.setClient(sourceStock.getClient());
 		order.setOrderNumber(orderNumber);
 		order.setItemData(itemData);
 		order.setDestinationLocation(location);
 		order.setSourceStockUnitId(sourceStock.getId());
 		order.setSourceLocation(sourceStock.getUnitLoad().getStorageLocation());
+		order.setUnitLoad(sourceStock.getUnitLoad());
+		order.setUnitLoadLabel(sourceStock.getUnitLoad().getLabelId());
+		;
 		order.setAmount(requestedAmount);
 		order.setState(OrderState.PROCESSABLE);
+		order.setOrderType(TransportOrderType.REPLENISH_FIX);
 		manager.persist(order);
 
-		sourceStock.setReservedAmount(sourceStock.getAmount());
-
-		locationReserver.reserveLocation(location, sourceStock.getUnitLoad(), ReplenishOrder.class, order.getId(),
+		locationReserver.reserveLocation(location, sourceStock.getUnitLoad(), TransportOrder.class, order.getId(),
 				order.getOrderNumber());
 
 		return order;
@@ -774,7 +760,7 @@ public class ReplenishBusiness {
 		jpql += Area.class.getName() + " area ";
 		jpql += "WHERE location = stock.unitLoad.storageLocation AND area = location.area ";
 		jpql += " AND location.lock=0";
-		jpql += " AND stock.lock=0";
+		jpql += " AND stock.lock=0 and stock.unitLoad.lock=0";
 		jpql += " AND stock.amount > 0 ";
 		// Do not use picking locations
 		jpql += " AND not area.usages like '%" + AreaUsages.PICKING + "%' ";
@@ -789,6 +775,12 @@ public class ReplenishBusiness {
 		// Do not use mixed unit loads
 		jpql += " AND not exists( select 1 from " + StockUnit.class.getName() + " stock2 ";
 		jpql += "     where stock2.unitLoad = stock.unitLoad and stock2.itemData!=stock.itemData )";
+		// Do not use unit loads with transports
+		jpql += " AND not exists( select 1 from " + TransportOrder.class.getName() + " transport ";
+		jpql += "     where transport.unitLoad=stock.unitLoad and transport.state<" + OrderState.FINISHED + ")";
+		// Use only stock state ON_STOCK
+		jpql += " AND stock.state=" + StockState.ON_STOCK;
+
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
 			jpql += " AND stock.lotNumber in (:lots) ";
 		}
@@ -810,9 +802,10 @@ public class ReplenishBusiness {
 
 	}
 
-	private void fireReplenishStateChangeEvent(ReplenishOrder entity, int oldState) throws BusinessException {
+	private void fireTransportOrderStateChangeEvent(TransportOrder entity, int oldState) throws BusinessException {
 		try {
-			replenishOrderStateChangeEvent.fire(new ReplenishOrderStateChangeEvent(entity, oldState));
+			transportOrderStateChangeEvent
+					.fire(new TransportOrderStateChangeEvent(entity, oldState, entity.getState()));
 		} catch (ObserverException ex) {
 			Throwable cause = ex.getCause();
 			if (cause != null && cause instanceof BusinessException) {

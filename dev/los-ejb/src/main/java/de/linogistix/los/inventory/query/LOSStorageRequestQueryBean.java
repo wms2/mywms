@@ -22,6 +22,7 @@ import de.linogistix.los.query.BusinessObjectQueryBean;
 import de.linogistix.los.query.TemplateQueryWhereToken;
 import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.transport.TransportOrder;
+import de.wms2.mywms.transport.TransportOrderType;
 
 /**
  *
@@ -47,9 +48,14 @@ public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<Transpor
 		propList.add(new BODTOConstructorProperty("id", false));
 		propList.add(new BODTOConstructorProperty("version", false));
 		propList.add(new BODTOConstructorProperty("orderNumber", false));
-		propList.add(new BODTOConstructorProperty("unitLoad.labelId", false));
 		propList.add(new BODTOConstructorProperty("state", false));
+		propList.add(new BODTOConstructorProperty("orderType", false));
+		propList.add(new BODTOConstructorProperty("unitLoad.labelId", null, BODTOConstructorProperty.JoinType.LEFT, "unitLoad"));
+		propList.add(new BODTOConstructorProperty("itemData", null, BODTOConstructorProperty.JoinType.LEFT, "itemData"));
+		propList.add(new BODTOConstructorProperty("sourceLocation.name", null, BODTOConstructorProperty.JoinType.LEFT, "sourceLocation"));
 		propList.add(new BODTOConstructorProperty("destinationLocation.name", null, BODTOConstructorProperty.JoinType.LEFT, "destinationLocation"));
+		propList.add(new BODTOConstructorProperty("amount", false));
+		propList.add(new BODTOConstructorProperty("client.number", false));
 
 		return propList;
 	}
@@ -96,11 +102,38 @@ public class LOSStorageRequestQueryBean extends BusinessObjectQueryBean<Transpor
 
 		if( "OPEN".equals(filterString) ) {
 			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_SMALLER, "state", OrderState.FINISHED);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
+		}
+		if( "TYPE_INBOUND".equals(filterString) ) {
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.INBOUND);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
+		}
+		if( "TYPE_TRANSFER".equals(filterString) ) {
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.UNDEFINED);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.TRANSFER);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.OUTBOUND);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_AND);
+			ret.add(token);
+		}
+		if( "TYPE_REPLENISH".equals(filterString) ) {
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.REPLENISH);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.REPLENISH_AREA);
+			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
+			ret.add(token);
+			token = new TemplateQueryWhereToken(TemplateQueryWhereToken.OPERATOR_EQUAL, "orderType", TransportOrderType.REPLENISH_FIX);
 			token.setLogicalOperator(TemplateQueryWhereToken.OPERATOR_OR);
 			ret.add(token);
 		}
 
 		return ret;
 	}
-    
+
 }

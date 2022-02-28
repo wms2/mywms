@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -31,4 +31,6 @@ public class TransportOrderType {
 	public static final int OUTBOUND = 2;
 	public static final int REPLENISH = 3;
 	public static final int TRANSFER = 4;
+	public static final int REPLENISH_FIX = 5;
+	public static final int REPLENISH_AREA = 6;
 }

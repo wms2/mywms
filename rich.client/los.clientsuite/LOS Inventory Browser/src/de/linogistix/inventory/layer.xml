@@ -278,10 +278,6 @@
             <file name="de-linogistix-inventory-browser-bo-BOLOSStorageRequest.instance">
                 <attr name="position" intvalue="100"/>
             </file>
-            
-            <file name="de-linogistix-inventory-browser-bo-BOLOSReplenishOrder.instance">
-                <attr name="position" intvalue="200"/>
-            </file>
 
         </folder>
 

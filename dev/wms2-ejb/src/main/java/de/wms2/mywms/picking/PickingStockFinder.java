@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2021 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -51,9 +51,11 @@ import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.FixAssignmentEntityService;
+import de.wms2.mywms.strategy.OrderState;
 import de.wms2.mywms.strategy.OrderStrategy;
 import de.wms2.mywms.strategy.OrderStrategyCompleteHandling;
 import de.wms2.mywms.strategy.OrderStrategyEntityService;
+import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.util.ListUtils;
 
 /**
@@ -560,6 +562,11 @@ public class PickingStockFinder {
 		jpql += " and (role.usages like '%" + AreaUsages.PICKING + "%'";
 		jpql += "      or role.usages like '%" + AreaUsages.STORAGE + "%') ";
 		jpql += " and stock.state=" + StockState.ON_STOCK;
+
+		jpql += " and not exists(select 1 from " + TransportOrder.class.getSimpleName() + " transportOrder ";
+		jpql += "  where transportOrder.unitLoad=unitLoad";
+		jpql += "  and transportOrder.state<" + OrderState.FINISHED;
+		jpql += " )";
 
 		if (!strategy.isUseLockedStock()) {
 			jpql += " and stock.lock=0 ";

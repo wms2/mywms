@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -108,7 +108,7 @@ public class StockUnitEntityService {
 		if (maxState != null) {
 			hql += " AND stock.state<=:maxState";
 		}
-		hql += " order by stock.id";
+		hql += " order by stock.strategyDate, stock.id";
 
 		Query query = manager.createQuery(hql);
 		if (limit != null) {

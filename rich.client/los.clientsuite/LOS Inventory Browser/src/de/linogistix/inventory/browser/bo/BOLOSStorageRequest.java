@@ -87,7 +87,7 @@ public class BOLOSStorageRequest extends BO {
     
     c = new TransportOrder();
     c.setOrderNumber("RequestId");
-    
+    c.setOrderType(TransportOrderType.TRANSFER);
     return c;
     
   }
@@ -137,6 +137,14 @@ public class BOLOSStorageRequest extends BO {
             quickSearch.setFilterSelected(1, 1);
             retDesired.add( quickSearch );
 
+            quickSearch.addFilter( 2, NbBundle.getMessage(InventoryBundleResolver.class, "TransportOrder.type")+":" );
+            quickSearch.addFilterValue(2, NbBundle.getMessage(InventoryBundleResolver.class, "filter.all"), "TYPE_ALL");
+            quickSearch.addFilterValue(2, NbBundle.getMessage(InventoryBundleResolver.class, "TransportOrder.type.inbound"), "TYPE_INBOUND");
+            quickSearch.addFilterValue(2, NbBundle.getMessage(InventoryBundleResolver.class, "TransportOrder.type.transfer"), "TYPE_TRANSFER");
+            quickSearch.addFilterValue(2, NbBundle.getMessage(InventoryBundleResolver.class, "TransportOrder.type.replenish"), "TYPE_REPLENISH");
+            quickSearch.setFilterSelected(2, 0);
+            retDesired.add( quickSearch );
+
             Method m;
             m = getQueryService().getClass().getDeclaredMethod("queryAllHandles", new Class[]{QueryDetail.class});
             retDesired.add(new DefaultBOQueryComponentProvider(getQueryService(), m));
@@ -178,6 +186,10 @@ public class BOLOSStorageRequest extends BO {
         if( "orderType".equals(fieldName) ) {
             List<Object> entryList = new ArrayList<Object>();
             entryList.add(TransportOrderType.INBOUND);
+            entryList.add(TransportOrderType.OUTBOUND);
+            entryList.add(TransportOrderType.TRANSFER);
+            entryList.add(TransportOrderType.REPLENISH_FIX);
+            entryList.add(TransportOrderType.REPLENISH_AREA);
 
             return entryList;
         }

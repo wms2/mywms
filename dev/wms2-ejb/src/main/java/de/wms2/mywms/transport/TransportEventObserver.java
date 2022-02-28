@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.inventory.UnitLoad;
+import de.wms2.mywms.inventory.UnitLoadTransferLocationEvent;
 import de.wms2.mywms.inventory.UnitLoadTrashEvent;
 
 /**
@@ -48,6 +49,17 @@ public class TransportEventObserver {
 		List<TransportOrder> transportOrders = relocateService.readOpen(unitLoad);
 		for (TransportOrder transportOrder : transportOrders) {
 			transportBusiness.removeUnitLoadReference(transportOrder);
+		}
+	}
+
+	public void listen(@Observes UnitLoadTransferLocationEvent event) throws BusinessException {
+		UnitLoad unitLoad = event.getUnitLoad();
+		if (unitLoad == null) {
+			return;
+		}
+		List<TransportOrder> transportOrders = relocateService.readOpen(unitLoad);
+		for (TransportOrder transportOrder : transportOrders) {
+			transportOrder.setSourceLocation(unitLoad.getStorageLocation());
 		}
 	}
 

@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -34,8 +34,8 @@ import de.wms2.mywms.exception.BusinessException;
 import de.wms2.mywms.goodsreceipt.GoodsReceiptLine;
 import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.picking.PickingOrderLine;
-import de.wms2.mywms.replenish.ReplenishOrder;
 import de.wms2.mywms.strategy.FixAssignment;
+import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.util.Wms2BundleResolver;
 
 /**
@@ -119,7 +119,7 @@ public class ItemDataValidator implements EntityValidator<ItemData> {
 			logger.log(Level.INFO, logStr + "Existing reference to PickingOrderLine. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByPickingOrderLine");
 		}
-		if (entitySerivce.exists(ReplenishOrder.class, "itemData", entity)) {
+		if (entitySerivce.exists(TransportOrder.class, "itemData", entity)) {
 			logger.log(Level.INFO, logStr + "Existing reference to ReplenishOrder. entity=" + entity);
 			throw new BusinessException(Wms2BundleResolver.class, "Validator.usedByReplenishOrder");
 		}

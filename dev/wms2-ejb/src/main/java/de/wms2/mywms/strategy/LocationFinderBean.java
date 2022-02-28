@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2021 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -1055,8 +1055,8 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += " WHERE itemDataStorage.itemData in (:itemData)";
 		jpql += " and itemDataStorage.storageArea = storageArea";
 		jpql += " and (";
-		jpql += " (itemDataStorage.numStocks=0";
-		jpql += "  or itemDataStorage.numStocks <= ";
+		jpql += " (itemDataStorage.plannedStocks=0";
+		jpql += "  or itemDataStorage.plannedStocks <= ";
 		jpql += "  (select count(distinct stock.unitLoad) from " + StockUnit.class.getSimpleName() + " stock";
 		jpql += "  where stock.itemData=itemDataStorage.itemData";
 		jpql += "  and (";
@@ -1071,8 +1071,8 @@ public class LocationFinderBean implements LocationFinder {
 		jpql += "  and stock.state>=:incomming and stock.state<:picked";
 		jpql += "  and stock.unitLoad.state>=:incomming and stock.unitLoad.state<:picked)";
 		jpql += "  ))";
-		jpql += " or (itemDataStorage.amount=0";
-		jpql += "  or itemDataStorage.amount <= ";
+		jpql += " or (itemDataStorage.plannedAmount=0";
+		jpql += "  or itemDataStorage.plannedAmount <= ";
 		jpql += "  (select sum(stock.amount) from " + StockUnit.class.getSimpleName() + " stock";
 		jpql += "  where stock.itemData=itemDataStorage.itemData";
 		jpql += "  and (";

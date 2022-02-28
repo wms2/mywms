@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 package de.wms2.mywms.transport;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -36,6 +37,7 @@ import org.mywms.model.User;
 
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.OrderPrio;
 import de.wms2.mywms.strategy.OrderState;
 
@@ -141,6 +143,34 @@ public class TransportOrder extends BasicClientAssignedEntity {
 	 */
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private StorageLocation confirmedDestination;
+
+	/**
+	 * Optional. The itemData.
+	 */
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	private ItemData itemData;
+
+	/**
+	 * Optional. The lot.
+	 */
+	private String lotNumber;
+
+	/**
+	 * Optional. The amount.
+	 */
+	@Column(nullable = true, precision = 17, scale = 4)
+	private BigDecimal amount = null;
+
+	/**
+	 * Optional. The confirmed amount.
+	 */
+	@Column(nullable = true, precision = 17, scale = 4)
+	private BigDecimal confirmedAmount = null;
+
+	/**
+	 * Optional. The id of the transportation StockUnit
+	 */
+	private Long sourceStockUnitId;
 
 	@Override
 	public String toString() {
@@ -306,6 +336,46 @@ public class TransportOrder extends BasicClientAssignedEntity {
 
 	public void setConfirmedDestination(StorageLocation confirmedDestination) {
 		this.confirmedDestination = confirmedDestination;
+	}
+
+	public ItemData getItemData() {
+		return itemData;
+	}
+
+	public void setItemData(ItemData itemData) {
+		this.itemData = itemData;
+	}
+
+	public String getLotNumber() {
+		return lotNumber;
+	}
+
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
+	public BigDecimal getConfirmedAmount() {
+		return confirmedAmount;
+	}
+
+	public void setConfirmedAmount(BigDecimal confirmedAmount) {
+		this.confirmedAmount = confirmedAmount;
+	}
+
+	public Long getSourceStockUnitId() {
+		return sourceStockUnitId;
+	}
+
+	public void setSourceStockUnitId(Long sourceStockUnitId) {
+		this.sourceStockUnitId = sourceStockUnitId;
 	}
 
 }

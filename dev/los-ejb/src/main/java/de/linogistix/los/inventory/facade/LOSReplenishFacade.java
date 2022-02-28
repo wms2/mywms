@@ -20,6 +20,4 @@ import org.mywms.facade.FacadeException;
 public interface LOSReplenishFacade {
 
 	public void refillFixedLocations() throws FacadeException;
-	public void finishOrder(String orderNumber) throws FacadeException;
-	public void removeOrder(String orderNumber) throws FacadeException;
 }

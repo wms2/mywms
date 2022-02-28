@@ -11,7 +11,7 @@ import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
-import de.wms2.mywms.replenish.ReplenishOrder;
+import de.wms2.mywms.transport.TransportOrder;
 
 public class ReplenishMobileOrder implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -68,7 +68,7 @@ public class ReplenishMobileOrder implements Serializable {
 		}
 	}
 	
-	public void setOrder( ReplenishOrder order, StockUnit sourceStockUnit ) {
+	public void setOrder( TransportOrder order, StockUnit sourceStockUnit ) {
 		id = order.getId();
 		
 		clientNumber = order.getClient().getNumber();

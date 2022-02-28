@@ -1,5 +1,5 @@
 /* 
-Copyright 2019-2021 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -25,12 +25,15 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 
 import de.wms2.mywms.entity.PersistenceManager;
+import de.wms2.mywms.inventory.StockUnit;
 import de.wms2.mywms.inventory.UnitLoad;
 import de.wms2.mywms.location.StorageLocation;
+import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.strategy.OrderState;
 
 /**
@@ -70,6 +73,10 @@ public class TransportOrderEntityService {
 		return readList(null, destination, null, null, null, OrderState.FINISHED - 1);
 	}
 
+	public List<TransportOrder> readOpen(StorageLocation destination, ItemData itemData) {
+		return readList(null, destination, itemData, 0, null, null, null, OrderState.FINISHED - 1);
+	}
+
 	public List<TransportOrder> readOpenByField(String field) {
 		return readList(null, null, field, null, null, OrderState.FINISHED - 1);
 	}
@@ -81,15 +88,18 @@ public class TransportOrderEntityService {
 	/**
 	 * Select a list of entities matching the given criteria. All parameters are
 	 * optional.
-	 * 
-	 * @param unitLoad    Optional
-	 * @param destination Optional
-	 * @param stateMin    Optional
-	 * @param stateMax    Optional
 	 */
-	@SuppressWarnings("unchecked")
-	public List<TransportOrder> readList(UnitLoad unitLoad, StorageLocation destination, String field, String section, Integer stateMin,
-			Integer stateMax) {
+	public List<TransportOrder> readList(UnitLoad unitLoad, StorageLocation destination, String field, String section,
+			Integer stateMin, Integer stateMax) {
+		return readList(unitLoad, destination, null, 0, field, section, stateMin, stateMax);
+	}
+
+	/**
+	 * Select a list of entities matching the given criteria. All parameters are
+	 * optional.
+	 */
+	public List<TransportOrder> readList(UnitLoad unitLoad, StorageLocation destination, ItemData itemData,
+			int orderType, String field, String section, Integer stateMin, Integer stateMax) {
 
 		String jpql = " SELECT entity FROM " + TransportOrder.class.getName() + " entity ";
 		jpql += " WHERE 1=1";
@@ -98,6 +108,14 @@ public class TransportOrderEntityService {
 		}
 		if (destination != null) {
 			jpql += " and entity.destinationLocation=:destinationLocation";
+		}
+		if (itemData != null) {
+			jpql += " and exists(select 1 from " + StockUnit.class.getSimpleName() + " stockUnit";
+			jpql += " where stockUnit.itemData=:itemData";
+			jpql += " and stockUnit.unitLoad=entity.unitLoad)";
+		}
+		if (orderType > 0) {
+			jpql += " and entity.orderType=:orderType";
 		}
 		if (!StringUtils.isBlank(field)) {
 			jpql += " and entity.destinationLocation.field=:field";
@@ -113,12 +131,18 @@ public class TransportOrderEntityService {
 		}
 		jpql += " ORDER BY entity.id ";
 
-		Query query = manager.createQuery(jpql);
+		TypedQuery<TransportOrder> query = manager.createQuery(jpql, TransportOrder.class);
 		if (unitLoad != null) {
 			query.setParameter("unitLoad", unitLoad);
 		}
 		if (destination != null) {
 			query.setParameter("destinationLocation", destination);
+		}
+		if (itemData != null) {
+			query.setParameter("itemData", itemData);
+		}
+		if (orderType > 0) {
+			query.setParameter("orderType", orderType);
 		}
 		if (!StringUtils.isBlank(field)) {
 			query.setParameter("field", field);
