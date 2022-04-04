@@ -34,6 +34,8 @@ public abstract class AbstractDetailViewPanel extends JPanel {
     
     private Lookup lookup;
 
+    private Lookup listLookup;
+
     public AbstractDetailViewPanel() {
         setLayout(new BorderLayout());
     }
@@ -120,6 +122,20 @@ public abstract class AbstractDetailViewPanel extends JPanel {
      */
     public void setLookup(Lookup lookup) {
         this.lookup = lookup;
+    }
+
+        /**
+     * @return the lookup
+     */
+    public Lookup getListLookup() {
+        return listLookup;
+    }
+
+    /**
+     * @param lookup the lookup to set
+     */
+    public void setListLookup(Lookup listLookup) {
+        this.listLookup = listLookup;
     }
 
     /**

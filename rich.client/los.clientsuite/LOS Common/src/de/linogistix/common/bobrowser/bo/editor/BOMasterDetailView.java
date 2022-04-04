@@ -196,6 +196,7 @@ public class BOMasterDetailView extends javax.swing.JPanel implements ExplorerMa
                     pnl.setPreferredSize(new Dimension(250,250));
                     pnl.setBoNode(this.boNode);
                     pnl.setLookup(getDetailLookup());
+                    pnl.setListLookup(getLookup());
                     if( classes.length>1 ) {
                         detailViewTabbedPane.addTab(pnl.getPanelName(), pnl);
                     }

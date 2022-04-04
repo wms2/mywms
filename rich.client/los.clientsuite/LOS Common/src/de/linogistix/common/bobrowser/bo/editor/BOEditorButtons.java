@@ -27,6 +27,7 @@ import org.openide.util.lookup.Lookups;
 public class BOEditorButtons extends javax.swing.JPanel implements Lookup.Provider{
   
   Lookup lookup;
+  Lookup listLookup;
   BONode bo;
   
   protected Icon editIcon = new javax.swing.ImageIcon(
@@ -42,7 +43,7 @@ public class BOEditorButtons extends javax.swing.JPanel implements Lookup.Provid
                                     "/de/linogistix/common/res/icon/Remove.png"));
   
   /** Creates new form BOEditorButtons */
-  public BOEditorButtons(BONode bo, Lookup lookup) {
+  public BOEditorButtons(BONode bo, Lookup lookup, Lookup listLookup) {
     
     if (lookup == null){
       throw new NullPointerException();
@@ -54,6 +55,7 @@ public class BOEditorButtons extends javax.swing.JPanel implements Lookup.Provid
     
     this.bo = bo;
     this.lookup = lookup;
+    this.listLookup = listLookup;
     initComponents();
     LoginService login = (LoginService) Lookup.getDefault().lookup(LoginService.class);
 
@@ -141,7 +143,7 @@ public class BOEditorButtons extends javax.swing.JPanel implements Lookup.Provid
   private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
     try{
       BODeleteAction del = (BODeleteAction)SystemAction.get(BODeleteAction.class);
-      del.createContextAwareInstance(getLookup()).actionPerformed(null);
+      del.createContextAwareInstance(listLookup).actionPerformed(null);
     } catch (Throwable t){
       ExceptionAnnotator.annotate(t);
     }

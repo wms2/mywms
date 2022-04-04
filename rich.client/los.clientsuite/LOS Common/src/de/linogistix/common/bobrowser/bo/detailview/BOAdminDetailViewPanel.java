@@ -5,10 +5,7 @@
 
 package de.linogistix.common.bobrowser.bo.detailview;
 
-import de.linogistix.common.bobrowser.bo.BONode;
 import de.linogistix.common.bobrowser.bo.editor.BOEditorButtons;
-import de.linogistix.common.services.J2EEServiceLocator;
-import de.linogistix.common.services.J2EEServiceLocatorException;
 import de.linogistix.common.userlogin.LoginService;
 import de.linogistix.common.util.ExceptionAnnotator;
 import java.awt.BorderLayout;
@@ -30,7 +27,7 @@ public class BOAdminDetailViewPanel extends PropertyDetailViewPanel{
 
     public void addEditButtons() {
 
-        editButtons = new BOEditorButtons(getBoNode(), getLookup());
+        editButtons = new BOEditorButtons(getBoNode(), getLookup(), getListLookup());
         this.propertySheetPanel.add(getEditButtons(), BorderLayout.SOUTH);
     }
 
