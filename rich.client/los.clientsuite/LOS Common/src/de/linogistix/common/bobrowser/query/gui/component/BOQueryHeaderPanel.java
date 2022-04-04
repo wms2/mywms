@@ -71,7 +71,7 @@ public class BOQueryHeaderPanel extends AbstractBOQueryHeaderPanel implements Pr
             limitComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"25", "50", "100", "200", "400"}));
         }
 
-        limitComboBox.setSelectedIndex(0);
+        limitComboBox.setSelectedIndex(limitComboBox.getModel().getSize()-1);
         resultsPerPage = Integer.parseInt((String) limitComboBox.getSelectedItem());
         pageTextField.setDocument(new NumericDocument());
         pageTextField.setText("1");
