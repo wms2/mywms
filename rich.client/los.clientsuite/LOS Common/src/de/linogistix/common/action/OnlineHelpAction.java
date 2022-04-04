@@ -40,7 +40,7 @@ public class OnlineHelpAction extends SystemAction {
     } catch (Throwable t) {
       Exceptions.printStackTrace(t);
       try {
-        url = new URL("http://community.mywms.org/en/docu");
+        url = new URL("https://mywms.org/en/community/");
       } catch (MalformedURLException ex) {
         Exceptions.printStackTrace(ex);
         return;
