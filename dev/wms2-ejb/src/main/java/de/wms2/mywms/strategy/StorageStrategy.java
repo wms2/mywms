@@ -57,25 +57,25 @@ public class StorageStrategy extends BasicEntity {
 	/**
 	 * Allow mix items on storage location
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean mixItem = true;
 
 	/**
 	 * Allow mix clients on storage location
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean mixClient = false;
 
 	/**
 	 * Use only locations of the client of the stock unit
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean onlyClientLocation = false;
 
 	/**
 	 * Search location manual
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean manualSearch = false;
 
 	/**
@@ -89,13 +89,27 @@ public class StorageStrategy extends BasicEntity {
 	 * locations in the aisle of the fix assigned location. The distance is
 	 * calculated with the X-coordinate.
 	 */
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean nearPickingLocation = false;
 
 	/**
 	 * New material is not stored in areas with a smaller id than material with an
 	 * older date.
+	 * <p>
+	 * Only valid in combination with a filled list of storage areas and
+	 * useItemDataArea.
 	 */
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean useAreaStrategyDate = false;
+
+	/**
+	 * Use the item data area definition to limit amounts in the defined storage
+	 * areas.
+	 * <p>
+	 * Only valid in combination with a filled list of storage areas.
+	 */
+	@Column(nullable = false, columnDefinition = "boolean default false")
+	private boolean useItemDataArea = false;
 
 	@Override
 	public String toString() {
@@ -191,6 +205,14 @@ public class StorageStrategy extends BasicEntity {
 
 	public void setUseAreaStrategyDate(boolean useAreaStrategyDate) {
 		this.useAreaStrategyDate = useAreaStrategyDate;
+	}
+
+	public boolean isUseItemDataArea() {
+		return useItemDataArea;
+	}
+
+	public void setUseItemDataArea(boolean useItemDataArea) {
+		this.useItemDataArea = useItemDataArea;
 	}
 
 }

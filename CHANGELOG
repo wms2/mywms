@@ -519,15 +519,8 @@ Release 2.9
     - Limit the maximum number/amount of stocks of an item within a storage area
     - Prefer complete unit loads with same strategy date in pick generation
     - Prefer picking of packaging units from chaotical picking locations
-    - Moved replenish operations to transport orders
-
-
-    Functional changes (for details and complete list have a look to the git repository)
-    -------------------------------------------------------------------------------
-
-
-    Technical changes (for details and complete list have a look to the git repository)
-    -------------------------------------------------------------------------------
+    - Moved replenishment operations to transport orders
+    - Enabled replenishment of storage areas
 
 
     Bugfixes (for details and complete list have a look to the git repository)
@@ -547,3 +540,4 @@ Release 2.9
     - Added table StorageStrategyArea
     - Added table ItemDataArea
     - Added new field to PickingOrderLine
+    - Added new field to StorgeStrategy

@@ -92,7 +92,16 @@
                 <position>99</position>
             </value>
         </entry>
-
+        <entry>
+            <key>useItemDataArea</key>
+            <value>
+                <group>
+                    <name>main</name>
+                </group>
+                <hidden>true</hidden>
+                <position>99</position>
+            </value>
+        </entry>
         <entry>
             <key>sorts</key>
             <value>

@@ -20,6 +20,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package de.wms2.mywms.replenish;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -50,14 +51,20 @@ import de.wms2.mywms.inventory.UnitLoadType;
 import de.wms2.mywms.inventory.UnitLoadTypeEntityService;
 import de.wms2.mywms.location.Area;
 import de.wms2.mywms.location.AreaUsages;
+import de.wms2.mywms.location.LocationCluster;
 import de.wms2.mywms.location.StorageLocation;
 import de.wms2.mywms.product.ItemData;
 import de.wms2.mywms.property.SystemPropertyBusiness;
 import de.wms2.mywms.sequence.SequenceBusiness;
 import de.wms2.mywms.strategy.FixAssignment;
 import de.wms2.mywms.strategy.ItemDataArea;
+import de.wms2.mywms.strategy.LocationFinder;
 import de.wms2.mywms.strategy.LocationReserver;
 import de.wms2.mywms.strategy.OrderState;
+import de.wms2.mywms.strategy.StorageArea;
+import de.wms2.mywms.strategy.StorageAreaEntityService;
+import de.wms2.mywms.strategy.StorageStrategy;
+import de.wms2.mywms.strategy.StorageStrategyEntityService;
 import de.wms2.mywms.transport.TransportOrder;
 import de.wms2.mywms.transport.TransportOrderEntityService;
 import de.wms2.mywms.transport.TransportOrderStateChangeEvent;
@@ -96,6 +103,12 @@ public class ReplenishBusiness {
 	private SystemPropertyBusiness systemPropertyBusiness;
 	@Inject
 	private UnitLoadTypeEntityService unitLoadTypeService;
+	@Inject
+	private StorageStrategyEntityService storageStrategyService;
+	@Inject
+	private LocationFinder locationFinder;
+	@Inject
+	private StorageAreaEntityService storageAreaEntityService;
 
 	public void cleanupDeleted() {
 		String logStr = "cleanupDeleted ";
@@ -558,12 +571,10 @@ public class ReplenishBusiness {
 
 			TransportOrder order = null;
 			if (isPicking) {
-				order = generateOrderForPicking(fix.getItemData(), fix.getStorageLocation(), null, sumAmount,
-						lotsOnLocation);
+				order = generateOrderForPicking(fix.getItemData(), fix.getStorageLocation(), null, lotsOnLocation);
 			}
 			if (order == null && isStorage) {
-				order = generateOrderForStorage(fix.getItemData(), fix.getStorageLocation(), null, sumAmount,
-						lotsOnLocation);
+				order = generateOrderForStorage(fix.getItemData(), fix.getStorageLocation(), null, lotsOnLocation);
 			}
 			if (order != null) {
 				numOrders++;
@@ -573,27 +584,204 @@ public class ReplenishBusiness {
 		return numOrders;
 	}
 
+	public int refillStorageAreas() throws BusinessException {
+		String logStr = "refillStorageAreas ";
+		logger.log(Level.FINE, logStr);
+
+		String jpql = "select itemDataArea from " + ItemDataArea.class.getSimpleName() + " itemDataArea ";
+		jpql += "where (";
+		jpql += "    (itemDataArea.plannedAmount>(select coalesce(sum(stockUnit.amount),0) from StockUnit stockUnit where stockUnit.unitLoad.storageLocation.locationCluster in elements(itemDataArea.storageArea.locationClusters) and stockUnit.lock=0 and stockUnit.itemData=itemDataArea.itemData)) ";
+		jpql += " or itemDataArea.plannedStocks>(select count(*) from StockUnit stockUnit where stockUnit.unitLoad.storageLocation.locationCluster in elements(itemDataArea.storageArea.locationClusters) and stockUnit.lock=0 and stockUnit.itemData=itemDataArea.itemData) ";
+		jpql += ")";
+		// Only select items, that have general stock available
+		jpql += " and exists(select 1 from StockUnit stockUnit";
+		jpql += " where not stockUnit.unitLoad.storageLocation.locationCluster in elements(itemDataArea.storageArea.locationClusters)";
+		jpql += " and stockUnit.itemData=itemData";
+		jpql += " and stockUnit.state=" + StockState.ON_STOCK;
+		jpql += " and stockUnit.lock=0)";
+
+		TypedQuery<ItemDataArea> query = manager.createQuery(jpql, ItemDataArea.class);
+
+		return refillStorageAreas(query.getResultList());
+	}
+
+	public int refillStorageAreas(Collection<ItemDataArea> itemDataAreas) throws BusinessException {
+		String logStr = "refillStorageAreas ";
+
+		int numOrders = 0;
+		for (ItemDataArea itemDataArea : itemDataAreas) {
+			logger.log(Level.INFO, logStr + " itemDataArea=" + itemDataArea);
+
+			// Ignore if no planned values are given
+			int plannedStocks = 0;
+			if (itemDataArea.getPlannedStocks() != null && itemDataArea.getPlannedStocks().intValue() > 0) {
+				plannedStocks = itemDataArea.getPlannedStocks().intValue();
+			}
+			BigDecimal plannedAmount = BigDecimal.ZERO;
+			if (itemDataArea.getPlannedAmount() != null
+					&& itemDataArea.getPlannedAmount().compareTo(BigDecimal.ZERO) > 0) {
+				plannedAmount = itemDataArea.getPlannedAmount();
+			}
+			if (plannedStocks <= 0 && plannedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+				logger.info(logStr + "Ignore. No planned value given. itemDataArea=" + itemDataArea);
+				continue;
+			}
+
+			// Check existing amount / number of stocks
+			List<StockUnit> existingStocks = readExistingStocks(itemDataArea);
+			int numStocks = existingStocks.size();
+			boolean numStockOk = true;
+			if (plannedStocks > 0 && numStocks < plannedStocks) {
+				numStockOk = false;
+			}
+			boolean amountOk = true;
+			BigDecimal sumAmount = sumAmount(existingStocks);
+			if (plannedAmount.compareTo(BigDecimal.ZERO) > 0 && plannedAmount.compareTo(sumAmount) > 0) {
+				amountOk = false;
+			}
+			if (numStockOk && amountOk) {
+				logger.info(logStr + "Ignore. Enough stock. itemDataArea=" + itemDataArea + ", plannedStocks="
+						+ plannedStocks + ", numStocks=" + numStocks + ", plannedAmount=" + plannedAmount
+						+ ", sumAmount=" + sumAmount);
+				continue;
+			}
+
+			// Find replenish stock.
+			// The hierarchy of the storage areas is taken from the REPLENISH storage
+			// strategy.
+			// Source stock is only taken from clusters located before the requested storage
+			// area in terms of storage area definition in the storage strategy.
+			// All other clusters are not used to find source stock.
+			StorageStrategy replenishStrategy = storageStrategyService.getReplenishment();
+			List<LocationCluster> sourceClusters = readReplenishSourceClusters(itemDataArea.getStorageArea(),
+					replenishStrategy);
+			if (sourceClusters.isEmpty()) {
+				logger.warning(logStr + "Ignore. No clusters defined to search replenish stock. itemDataArea="
+						+ itemDataArea + ", strategy=" + replenishStrategy);
+				continue;
+			}
+
+			StockUnit replenishStockUnit = findReplenishStockForStorage(itemDataArea.getItemData(), null,
+					sourceClusters, true);
+			if (replenishStockUnit == null) {
+				logger.info(logStr + "No replenish stock available. itemDataArea=" + itemDataArea + ", sourceClusters="
+						+ sourceClusters);
+				continue;
+			}
+
+			StorageLocation location = locationFinder.findStorageLocation(replenishStockUnit.getUnitLoad(),
+					replenishStrategy, itemDataArea.getStorageArea());
+			if (location == null) {
+				logger.info(logStr + "No location available for UnitLoad. itemDataArea=" + itemDataArea + ", unitLoad="
+						+ replenishStockUnit.getUnitLoad());
+				continue;
+			}
+
+			// Create one transport. If more transports are required, they will be generated
+			// in the next loop
+
+			String orderNumber = sequenceBusiness.readNextValue(TransportOrder.class, "orderNumber");
+			TransportOrder order = manager.createInstance(TransportOrder.class);
+			order.setClient(replenishStockUnit.getClient());
+			order.setOrderNumber(orderNumber);
+			order.setItemData(replenishStockUnit.getItemData());
+			order.setDestinationLocation(location);
+			order.setSourceStockUnitId(replenishStockUnit.getId());
+			order.setSourceLocation(replenishStockUnit.getUnitLoad().getStorageLocation());
+			order.setUnitLoad(replenishStockUnit.getUnitLoad());
+			order.setUnitLoadLabel(replenishStockUnit.getUnitLoad().getLabelId());
+			order.setState(OrderState.PROCESSABLE);
+			order.setOrderType(TransportOrderType.REPLENISH_AREA);
+			manager.persist(order);
+
+			locationReserver.reserveLocation(location, replenishStockUnit.getUnitLoad(), TransportOrder.class,
+					order.getId(), order.getOrderNumber());
+
+			numOrders++;
+		}
+
+		return numOrders;
+	}
+
+	private List<LocationCluster> readReplenishSourceClusters(StorageArea targetStorageArea,
+			StorageStrategy replenishStrategy) {
+		List<LocationCluster> validClusters = new ArrayList<>();
+		List<LocationCluster> invalidClusters = new ArrayList<>();
+		boolean valid = true;
+		List<StorageArea> storageAreas = storageAreaEntityService.readByStorageStrategy(replenishStrategy);
+		for (StorageArea storageArea : storageAreas) {
+			if (storageArea.equals(targetStorageArea)) {
+				valid = false;
+			}
+			if (valid) {
+				validClusters.addAll(storageArea.getLocationClusters());
+			} else {
+				invalidClusters.addAll(storageArea.getLocationClusters());
+			}
+		}
+
+		validClusters.removeAll(invalidClusters);
+
+		return validClusters;
+	}
+
+	/**
+	 * Read all StockUnits that match the ItemDataArea entity.
+	 * <p>
+	 * Only unlocked and state<PICKED
+	 */
+	private List<StockUnit> readExistingStocks(ItemDataArea itemDataArea) {
+		String jpql = " SELECT stockUnit FROM ";
+		jpql += StorageLocation.class.getSimpleName() + " location,";
+		jpql += UnitLoad.class.getSimpleName() + " unitLoad,";
+		jpql += StockUnit.class.getSimpleName() + " stockUnit";
+		jpql += " where unitLoad.storageLocation = location ";
+		jpql += " and stockUnit.unitLoad = unitLoad ";
+		jpql += " and stockUnit.itemData=:itemData";
+		jpql += " and location.locationCluster in (:clusters)";
+		jpql += " and location.lock=0";
+		jpql += " and unitLoad.lock=0";
+		jpql += " and stockUnit.lock=0";
+		jpql += " and stockUnit.state>=:incomming and stockUnit.state<:picked";
+		jpql += " and unitLoad.state>=:incomming and unitLoad.state<:picked";
+
+		TypedQuery<StockUnit> query = manager.createQuery(jpql, StockUnit.class);
+		query.setParameter("itemData", itemDataArea.getItemData());
+		query.setParameter("clusters", itemDataArea.getStorageArea().getLocationClusters());
+		query.setParameter("incomming", StockState.INCOMING);
+		query.setParameter("picked", StockState.PICKED);
+		return query.getResultList();
+	}
+
+	/**
+	 * The sum of all StockUnits
+	 */
+	private BigDecimal sumAmount(List<StockUnit> existingStocks) {
+		BigDecimal sumAmount = BigDecimal.ZERO;
+		for (StockUnit stockUnit : existingStocks) {
+			sumAmount = sumAmount.add(stockUnit.getAmount());
+		}
+		return sumAmount;
+	}
+
 	public TransportOrder generateOrder(ItemData itemData, BigDecimal requestedAmount, StorageLocation location)
 			throws BusinessException {
-		BigDecimal sumAmount = BigDecimal.ZERO;
 		Set<String> lotSet = new HashSet<>();
 		List<StockUnit> locationStockList = stockUnitEntityService.readByItemDataLocation(itemData, location);
 		for (StockUnit stock : locationStockList) {
-			sumAmount = sumAmount.add(stock.getAmount());
 			if (!StringUtils.isBlank(stock.getLotNumber())) {
 				lotSet.add(stock.getLotNumber());
 			}
 		}
 
-		return generateOrderForPicking(itemData, location, requestedAmount, sumAmount, lotSet);
+		return generateOrderForPicking(itemData, location, requestedAmount, lotSet);
 	}
 
 	private TransportOrder generateOrderForPicking(ItemData itemData, StorageLocation location,
-			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<String> lotsOnLocation)
-			throws BusinessException {
+			BigDecimal requestedAmount, Collection<String> lotsOnLocation) throws BusinessException {
 		String logStr = "generateOrderForPicking ";
 		logger.log(Level.INFO, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
-				+ requestedAmount + ", amountOnLocation=" + amountOnLocation + ", lotsOnLocation=" + lotsOnLocation);
+				+ requestedAmount + ", lotsOnLocation=" + lotsOnLocation);
 
 		StockUnit sourceStock = findReplenishStockForPicking(itemData, lotsOnLocation);
 		if (sourceStock == null) {
@@ -718,13 +906,12 @@ public class ReplenishBusiness {
 	}
 
 	private TransportOrder generateOrderForStorage(ItemData itemData, StorageLocation location,
-			BigDecimal requestedAmount, BigDecimal amountOnLocation, Collection<String> lotsOnLocation)
-			throws BusinessException {
+			BigDecimal requestedAmount, Collection<String> lotsOnLocation) throws BusinessException {
 		String logStr = "generateOrderForStorage ";
 		logger.log(Level.INFO, logStr + "itemData=" + itemData + ", location=" + location + ", requestedAmount="
-				+ requestedAmount + ", amountOnLocation=" + amountOnLocation + ", lotsOnLocation=" + lotsOnLocation);
+				+ requestedAmount + ", lotsOnLocation=" + lotsOnLocation);
 
-		StockUnit sourceStock = findReplenishStockForStorage(itemData, lotsOnLocation);
+		StockUnit sourceStock = findReplenishStockForStorage(itemData, lotsOnLocation, null, false);
 		if (sourceStock == null) {
 			logger.log(Level.INFO, logStr + "No replenish stock available. itemData=" + itemData + ", location="
 					+ location + ", lotsOnLocation=" + lotsOnLocation);
@@ -753,7 +940,8 @@ public class ReplenishBusiness {
 		return order;
 	}
 
-	private StockUnit findReplenishStockForStorage(ItemData itemData, Collection<String> lotsOnLocation) {
+	private StockUnit findReplenishStockForStorage(ItemData itemData, Collection<String> lotsOnLocation,
+			Collection<LocationCluster> validClusters, boolean isPickingLocationAllowed) {
 		String jpql = " SELECT stock FROM ";
 		jpql += StockUnit.class.getName() + " stock, ";
 		jpql += StorageLocation.class.getName() + " location, ";
@@ -762,8 +950,10 @@ public class ReplenishBusiness {
 		jpql += " AND location.lock=0";
 		jpql += " AND stock.lock=0 and stock.unitLoad.lock=0";
 		jpql += " AND stock.amount > 0 ";
-		// Do not use picking locations
-		jpql += " AND not area.usages like '%" + AreaUsages.PICKING + "%' ";
+		if (!isPickingLocationAllowed) {
+			// Do not use picking locations
+			jpql += " AND not area.usages like '%" + AreaUsages.PICKING + "%' ";
+		}
 		// Do only use storage locations
 		jpql += " AND area.usages like '%" + AreaUsages.STORAGE + "%' ";
 		// Do not use fixed locations
@@ -780,6 +970,10 @@ public class ReplenishBusiness {
 		jpql += "     where transport.unitLoad=stock.unitLoad and transport.state<" + OrderState.FINISHED + ")";
 		// Use only stock state ON_STOCK
 		jpql += " AND stock.state=" + StockState.ON_STOCK;
+		// Only use valid clusters
+		if (validClusters != null && validClusters.size() > 0) {
+			jpql += " AND location.locationCluster in :validClusters";
+		}
 
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
 			jpql += " AND stock.lotNumber in (:lots) ";
@@ -788,6 +982,9 @@ public class ReplenishBusiness {
 		Query query = manager.createQuery(jpql);
 
 		query.setParameter("itemData", itemData);
+		if (validClusters != null && validClusters.size() > 0) {
+			query.setParameter("validClusters", validClusters);
+		}
 		if (lotsOnLocation != null && lotsOnLocation.size() > 0) {
 			query.setParameter("lots", lotsOnLocation);
 		}

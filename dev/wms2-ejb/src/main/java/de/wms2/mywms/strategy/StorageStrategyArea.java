@@ -52,14 +52,15 @@ public class StorageStrategyArea extends BasicEntity {
 
 	@Override
 	public String toString() {
-		String value="";
+		String value = "";
 		if (storageStrategy != null) {
-			value+=storageStrategy.toString();
+			value += storageStrategy.toString();
 		}
 		if (storageArea != null) {
-			value+=" / "+storageArea.toString();
+			value += "/" + storageArea.toString();
 		}
-		if(value.length()>0) {
+		value += " StorageStrategyArea";
+		if (value.length() > 0) {
 			return value;
 		}
 		return super.toString();
@@ -67,14 +68,14 @@ public class StorageStrategyArea extends BasicEntity {
 
 	@Override
 	public String toUniqueString() {
-		String value="";
+		String value = "";
 		if (storageStrategy != null) {
-			value+=storageStrategy.toString();
+			value += storageStrategy.toString();
 		}
 		if (storageArea != null) {
-			value+=" / "+storageArea.toString();
+			value += " / " + storageArea.toString();
 		}
-		if(value.length()>0) {
+		if (value.length() > 0) {
 			return value;
 		}
 		return super.toUniqueString();

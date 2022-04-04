@@ -58,7 +58,7 @@ public class ItemDataArea extends BasicEntity {
 			value += itemData.toString();
 		}
 		if (storageArea != null) {
-			value += " / " + storageArea.toString();
+			value += "/" + storageArea.toString();
 		}
 		if (value.length() > 0) {
 			return value;
@@ -112,6 +112,5 @@ public class ItemDataArea extends BasicEntity {
 	public void setPlannedStocks(Integer plannedStocks) {
 		this.plannedStocks = plannedStocks;
 	}
-
 
 }

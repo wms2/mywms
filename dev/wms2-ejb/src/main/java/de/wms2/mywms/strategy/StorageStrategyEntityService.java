@@ -1,5 +1,5 @@
 /* 
-Copyright 2019 Matthias Krane
+Copyright 2019-2022 Matthias Krane
 info@krane.engineer
 
 This file is part of the Warehouse Management System mywms
@@ -76,18 +76,24 @@ public class StorageStrategyEntityService {
 	}
 
 	public StorageStrategy getDefault() {
-		String logStr = "getDefault ";
+		return getSystemStrategy(Wms2Properties.KEY_STORAGESTRATEGY_DEFAULT, "storageStrategyDefault");
+	}
 
-		String name = propertyBusiness.getString(Wms2Properties.KEY_STORAGESTRATEGY_DEFAULT, null, null, null);
+	public StorageStrategy getReplenishment() {
+		return getSystemStrategy(Wms2Properties.KEY_STORAGESTRATEGY_REPLENISHMENT, "storageStrategyReplenshment");
+	}
+
+	private StorageStrategy getSystemStrategy(String propertyKey, String translationKey) {
+		String logStr = "getSystemStrategy ";
+
+		String name = propertyBusiness.getString(propertyKey, null, null, null);
 		if (StringUtils.isEmpty(name)) {
 			Locale locale = userBusiness.getCurrentUsersLocale();
-			name = Translator.getString(Wms2BundleResolver.class, "BasicData", "storageStrategyDefault", "name",
+			name = Translator.getString(Wms2BundleResolver.class, "BasicData", translationKey, "name", locale);
+			String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", translationKey, "desc", "",
 					locale);
-			String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", "storageStrategyDefault", "desc",
-					"", locale);
 
-			propertyBusiness.createOrUpdate(Wms2Properties.KEY_STORAGESTRATEGY_DEFAULT, name, Wms2Properties.GROUP_WMS,
-					desc);
+			propertyBusiness.createOrUpdate(propertyKey, name, Wms2Properties.GROUP_WMS, desc);
 		}
 
 		StorageStrategy strategy = read(name);
@@ -95,18 +101,22 @@ public class StorageStrategyEntityService {
 			return strategy;
 		}
 
-		logger.log(Level.WARNING, logStr + "create system default storage strategy");
+		logger.log(Level.WARNING, logStr + "create system storage strategy. key=" + propertyKey);
 
 		strategy = manager.createInstance(StorageStrategy.class);
 
 		Locale locale = userBusiness.getCurrentUsersLocale();
-		String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", "storageStrategyDefault", "desc", "",
-				locale);
+		String desc = Translator.getString(Wms2BundleResolver.class, "BasicData", translationKey, "desc", "", locale);
 
 		strategy.setName(name);
 		strategy.setAdditionalContent(desc);
 		strategy.setSorts(StorageStrategySortType.ZONE + "," + StorageStrategySortType.POSITION_Y + ","
 				+ StorageStrategySortType.POSITION_X);
+		if (Wms2Properties.KEY_STORAGESTRATEGY_REPLENISHMENT.equals(propertyKey)) {
+			strategy.setSorts(StorageStrategySortType.STORAGEAREA + "," + StorageStrategySortType.ZONE + ","
+					+ StorageStrategySortType.POSITION_Y + "," + StorageStrategySortType.POSITION_X);
+			strategy.setUseItemDataArea(true);
+		}
 
 		manager.persist(strategy);
 

@@ -56,6 +56,17 @@ public interface LocationFinder {
 	StorageLocation findStorageLocation(UnitLoad unitLoad, StorageStrategy strategy) throws BusinessException;
 
 	/**
+	 * Find a StorageLocation for a UnitLoad<br>
+	 * The location can be used for normal storage
+	 * 
+	 * @param targetStorageArea Only valid in combination with a strategy, that has
+	 *                          a filled list of storage areas AND this list
+	 *                          contains the given storage area.
+	 */
+	StorageLocation findStorageLocation(UnitLoad unitLoad, StorageStrategy strategy, StorageArea targetStorageArea)
+			throws BusinessException;
+
+	/**
 	 * Try to find the storageStrategy of the products on the UnitLoad. If there are
 	 * different strategies, null is returned.
 	 */
