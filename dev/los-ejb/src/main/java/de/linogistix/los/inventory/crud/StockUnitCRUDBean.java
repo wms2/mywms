@@ -63,14 +63,15 @@ public class StockUnitCRUDBean extends BusinessObjectCRUDBean<StockUnit> impleme
 
 	@Override
 	public void lock(StockUnit entity, int lock, String lockCause) throws BusinessObjectSecurityException {
+		User user = context.getCallersUser();
 		if (!context.checkClient(entity)) {
-			User user = context.getCallersUser();
 			throw new BusinessObjectSecurityException(user);
 		}
 
 		try {
 			entity = manager.find(entity.getClass(), entity.getId());
 			inventoryBusiness.addStockUnitLock(entity, lock);
+			entity.addAdditionalContent( "L  "+user.getName() + " : " + lockCause);
 		} catch (FacadeException e) {
 			// Sorry for special exceptions. The real cause will be hidden
 			logger.log(Level.SEVERE, "EXCEPTION="+e.getClass().getSimpleName()+", "+e.getMessage(), e);
